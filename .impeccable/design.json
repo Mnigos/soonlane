@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T00:00:00Z",
+  "title": "Design System: Soonlist",
+  "extensions": {
+    "northStar": "The Dark Planner",
+    "register": "product",
+    "sourceFiles": [
+      "PRODUCT.md",
+      "tooling/tailwind-config/tokens.css",
+      "tooling/tailwind-config/theme.css",
+      "packages/ui/src/components/button.tsx",
+      "packages/ui/src/components/sidebar.tsx",
+      "packages/ui/src/components/avatar.tsx",
+      "apps/web/src/components/app-shell/app-sidebar.tsx",
+      "apps/web/src/modules/tasks/presentation/components/upcoming/upcoming-page.tsx",
+      "apps/web/src/modules/tasks/presentation/components/upcoming/week-strip.tsx",
+      "apps/web/src/modules/tasks/presentation/components/list/day-section.tsx",
+      "apps/web/src/modules/tasks/presentation/components/list/overdue-section.tsx"
+    ],
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Desk",
+        "canonical": "#1e1e1e",
+        "usage": "Page background.",
+        "tonalRamp": ["#1e1e1e", "#262626", "#2c2c2c", "#333333"]
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#e8e8e8",
+        "usage": "Task titles and headings.",
+        "tonalRamp": ["#e8e8e8", "#a3a3a3", "#6f6f6f"]
+      },
+      "primary": {
+        "role": "primary",
+        "displayName": "Todoist Red",
+        "canonical": "#dc4c3e",
+        "usage": "Add task actions, the today badge, focus outlines.",
+        "tonalRamp": ["#3d2523", "#c3392c", "#dc4c3e", "#ff7066"]
+      },
+      "danger": {
+        "role": "semantic",
+        "displayName": "Overdue Coral",
+        "canonical": "#ff7066",
+        "usage": "Active sidebar text, Reschedule, overdue dates, errors."
+      }
+    },
+    "typographyMeta": {
+      "page-title": {
+        "displayName": "Page title",
+        "purpose": "Upcoming and Today titles."
+      },
+      "section-heading": {
+        "displayName": "Section heading",
+        "purpose": "Day headings, Overdue, sidebar section labels."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Task titles, nav items, Add task rows."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Month label and empty states."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Avatar initials and small metadata."
+      }
+    },
+    "motion": {
+      "durationFast": "150ms",
+      "easing": "ease-out",
+      "rules": [
+        "Animate color and the overdue chevron rotation only.",
+        "No layout animation; the drawer opens instantly."
+      ]
+    },
+    "breakpoints": {
+      "mobileFirst": false,
+      "md": "768px"
+    },
+    "componentMeta": {
+      "button": {
+        "defaultClassName": "inline-flex cursor-pointer items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-50",
+        "variants": ["primary", "outline", "ghost"],
+        "rules": [
+          "One primary button per surface at most.",
+          "Icon-only buttons need aria-label."
+        ]
+      },
+      "sidebarItem": {
+        "defaultClassName": "flex h-9 items-center gap-2.5 rounded-md px-2 text-sm transition-colors",
+        "rules": [
+          "Switch active and inactive colors through the router's active props.",
+          "Icons at 18px."
+        ]
+      },
+      "daySection": {
+        "rules": [
+          "Heading format: day month, relative name, weekday.",
+          "Every day ends with an Add task row."
+        ]
+      }
+    },
+    "rules": {
+      "do": [
+        "Keep the list column centered and at most 768px wide.",
+        "Use red only for actions, the current day and overdue state.",
+        "Show skeletons until the browser's local date is known."
+      ],
+      "dont": [
+        "Do not add cards, shadows or gradients.",
+        "Do not add blue.",
+        "Do not open modals for one- or two-field actions.",
+        "Do not introduce projects, boards or team visuals."
+      ]
+    }
+  }
+}

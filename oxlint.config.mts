@@ -72,6 +72,7 @@ export default defineConfig({
 	ignorePatterns: [
 		...(core.ignorePatterns ?? []),
 		'.claude/**',
+		'.agents/skills/impeccable/scripts/**',
 		'**/.nitro',
 		'**/.output',
 		'**/.vercel',
