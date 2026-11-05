@@ -74,12 +74,14 @@
       "easing": "ease-out",
       "rules": [
         "Animate color and the overdue chevron rotation only.",
-        "No layout animation; the drawer opens instantly."
+        "No layout animation; the drawer opens instantly.",
+        "Opening or collapsing the sidebar never moves the centered column."
       ]
     },
     "breakpoints": {
       "mobileFirst": false,
-      "md": "768px"
+      "md": "768px",
+      "xl": "1280px"
     },
     "componentMeta": {
       "button": {

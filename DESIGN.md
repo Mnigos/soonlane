@@ -151,9 +151,10 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 
 ### Sidebar
 
-- 288px wide on `sidebar` grey. User row on top, then the red "Add task" action, then nav items (36px rows, 18px icons), then labelled sections such as "Labels".
+- Full: 256px wide on `sidebar` grey. User row with the collapse button, then the red "Add task" action, nav items (34px rows, 18px icons) and labelled sections such as "Labels".
+- Rail: 56px of icon buttons (avatar, expand, Add task, Upcoming, Today, Labels), each with `aria-label` and a tooltip.
 - Active item: red wash background with coral text. Inactive: ink text, hover background.
-- Below `md` it becomes a drawer over a backdrop; the open button sits top-left.
+- The sidebar never moves the content: from `md` the page keeps a rail-wide gutter and the column is centered in the rest. From `xl` (1280px) the owner's choice, full or rail, is docked and remembered in a cookie; between `md` and `xl` the rail is docked and the full sidebar opens over the content; below `md` it is a drawer opened from the top-left button.
 
 ### Day sections
 
@@ -172,7 +173,7 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 
 ### Do:
 
-- **Do** keep the list column centered and at most 768px wide.
+- **Do** keep the list column, including the Upcoming header and week strip, in one centered element at most 768px wide.
 - **Do** put every date-dependent view behind the browser's local date; show skeletons until it is known.
 - **Do** use icons from lucide at 16 to 18px with labels or `aria-label`.
 - **Do** keep copy short and in English, without em dashes.
