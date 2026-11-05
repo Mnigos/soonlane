@@ -1,0 +1,26 @@
+{
+  "name": "@soonlist/db",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./migrator": "./migrator.helper.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "db:generate": "bun --env-file=../../apps/web/.env.local drizzle-kit generate",
+    "db:migrate": "bun --env-file=../../apps/web/.env.local scripts/migrate.ts"
+  },
+  "dependencies": {
+    "@soonlist/domain": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "pg": "catalog:"
+  },
+  "devDependencies": {
+    "@soonlist/typescript-config": "workspace:*",
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "drizzle-kit": "catalog:",
+    "typescript": "catalog:"
+  }
+}
