@@ -9,26 +9,27 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as routesAppLayoutDotrouteRouteImport } from './routes/app-layout.route'
+import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
 
-const routesAppLayoutDotrouteRoute = routesAppLayoutDotrouteRouteImport.update({
-  id: '/_app',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const modulesShellPresentationRoutesShellDotrouteRoute =
+  modulesShellPresentationRoutesShellDotrouteRouteImport.update({
+    id: '/_shell',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
   modulesTasksPresentationRoutesUpcomingDotrouteRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => routesAppLayoutDotrouteRoute,
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
 const modulesTasksPresentationRoutesTodayDotrouteRoute =
   modulesTasksPresentationRoutesTodayDotrouteRouteImport.update({
     id: '/today',
     path: '/today',
-    getParentRoute: () => routesAppLayoutDotrouteRoute,
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
 const routesApiDotrpcDotDotrouteRoute =
   routesApiDotrpcDotDotrouteRouteImport.update({
@@ -49,9 +50,9 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_app': typeof routesAppLayoutDotrouteRouteWithChildren
-  '/_app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
-  '/_app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/_shell': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  '/_shell/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/_shell/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
 export interface FileRouteTypes {
@@ -59,36 +60,36 @@ export interface FileRouteTypes {
   fullPaths: '/' | '/today' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
   to: '/' | '/today' | '/api/rpc/$'
-  id: '__root__' | '/_app' | '/_app/' | '/_app/today' | '/api/rpc/$'
+  id: '__root__' | '/_shell' | '/_shell/' | '/_shell/today' | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  routesAppLayoutDotrouteRoute: typeof routesAppLayoutDotrouteRouteWithChildren
+  modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/_app': {
-      id: '/_app'
+    '/_shell': {
+      id: '/_shell'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof routesAppLayoutDotrouteRouteImport
+      preLoaderRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/': {
-      id: '/_app/'
+    '/_shell/': {
+      id: '/_shell/'
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRouteImport
-      parentRoute: typeof routesAppLayoutDotrouteRoute
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_app/today': {
-      id: '/_app/today'
+    '/_shell/today': {
+      id: '/_shell/today'
       path: '/today'
       fullPath: '/today'
       preLoaderRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRouteImport
-      parentRoute: typeof routesAppLayoutDotrouteRoute
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -100,12 +101,12 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface routesAppLayoutDotrouteRouteChildren {
+interface modulesShellPresentationRoutesShellDotrouteRouteChildren {
   modulesTasksPresentationRoutesUpcomingDotrouteRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   modulesTasksPresentationRoutesTodayDotrouteRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRoute
 }
 
-const routesAppLayoutDotrouteRouteChildren: routesAppLayoutDotrouteRouteChildren =
+const modulesShellPresentationRoutesShellDotrouteRouteChildren: modulesShellPresentationRoutesShellDotrouteRouteChildren =
   {
     modulesTasksPresentationRoutesUpcomingDotrouteRoute:
       modulesTasksPresentationRoutesUpcomingDotrouteRoute,
@@ -113,13 +114,14 @@ const routesAppLayoutDotrouteRouteChildren: routesAppLayoutDotrouteRouteChildren
       modulesTasksPresentationRoutesTodayDotrouteRoute,
   }
 
-const routesAppLayoutDotrouteRouteWithChildren =
-  routesAppLayoutDotrouteRoute._addFileChildren(
-    routesAppLayoutDotrouteRouteChildren,
+const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =
+  modulesShellPresentationRoutesShellDotrouteRoute._addFileChildren(
+    modulesShellPresentationRoutesShellDotrouteRouteChildren,
   )
 
 const rootRouteChildren: RootRouteChildren = {
-  routesAppLayoutDotrouteRoute: routesAppLayoutDotrouteRouteWithChildren,
+  modulesShellPresentationRoutesShellDotrouteRoute:
+    modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
   routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,
 }
 export const routeTree = rootRouteImport

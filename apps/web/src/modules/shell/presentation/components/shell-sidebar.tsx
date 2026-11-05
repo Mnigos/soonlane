@@ -5,17 +5,17 @@ import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
 import { SidebarNavLink } from './sidebar-nav-link'
 import { SidebarUser } from './sidebar-user'
 
-interface AppSidebarProps {
+interface ShellSidebarProps {
 	className?: string
 	onClose: () => void
 	onNavigate: () => void
 }
 
-export function AppSidebar({
+export function ShellSidebar({
 	className,
 	onClose,
 	onNavigate,
-}: Readonly<AppSidebarProps>) {
+}: Readonly<ShellSidebarProps>) {
 	return (
 		<Sidebar
 			aria-label="Sidebar"

@@ -9,7 +9,7 @@ const upcomingSearchSchema = z.object({
 	week: z.iso.date().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/_app/')({
+export const Route = createFileRoute('/_shell/')({
 	validateSearch: upcomingSearchSchema,
 	head: () => ({ meta: [{ title: 'Upcoming · Soonlist' }] }),
 	component: UpcomingRoute,

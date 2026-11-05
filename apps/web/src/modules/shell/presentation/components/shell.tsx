@@ -2,7 +2,7 @@ import { cn } from '@soonlist/ui/cn'
 import { Button } from '@soonlist/ui/components/button'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
-import { AppSidebar } from './app-sidebar'
+import { ShellSidebar } from './shell-sidebar'
 import type { SidebarState } from './sidebar.types'
 
 // 'auto' follows the breakpoint: a drawer closed on phones, a column open on desktop.
@@ -18,7 +18,7 @@ const OPEN_BUTTON_CLASSES = {
 	closed: '',
 } as const satisfies Record<SidebarState, string>
 
-export function AppShell({ children }: Readonly<PropsWithChildren>) {
+export function Shell({ children }: Readonly<PropsWithChildren>) {
 	const [sidebarState, setSidebarState] = useState<SidebarState>('auto')
 
 	return (
@@ -31,7 +31,7 @@ export function AppShell({ children }: Readonly<PropsWithChildren>) {
 					type="button"
 				/>
 			)}
-			<AppSidebar
+			<ShellSidebar
 				className={SIDEBAR_CLASSES[sidebarState]}
 				onClose={() => setSidebarState('closed')}
 				onNavigate={() => setSidebarState('auto')}

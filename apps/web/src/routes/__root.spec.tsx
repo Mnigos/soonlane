@@ -6,7 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { load } from 'cheerio'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { orpcQuery } from '@/lib/orpc/rpc-query.client'
+import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { Route } from './__root'
 
 test('renders the noindex policy and the English document', async () => {
