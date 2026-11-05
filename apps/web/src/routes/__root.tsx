@@ -12,6 +12,11 @@ import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
+	beforeLoad: async ({ context }) => ({
+		me: await context.queryClient.query(
+			context.orpc.identity.me.queryOptions()
+		),
+	}),
 	head: () => ({
 		meta: [
 			{ charSet: 'utf-8' },

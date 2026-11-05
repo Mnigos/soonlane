@@ -1,18 +1,21 @@
+import type { SessionUser } from '@soonlist/contracts'
 import { cn } from '@soonlist/ui/cn'
 import { Button } from '@soonlist/ui/components/button'
 import { Sidebar, SidebarSection } from '@soonlist/ui/components/sidebar'
 import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
+import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
 import { SidebarNavLink } from './sidebar-nav-link'
-import { SidebarUser } from './sidebar-user'
 
 interface ShellSidebarProps {
 	className?: string
+	user: SessionUser
 	onCollapse: () => void
 	onNavigate: () => void
 }
 
 export function ShellSidebar({
 	className,
+	user,
 	onCollapse,
 	onNavigate,
 }: Readonly<ShellSidebarProps>) {
@@ -21,8 +24,8 @@ export function ShellSidebar({
 			aria-label="Sidebar"
 			className={cn('fixed inset-y-0 left-0 z-40', className)}
 		>
-			<div className="flex h-10 items-center justify-between gap-2">
-				<SidebarUser />
+			<div className="flex items-start justify-between gap-2 pt-0.5">
+				<UserMenu user={user} />
 				<Button
 					aria-label="Collapse sidebar"
 					onClick={onCollapse}

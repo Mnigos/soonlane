@@ -1,0 +1,25 @@
+import { createFileRoute, redirect } from '@tanstack/react-router'
+import { z } from 'zod'
+import { SignInScreen } from '../components/sign-in-screen'
+
+const loginSearchSchema = z.object({
+	error: z.string().optional().catch(undefined),
+})
+
+export const Route = createFileRoute('/login')({
+	validateSearch: loginSearchSchema,
+	beforeLoad: ({ context }) => {
+		if (context.me.user) throw redirect({ to: '/' })
+	},
+	head: () => ({ meta: [{ title: 'Sign in · Soonlist' }] }),
+	component: LoginRoute,
+})
+
+function LoginRoute() {
+	const { me } = Route.useRouteContext()
+	const { error } = Route.useSearch()
+
+	return (
+		<SignInScreen configured={me.configured} hasOAuthError={Boolean(error)} />
+	)
+}
