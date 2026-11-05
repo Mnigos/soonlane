@@ -1,2 +1,13 @@
-.vercel
+node_modules/
+.turbo/
+.cache/
+.output/
+.vercel/
+.nitro/
+.tanstack/
+coverage/
+*.tsbuildinfo
+.env
 .env*
+!.env.example
+.DS_Store

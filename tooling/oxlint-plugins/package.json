@@ -1,0 +1,16 @@
+{
+  "name": "@soonlist/oxlint-plugins",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@oxlint/plugins": "1.86.0",
+    "@types/bun": "catalog:",
+    "oxfmt": "0.71.0",
+    "oxlint": "1.86.0",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
