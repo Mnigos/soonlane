@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@soonlist/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   }

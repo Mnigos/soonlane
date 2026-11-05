@@ -7,6 +7,7 @@
   },
   "devDependencies": {
     "@oxlint/plugins": "1.86.0",
+    "@soonlist/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "oxfmt": "0.71.0",
     "oxlint": "1.86.0",
