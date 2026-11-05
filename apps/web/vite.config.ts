@@ -24,6 +24,7 @@ const SERVER_ONLY_FILES = [
 // Server-only workspace packages and drivers resolve outside the app's folders, so they are denied by specifier. The custom list replaces the default, so it repeats '@tanstack/react-start/server'.
 const SERVER_ONLY_SPECIFIERS = [
 	'@tanstack/react-start/server',
+	'@soonlist/auth/server',
 	'@soonlist/db',
 	'@soonlist/db/migrator',
 	'pg',

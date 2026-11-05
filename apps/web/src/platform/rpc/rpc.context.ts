@@ -1,12 +1,20 @@
 import type { WithEffectContext } from '@orpc/experimental-effect'
-import type { Context } from 'effect'
+import { Context } from 'effect'
+import {
+	Auth,
+	type AuthSession,
+} from '@/modules/identity/application/auth.port'
 import type { AppServices } from '../app.runtime'
 
-export type RpcContext = WithEffectContext<AppServices>
+export interface RpcContext extends WithEffectContext<AppServices> {
+	session: AuthSession | null
+}
 
 export async function createRpcContext(
 	services: Context.Context<AppServices>,
-	_headers: Headers
+	headers: Headers
 ): Promise<RpcContext> {
-	return { 'effect/context': services }
+	const session = await Context.get(services, Auth).getSession(headers)
+
+	return { 'effect/context': services, session }
 }

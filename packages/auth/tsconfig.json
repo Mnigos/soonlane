@@ -1,0 +1,7 @@
+{
+  "extends": "@soonlist/typescript-config/base.json",
+  "compilerOptions": {
+    "types": ["bun"]
+  },
+  "include": ["index.ts", "src/**/*.ts"]
+}

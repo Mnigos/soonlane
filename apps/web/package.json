@@ -13,6 +13,7 @@
     "@orpc/experimental-effect": "catalog:",
     "@orpc/server": "catalog:",
     "@orpc/tanstack-query": "catalog:",
+    "@soonlist/auth": "workspace:*",
     "@soonlist/contracts": "workspace:*",
     "@soonlist/db": "workspace:*",
     "@soonlist/domain": "workspace:*",
