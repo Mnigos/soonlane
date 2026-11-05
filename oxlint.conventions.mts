@@ -20,15 +20,6 @@ interface ImportRestriction {
 	patterns?: readonly RestrictedImportPattern[]
 }
 
-// Implementation files over the AGENTS.md 400-line cap. Split a file below 400 lines before removing it here; never add new entries.
-export const LEGACY_OVERSIZED_FILES = [] as const satisfies readonly string[]
-
-const NO_FILE_SIZE_CAP = [
-	'**/*.spec.ts',
-	'**/*.spec.tsx',
-	...LEGACY_OVERSIZED_FILES,
-] as const
-
 const CROSS_WORKSPACE_IMPORT_MESSAGE =
 	'Import other apps and packages through their aliases or @soonlist/* packages, not relative paths.'
 
@@ -117,27 +108,6 @@ export const CONVENTION_RULES = {
 	'typescript/no-non-null-assertion': 'error',
 } satisfies OxlintOverride['rules']
 
-export const CONVENTION_SPEC_RULES = {
-	'vitest/consistent-test-it': [
-		'error',
-		{ fn: 'test', withinDescribe: 'test' },
-	],
-	'vitest/no-restricted-matchers': [
-		'error',
-		{
-			resolves:
-				'Assert successful async results with expect(await promise); keep .rejects for errors (AGENTS.md).',
-		},
-	],
-	'vitest/no-restricted-vi-methods': [
-		'error',
-		{
-			hoisted:
-				'Define module mocks inline in the vi.mock factory and assert through imported mocked symbols (AGENTS.md).',
-		},
-	],
-} satisfies OxlintOverride['rules']
-
 const FRONTEND_APPS = ['apps/web'] as const
 
 const ROLE_NAMED_SOURCES = [
@@ -189,12 +159,6 @@ export const CONVENTION_OVERRIDES = [
 	]),
 	{
 		files: ['apps/**', 'packages/**'],
-		excludeFiles: [
-			'**/*.spec.ts',
-			'**/*.spec.tsx',
-			'**/vitest.*.ts',
-			'**/vitest.*.tsx',
-		],
 		rules: { 'soonlist/props-with-children': 'error' },
 	},
 	{
@@ -206,15 +170,7 @@ export const CONVENTION_OVERRIDES = [
 		},
 	},
 	{
-		files: ['apps/web/src/**/*.spec.{ts,tsx}', 'packages/**/*.spec.{ts,tsx}'],
-		rules: { 'soonlist/spec-file-pairing': 'error' },
-	},
-	{
 		files: ['**/*.repository.ts'],
 		rules: { 'soonlist/no-repository-try-catch': 'error' },
-	},
-	{
-		files: [...NO_FILE_SIZE_CAP],
-		rules: { 'max-lines': 'off' },
 	},
 ] satisfies OxlintOverride[]

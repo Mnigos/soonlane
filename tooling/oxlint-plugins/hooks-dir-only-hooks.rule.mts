@@ -1,11 +1,11 @@
 import { defineRule } from '@oxlint/plugins'
 import { hasSegment, toFilePath } from './file-role.helper.mts'
 
-const HOOK_FILE_PATTERN = /^use-[a-z0-9]+(?:-[a-z0-9]+)*(?:\.spec)?\.tsx?$/u
+const HOOK_FILE_PATTERN = /^use-[a-z0-9]+(?:-[a-z0-9]+)*\.tsx?$/u
 
 /**
- * Keeps `hooks/` directories (and any folder nested in one) to `use-*.ts(x)` hook files and their specs;
- * cache helpers, fixtures and shared specs belong elsewhere.
+ * Keeps `hooks/` directories (and any folder nested in one) to `use-*.ts(x)` hook files;
+ * cache and query helpers belong elsewhere.
  */
 export const hooksDirOnlyHooksRule = defineRule({
 	meta: {
@@ -15,7 +15,7 @@ export const hooksDirOnlyHooksRule = defineRule({
 		},
 		messages: {
 			notAHook:
-				'Only use-*.ts(x) hooks (and their specs) live in hooks/; move helpers to helpers/ (AGENTS.md).',
+				'Only use-*.ts(x) hooks live in hooks/; move helpers to helpers/ (AGENTS.md).',
 		},
 	},
 	create(context) {

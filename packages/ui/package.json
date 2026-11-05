@@ -20,11 +20,9 @@
     "@soonlist/typescript-config": "workspace:*",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "cheerio": "1.2.0",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "typescript": "catalog:",
-    "vitest": "catalog:"
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "react": ">=19",

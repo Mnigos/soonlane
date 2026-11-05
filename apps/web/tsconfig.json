@@ -5,12 +5,6 @@
       "@/*": ["./src/*"]
     }
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "scripts/**/*.ts",
-    "tests/**/*.ts",
-    "*.ts"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts", "*.ts"],
   "exclude": ["node_modules", ".output", ".nitro", ".vercel"]
 }

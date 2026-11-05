@@ -14,7 +14,6 @@ export const ROLE_SUFFIXES = [
 	'layer',
 	'layers',
 	'middleware',
-	'mock',
 	'parser',
 	'port',
 	'repository',
@@ -34,7 +33,6 @@ const ROLE_FILE_PATTERN = new RegExp(
 	String.raw`^[a-z0-9]+(?:-[a-z0-9]+)*\.(${[...ROLE_SUFFIXES, ...FRAMEWORK_SUFFIXES].join('|')})(?:\.server)?\.tsx?$`,
 	'u'
 )
-const SPEC_PATTERN = /\.spec\.tsx?$/u
 
 export interface FilePath {
 	path: string
@@ -54,10 +52,6 @@ export function toFilePath(filename: string): FilePath {
 
 export function hasSegment({ path }: FilePath, segment: string): boolean {
 	return path.includes(`/${segment}/`) || path.startsWith(`${segment}/`)
-}
-
-export function isSpecFile({ basename }: FilePath): boolean {
-	return SPEC_PATTERN.test(basename)
 }
 
 export function getRoleSuffix({ basename }: FilePath): string | undefined {
