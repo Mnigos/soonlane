@@ -11,6 +11,8 @@ Production: https://soonlist.vercel.app
 | `apps/web`                  | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4. |
 | `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                               |
 | `packages/domain`           | Branded types such as `CalendarDate`.                                                     |
+| `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                            |
+| `packages/auth`             | Better Auth factory (Google, owner-only, OAuth proxy) and the browser auth client.        |
 | `packages/ui`               | Shared React primitives (`button`, `skeleton`, `avatar`, `sidebar`) and `cn`.             |
 | `tooling/typescript-config` | tsconfig presets every workspace extends.                                                 |
 | `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                        |
@@ -25,6 +27,7 @@ Prerequisites: Bun **1.4.2** (pinned by `packageManager`) and Node 22+ for the V
 ```sh
 bun install
 bunx vercel@latest env pull apps/web/.env.local --environment=development --scope mnigos-projects --yes
+bun run db:migrate
 bun run dev
 ```
 
@@ -34,13 +37,15 @@ The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expec
 
 Run with `bun run <script>` from the root.
 
-| Script                | Purpose                                                  |
-| --------------------- | -------------------------------------------------------- |
-| `dev`                 | Development server on port 3000.                         |
-| `build`               | Production build for Vercel (`apps/web/.vercel/output`). |
-| `typecheck`           | TypeScript in every package.                             |
-| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                      |
-| `commit`              | Commitizen prompt for a conventional commit.             |
+| Script                | Purpose                                                    |
+| --------------------- | ---------------------------------------------------------- |
+| `dev`                 | Development server on port 3000.                           |
+| `build`               | Production build for Vercel (`apps/web/.vercel/output`).   |
+| `typecheck`           | TypeScript in every package.                               |
+| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                        |
+| `commit`              | Commitizen prompt for a conventional commit.               |
+| `db:generate`         | Drizzle migration from `packages/db/schema`.               |
+| `db:migrate`          | Apply migrations to the database in `apps/web/.env.local`. |
 
 ## Commits
 
