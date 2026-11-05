@@ -10,7 +10,7 @@ Use ADRs for durable architecture decisions, not routine implementation notes.
 ## Related Skills
 
 - Use `domain-model` first for module ownership, Effect layering, package boundaries or language-heavy decisions.
-- Use `ubiquitous-language` when the ADR introduces or changes domain terms.
+- Update `UBIQUITOUS_LANGUAGE.md` (see `domain-model/GLOSSARY-FORMAT.md`) when the ADR introduces or changes domain terms.
 - Use `.agents/skills/domain-model/ADR-FORMAT.md` for the ADR format.
 
 ## When An ADR Qualifies
