@@ -1,6 +1,7 @@
+import { cn } from '@soonlist/ui/cn'
+import { Button } from '@soonlist/ui/components/button'
+import { Sidebar, SidebarSection } from '@soonlist/ui/components/sidebar'
 import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/utils/cn.util'
 import { SidebarNavLink } from './sidebar-nav-link'
 import { SidebarUser } from './sidebar-user'
 
@@ -16,10 +17,10 @@ export function AppSidebar({
 	onNavigate,
 }: Readonly<AppSidebarProps>) {
 	return (
-		<aside
+		<Sidebar
 			aria-label="Sidebar"
 			className={cn(
-				'fixed inset-y-0 left-0 z-40 w-72 shrink-0 flex-col gap-4 overflow-y-auto bg-sidebar px-3 py-2 md:sticky md:top-0 md:h-dvh',
+				'fixed inset-y-0 left-0 z-40 md:sticky md:top-0 md:h-dvh',
 				className
 			)}
 		>
@@ -60,17 +61,11 @@ export function AppSidebar({
 				/>
 			</nav>
 
-			<section aria-labelledby="sidebar-labels" className="flex flex-col gap-1">
-				<h2
-					className="px-2 text-sm font-semibold text-muted-foreground"
-					id="sidebar-labels"
-				>
-					Labels
-				</h2>
+			<SidebarSection label="Labels">
 				<p className="px-2 py-1.5 text-label text-faint-foreground">
 					No labels yet
 				</p>
-			</section>
-		</aside>
+			</SidebarSection>
+		</Sidebar>
 	)
 }

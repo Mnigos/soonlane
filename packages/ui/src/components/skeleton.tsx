@@ -1,5 +1,5 @@
 import type { ComponentProps } from 'react'
-import { cn } from '@/utils/cn.util'
+import { cn } from '../utils/cn.util'
 
 export function Skeleton({
 	className,

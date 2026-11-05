@@ -9,6 +9,14 @@ export default defineConfig({
 					name: 'packages',
 					globals: true,
 					include: ['packages/*/*.spec.ts', 'packages/*/src/**/*.spec.ts'],
+					exclude: ['packages/ui/**'],
+				},
+			},
+			{
+				test: {
+					name: '@soonlist/ui',
+					globals: true,
+					include: ['packages/ui/src/**/*.spec.{ts,tsx}'],
 				},
 			},
 			{

@@ -1,0 +1,7 @@
+{
+  "extends": "@soonlist/typescript-config/react-library.json",
+  "compilerOptions": {
+    "types": ["vitest/globals"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

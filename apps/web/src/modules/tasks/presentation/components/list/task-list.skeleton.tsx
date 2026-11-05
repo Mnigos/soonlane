@@ -1,4 +1,4 @@
-import { Skeleton } from '@/components/ui/skeleton'
+import { Skeleton } from '@soonlist/ui/components/skeleton'
 
 const PLACEHOLDER_SECTIONS = ['first', 'second', 'third'] as const
 

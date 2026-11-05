@@ -1,3 +1,4 @@
+import { Button } from '@soonlist/ui/components/button'
 import {
 	createRootRouteWithContext,
 	type ErrorComponentProps,
@@ -7,7 +8,6 @@ import {
 	useRouter,
 } from '@tanstack/react-router'
 import type { PropsWithChildren } from 'react'
-import { Button } from '@/components/ui/button'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 

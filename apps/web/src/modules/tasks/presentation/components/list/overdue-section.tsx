@@ -1,6 +1,6 @@
+import { cn } from '@soonlist/ui/cn'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
-import { cn } from '@/utils/cn.util'
 
 export function OverdueSection() {
 	const [isOpen, setIsOpen] = useState(true)
