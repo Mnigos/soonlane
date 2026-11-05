@@ -31,9 +31,9 @@ Rules for the TanStack Start app: routes, loaders, SSR prefetching, components, 
 
 - Components use named props interfaces directly above the component and `Readonly<ComponentNameProps>`.
 - Component files are bare kebab-case `.tsx` with a PascalCase export; skeletons end in `.skeleton.tsx`. Group a module's components into role folders once three or more share a role.
-- Use `cn` from `@/utils/cn.util` and the shadcn primitives in `src/components/ui`.
+- Use `cn` from `@soonlist/ui/cn` and the primitives in `@soonlist/ui/components/*`; promote a component to `packages/ui` only when it is app-agnostic (see `packages/ui/AGENTS.md`).
 - Avoid manual memoization for derived route, search or query state.
-- Visual work follows Todoist's dark theme with the tokens in `src/styles.css`; red (`primary`, `danger`) marks actions and overdue state.
+- Visual work follows `DESIGN.md` and the tokens in `tooling/tailwind-config/tokens.css` (imported by `src/styles.css`); red (`primary`, `danger`) marks actions and overdue state. Use `impeccable` for design work.
 - Date-dependent UI renders from `useToday()`; it is `undefined` during SSR, so render a skeleton until the browser supplies the local date.
 
 ## Server Boundary
