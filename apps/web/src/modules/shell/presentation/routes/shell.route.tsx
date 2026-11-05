@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { Shell } from '../components/shell'
 import { readSidebarPreference } from '../helpers/sidebar-preference.helper'
@@ -10,15 +10,21 @@ const getSidebarPreference = createIsomorphicFn()
 	.client(() => readSidebarPreference(document.cookie))
 
 export const Route = createFileRoute('/_shell')({
+	beforeLoad: ({ context }) => {
+		if (!context.me.user) throw redirect({ to: '/login' })
+
+		return { user: context.me.user }
+	},
 	loader: () => ({ sidebarPreference: getSidebarPreference() }),
 	component: ShellRoute,
 })
 
 function ShellRoute() {
+	const { user } = Route.useRouteContext()
 	const { sidebarPreference } = Route.useLoaderData()
 
 	return (
-		<Shell initialSidebarPreference={sidebarPreference}>
+		<Shell initialSidebarPreference={sidebarPreference} user={user}>
 			<Outlet />
 		</Shell>
 	)

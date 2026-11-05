@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
+import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport } from './modules/identity/presentation/routes/api.auth.$.route'
@@ -18,6 +19,12 @@ import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc
 const modulesShellPresentationRoutesShellDotrouteRoute =
   modulesShellPresentationRoutesShellDotrouteRouteImport.update({
     id: '/_shell',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesIdentityPresentationRoutesLoginDotrouteRoute =
+  modulesIdentityPresentationRoutesLoginDotrouteRouteImport.update({
+    id: '/login',
+    path: '/login',
     getParentRoute: () => rootRouteImport,
   } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
@@ -47,11 +54,13 @@ const routesApiDotrpcDotDotrouteRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
 export interface FileRoutesByTo {
+  '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
@@ -60,6 +69,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_shell': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/_shell/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_shell/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
@@ -67,12 +77,13 @@ export interface FileRoutesById {
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/today' | '/api/auth/$' | '/api/rpc/$'
+  fullPaths: '/' | '/login' | '/today' | '/api/auth/$' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/today' | '/api/auth/$' | '/api/rpc/$'
+  to: '/login' | '/' | '/today' | '/api/auth/$' | '/api/rpc/$'
   id:
     | '__root__'
     | '/_shell'
+    | '/login'
     | '/_shell/'
     | '/_shell/today'
     | '/api/auth/$'
@@ -81,6 +92,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
@@ -92,6 +104,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_shell/': {
@@ -146,6 +165,8 @@ const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   modulesShellPresentationRoutesShellDotrouteRoute:
     modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
+  modulesIdentityPresentationRoutesLoginDotrouteRoute:
+    modulesIdentityPresentationRoutesLoginDotrouteRoute,
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:
     modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute,
   routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,

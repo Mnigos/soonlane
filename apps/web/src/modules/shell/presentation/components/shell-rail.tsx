@@ -1,3 +1,4 @@
+import type { SessionUser } from '@soonlist/contracts'
 import { cn } from '@soonlist/ui/cn'
 import { Avatar } from '@soonlist/ui/components/avatar'
 import {
@@ -15,21 +16,29 @@ import { RailNavLink } from './rail-nav-link'
 
 interface ShellRailProps {
 	className?: string
+	user: SessionUser
 	onExpand: () => void
 }
 
-export function ShellRail({ className, onExpand }: Readonly<ShellRailProps>) {
+export function ShellRail({
+	className,
+	user,
+	onExpand,
+}: Readonly<ShellRailProps>) {
 	return (
 		<SidebarRail
 			aria-label="Sidebar"
 			className={cn('fixed inset-y-0 left-0 z-20', className)}
 		>
-			<span
-				className="flex size-9 items-center justify-center"
-				title="Soonlist"
+			<button
+				aria-label={`${user.name}, open the account menu`}
+				className={sidebarRailItemVariants()}
+				onClick={onExpand}
+				title={user.name}
+				type="button"
 			>
-				<Avatar name="Soonlist" />
-			</span>
+				<Avatar name={user.name} src={user.image} />
+			</button>
 			<button
 				aria-label="Expand sidebar"
 				className={sidebarRailItemVariants()}

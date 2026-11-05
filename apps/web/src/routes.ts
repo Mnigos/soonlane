@@ -5,6 +5,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 		index('modules/tasks/presentation/routes/upcoming.route.tsx'),
 		route('/today', 'modules/tasks/presentation/routes/today.route.tsx'),
 	]),
+	route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
 	route(
 		'/api/auth/$',
 		'modules/identity/presentation/routes/api.auth.$.route.ts'

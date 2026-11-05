@@ -1,3 +1,4 @@
+import type { SessionUser } from '@soonlist/contracts'
 import { cn } from '@soonlist/ui/cn'
 import { Button } from '@soonlist/ui/components/button'
 import { PanelLeftOpen } from 'lucide-react'
@@ -12,6 +13,7 @@ import { ShellSidebar } from './shell-sidebar'
 
 interface ShellProps extends PropsWithChildren {
 	initialSidebarPreference: SidebarPreference
+	user: SessionUser
 }
 
 /**
@@ -23,6 +25,7 @@ interface ShellProps extends PropsWithChildren {
 export function Shell({
 	children,
 	initialSidebarPreference,
+	user,
 }: Readonly<ShellProps>) {
 	const [preference, setPreference] = useState(initialSidebarPreference)
 	const [isOverlayOpen, setIsOverlayOpen] = useState(false)
@@ -47,6 +50,7 @@ export function Shell({
 			<ShellRail
 				className={cn('hidden md:flex', preference === 'full' && 'xl:hidden')}
 				onExpand={expand}
+				user={user}
 			/>
 			{isOverlayOpen && (
 				<button
@@ -63,6 +67,7 @@ export function Shell({
 				)}
 				onCollapse={collapse}
 				onNavigate={() => setIsOverlayOpen(false)}
+				user={user}
 			/>
 			<div className="flex h-12 items-center px-3 md:hidden">
 				<Button
