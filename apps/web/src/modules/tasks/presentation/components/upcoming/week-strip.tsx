@@ -1,5 +1,5 @@
+import { cn } from '@soonlist/ui/cn'
 import { Link } from '@tanstack/react-router'
-import { cn } from '@/utils/cn.util'
 import type { WeekStripDay } from '../../../domain/upcoming-view.helper'
 
 interface WeekStripProps {

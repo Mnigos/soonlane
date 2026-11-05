@@ -1,3 +1,4 @@
+import { sidebarItemVariants } from '@soonlist/ui/components/sidebar'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import type { LucideIcon } from 'lucide-react'
 
@@ -17,14 +18,12 @@ export function SidebarNavLink({
 	return (
 		<Link
 			activeOptions={{ exact: true, includeSearch: false }}
-			activeProps={{
-				className: 'bg-primary-muted text-danger hover:bg-primary-muted',
-			}}
-			className="flex h-9 items-center gap-2.5 rounded-md px-2 text-sm text-foreground transition-colors hover:bg-hover"
+			activeProps={{ className: sidebarItemVariants({ state: 'active' }) }}
+			inactiveProps={{ className: sidebarItemVariants({ state: 'inactive' }) }}
 			onClick={onNavigate}
 			to={to}
 		>
-			<Icon aria-hidden className="size-4.5" />
+			<Icon aria-hidden />
 			{label}
 		</Link>
 	)

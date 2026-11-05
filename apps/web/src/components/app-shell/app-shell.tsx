@@ -1,7 +1,7 @@
+import { cn } from '@soonlist/ui/cn'
+import { Button } from '@soonlist/ui/components/button'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/utils/cn.util'
 import { AppSidebar } from './app-sidebar'
 import type { SidebarState } from './sidebar.types'
 
