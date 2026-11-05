@@ -24,4 +24,4 @@ Use this skill to triage and fix review findings without blindly applying commen
 - Do not resolve GitHub review threads or create comments unless the user explicitly asks.
 - Do not create commits or branches unless explicitly asked.
 - Before editing, read at least 3 similar files matching the changed file type.
-- Follow `apps/web/AGENTS.md` when the change touches the app, and the Testing section of the root `AGENTS.md`.
+- Follow the nested `AGENTS.md` of the touched app or package (`apps/web`, `packages/ui`, `packages/contracts`) and the Testing section of the root `AGENTS.md`.

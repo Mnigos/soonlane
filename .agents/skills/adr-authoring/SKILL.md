@@ -9,9 +9,9 @@ Use ADRs for durable architecture decisions, not routine implementation notes.
 
 ## Related Skills
 
-- Use `domain-model` first for module ownership, Effect ports and layers, server boundary or language-heavy decisions.
+- Use `domain-model` first for module ownership, Effect layering, package boundaries or language-heavy decisions.
 - Use `ubiquitous-language` when the ADR introduces or changes domain terms.
-- Use [ADR-FORMAT.md](./ADR-FORMAT.md) for the ADR format.
+- Use `.agents/skills/domain-model/ADR-FORMAT.md` for the ADR format.
 
 ## When An ADR Qualifies
 
@@ -24,23 +24,23 @@ Create or update an ADR only when all are true:
 ## Flow
 
 1. Read existing ADRs in `docs/decisions`.
-2. Read [ADR-FORMAT.md](./ADR-FORMAT.md).
-3. Read `UBIQUITOUS_LANGUAGE.md`, `PRODUCT.md` and `ARCHITECTURE.md` when they touch the decision.
-4. Read the root `AGENTS.md`, `apps/web/AGENTS.md` and the affected code patterns.
-5. Choose the next number by scanning all `docs/decisions/*.md` files and parsing the leading ADR number.
-6. Use `docs/decisions/NNNN-<kebab-title>.md`.
-7. Match the existing repo style: title, status, date, context, decision, consequences, and related links when useful.
-8. Link to `UBIQUITOUS_LANGUAGE.md` instead of duplicating large term tables.
-9. Mark new ADRs `Proposed` unless the user says the decision is accepted.
+2. Read `.agents/skills/domain-model/ADR-FORMAT.md`.
+3. Read `.agents/skills/domain-model/CONTEXT-FORMAT.md` when the ADR touches context boundaries.
+4. Read `UBIQUITOUS_LANGUAGE.md`, `PRODUCT.md`, `ARCHITECTURE.md` and code patterns relevant to the decision.
+5. If `CONTEXT-MAP.md` exists, read it and the relevant context docs it points to.
+6. Choose the next number by scanning all `docs/decisions/*.md` files and parsing the leading ADR number.
+7. Use `docs/decisions/NNNN-short-slug.md`.
+8. Match the existing repo style: title, status, date, context, decision, consequences, and related links when useful.
+9. Link to `UBIQUITOUS_LANGUAGE.md` instead of duplicating large term tables.
+10. Mark new ADRs `Proposed` unless the user says the decision is accepted.
+11. Add the ADR to the decision table in `ARCHITECTURE.md`.
 
 ## Rules
 
 - Keep ADRs concise but complete enough for a future agent to understand why.
-- Write ADRs in English, like the rest of the agent-facing docs.
 - Record rejected alternatives when they would otherwise be suggested again.
-- Include concrete dates, commits, modules and tables when they clarify scope.
-- Use `docs/decisions` for every ADR; there is no other ADR folder.
-- Keep `UBIQUITOUS_LANGUAGE.md` for glossary terms and `ARCHITECTURE.md` for the module map and decision index; add each new ADR to the `Decision records` table in `ARCHITECTURE.md`.
+- Include concrete dates, PRs and affected modules or packages when they clarify scope.
+- Use `docs/decisions`, not generic `docs/adr`.
 - Decisions already recorded in `PRODUCT.md` are final; an ADR may cite them but never reopens them.
-- Do not create issues from an ADR unless the user asks.
+- Do not create GitHub issues from an ADR unless the user asks.
 - Do not commit ADR changes unless explicitly asked.

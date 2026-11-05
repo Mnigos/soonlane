@@ -5,7 +5,7 @@ ADRs live in `docs/decisions/` and use sequential numbering: `0001-kebab-title.m
 Use the existing repo title style:
 
 ```md
-# ADR 0001: {Short Title Of The Decision}
+# ADR NNNN: {Short Title Of The Decision}
 ```
 
 ## Template

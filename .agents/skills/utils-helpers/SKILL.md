@@ -19,7 +19,7 @@ Use those files as the source of truth. Prefer live repo patterns over examples 
 
 - Utils are global, domain-agnostic, and reusable across modules.
 - Helpers are module-specific and may contain domain logic.
-- File names are kebab-case with a role suffix: utils are `*.util.ts` in `apps/web/src/utils/`, helpers are `*.helper.ts` (see the naming table in the root `AGENTS.md`).
+- File names are kebab-case with a role suffix: utils are `*.util.ts` in a `src/utils/` folder (`cn` in `packages/ui/src/utils/`), helpers are `*.helper.ts` (see the naming table in the root `AGENTS.md`).
 - Add JSDoc only when the contract or the why cannot be read from the name and types; never restate the signature.
 - Prefer pure functions with descriptive names.
 - Reuse existing UTC/date/number parsers when a shared util or module helper fits; do not add private duplicated parsers.
