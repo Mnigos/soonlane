@@ -2,6 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-11-05
+**Updated:** 2026-11-06
 
 ## Context
 
@@ -13,13 +14,12 @@ Soonlist starts from the conventions of `vinyl-wishlist`, where modules grew wit
 - Server infrastructure lives in `src/platform` (config, `Db`, `AppLive`, the single `ManagedRuntime`, oRPC wiring), not `src/server`, because `.server.ts` already marks the server half of an isomorphic file.
 - Each module follows Effect layering: `domain/` (pure types, tagged errors, helpers), `application/` (ports and services with `*Live` layers), `infrastructure/` (adapters implementing ports), `presentation/` (routers, handlers, middleware, components, hooks).
 - The server boundary is enforced by TanStack Start import protection in `apps/web/vite.config.ts` with `behavior: 'error'`, so a server-only module in the client bundle fails the build.
-- One spec per source file, beside it with the same base name; cross-file flows are integration specs in `apps/web/tests/integration`. Enforced by `soonlist/spec-file-pairing`.
+- Withdrawn on 2026-11-06: the one-spec-per-source-file rule. The owner removed unit tests from the project; typecheck, lint and build are the gates.
 
 ## Consequences
 
 - A file's role and allowed folder are readable from its name, and lint fails on drift instead of review catching it.
 - The default import protection rule for `**/*.client.*` is disabled, because `.client.ts` here means an HTTP client, not a browser-only module.
-- Collective specs had to be split, and new helpers need their own spec file.
 - Renaming a role or folder now means updating the lint rules in `tooling/oxlint-plugins` along with the files.
 
 ## Related

@@ -40,7 +40,6 @@ Run with `bun run <script>` from the root.
 | `build`               | Production build for Vercel (`apps/web/.vercel/output`). |
 | `typecheck`           | TypeScript in every package.                             |
 | `check` / `check:fix` | oxlint and oxfmt through Ultracite.                      |
-| `test`                | Unit tests (Vitest).                                     |
 | `commit`              | Commitizen prompt for a conventional commit.             |
 
 ## Commits
