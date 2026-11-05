@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
+import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport } from './modules/identity/presentation/routes/api.auth.$.route'
 import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
 
 const modulesShellPresentationRoutesShellDotrouteRoute =
@@ -31,6 +32,12 @@ const modulesTasksPresentationRoutesTodayDotrouteRoute =
     path: '/today',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
+const modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute =
+  modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport.update({
+    id: '/api/auth/$',
+    path: '/api/auth/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const routesApiDotrpcDotDotrouteRoute =
   routesApiDotrpcDotDotrouteRouteImport.update({
     id: '/api/rpc/$',
@@ -41,11 +48,13 @@ const routesApiDotrpcDotDotrouteRoute =
 export interface FileRoutesByFullPath {
   '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
 export interface FileRoutesById {
@@ -53,18 +62,26 @@ export interface FileRoutesById {
   '/_shell': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_shell/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_shell/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/today' | '/api/rpc/$'
+  fullPaths: '/' | '/today' | '/api/auth/$' | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/today' | '/api/rpc/$'
-  id: '__root__' | '/_shell' | '/_shell/' | '/_shell/today' | '/api/rpc/$'
+  to: '/' | '/today' | '/api/auth/$' | '/api/rpc/$'
+  id:
+    | '__root__'
+    | '/_shell'
+    | '/_shell/'
+    | '/_shell/today'
+    | '/api/auth/$'
+    | '/api/rpc/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
 
@@ -90,6 +107,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/today'
       preLoaderRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/rpc/$': {
       id: '/api/rpc/$'
@@ -122,6 +146,8 @@ const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   modulesShellPresentationRoutesShellDotrouteRoute:
     modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
+  modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:
+    modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute,
   routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,
 }
 export const routeTree = rootRouteImport
