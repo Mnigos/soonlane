@@ -1,0 +1,4 @@
+* text=auto eol=lf
+apps/web/src/routeTree.gen.ts linguist-generated
+packages/db/migrations/** linguist-generated
+bun.lock linguist-generated
