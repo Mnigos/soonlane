@@ -14,30 +14,29 @@ export function UpcomingPage({ today, week }: Readonly<UpcomingPageProps>) {
 	const view = getUpcomingView(today, week)
 
 	return (
-		<main className="flex flex-1 flex-col">
-			<header className="sticky top-0 z-10 border-b bg-background">
-				<div className="mx-auto flex w-full max-w-3xl flex-col gap-3 px-6 pt-1 md:px-10">
-					<div className="flex items-center justify-between gap-4">
-						<div className="flex flex-col">
-							<h1 className="text-xl font-bold">Upcoming</h1>
-							<p className="text-label text-muted-foreground">
-								{view.monthLabel}
-							</p>
-						</div>
+		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
+			<header className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4">
+				<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+					<span aria-hidden />
+					<div className="flex flex-col items-center text-center">
+						<h1 className="text-xl font-bold">Upcoming</h1>
+						<p className="text-label text-muted-foreground">
+							{view.monthLabel}
+						</p>
+					</div>
+					<div className="flex justify-end">
 						<WeekControls
 							nextWeek={view.nextWeek}
 							previousWeek={view.isCurrentWeek ? undefined : view.previousWeek}
 						/>
 					</div>
-					<WeekStrip days={view.weekDays} />
 				</div>
+				<WeekStrip days={view.weekDays} />
 			</header>
-			<div className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
-				{view.showsOverdue && <OverdueSection />}
-				{view.days.map(date => (
-					<DaySection date={date} key={date} today={today} />
-				))}
-			</div>
+			{view.showsOverdue && <OverdueSection />}
+			{view.days.map(date => (
+				<DaySection date={date} key={date} today={today} />
+			))}
 		</main>
 	)
 }

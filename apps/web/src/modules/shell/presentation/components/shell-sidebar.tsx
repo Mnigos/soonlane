@@ -7,29 +7,27 @@ import { SidebarUser } from './sidebar-user'
 
 interface ShellSidebarProps {
 	className?: string
-	onClose: () => void
+	onCollapse: () => void
 	onNavigate: () => void
 }
 
 export function ShellSidebar({
 	className,
-	onClose,
+	onCollapse,
 	onNavigate,
 }: Readonly<ShellSidebarProps>) {
 	return (
 		<Sidebar
 			aria-label="Sidebar"
-			className={cn(
-				'fixed inset-y-0 left-0 z-40 md:sticky md:top-0 md:h-dvh',
-				className
-			)}
+			className={cn('fixed inset-y-0 left-0 z-40', className)}
 		>
 			<div className="flex h-10 items-center justify-between gap-2">
 				<SidebarUser />
 				<Button
-					aria-label="Close sidebar"
-					onClick={onClose}
+					aria-label="Collapse sidebar"
+					onClick={onCollapse}
 					size="icon"
+					title="Collapse sidebar"
 					variant="ghost"
 				>
 					<PanelLeftClose />
@@ -37,11 +35,11 @@ export function ShellSidebar({
 			</div>
 
 			<button
-				className="group flex h-9 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-sm font-semibold text-danger transition-colors hover:bg-hover"
+				className="group flex h-8.5 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-sm font-semibold text-danger transition-colors hover:bg-hover"
 				type="button"
 			>
-				<span className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground group-hover:bg-primary-hover">
-					<Plus aria-hidden className="size-4" strokeWidth={2.5} />
+				<span className="flex size-5.5 items-center justify-center rounded-full bg-primary text-primary-foreground group-hover:bg-primary-hover">
+					<Plus aria-hidden className="size-3.5" strokeWidth={2.5} />
 				</span>
 				Add task
 			</button>
