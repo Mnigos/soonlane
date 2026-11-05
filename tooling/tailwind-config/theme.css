@@ -1,0 +1,22 @@
+@import 'tailwindcss';
+@import './tokens.css';
+
+@layer base {
+	html {
+		color-scheme: dark;
+		background-color: var(--color-background);
+	}
+
+	*,
+	::before,
+	::after,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-border);
+	}
+
+	body {
+		background-color: var(--color-background);
+		color: var(--color-foreground);
+	}
+}

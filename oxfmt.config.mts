@@ -12,7 +12,7 @@ export default defineConfig({
 	sortImports: { newlinesBetween: false, partitionByNewline: true },
 	sortTailwindcss: {
 		functions: ['cn', 'cva', 'clsx', 'twMerge'],
-		stylesheet: './apps/web/src/styles.css',
+		stylesheet: './tooling/tailwind-config/theme.css',
 	},
 	ignorePatterns: [
 		...(ultracite.ignorePatterns ?? []),
@@ -21,7 +21,9 @@ export default defineConfig({
 		'**/.output',
 		'**/.vercel',
 		'**/routeTree.gen.ts',
+		'**/modern-screenshot.umd.js',
 		'packages/db/migrations/**',
+		'.agents/skills/impeccable/**',
 		'docs/**',
 	],
 	overrides: [

@@ -1,5 +1,5 @@
 {
-  "extends": "../../tsconfig.base.json",
+  "extends": "@soonlist/typescript-config/base.json",
   "compilerOptions": {
     "lib": ["ESNext"],
     "allowImportingTsExtensions": true,
