@@ -4,24 +4,25 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 
 ## tasks
 
-| Term          | UI label                        | Code                                | Meaning                                                                       |
-| ------------- | ------------------------------- | ----------------------------------- | ----------------------------------------------------------------------------- |
-| Task          | task, "Add task"                | `task` (from PR 3)                  | One thing to do, with an optional due date and labels.                        |
-| Calendar date | "5 Nov"                         | `CalendarDate`                      | A day without time or zone, `YYYY-MM-DD`.                                     |
-| Today         | "Today"                         | `useToday`, `getToday`              | The owner's local calendar day, read in the browser. Never the server's date. |
-| Upcoming      | "Upcoming"                      | `upcoming.route`, `getUpcomingView` | The default view: the selected week strip, Overdue, then 14 day sections.     |
-| Day heading   | "5 Nov · Today · Thursday"      | `getDayHeading`                     | Date, relative name for today and tomorrow, weekday.                          |
-| Overdue       | "Overdue", "Reschedule"         | `OverdueSection`                    | Unfinished tasks due before today. Shown only on the current week.            |
-| Week          | "Today", previous and next week | `?week=`, `getWeekStart`            | Monday to Sunday.                                                             |
-| Label         | "Labels"                        | `label` (later)                     | A tag on tasks, listed in the sidebar. Not a project.                         |
+| Term          | UI label                        | Code                                     | Meaning                                                                       |
+| ------------- | ------------------------------- | ---------------------------------------- | ----------------------------------------------------------------------------- |
+| Task          | task, "Add task"                | `task` (from PR 3)                       | One thing to do, with an optional due date and labels.                        |
+| Calendar date | "5 Nov"                         | `CalendarDate`                           | A day without time or zone, `YYYY-MM-DD`.                                     |
+| Today         | "Today"                         | `useToday`, `getToday`                   | The owner's local calendar day, read in the browser. Never the server's date. |
+| Upcoming      | "Upcoming"                      | `upcoming.route`, `getUpcomingView`      | The default view: the selected week strip, Overdue, then 14 day sections.     |
+| Day heading   | "5 Nov · Today · Thursday"      | `getDayHeading`                          | Date, relative name for today and tomorrow, weekday.                          |
+| Overdue       | "Overdue", "Reschedule"         | `OverdueSection`                         | Unfinished tasks due before today. Shown only on the current week.            |
+| Week          | "Today", previous and next week | `?week=`, `getWeekStart`                 | Monday to Sunday.                                                             |
+| Owner         | name and avatar in the sidebar  | `OWNER_EMAIL`, `isOwner`, `requireOwner` | The one Google account allowed in.                                            |
+| Label         | "Labels"                        | `label` (later)                          | A tag on tasks, listed in the sidebar. Not a project.                         |
 
 ## Codebase
 
-| Term              | UI                         | Code                                 | Meaning                                                                                                                         |
-| ----------------- | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Module            | none                       | `apps/web/src/modules/<module>`      | A slice of the web app with `domain`, `application`, `infrastructure` and `presentation` layers (`tasks`, `shell`).             |
-| Package           | none                       | `@soonlist/*` in `packages/`         | Code shared beyond the web app: `contracts` (API boundary), `domain` (brands), `ui` (primitives); `db` and `auth` with sign-in. |
-| Primitive         | none                       | `@soonlist/ui/components/*`          | An app-agnostic UI building block (button, avatar, sidebar). Not a feature component.                                           |
-| Shell             | sidebar, icon rail, drawer | `modules/shell`                      | The page frame around every signed-in view; never moves the centered list column.                                               |
-| Feature component | none                       | `modules/*/presentation/components`  | UI that knows the product: day sections, week strip, user menu.                                                                 |
-| Token             | none                       | `tooling/tailwind-config/tokens.css` | A named color, radius or text size from `DESIGN.md`.                                                                            |
+| Term              | UI                         | Code                                 | Meaning                                                                                                                                                                  |
+| ----------------- | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Module            | none                       | `apps/web/src/modules/<module>`      | A slice of the web app with `domain`, `application`, `infrastructure` and `presentation` layers (`tasks`, `shell`, `identity`).                                          |
+| Package           | none                       | `@soonlist/*` in `packages/`         | Code shared beyond the web app: `contracts` (API boundary), `domain` (brands), `ui` (primitives), `db` (schema, migrations), `auth` (Better Auth factory, owner policy). |
+| Primitive         | none                       | `@soonlist/ui/components/*`          | An app-agnostic UI building block (button, avatar, sidebar). Not a feature component.                                                                                    |
+| Shell             | sidebar, icon rail, drawer | `modules/shell`                      | The page frame around every signed-in view; never moves the centered list column.                                                                                        |
+| Feature component | none                       | `modules/*/presentation/components`  | UI that knows the product: day sections, week strip, user menu.                                                                                                          |
+| Token             | none                       | `tooling/tailwind-config/tokens.css` | A named color, radius or text size from `DESIGN.md`.                                                                                                                     |

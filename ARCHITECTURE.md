@@ -1,34 +1,38 @@
 # Architecture
 
-A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR and the oRPC API at `/api/rpc`, which a future desktop app will call too. Terms: [UBIQUITOUS_LANGUAGE.md](UBIQUITOUS_LANGUAGE.md). Decisions: [docs/decisions](docs/decisions).
+A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR, Better Auth at `/api/auth` and the oRPC API at `/api/rpc`, which a future desktop app will call too. Terms: [UBIQUITOUS_LANGUAGE.md](UBIQUITOUS_LANGUAGE.md). Decisions: [docs/decisions](docs/decisions).
 
 ## Layout
 
-| Path                        | What it is                                                                                          |
-| --------------------------- | --------------------------------------------------------------------------------------------------- |
-| `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Node 22, `fra1`).                              |
-| `packages/domain`           | `@soonlist/domain`: brands (`CalendarDate`) and shared constants.                                   |
-| `packages/contracts`        | `@soonlist/contracts`: the oRPC contract and Zod schemas.                                           |
-| `packages/ui`               | `@soonlist/ui`: app-agnostic React primitives (`button`, `skeleton`, `avatar`, `sidebar`) and `cn`. |
-| `tooling/typescript-config` | tsconfig presets: `base`, `react-library`, `react-app`.                                             |
-| `tooling/tailwind-config`   | Tailwind 4 theme and the tokens described in `DESIGN.md`.                                           |
-| `tooling/oxlint-plugins`    | `soonlist/*` lint rules: file names, hooks folders, repositories, style.                            |
+| Path                        | What it is                                                                                                      |
+| --------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Node 22, `fra1`).                                          |
+| `packages/domain`           | `@soonlist/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                      |
+| `packages/db`               | `@soonlist/db`: Drizzle schema, migrations and the migrator. Server-only.                                       |
+| `packages/auth`             | `@soonlist/auth`: `createAuth` (`/server`), the browser client (`/client`), the owner policy (root). No Effect. |
+| `packages/contracts`        | `@soonlist/contracts`: the oRPC contract and Zod schemas.                                                       |
+| `packages/ui`               | `@soonlist/ui`: app-agnostic React primitives (`button`, `skeleton`, `avatar`, `sidebar`) and `cn`.             |
+| `tooling/typescript-config` | tsconfig presets: `base`, `react-library`, `react-app`.                                                         |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the tokens described in `DESIGN.md`.                                                       |
+| `tooling/oxlint-plugins`    | `soonlist/*` lint rules: file names, hooks folders, repositories, style.                                        |
 
 Inside `apps/web/src`:
 
-| Path                         | What it is                                                                                                                                                                         |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `routes.ts`, `router.tsx`    | Virtual route config and the router.                                                                                                                                               |
-| `routes/`                    | `__root` and `/api/rpc/$`.                                                                                                                                                         |
-| `platform/`                  | Server wiring: `config/`, `app.layers`, `app.runtime` (`ManagedRuntime`), `rpc/` (base, context, router, handler, error mapping, browser and SSR clients), `system/system.router`. |
-| `modules/shell/presentation` | The pathless layout route and the shell: sidebar, icon rail, drawer, sidebar preference cookie.                                                                                    |
-| `modules/tasks`              | `domain/` calendar logic (`calendar-date`, `day-label`, `upcoming-view` helpers); `presentation/` Upcoming (`/`), Today (`/today`), `useToday`.                                    |
-| `components/`                | `not-found`.                                                                                                                                                                       |
+| Path                         | What it is                                                                                                                                                                                             |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `routes.ts`, `router.tsx`    | Virtual route config and the router.                                                                                                                                                                   |
+| `routes/`                    | `__root` (fetches `identity.me`) and `/api/rpc/$`.                                                                                                                                                     |
+| `platform/`                  | Server wiring: `config/`, `db/` (`Db` layer), `app.layers`, `app.runtime` (`ManagedRuntime`), `rpc/` (base, context, router, handler, error mapping, browser and SSR clients), `system/system.router`. |
+| `modules/shell/presentation` | The pathless layout route (redirects signed-out visitors) and the shell: sidebar with the user menu, icon rail, drawer, sidebar preference cookie.                                                     |
+| `modules/tasks`              | `domain/` calendar logic; `presentation/` Upcoming (`/`), Today (`/today`), `useToday`.                                                                                                                |
+| `modules/identity`           | `BetterAuthLive` (wraps `createAuth`), the `Auth` port, `identity.me`, `requireOwner`, `/login`, `/api/auth/$`, user menu and sign-out.                                                                |
+| `components/`                | `not-found`.                                                                                                                                                                                           |
 
 ## Package layering
 
 ```
-apps/web ──► packages/contracts ──► packages/domain
+apps/web ──► packages/auth ──► packages/db ──► packages/domain
+    ├──────► packages/contracts ──────────────────┘
     └──────► packages/ui
 tooling/* ◄── every workspace
 ```
@@ -44,11 +48,19 @@ browser (orpcQuery + TanStack Query) or SSR (in-process client)
       → router procedure (Effect) → service → port → adapter
 ```
 
-`createRpcHandler` rejects any `Origin` other than the request's own and `AppConfig.trustedOrigins` (the base URL plus the Vercel branch and deployment hosts). Only `POST` reaches procedures. `system.health` returns `{ ok, version }`.
+`createRpcHandler` rejects any `Origin` other than the request's own and `AppConfig.trustedOrigins` (the base URL plus the Vercel branch and deployment hosts). Only `POST` reaches procedures. `system.health` returns `{ ok, db, version }`.
+
+## Sign-in
+
+Better Auth with Google at `/api/auth`, configured by `createAuth` in `packages/auth` and built once by `BetterAuthLive` from `AppConfig` and `Db` ([ADR 0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md)). Only `OWNER_EMAIL`, verified by Google, can be created as a user. Google accepts only the production and localhost redirect URIs, so on Vercel production and previews the `oAuthProxy` plugin sends a preview's sign-in through the production callback and back; both sides share `OAUTH_PROXY_SECRET` (or `AUTH_SECRET`). Local development signs in directly. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
+
+## Database
+
+Neon Postgres through `pg` and Drizzle. `Db` owns one pool per runtime (5 connections, 10 s `query_timeout`, an `error` listener); `Db.run` is the only place that creates `DbError`. Logs carry error names only, because driver errors embed SQL parameters such as session tokens. The Vercel build runs the migrator first against the environment's own Neon branch (`main` for production, `preview` for previews and local).
 
 ## Server boundary
 
-Server-only code never reaches the client bundle: `platform/`, `application/`, `infrastructure/`, server-suffixed files and `routes/api.*`. TanStack Start import protection in `apps/web/vite.config.ts` fails the build on a leak; the four browser-safe oRPC client files in `platform/rpc` are excluded. After a build, `apps/web/.vercel/output/static/assets` must not contain `effect/`, `ManagedRuntime` or service names.
+Server-only code never reaches the client bundle: `platform/`, `application/`, `infrastructure/`, server-suffixed files and `routes/api.*`. TanStack Start import protection in `apps/web/vite.config.ts` fails the build on a leak; it also denies `@soonlist/auth/server`, `@soonlist/db`, `pg` and `drizzle-orm` by specifier, and excludes the four browser-safe oRPC client files in `platform/rpc`. After a build, `apps/web/.vercel/output/static/assets` must not contain `drizzle`, `pg`, `betterAuth(`, `drizzleAdapter`, `oauth-proxy`, `effect/`, `ManagedRuntime` or service names.
 
 ## Dates
 
@@ -60,9 +72,10 @@ From `md` an icon rail is docked and the content keeps a rail-wide gutter; the c
 
 ## Decision records
 
-| ADR                                                            | Decision                                                                            |
-| -------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| [0001](docs/decisions/0001-naming-and-layering-conventions.md) | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.     |
-| [0002](docs/decisions/0002-package-layout.md)                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs. |
+| ADR                                                                            | Decision                                                                            |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| [0001](docs/decisions/0001-naming-and-layering-conventions.md)                 | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.     |
+| [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs. |
+| [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.      |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md).

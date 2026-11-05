@@ -1,6 +1,6 @@
 # Soonlist agent rules
 
-Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (React 19, Router, Query) on Vercel; Effect 4 on the server; oRPC v2; Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
+Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (React 19, Router, Query) on Vercel; Effect 4 on the server; oRPC v2; Drizzle on Neon Postgres; Better Auth (Google, owner-only); Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
 
 ## Must
 
@@ -11,10 +11,10 @@ Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (
 
 ## Boundaries
 
-- Packages: `domain` (brands, no workspace deps) ← `contracts` (the only API boundary, oRPC + Zod) and `ui` (app-agnostic primitives: no router, data fetching or domain types). Packages never import an app and never use Effect.
+- Packages: `domain` (brands, no workspace deps) ← `contracts` (the only API boundary, oRPC + Zod) and `ui` (app-agnostic primitives: no router, data fetching or domain types); `domain` ← `db` (Drizzle schema, migrations; server-only) ← `auth` (`createAuth` at `/server`, server-only; browser client at `/client`; owner policy at the root). Packages never import an app and never use Effect; the web app wraps them in layers.
 - `apps/web/src/modules/<module>/`: `domain/` is pure (no Effect services, framework, ORM or RPC); `application/` holds ports and services (`Context.Service`, `*Live` layer, `Effect.fn('Service.method')`); `infrastructure/` implements ports (repositories run queries through `Db.run` and never catch); `presentation/` holds routers, middleware, components, hooks, routes.
 - `apps/web/src/platform/`: config, `AppLive`, the single `ManagedRuntime`, oRPC wiring. Tagged errors (`Data.TaggedError` with `code`) become oRPC errors only in `platform/rpc/rpc.base.ts`.
-- Server-only: `platform/`, `application/`, `infrastructure/`, `*.router|handler|port|service|repository|layer|middleware.ts`, `*.server.*`, `routes/api.*`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
+- Server-only: `platform/`, `application/`, `infrastructure/`, `*.router|handler|port|service|repository|layer|middleware.ts`, `*.server.*`, `routes/api.*`, and the specifiers `@soonlist/auth/server`, `@soonlist/db`, `pg`, `drizzle-orm`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
 
 ## Code
 
@@ -22,6 +22,7 @@ Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (
 - No barrel files, except one root `index.ts` per package (`packages/ui` has none; import through its export map).
 - No `useEffect` and no `useSuspenseQuery`; use `useQuery`/`useMutation` with `queryOptions()`/`mutationOptions()` from `orpcQuery`. (lint-enforced)
 - Implementation files stay under 400 lines.
+- Never edit generated migrations; change `packages/db/schema` and run `bun run db:generate`.
 - Run `bun run check:fix`; the `soonlist/*` rules in `tooling/oxlint-plugins` enforce the remaining style.
 
 ## Skills

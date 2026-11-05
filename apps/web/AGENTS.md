@@ -6,3 +6,5 @@
 - Date-dependent UI renders from `useToday()`, which is `undefined` during SSR: render a skeleton until the browser supplies the date.
 - UI primitives come from `@soonlist/ui` (`@soonlist/ui/components/*`, `@soonlist/ui/cn`); feature components stay in their module. Follow `DESIGN.md` and the tokens in `tooling/tailwind-config/tokens.css`.
 - Components take `Readonly<Props>` with the props interface right above them.
+- Read the session through `identity.me` (root `beforeLoad`, then `context.me`); the shell route redirects signed-out visitors to `/login`. Use `@soonlist/auth/client` only for sign-in and sign-out, and import `@soonlist/auth/server` only in `identity/infrastructure`.
+- Owner procedures use `requireOwner`; there is no test login or auth bypass.
