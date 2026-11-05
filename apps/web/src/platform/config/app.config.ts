@@ -4,6 +4,7 @@ import { resolveBaseUrl, resolveTrustedOrigins } from './app-url.helper'
 export class AppConfig extends Context.Service<
 	AppConfig,
 	{
+		readonly databaseUrl: string
 		readonly baseUrl: string
 		readonly trustedOrigins: readonly string[]
 		readonly version?: string
@@ -19,12 +20,14 @@ function optionalString(name: string) {
 export const AppConfigLive = Layer.effect(
 	AppConfig,
 	Config.all({
+		databaseUrl: Config.string('DATABASE_URL').pipe(Config.withDefault('')),
 		authUrl: optionalString('AUTH_URL'),
 		vercelBranchUrl: optionalString('VERCEL_BRANCH_URL'),
 		vercelUrl: optionalString('VERCEL_URL'),
 		version: optionalString('VERCEL_GIT_COMMIT_SHA'),
 	}).pipe(
-		Config.map(({ version, ...urls }) => ({
+		Config.map(({ databaseUrl, version, ...urls }) => ({
+			databaseUrl,
 			baseUrl: resolveBaseUrl(urls),
 			trustedOrigins: resolveTrustedOrigins(urls),
 			version,

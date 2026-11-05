@@ -21,6 +21,15 @@ const SERVER_ONLY_FILES = [
 	'**/routes/api.*',
 ]
 
+// Server-only workspace packages and drivers resolve outside the app's folders, so they are denied by specifier. The custom list replaces the default, so it repeats '@tanstack/react-start/server'.
+const SERVER_ONLY_SPECIFIERS = [
+	'@tanstack/react-start/server',
+	'@soonlist/db',
+	'@soonlist/db/migrator',
+	'pg',
+	/^drizzle-orm(\/|$)/u,
+]
+
 // The browser half of the oRPC client lives in platform/rpc next to the server half; these files are the only platform code the client may import. The custom list replaces the default, so it repeats node_modules.
 const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/node_modules/**',
@@ -41,6 +50,7 @@ export default defineConfig({
 			importProtection: {
 				behavior: 'error',
 				client: {
+					specifiers: SERVER_ONLY_SPECIFIERS,
 					files: SERVER_ONLY_FILES,
 					excludeFiles: BROWSER_SAFE_PLATFORM_FILES,
 				},
