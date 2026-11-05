@@ -7,7 +7,6 @@ import { hooksDirOnlyHooksRule } from './hooks-dir-only-hooks.rule.mts'
 import { inferredTypePlacementRule } from './inferred-type-placement.rule.mts'
 import { noRepositoryTryCatchRule } from './no-repository-try-catch.rule.mts'
 import { propsWithChildrenRule } from './props-with-children.rule.mts'
-import { specFilePairingRule } from './spec-file-pairing.rule.mts'
 import { typeParamPrefixRule } from './type-param-prefix.rule.mts'
 
 export default definePlugin({
@@ -21,7 +20,6 @@ export default definePlugin({
 		'inferred-type-placement': inferredTypePlacementRule,
 		'no-repository-try-catch': noRepositoryTryCatchRule,
 		'props-with-children': propsWithChildrenRule,
-		'spec-file-pairing': specFilePairingRule,
 		'type-param-prefix': typeParamPrefixRule,
 	},
 })

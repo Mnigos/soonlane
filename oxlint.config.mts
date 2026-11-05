@@ -5,7 +5,6 @@ import tanstack from 'ultracite/oxlint/tanstack'
 import {
 	CONVENTION_OVERRIDES,
 	CONVENTION_RULES,
-	CONVENTION_SPEC_RULES,
 } from './oxlint.conventions.mts'
 
 const DISABLED_RULES = {
@@ -39,7 +38,7 @@ const DISABLED_RULES = {
 		'AGENTS.md uses || for intentional all-falsy checks',
 	'typescript/strict-boolean-expressions':
 		'truthiness checks and || fallbacks are intentional',
-	'typescript/unbound-method': 'Vitest spies and method references',
+	'typescript/unbound-method': 'Effect and oRPC pass methods as references',
 	'unicorn/import-style': 'named imports from Node builtins are the convention',
 	'unicorn/no-array-reduce': 'reduce is accepted for aggregations',
 	'unicorn/no-useless-undefined':
@@ -59,13 +58,6 @@ const VENDORED_PLUGIN_DEFERRED_RULES = [
 ] as const
 
 const PRESETS = [core, react, tanstack]
-
-const SPEC_PLUGINS = [
-	...new Set([
-		...PRESETS.flatMap(preset => preset.plugins ?? []),
-		'vitest',
-	] satisfies OxlintOverride['plugins']),
-]
 
 export default defineConfig({
 	extends: PRESETS,
@@ -139,16 +131,6 @@ export default defineConfig({
 		{
 			files: ['apps/web/scripts/**', 'packages/db/scripts/**'],
 			rules: { 'no-console': 'off' },
-		},
-		{
-			files: ['**/*.spec.ts', '**/*.spec.tsx'],
-			env: { vitest: true },
-			plugins: SPEC_PLUGINS,
-			rules: {
-				'no-loop-func': 'off',
-				'promise/valid-params': 'off',
-				...CONVENTION_SPEC_RULES,
-			},
 		},
 		{
 			files: ['apps/web/**'],

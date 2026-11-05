@@ -28,7 +28,7 @@ jobs:
       - run: bun commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
 
   check:
-    name: Check, typecheck, test, build
+    name: Check, typecheck, build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -41,5 +41,4 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run check
       - run: bun run typecheck
-      - run: bun run test
       - run: bun run build

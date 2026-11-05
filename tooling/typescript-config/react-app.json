@@ -3,6 +3,6 @@
   "display": "React App (Vite)",
   "extends": "./react-library.json",
   "compilerOptions": {
-    "types": ["vite/client", "bun", "vitest/globals"]
+    "types": ["vite/client", "bun"]
   }
 }
