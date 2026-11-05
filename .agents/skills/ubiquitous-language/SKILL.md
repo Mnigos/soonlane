@@ -51,7 +51,8 @@ Keep the glossary in this shape:
 - Keep definitions to one sentence.
 - Include aliases to avoid when they prevent future confusion.
 - Include only domain terms; skip generic programming terms unless repo-specific.
-- Group terms by module or product area (`tasks`, `identity`).
+- Group terms by module or product area (`tasks`, `identity`, packages).
 - Preserve existing good terms and evolve definitions only when understanding changes.
 - Separate domain concepts from infrastructure, adapters, parsers and mapping code.
 - Keep `UBIQUITOUS_LANGUAGE.md` as the source of truth for glossary terms; `ARCHITECTURE.md` stays the module map.
+- Do not use `UBIQUITOUS_LANGUAGE.md` as a substitute for `CONTEXT.md` or context docs (see `domain-model/CONTEXT-FORMAT.md`).
