@@ -6,13 +6,16 @@ A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR and the AP
 
 ## Monorepo layout
 
-| Path                     | What it is                                                                                                            |
-| ------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| `apps/web`               | TanStack Start app: UI, SSR and `/api/rpc`. Routes under `src/routes` and `src/modules/[module]/presentation/routes`. |
-| `apps/web/tests/support` | Test support: `rpc-context.mock`.                                                                                     |
-| `packages/domain`        | `Brand` and `CalendarDate` (`*.types.ts`, `*.constants.ts`).                                                          |
-| `packages/contracts`     | oRPC contract and Zod schemas (`*.contract.ts`, `*.schemas.ts`). The API boundary shared by server and browser.       |
-| `tooling/oxlint-plugins` | `soonlist/*` lint rules: file names, spec pairing, `hooks/`, repositories and style.                                  |
+| Path                        | What it is                                                                                                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`                  | TanStack Start app: UI, SSR and `/api/rpc`. Routes under `src/routes` and `src/modules/[module]/presentation/routes`.                                          |
+| `apps/web/tests/support`    | Test support: `rpc-context.mock`.                                                                                                                              |
+| `packages/domain`           | `@soonlist/domain`: `Brand` and `CalendarDate` (`*.types.ts`, `*.constants.ts`).                                                                               |
+| `packages/contracts`        | `@soonlist/contracts`: oRPC contract and Zod schemas (`*.contract.ts`, `*.schemas.ts`). The API boundary shared by server, browser and the future desktop app. |
+| `packages/ui`               | `@soonlist/ui`: app-agnostic React primitives (`button`, `skeleton`, `avatar`, `sidebar`) and `cn`, imported per file through the export map.                  |
+| `tooling/oxlint-plugins`    | `soonlist/*` lint rules: file names, spec pairing, `hooks/`, repositories and style.                                                                           |
+| `tooling/typescript-config` | tsconfig presets: `base.json`, `react-library.json` (DOM, JSX), `react-app.json` (Vite, Bun and Vitest types).                                                 |
+| `tooling/tailwind-config`   | Tailwind 4 `theme.css` and the Todoist-like `tokens.css` described in `DESIGN.md`.                                                                             |
 
 Inside `apps/web/src`:
 
@@ -23,8 +26,21 @@ Inside `apps/web/src`:
 | `platform/`               | Server only: `config/(app.config, app-url.helper)`, `app.layers`, `app.runtime` (`ManagedRuntime`), `rpc/(rpc.base, rpc.context, rpc.router, rpc.handler, error-mapping.helper)`, `system/system.router`. |
 | `modules/`                | `tasks`; see [Modules](#modules).                                                                                                                                                                         |
 | `lib/orpc/`               | `rpc.client` (browser and SSR through `createIsomorphicFn`), `rpc.client.server` (in-process SSR client), `rpc-query.client`, constants.                                                                  |
-| `utils/`                  | `cn.util`.                                                                                                                                                                                                |
-| `components/`             | `ui/` (`button`, `skeleton`), `app-shell/` (sidebar, nav, shell state), `not-found`.                                                                                                                      |
+| `components/`             | `app-shell/` (sidebar shell, nav link, user placeholder, shell state) composed from `@soonlist/ui`, `not-found`.                                                                                          |
+
+## Package layering
+
+```
+apps/web ──► packages/contracts ──► packages/domain
+    │                                    ▲
+    └──────► packages/ui ────────────────┘ (no domain imports today)
+tooling/* ◄── every workspace (tsconfig presets, Tailwind theme, lint rules)
+```
+
+- Dependencies point one way; packages never import an app, and `ui` and `contracts` never import each other.
+- Packages are plain TypeScript and React: no Effect services, layers or runtime. Effect lives in `apps/web` (`platform/`, module `application/` and `infrastructure/`).
+- `contracts`, `domain` and `ui` are browser-safe. Server-only packages (`db`, `auth/server`, from PR 2) are listed in the app's import protection.
+- Code moves into a package only when a second consumer needs it. Why this layout: [ADR 0002](docs/decisions/0002-package-layout.md).
 
 ## Request flow
 
@@ -90,10 +106,12 @@ Vercel project `soonlist` (Root Directory `apps/web`), Nitro preset `vercel`, on
 | ADR                                                            | Decision                                                                                    |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | [0001](docs/decisions/0001-naming-and-layering-conventions.md) | Role-suffixed file names, `src/platform`, Effect layering and the enforced server boundary. |
+| [0002](docs/decisions/0002-package-layout.md)                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages plus shared tooling configs. |
 
 ## Related docs
 
-- [PRODUCT.md](PRODUCT.md): scope and design direction.
+- [PRODUCT.md](PRODUCT.md): users, purpose, scope and design principles.
+- [DESIGN.md](DESIGN.md): the visual system; machine-readable variant in `.impeccable/design.json`.
 - [UBIQUITOUS_LANGUAGE.md](UBIQUITOUS_LANGUAGE.md): domain terms and UI labels.
 - [docs/deploy-vercel.md](docs/deploy-vercel.md): Vercel and Neon setup.
 - `AGENTS.md`, `apps/web/AGENTS.md` and `.agents/skills`: working rules for agents.

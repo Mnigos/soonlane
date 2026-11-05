@@ -6,14 +6,17 @@ Production: https://soonlist.vercel.app
 
 ## Monorepo
 
-| Directory                | Purpose and main technology                                                               |
-| ------------------------ | ----------------------------------------------------------------------------------------- |
-| `apps/web`               | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4. |
-| `packages/contracts`     | oRPC contract and Zod schemas shared by server and browser.                               |
-| `packages/domain`        | Branded types such as `CalendarDate`.                                                     |
-| `tooling/oxlint-plugins` | `soonlist/*` lint rules for file names, spec pairing, hooks, repositories and style.      |
+| Directory                   | Purpose and main technology                                                               |
+| --------------------------- | ----------------------------------------------------------------------------------------- |
+| `apps/web`                  | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4. |
+| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                               |
+| `packages/domain`           | Branded types such as `CalendarDate`.                                                     |
+| `packages/ui`               | Shared React primitives (`button`, `skeleton`, `avatar`, `sidebar`) and `cn`.             |
+| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                 |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                        |
+| `tooling/oxlint-plugins`    | `soonlist/*` lint rules for file names, spec pairing, hooks, repositories and style.      |
 
-Layout, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
+Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Product and design: [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
 ## Getting started
 
@@ -38,6 +41,11 @@ Run with `bun run <script>` from the root.
 | `typecheck`           | TypeScript in every package.                             |
 | `check` / `check:fix` | oxlint and oxfmt through Ultracite.                      |
 | `test`                | Unit tests (Vitest).                                     |
+| `commit`              | Commitizen prompt for a conventional commit.             |
+
+## Commits
+
+Conventional commits. `bun install` sets up husky: `pre-commit` runs `lint-staged` (Ultracite on staged files), `commit-msg` runs `commitlint`; CI runs `commitlint` on every pull request.
 
 ## Deploy
 

@@ -1,6 +1,6 @@
 # Ubiquitous language
 
-Canonical terms, their UI labels and code names. Keep UI labels in sync with the code that renders them.
+Canonical terms, their UI labels and code names. Keep UI labels in sync with the code that renders them. Package and module ownership lives in `ARCHITECTURE.md`; this file is only the glossary.
 
 ## tasks
 
@@ -14,3 +14,13 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Overdue       | "Overdue", "Reschedule"         | `OverdueSection`                    | Unfinished tasks due before today. Shown only on the current week.            |
 | Week          | "Today", previous and next week | `?week=`, `getWeekStart`            | Monday to Sunday.                                                             |
 | Label         | "Labels"                        | `label` (later)                     | A tag on tasks, listed in the sidebar. Not a project.                         |
+
+## Codebase
+
+| Term              | UI   | Code                                 | Meaning                                                                                                                         |
+| ----------------- | ---- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Module            | none | `apps/web/src/modules/<module>`      | A slice of the web app with `domain`, `application`, `infrastructure` and `presentation` layers (`tasks`, later `identity`).    |
+| Package           | none | `@soonlist/*` in `packages/`         | Code shared beyond the web app: `contracts` (API boundary), `domain` (brands), `ui` (primitives); `db` and `auth` with sign-in. |
+| Primitive         | none | `@soonlist/ui/components/*`          | An app-agnostic UI building block (button, avatar, sidebar). Not a feature component.                                           |
+| Feature component | none | `modules/*/presentation/components`  | UI that knows the product: day sections, week strip, user menu.                                                                 |
+| Token             | none | `tooling/tailwind-config/tokens.css` | A named color, radius or text size from `DESIGN.md`.                                                                            |

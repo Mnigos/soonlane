@@ -1,16 +1,20 @@
 # Soonlist agent rules
 
-Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo + Bun workspaces, TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4 + shadcn-style primitives, oxlint/oxfmt via ultracite, Vitest. Deployed on Vercel.
+Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo + Bun workspaces, TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4 with shared tokens and `@soonlist/ui` primitives, oxlint/oxfmt via ultracite, Vitest, commitlint + husky. Deployed on Vercel.
 
 ## Security
 
 - Never read `.env` files or print secrets; `.env.example` is fine. Running `bun --env-file=apps/web/.env.local ...` is fine.
 
+## Product And Design
+
+- Product strategy and scope live in `PRODUCT.md` (decisions are final).
+- The visual system lives in `DESIGN.md` (Todoist dark theme for now); machine-readable design guidance in `.impeccable/design.json`; tokens in `tooling/tailwind-config/tokens.css`.
+- For UI design, redesign, polish, audit or craft, use `impeccable`. Keep `DESIGN.md`, the sidecar and the tokens in sync.
+
 ## Sources of truth
 
-- Product scope: `PRODUCT.md` (decisions are final).
-- Visual direction: Todoist's dark theme (left sidebar, centered list column, thin dividers, red accents); tokens live in `apps/web/src/styles.css`.
-- Layout and boundaries: `ARCHITECTURE.md`. App rules: `apps/web/AGENTS.md`. Architecture decisions: `docs/decisions/`. Domain terms: `UBIQUITOUS_LANGUAGE.md`. Deploy: `docs/deploy-vercel.md`.
+- Layout and boundaries: `ARCHITECTURE.md`. Architecture decisions: `docs/decisions/`. Domain terms: `UBIQUITOUS_LANGUAGE.md`. Deploy: `docs/deploy-vercel.md`.
 
 ## Before Editing
 
@@ -21,15 +25,27 @@ Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo 
 ## Skill Usage
 
 - If a task matches a skill in `.agents/skills` (also `.claude/skills`), read it before research, planning, creating, or editing files.
-- App rules live next to the code and load automatically, each with a `CLAUDE.md` symlink: `apps/web/AGENTS.md`.
-- Domain skills: `utils-helpers`, `zod-schemas`, `no-use-effect`, `domain-model` (Effect ports and adapters), `conventional-commit`, `fix-review-findings`, `handoff`, `write-a-skill`, `adr-authoring`, `ubiquitous-language`.
+- App and package rules live next to the code and load automatically, each with a `CLAUDE.md` symlink: `apps/web/AGENTS.md`, `packages/ui/AGENTS.md`, `packages/contracts/AGENTS.md`.
+- Code skills: `domain-model` (Effect ports, layers, package boundaries), `zod-schemas`, `utils-helpers`, `no-use-effect`, `impeccable` (UI and design craft), `patch-package`.
+- Workflow skills: `conventional-commit`, `pull-request`, `watch-pr-reviews`, `fix-review-findings`, `investigate-issue`, `health-sweep`, `api-manual-testing` (curl against `/api/rpc`), `handoff`.
+- Docs skills: `adr-authoring`, `ubiquitous-language`, `self-improve`, `write-a-skill`.
 
 ## Layout
 
 - `apps/web/src/platform`: config, app runtime and layers, oRPC wiring (`rpc.base.ts`, `rpc.context.ts`, `rpc.router.ts`, `rpc.handler.ts`), the `system` router.
 - `apps/web/src/modules/<module>/{domain,application,infrastructure,presentation}`: `tasks` (calendar logic, Upcoming and Today views).
-- `apps/web/src/lib/orpc`: browser and SSR oRPC clients, TanStack Query utils. `apps/web/src/utils`: global utils. `apps/web/src/components/ui`: shadcn-style primitives. `apps/web/src/components/app-shell`: sidebar layout.
-- `packages/domain` (brands such as `CalendarDate`), `packages/contracts` (oRPC contract + Zod), `tooling/oxlint-plugins` (`soonlist/*` lint rules).
+- `apps/web/src/lib/orpc`: browser and SSR oRPC clients, TanStack Query utils. `apps/web/src/components/app-shell`: the sidebar shell composed from `@soonlist/ui`.
+- `packages/domain` (`@soonlist/domain`): brands such as `CalendarDate` and shared constants.
+- `packages/contracts` (`@soonlist/contracts`): the oRPC contract and Zod schemas; the only API boundary.
+- `packages/ui` (`@soonlist/ui`): reusable React primitives (`button`, `skeleton`, `avatar`, `sidebar`) and `cn`.
+- `tooling/typescript-config` (tsconfig presets `base`, `react-library`, `react-app`), `tooling/tailwind-config` (Tailwind 4 theme and tokens), `tooling/oxlint-plugins` (`soonlist/*` lint rules).
+
+## Package Layering
+
+- Dependencies point one way: `apps/web` → `contracts` / `ui` → `domain`. `ui` and `contracts` never import each other or any app; `domain` imports nothing from the workspace.
+- `packages/contracts`, `packages/domain` and `packages/ui` are browser-safe: no Effect services, no Node built-ins, no server code.
+- Code moves from `apps/web` into a package only when a second consumer needs it (the desktop app, another package); see ADR 0002.
+- Every workspace extends a `@soonlist/typescript-config` preset and declares every workspace package it imports in its `package.json` (Bun's isolated linker fails the build otherwise).
 
 ## Effect Layering
 
@@ -66,7 +82,7 @@ Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo 
 | `.types.ts`                                   | interfaces, brands, type-only files                                   | anywhere                                                           |
 | `.constants.ts`                               | module-level constants, limits, messages                              | anywhere                                                           |
 | `.helper.ts`                                  | pure module-specific function(s)                                      | `domain/`, `presentation/helpers/`, `infrastructure/`, `platform/` |
-| `.util.ts`                                    | pure global, domain-agnostic function                                 | `apps/web/src/utils/`                                              |
+| `.util.ts`                                    | pure global, domain-agnostic function                                 | `src/utils/` of an app or package (`cn` lives in `packages/ui`)    |
 | `.schema.ts`                                  | Drizzle table                                                         | `packages/db/schema/`                                              |
 | `.contract.ts`, `.schemas.ts`                 | oRPC contract, shared Zod schemas                                     | `packages/contracts/src/`                                          |
 | `.mock.ts`                                    | test fixtures, never collected by Vitest                              | beside the source or `tests/support/`                              |
@@ -80,7 +96,7 @@ Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo 
 ## Code Style
 
 - Implementation files stay under 400 lines; split by component or role before they grow past that. Spec files have no length limit. (enforced by `max-lines`)
-- Kebab-case file names; no barrel files in `apps/web`; a package has exactly one barrel, its root `index.ts`. (enforced by `oxc/no-barrel-file`)
+- Kebab-case file names; no barrel files in `apps/web`; a package has at most one barrel, its root `index.ts`, and other `exports` entries point at concrete files (`packages/ui` has no barrel). (enforced by `oxc/no-barrel-file`)
 - Use app aliases and package imports; avoid cross-workspace relative imports. (enforced by `no-restricted-imports`)
 - Prefer `function` declarations for block-body functions; arrows for callbacks and concise expression helpers.
 - Interfaces for object shapes, declared directly above their use; type aliases for unions, primitives and computed types. Never inline object param types in signatures.
@@ -128,7 +144,12 @@ Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo 
 
 ## Commands
 
-`bun run dev` (port 3000), `bun run typecheck`, `bun run check` / `check:fix`, `bun run test`, `bun run build`.
+`bun run dev` (port 3000), `bun run typecheck`, `bun run check` / `check:fix`, `bun run test`, `bun run build`, `bun run commit` (commitizen).
+
+## Git
+
+- Conventional commits, checked by `commitlint` in the `commit-msg` hook and in CI; `pre-commit` runs `lint-staged` (`ultracite fix` on staged files). Never bypass hooks with `--no-verify`.
+- Use `conventional-commit` for commits and `pull-request` for PRs; dependent PRs form a native GitHub stack.
 
 ## Forbidden
 
@@ -137,14 +158,3 @@ Personal Todoist-like task list for one owner, Upcoming-first. Stack: Turborepo 
 - AI attribution in commits, PRs, code or docs (no `Co-Authored-By`, no "Generated with").
 - Auth bypasses or test-login routes.
 - Network configuration changes.
-
-<!-- BEGIN:turborepo-agent-rules -->
-
-# This is NOT the Turborepo you know
-
-Turborepo configuration, task behavior, and CLI commands can vary between installed versions and may differ from your training data. Resolve the `turbo` package from this file's directory or relevant workspace; in monorepos, it may not be visible from the repository root. For example, run `node -p "require.resolve('turbo/package.json')"` from a workspace that depends on `turbo`.
-
-Read `docs/README.md` inside that installed package first, then read the relevant pages from its `docs/` directory before changing Turborepo configuration or commands. Heed deprecation notices. These bundled docs match the installed package version and are available without network access.
-
-This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
-<!-- END:turborepo-agent-rules -->
