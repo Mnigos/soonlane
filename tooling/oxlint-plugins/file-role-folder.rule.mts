@@ -10,7 +10,7 @@ const ROLE_FOLDERS = {
 	repository: ['infrastructure'],
 	layer: ['infrastructure', 'platform'],
 	parser: ['infrastructure'],
-	client: ['infrastructure', 'presentation', 'lib'],
+	client: ['infrastructure', 'presentation', 'platform/rpc'],
 	port: ['application'],
 	service: ['application'],
 	util: ['src/utils'],
