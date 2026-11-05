@@ -21,6 +21,15 @@ const SERVER_ONLY_FILES = [
 	'**/routes/api.*',
 ]
 
+// The browser half of the oRPC client lives in platform/rpc next to the server half; these files are the only platform code the client may import. The custom list replaces the default, so it repeats node_modules.
+const BROWSER_SAFE_PLATFORM_FILES = [
+	'**/node_modules/**',
+	'**/platform/rpc/rpc.client.ts',
+	'**/platform/rpc/rpc-query.client.ts',
+	'**/platform/rpc/rpc-prefix.constants.ts',
+	'**/platform/rpc/rpc-serializer.constants.ts',
+]
+
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
@@ -31,7 +40,10 @@ export default defineConfig({
 			},
 			importProtection: {
 				behavior: 'error',
-				client: { files: SERVER_ONLY_FILES },
+				client: {
+					files: SERVER_ONLY_FILES,
+					excludeFiles: BROWSER_SAFE_PLATFORM_FILES,
+				},
 				// '.client.ts' names HTTP clients here, not browser-only modules, so the default server deny list does not apply.
 				server: { files: [] },
 			},

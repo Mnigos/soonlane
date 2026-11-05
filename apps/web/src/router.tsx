@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { NotFound } from './components/not-found'
-import { orpcQuery } from './lib/orpc/rpc-query.client'
-import { serializer } from './lib/orpc/rpc-serializer.constants'
+import { orpcQuery } from './platform/rpc/rpc-query.client'
+import { serializer } from './platform/rpc/rpc-serializer.constants'
 import { routeTree } from './routeTree.gen'
 
 export interface RouterContext {

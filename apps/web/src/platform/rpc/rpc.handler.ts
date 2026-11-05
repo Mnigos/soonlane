@@ -1,6 +1,6 @@
 import { RPCHandler } from '@orpc/server/fetch'
 import { Effect } from 'effect'
-import { RPC_PREFIX } from '@/lib/orpc/rpc-prefix.constants'
+import { RPC_PREFIX } from '@/platform/rpc/rpc-prefix.constants'
 import type { RpcContext } from './rpc.context'
 import { router } from './rpc.router'
 
