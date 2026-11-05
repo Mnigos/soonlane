@@ -1,6 +1,6 @@
 ---
 name: domain-model
-description: Stress-tests plans and architecture against the Soonlist modules and packages, Effect ports and layers, UBIQUITOUS_LANGUAGE.md, ADRs, product docs and code reality. Use when adding a module or package, moving logic between domain/application/infrastructure/presentation, introducing a port, service or layer, naming domain concepts, or checking a plan against the domain model.
+description: Stress-tests plans and architecture against the Soonlist modules and packages, Effect ports and layers, ADRs, product docs and code reality, and maintains the UBIQUITOUS_LANGUAGE.md glossary. Use when adding a module or package, moving logic between domain/application/infrastructure/presentation, introducing a port, service or layer, naming or renaming domain concepts, resolving term conflicts, or checking a plan against the domain model.
 ---
 
 # Domain Model
@@ -19,7 +19,7 @@ Read the relevant sources for the topic:
 - The root `AGENTS.md` naming table and Effect layering rules
 - Existing modules and at least 3 similar files before proposing folder or boundary changes
 
-Use [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) for context docs and [ADR-FORMAT.md](./ADR-FORMAT.md) for ADRs. Use `UBIQUITOUS_LANGUAGE.md` only for ubiquitous language.
+Use [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) for context docs, [ADR-FORMAT.md](./ADR-FORMAT.md) for ADRs and [GLOSSARY-FORMAT.md](./GLOSSARY-FORMAT.md) for `UBIQUITOUS_LANGUAGE.md`.
 
 ## Flow
 
@@ -30,7 +30,7 @@ Use [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) for context docs and [ADR-FORMAT.md
 5. When the user asks to brainstorm, push back or establish a pattern, stay analysis-only until they explicitly say to proceed.
 6. Ask one sharp question at a time only when code and docs cannot answer it.
 7. Propose canonical terms for vague or overloaded language.
-8. Update `UBIQUITOUS_LANGUAGE.md` or context docs only when the task includes it or the user asks.
+8. Keep `UBIQUITOUS_LANGUAGE.md` current: when a task introduces, renames or retires a domain term or UI label, update it in the same change (format in GLOSSARY-FORMAT.md). Update context docs only when the user asks.
 9. Recommend `adr-authoring` only when the decision is hard to reverse, surprising without context, and based on a real trade-off.
 
 ## Soonlist Boundaries

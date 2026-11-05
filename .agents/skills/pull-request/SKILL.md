@@ -9,19 +9,18 @@ Use this skill when the user asks for a PR.
 
 ## Related Skills
 
-- Use `conventional-commit` when uncommitted changes must be committed.
-- Use `watch-pr-reviews` after opening or pushing to a PR.
+- Commits follow Conventional Commits; `commitlint` checks them in the `commit-msg` hook and in CI.
 
 ## Flow
 
 1. Inspect branch, status, recent commits, and diff against the base branch.
-2. If uncommitted changes exist, identify those within the requested scope and commit only those with `conventional-commit`. The PR request authorizes the necessary commits and push; do not ask for separate confirmation.
+2. If uncommitted changes exist, identify those within the requested scope and commit only those. The PR request authorizes the necessary commits and push; do not ask for separate confirmation.
 3. Fetch the base branch and rebase the PR branch onto the latest base before creating the PR.
 4. Push the current branch.
 5. Open a ready-for-review PR unless the user says otherwise. Dependent PRs form a native GitHub stack; never fake a stack with chained bases alone.
 6. Write the description with the format below; include validation, important risks, and the linked issue when discoverable.
 7. For UI changes, upload and embed screenshots in the PR description using the rules below.
-8. Before reporting the PR as ready, verify it on GitHub, not locally: `gh pr view --json mergeable,mergeStateStatus` shows `MERGEABLE`, `gh pr checks` has no failing or pending check for the current head, and the UI screenshot checklist below is complete. A local rebase or a green local test run is not evidence; if anything is red, pending, or conflicting, say so instead of calling the PR ready.
+8. Before reporting the PR as ready, verify it on GitHub, not locally: `gh pr view --json mergeable,mergeStateStatus` shows `MERGEABLE`, `gh pr checks` has no failing or pending check for the current head, and the UI screenshot checklist below is complete. A local rebase or a green local check is not evidence; if anything is red, pending, or conflicting, say so instead of calling the PR ready.
 
 ## Description Format
 
@@ -42,7 +41,7 @@ The description is a guide for a reviewer, not a change log. A reviewer should a
 - Stack screenshots vertically, one image per row with a descriptive caption above. Never use tables or grids. Desktop screenshots use the full available width; only mobile screenshots may use a narrower display width.
 - Label sample or mocked data. Isolated component previews may supplement application screenshots; they do not replace them or count as end-to-end verification.
 - Exclude secrets and personal customer data from uploaded images.
-- Read back the saved PR description and verify every image references an uploaded attachment. Visually inspect every attached image in the rendered PR; if the browser lacks private-repository access, use authenticated API readback and download each attachment for visual inspection. Local originals, images shown only in chat, DOM checks, and passing tests do not substitute for verifying the saved body and actual uploaded images.
+- Read back the saved PR description and verify every image references an uploaded attachment. Visually inspect every attached image in the rendered PR; if the browser lacks private-repository access, use authenticated API readback and download each attachment for visual inspection. Local originals, images shown only in chat, DOM checks, and passing checks do not substitute for verifying the saved body and actual uploaded images.
 - If capture or upload fails, keep working through available tools and authentication flows allowed by the active browser and security rules. If still blocked, report the concrete blocker and missing captures, and state that screenshot verification remains incomplete. Reporting a blocker does not complete UI work.
 
 ## Rules
