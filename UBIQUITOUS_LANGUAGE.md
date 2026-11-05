@@ -17,10 +17,11 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 
 ## Codebase
 
-| Term              | UI   | Code                                 | Meaning                                                                                                                         |
-| ----------------- | ---- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
-| Module            | none | `apps/web/src/modules/<module>`      | A slice of the web app with `domain`, `application`, `infrastructure` and `presentation` layers (`tasks`, later `identity`).    |
-| Package           | none | `@soonlist/*` in `packages/`         | Code shared beyond the web app: `contracts` (API boundary), `domain` (brands), `ui` (primitives); `db` and `auth` with sign-in. |
-| Primitive         | none | `@soonlist/ui/components/*`          | An app-agnostic UI building block (button, avatar, sidebar). Not a feature component.                                           |
-| Feature component | none | `modules/*/presentation/components`  | UI that knows the product: day sections, week strip, user menu.                                                                 |
-| Token             | none | `tooling/tailwind-config/tokens.css` | A named color, radius or text size from `DESIGN.md`.                                                                            |
+| Term              | UI                         | Code                                 | Meaning                                                                                                                         |
+| ----------------- | -------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Module            | none                       | `apps/web/src/modules/<module>`      | A slice of the web app with `domain`, `application`, `infrastructure` and `presentation` layers (`tasks`, `shell`).             |
+| Package           | none                       | `@soonlist/*` in `packages/`         | Code shared beyond the web app: `contracts` (API boundary), `domain` (brands), `ui` (primitives); `db` and `auth` with sign-in. |
+| Primitive         | none                       | `@soonlist/ui/components/*`          | An app-agnostic UI building block (button, avatar, sidebar). Not a feature component.                                           |
+| Shell             | sidebar, icon rail, drawer | `modules/shell`                      | The page frame around every signed-in view; never moves the centered list column.                                               |
+| Feature component | none                       | `modules/*/presentation/components`  | UI that knows the product: day sections, week strip, user menu.                                                                 |
+| Token             | none                       | `tooling/tailwind-config/tokens.css` | A named color, radius or text size from `DESIGN.md`.                                                                            |
