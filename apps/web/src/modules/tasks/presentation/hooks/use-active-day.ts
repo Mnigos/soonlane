@@ -102,6 +102,8 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 				window.removeEventListener('resize', scheduleUpdate)
 				window.removeEventListener('scrollend', settle)
 				cancelAnimationFrame(frame)
+				// StrictMode resubscribes before the frame runs; a stale id would block every later update.
+				frame = 0
 				clearTimeout(settleTimer)
 			}
 		},
