@@ -1,5 +1,11 @@
 import type { CalendarDate } from '@soonlist/domain'
-import { addDays, formatDayMonth, isBefore } from './calendar-date.helper'
+import {
+	addDays,
+	formatDayMonth,
+	formatWeekday,
+	isBefore,
+} from './calendar-date.helper'
+import { getRelativeDayName } from './day-label.helper'
 
 /** Todoist's due colors: overdue red, today green, tomorrow orange, the next 2 to 7 days violet, later uncolored. */
 export type DueTone = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later'
@@ -40,4 +46,28 @@ export function getDueLabel(
 	if (!dueTime) return undefined
 
 	return { text: dueTime, tone }
+}
+
+function getDueDateName(dueDate: CalendarDate, today: CalendarDate) {
+	const relative = getRelativeDayName(dueDate, today)
+	if (relative) return relative
+	// A weekday name is unambiguous only within the next six days.
+	if (!isBefore(dueDate, today) && isBefore(dueDate, addDays(today, WEEK_DAYS)))
+		return formatWeekday(dueDate, 'long')
+	if (dueDate.slice(0, 4) !== today.slice(0, 4))
+		return `${formatDayMonth(dueDate)} ${dueDate.slice(0, 4)}`
+
+	return formatDayMonth(dueDate)
+}
+
+/** The date chip of the task composer, e.g. "Today", "Monday", "14 Nov" or "Tomorrow 11:30". */
+export function getDueChipLabel(
+	dueDate: CalendarDate,
+	dueTime: string | undefined,
+	today: CalendarDate
+): DueLabel {
+	return {
+		text: [getDueDateName(dueDate, today), dueTime].filter(Boolean).join(' '),
+		tone: getDueTone(dueDate, today),
+	}
 }
