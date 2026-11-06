@@ -6,12 +6,14 @@ import {
 	jsonLdScript,
 	toSiteUrl,
 } from '@/modules/site/presentation/helpers/seo.helper'
-import {
-	DEFAULT_OG_IMAGE,
-	SITE_NAME,
-} from '@/modules/site/presentation/site.constants'
+import { SITE_NAME } from '@/modules/site/presentation/site.constants'
+import { OG_IMAGE_SIZE } from '../blog.constants'
 import { PostByline } from '../components/post-byline'
-import { getPostLastModified, getPostPath } from '../helpers/post.helper'
+import {
+	getPostLastModified,
+	getPostOgImagePath,
+	getPostPath,
+} from '../helpers/post.helper'
 
 export const Route = createFileRoute('/_site/blog/$slug')({
 	loader: async ({ params }) => {
@@ -27,13 +29,16 @@ export const Route = createFileRoute('/_site/blog/$slug')({
 		if (!post) return {}
 
 		const path = getPostPath(post.slug)
-		const image = post.image ?? DEFAULT_OG_IMAGE
+		const image = post.image ?? getPostOgImagePath(post.slug)
 		const lastModified = getPostLastModified(post)
 		const { meta, links } = buildPageHead({
 			title: `${post.title} · ${SITE_NAME}`,
 			description: post.description,
 			path,
 			image,
+			imageAlt: post.title,
+			// A custom frontmatter image has an unknown size.
+			imageSize: post.image ? undefined : OG_IMAGE_SIZE,
 			type: 'article',
 		})
 

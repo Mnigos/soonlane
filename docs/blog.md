@@ -24,7 +24,7 @@ The post, in Markdown. GitHub-flavoured tables and task lists work too.
 | `date`        | yes      | Publish day, `YYYY-MM-DD`. Posts are listed newest first.                    |
 | `updated`     | no       | Day of the last real change; shown as "Updated …" and used as `lastmod`.     |
 | `draft`       | no       | `true` keeps the post off production. Defaults to `false`.                   |
-| `image`       | no       | Share image path under `/blog/`, e.g. `/blog/why-soonlane/cover.png`.        |
+| `image`       | no       | Custom share image under `/blog/`; without it the build draws one per post.  |
 
 Put images in `apps/web/public/blog/<slug>/` and reference them as `/blog/<slug>/<file>`. Give inline images a width and height (`<img src="/blog/<slug>/shot.png" alt="…" width={1200} height={750} />`) so the page does not jump while they load.
 

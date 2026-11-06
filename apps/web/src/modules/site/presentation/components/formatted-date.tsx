@@ -1,9 +1,4 @@
-const DATE_FORMAT = new Intl.DateTimeFormat('en-GB', {
-	day: 'numeric',
-	month: 'short',
-	year: 'numeric',
-	timeZone: 'UTC',
-})
+import { DATE_FORMAT } from '../site.constants'
 
 interface FormattedDateProps {
 	date: string

@@ -10,6 +10,7 @@
     "src/**/*.ts",
     "src/**/*.tsx",
     "scripts/**/*.ts",
+    "scripts/**/*.tsx",
     "*.ts",
     ".content-collections/generated/**/*"
   ],
