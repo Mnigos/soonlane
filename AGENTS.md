@@ -6,6 +6,7 @@ Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (
 
 - Never read `.env` files or print secrets.
 - Commit only when asked. Conventional commits (commitlint runs in the hook and CI); never `--no-verify`. No AI attribution anywhere: no `Co-Authored-By`, no "Generated with".
+- Never edit `CHANGELOG.md` or `version.json` in a PR; only the release workflow writes them (`docs/release.md`).
 - No unit tests and no test frameworks. The gates are `bun run check`, `bun run typecheck` and `bun run build`.
 - "Today" is the user's local day, read in the browser (`useToday`). Never derive it from the server clock.
 
