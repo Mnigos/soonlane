@@ -2,8 +2,10 @@ import type { Label, Task } from '@soonlane/contracts'
 import { label, task, taskLabel, type TaskRow } from '@soonlane/db'
 import {
 	DEFAULT_TASK_PRIORITY,
+	type LabelId,
 	type TaskId,
 	toCalendarDate,
+	toLabelId,
 	type UserId,
 } from '@soonlane/domain'
 import {
@@ -27,6 +29,9 @@ import { TaskRepository } from '../application/task-repository.port'
 
 // Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM.
 const DUE_TIME_LENGTH = 5
+
+// The queries a task read or write needs, so they also run inside a transaction.
+type Queries = Pick<Database, 'insert' | 'select'>
 
 // Timed tasks first by time, then by priority (P1 first), then oldest first.
 const DAY_ORDER = [
@@ -58,7 +63,7 @@ function toTask(row: TaskRow, labels: Label[]): Task {
 }
 
 async function withLabels(
-	database: Database,
+	database: Queries,
 	ownerId: UserId,
 	rows: TaskRow[]
 ): Promise<Task[]> {
@@ -90,7 +95,29 @@ async function withLabels(
 	return rows.map(row => toTask(row, labelsByTask.get(row.id) ?? []))
 }
 
-async function findTask(database: Database, ownerId: UserId, id: TaskId) {
+// Inserts nothing for a label or a task that does not belong to the owner.
+async function assignLabels(
+	database: Queries,
+	ownerId: UserId,
+	id: TaskId,
+	labelIds: LabelId[]
+) {
+	await database
+		.insert(taskLabel)
+		.select(
+			database
+				.select({ taskId: task.id, labelId: label.id })
+				.from(task)
+				.innerJoin(
+					label,
+					and(eq(label.ownerId, ownerId), inArray(label.id, labelIds))
+				)
+				.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+		)
+		.onConflictDoNothing()
+}
+
+async function findTask(database: Queries, ownerId: UserId, id: TaskId) {
 	const rows = await database
 		.select()
 		.from(task)
@@ -151,27 +178,41 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				dueTime,
 				priority,
 				repeat,
+				labelIds = [],
 			}) =>
-				db.run('TaskRepository.create', async database => {
-					const [row] = await database
-						.insert(task)
-						.values({
-							ownerId,
-							title,
-							description: description || null,
-							dueDate: toCalendarDate(dueDate),
-							dueTime: dueTime ?? null,
-							priority: priority ?? DEFAULT_TASK_PRIORITY,
-							repeatUnit: repeat?.unit ?? null,
-							repeatInterval: repeat?.interval ?? null,
-							repeatAnchor: repeat?.anchor ?? null,
+				db.run(
+					'TaskRepository.create',
+					async database =>
+						await database.transaction(async transaction => {
+							const [row] = await transaction
+								.insert(task)
+								.values({
+									ownerId,
+									title,
+									description: description || null,
+									dueDate: toCalendarDate(dueDate),
+									dueTime: dueTime ?? null,
+									priority: priority ?? DEFAULT_TASK_PRIORITY,
+									repeatUnit: repeat?.unit ?? null,
+									repeatInterval: repeat?.interval ?? null,
+									repeatAnchor: repeat?.anchor ?? null,
+								})
+								.returning()
+
+							if (!row) throw new Error('Task insert returned no row')
+							if (labelIds.length === 0) return toTask(row, [])
+
+							await assignLabels(
+								transaction,
+								ownerId,
+								row.id,
+								labelIds.map(toLabelId)
+							)
+							const [created] = await withLabels(transaction, ownerId, [row])
+
+							return created ?? toTask(row, [])
 						})
-						.returning()
-
-					if (!row) throw new Error('Task insert returned no row')
-
-					return toTask(row, [])
-				}),
+				),
 			update: ({
 				ownerId,
 				id,
@@ -255,22 +296,9 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 
 					return row && toLabel(row)
 				}),
-			// Inserts nothing unless both the task and the label belong to the owner.
 			assignLabel: ({ ownerId, id, labelId }) =>
 				db.run('TaskRepository.assignLabel', async database => {
-					await database
-						.insert(taskLabel)
-						.select(
-							database
-								.select({ taskId: task.id, labelId: label.id })
-								.from(task)
-								.innerJoin(
-									label,
-									and(eq(label.ownerId, ownerId), eq(label.id, labelId))
-								)
-								.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
-						)
-						.onConflictDoNothing()
+					await assignLabels(database, ownerId, id, [labelId])
 
 					return await findTask(database, ownerId, id)
 				}),
