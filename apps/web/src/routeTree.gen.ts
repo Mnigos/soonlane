@@ -9,10 +9,14 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as modulesShellPresentationRoutesRootRedirectDotrouteRouteImport } from './modules/shell/presentation/routes/root-redirect.route'
+import { Route as modulesIdentityPresentationRoutesSessionDotrouteRouteImport } from './modules/identity/presentation/routes/session.route'
+import { Route as modulesSitePresentationRoutesSiteDotrouteRouteImport } from './modules/site/presentation/routes/site.route'
+import { Route as modulesSitePresentationRoutesRobotsDotrouteRouteImport } from './modules/site/presentation/routes/robots.route'
+import { Route as modulesSitePresentationRoutesSitemapDotrouteRouteImport } from './modules/site/presentation/routes/sitemap.route'
+import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport } from './modules/shell/presentation/routes/legacy-today.route'
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
-import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport } from './modules/shell/presentation/routes/legacy-today.route'
+import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
@@ -21,22 +25,26 @@ import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImp
 import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
 
-const modulesShellPresentationRoutesRootRedirectDotrouteRoute =
-  modulesShellPresentationRoutesRootRedirectDotrouteRouteImport.update({
-    id: '/',
-    path: '/',
+const modulesIdentityPresentationRoutesSessionDotrouteRoute =
+  modulesIdentityPresentationRoutesSessionDotrouteRouteImport.update({
+    id: '/_session',
     getParentRoute: () => rootRouteImport,
   } as any)
-const modulesShellPresentationRoutesShellDotrouteRoute =
-  modulesShellPresentationRoutesShellDotrouteRouteImport.update({
-    id: '/app',
-    path: '/app',
+const modulesSitePresentationRoutesSiteDotrouteRoute =
+  modulesSitePresentationRoutesSiteDotrouteRouteImport.update({
+    id: '/_site',
     getParentRoute: () => rootRouteImport,
   } as any)
-const modulesIdentityPresentationRoutesLoginDotrouteRoute =
-  modulesIdentityPresentationRoutesLoginDotrouteRouteImport.update({
-    id: '/login',
-    path: '/login',
+const modulesSitePresentationRoutesRobotsDotrouteRoute =
+  modulesSitePresentationRoutesRobotsDotrouteRouteImport.update({
+    id: '/robots.txt',
+    path: '/robots.txt',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesSitePresentationRoutesSitemapDotrouteRoute =
+  modulesSitePresentationRoutesSitemapDotrouteRouteImport.update({
+    id: '/sitemap.xml',
+    path: '/sitemap.xml',
     getParentRoute: () => rootRouteImport,
   } as any)
 const modulesShellPresentationRoutesLegacyTodayDotrouteRoute =
@@ -44,6 +52,24 @@ const modulesShellPresentationRoutesLegacyTodayDotrouteRoute =
     id: '/today',
     path: '/today',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesShellPresentationRoutesShellDotrouteRoute =
+  modulesShellPresentationRoutesShellDotrouteRouteImport.update({
+    id: '/app',
+    path: '/app',
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
+  } as any)
+const modulesIdentityPresentationRoutesLoginDotrouteRoute =
+  modulesIdentityPresentationRoutesLoginDotrouteRouteImport.update({
+    id: '/login',
+    path: '/login',
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
+  } as any)
+const modulesSitePresentationRoutesHomeDotrouteRoute =
+  modulesSitePresentationRoutesHomeDotrouteRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
   modulesTasksPresentationRoutesUpcomingDotrouteRouteImport.update({
@@ -61,13 +87,13 @@ const modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute =
   modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport.update({
     id: '/desktop/callback',
     path: '/desktop/callback',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
 const modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute =
   modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport.update({
     id: '/desktop/sign-in',
     path: '/desktop/sign-in',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
 const modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute =
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport.update({
@@ -89,10 +115,12 @@ const modulesLabelsPresentationRoutesLabelDotrouteRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof modulesShellPresentationRoutesRootRedirectDotrouteRoute
+  '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
+  '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
+  '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
-  '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -102,9 +130,11 @@ export interface FileRoutesByFullPath {
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof modulesShellPresentationRoutesRootRedirectDotrouteRoute
-  '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
+  '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -115,14 +145,18 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof modulesShellPresentationRoutesRootRedirectDotrouteRoute
-  '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
-  '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/_session': typeof modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren
+  '/_site': typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
+  '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
+  '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
-  '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
-  '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
-  '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
-  '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/_site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/_session/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
+  '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -131,9 +165,11 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/robots.txt'
+    | '/sitemap.xml'
+    | '/today'
     | '/app'
     | '/login'
-    | '/today'
     | '/app/'
     | '/app/today'
     | '/desktop/callback'
@@ -144,8 +180,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/login'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/today'
+    | '/login'
     | '/app'
     | '/app/today'
     | '/desktop/callback'
@@ -155,51 +193,61 @@ export interface FileRouteTypes {
     | '/app/labels/$name'
   id:
     | '__root__'
-    | '/'
-    | '/app'
-    | '/login'
+    | '/_session'
+    | '/_site'
+    | '/robots.txt'
+    | '/sitemap.xml'
     | '/today'
-    | '/app/'
-    | '/app/today'
-    | '/desktop/callback'
-    | '/desktop/sign-in'
+    | '/_site/'
+    | '/_session/app'
+    | '/_session/login'
+    | '/_session/app/'
+    | '/_session/app/today'
+    | '/_session/desktop/callback'
+    | '/_session/desktop/sign-in'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/app/labels/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  modulesShellPresentationRoutesRootRedirectDotrouteRoute: typeof modulesShellPresentationRoutesRootRedirectDotrouteRoute
-  modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
-  modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  modulesIdentityPresentationRoutesSessionDotrouteRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren
+  modulesSitePresentationRoutesSiteDotrouteRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
+  modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
+  modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
-  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
-  modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
+    '/_session': {
+      id: '/_session'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof modulesShellPresentationRoutesRootRedirectDotrouteRouteImport
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app': {
-      id: '/app'
-      path: '/app'
-      fullPath: '/app'
-      preLoaderRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteImport
+    '/_site': {
+      id: '/_site'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRouteImport
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/today': {
@@ -209,33 +257,54 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/': {
-      id: '/app/'
+    '/_session/app': {
+      id: '/_session/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
+    }
+    '/_session/login': {
+      id: '/_session/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
+    }
+    '/_site/': {
+      id: '/_site/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof modulesSitePresentationRoutesHomeDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/_session/app/': {
+      id: '/_session/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/app/today': {
-      id: '/app/today'
+    '/_session/app/today': {
+      id: '/_session/app/today'
       path: '/today'
       fullPath: '/app/today'
       preLoaderRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/desktop/callback': {
-      id: '/desktop/callback'
+    '/_session/desktop/callback': {
+      id: '/_session/desktop/callback'
       path: '/desktop/callback'
       fullPath: '/desktop/callback'
       preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
-    '/desktop/sign-in': {
-      id: '/desktop/sign-in'
+    '/_session/desktop/sign-in': {
+      id: '/_session/desktop/sign-in'
       path: '/desktop/sign-in'
       fullPath: '/desktop/sign-in'
       preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -282,19 +351,56 @@ const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =
     modulesShellPresentationRoutesShellDotrouteRouteChildren,
   )
 
+interface modulesIdentityPresentationRoutesSessionDotrouteRouteChildren {
+  modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
+  modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+}
+
+const modulesIdentityPresentationRoutesSessionDotrouteRouteChildren: modulesIdentityPresentationRoutesSessionDotrouteRouteChildren =
+  {
+    modulesShellPresentationRoutesShellDotrouteRoute:
+      modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
+    modulesIdentityPresentationRoutesLoginDotrouteRoute:
+      modulesIdentityPresentationRoutesLoginDotrouteRoute,
+    modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute:
+      modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute,
+    modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute:
+      modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute,
+  }
+
+const modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren =
+  modulesIdentityPresentationRoutesSessionDotrouteRoute._addFileChildren(
+    modulesIdentityPresentationRoutesSessionDotrouteRouteChildren,
+  )
+
+interface modulesSitePresentationRoutesSiteDotrouteRouteChildren {
+  modulesSitePresentationRoutesHomeDotrouteRoute: typeof modulesSitePresentationRoutesHomeDotrouteRoute
+}
+
+const modulesSitePresentationRoutesSiteDotrouteRouteChildren: modulesSitePresentationRoutesSiteDotrouteRouteChildren =
+  {
+    modulesSitePresentationRoutesHomeDotrouteRoute:
+      modulesSitePresentationRoutesHomeDotrouteRoute,
+  }
+
+const modulesSitePresentationRoutesSiteDotrouteRouteWithChildren =
+  modulesSitePresentationRoutesSiteDotrouteRoute._addFileChildren(
+    modulesSitePresentationRoutesSiteDotrouteRouteChildren,
+  )
+
 const rootRouteChildren: RootRouteChildren = {
-  modulesShellPresentationRoutesRootRedirectDotrouteRoute:
-    modulesShellPresentationRoutesRootRedirectDotrouteRoute,
-  modulesShellPresentationRoutesShellDotrouteRoute:
-    modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
-  modulesIdentityPresentationRoutesLoginDotrouteRoute:
-    modulesIdentityPresentationRoutesLoginDotrouteRoute,
+  modulesIdentityPresentationRoutesSessionDotrouteRoute:
+    modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren,
+  modulesSitePresentationRoutesSiteDotrouteRoute:
+    modulesSitePresentationRoutesSiteDotrouteRouteWithChildren,
+  modulesSitePresentationRoutesRobotsDotrouteRoute:
+    modulesSitePresentationRoutesRobotsDotrouteRoute,
+  modulesSitePresentationRoutesSitemapDotrouteRoute:
+    modulesSitePresentationRoutesSitemapDotrouteRoute,
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute:
     modulesShellPresentationRoutesLegacyTodayDotrouteRoute,
-  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute:
-    modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute,
-  modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute:
-    modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute,
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:
     modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute,
   routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,

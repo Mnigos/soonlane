@@ -7,7 +7,7 @@ const loginSearchSchema = z.object({
 	deleted: z.boolean().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute('/_session/login')({
 	validateSearch: loginSearchSchema,
 	beforeLoad: ({ context }) => {
 		if (context.me.user) throw redirect({ to: '/app' })

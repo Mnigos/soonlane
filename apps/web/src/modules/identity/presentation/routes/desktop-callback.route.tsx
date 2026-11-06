@@ -3,7 +3,7 @@ import { exchangeDesktopSignInCode } from '@soonlane/auth/client'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { DesktopCallbackScreen } from '../components/desktop-callback-screen'
 
-export const Route = createFileRoute('/desktop/callback')({
+export const Route = createFileRoute('/_session/desktop/callback')({
 	// The desktop app puts the code and its verifier in the fragment, which only the browser can read.
 	ssr: false,
 	loader: async ({ context, location }) => {

@@ -12,18 +12,12 @@ import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-	beforeLoad: async ({ context }) => ({
-		me: await context.queryClient.query(
-			context.orpc.identity.me.queryOptions()
-		),
-	}),
 	head: () => ({
 		meta: [
 			{ charSet: 'utf-8' },
 			{ name: 'viewport', content: 'width=device-width, initial-scale=1' },
 			{ title: 'Soonlane' },
 			{ name: 'theme-color', content: '#1e1e1e' },
-			{ name: 'robots', content: 'noindex, nofollow' },
 		],
 		links: [
 			{ rel: 'stylesheet', href: appCss },
