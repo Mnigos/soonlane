@@ -198,7 +198,7 @@ System sans (`-apple-system`, Inter, Segoe UI, Roboto). Weight carries hierarchy
 
 ## 4. Elevation
 
-Flat. The layered surfaces are the mobile drawer and the Add task dialog (both over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
+Flat. The layered surfaces are the mobile drawer, the Add task dialog and the Delete account dialog (all over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
 
 ## 5. Components
 
@@ -260,5 +260,5 @@ Flat. The layered surfaces are the mobile drawer and the Add task dialog (both o
 - **Don't** add cards, shadows or gradients.
 - **Don't** use red for anything that is not an action, the current day or overdue state.
 - **Don't** add blue outside the P3 priority color, the date picker's weekend couch and the owner's label colors; links and focus use red or neutrals.
-- **Don't** open a modal for a one- or two-field action; edit inline. The one exception is the global "Add task" in the sidebar, which opens the task composer in a dialog.
+- **Don't** open a modal for a one- or two-field action; edit inline. There are two exceptions: the global "Add task" in the sidebar, which opens the task composer in a dialog, and "Delete account" in the user menu, which asks for confirmation in a dialog with Cancel and a red "Delete account" button.
 - **Don't** introduce projects, boards or team visuals.

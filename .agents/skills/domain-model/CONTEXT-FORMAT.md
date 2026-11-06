@@ -55,7 +55,7 @@ Create `CONTEXT.md` when a stable repo-level context summary is needed. Create `
 Current known contexts:
 
 - Tasks (calendar days, Upcoming and Today views, later tasks and labels)
-- Identity (the owner, sign-in, sessions)
+- Identity (users, sign-in, sessions)
 
 ## Future Context Map
 
@@ -67,11 +67,11 @@ Recommended future shape, once the desktop app or a second bounded context makes
 ## Contexts
 
 - [Tasks](./docs/contexts/tasks.md) - owns tasks, due dates, labels, and the Upcoming and Today views.
-- [Identity](./docs/contexts/identity.md) - owns the owner account, Google sign-in, and sessions.
+- [Identity](./docs/contexts/identity.md) - owns user accounts, Google sign-in, and sessions.
 
 ## Relationships
 
-- **Identity -> Tasks**: every task belongs to the signed-in owner; `requireOwner` guards task procedures.
+- **Identity -> Tasks**: every task belongs to the signed-in user; `requireUser` guards task procedures.
 ```
 
 When `CONTEXT-MAP.md` exists, read it first and then read only the context docs relevant to the current task.
