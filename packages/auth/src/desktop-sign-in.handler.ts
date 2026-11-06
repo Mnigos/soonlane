@@ -17,7 +17,11 @@ const CODE_IDENTIFIER_PREFIX = 'desktop-sign-in:'
 const INVALID_CODE_MESSAGE =
 	'This sign-in link expired or was already used. Start again from the desktop app.'
 
-const storedCodeSchema = z.object({ userId: z.string(), challenge: z.string() })
+const storedCodeSchema = z.object({
+	userId: z.string(),
+	challenge: z.string(),
+	sessionCreatedAt: z.coerce.date(),
+})
 
 async function toCodeIdentifier(code: string) {
 	return `${CODE_IDENTIFIER_PREFIX}${await toCodeChallenge(code)}`
@@ -51,6 +55,7 @@ export function desktopSignIn() {
 						value: JSON.stringify({
 							userId: ctx.context.session.user.id,
 							challenge: ctx.body.challenge,
+							sessionCreatedAt: ctx.context.session.session.createdAt,
 						}),
 						expiresAt: new Date(Date.now() + CODE_TTL_MS),
 					})
@@ -83,11 +88,15 @@ export function desktopSignIn() {
 							? await ctx.context.internalAdapter.findUserById(pending.userId)
 							: null
 
-					if (!user)
+					if (!(pending && user))
 						throw new APIError('BAD_REQUEST', { message: INVALID_CODE_MESSAGE })
 
+					// Keeps the browser session's age, so a hand-off never passes a fresh-session check (account deletion) the browser would fail.
 					const session = await ctx.context.internalAdapter.createSession(
-						user.id
+						user.id,
+						false,
+						{ createdAt: pending.sessionCreatedAt },
+						true
 					)
 
 					await setSessionCookie(ctx, { session, user })
