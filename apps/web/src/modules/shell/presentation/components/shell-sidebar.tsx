@@ -10,6 +10,7 @@ import { SidebarNavLink } from './sidebar-nav-link'
 interface ShellSidebarProps {
 	className?: string
 	user: SessionUser
+	onAddTask: () => void
 	onCollapse: () => void
 	onNavigate: () => void
 }
@@ -17,6 +18,7 @@ interface ShellSidebarProps {
 export function ShellSidebar({
 	className,
 	user,
+	onAddTask,
 	onCollapse,
 	onNavigate,
 }: Readonly<ShellSidebarProps>) {
@@ -41,6 +43,7 @@ export function ShellSidebar({
 
 			<button
 				className="group flex h-8 cursor-pointer items-center gap-2 rounded-md px-1.5 text-sm font-semibold text-danger transition-colors hover:bg-hover"
+				onClick={onAddTask}
 				type="button"
 			>
 				<span className="flex size-5.5 items-center justify-center rounded-full bg-primary text-primary-foreground group-hover:bg-primary-hover">

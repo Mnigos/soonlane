@@ -4,9 +4,13 @@ import {
 	getUpcomingDays,
 	getWeekStrip,
 } from '../../../domain/upcoming-view.helper'
+import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useActiveDay } from '../../hooks/use-active-day'
+import { useCompleteTask } from '../../hooks/use-complete-task'
+import { useTasksQuery } from '../../hooks/use-tasks-query'
 import { DaySection } from '../list/day-section'
 import { OverdueSection } from '../list/overdue-section'
+import { TaskListError } from '../list/task-list-error'
 import { WeekControls } from './week-controls'
 import { WeekStrip } from './week-strip'
 
@@ -21,6 +25,13 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 	const activeIndex = days.indexOf(activeDay)
 	const previousDay = days[activeIndex - 1]
 	const nextDay = days[activeIndex + 1]
+	const { data, isPending, isError, refetch } = useTasksQuery({
+		from: today,
+		to: days.at(-1) ?? today,
+		today,
+	})
+	const { completeTask } = useCompleteTask()
+	const tasksByDay = groupTasksByDay(data?.scheduled ?? [])
 
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
@@ -52,13 +63,22 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 				<WeekStrip days={strip.days} onSelect={scrollToDay} />
 			</header>
 
-			<OverdueSection />
+			{isError && <TaskListError onRetry={() => void refetch()} />}
+
+			<OverdueSection
+				isLoading={isPending}
+				onComplete={completeTask}
+				tasks={data?.overdue ?? []}
+			/>
 
 			{days.map(date => (
 				<DaySection
 					date={date}
+					isLoading={isPending}
 					key={date}
+					onComplete={completeTask}
 					ref={sectionRef(date)}
+					tasks={tasksByDay.get(date) ?? []}
 					today={today}
 				/>
 			))}

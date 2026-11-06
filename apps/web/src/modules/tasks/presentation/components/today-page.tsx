@@ -3,14 +3,24 @@ import {
 	formatDayMonth,
 	formatWeekday,
 } from '../../domain/calendar-date.helper'
+import { useCompleteTask } from '../hooks/use-complete-task'
+import { useTasksQuery } from '../hooks/use-tasks-query'
 import { DaySection } from './list/day-section'
 import { OverdueSection } from './list/overdue-section'
+import { TaskListError } from './list/task-list-error'
 
 interface TodayPageProps {
 	today: CalendarDate
 }
 
 export function TodayPage({ today }: Readonly<TodayPageProps>) {
+	const { data, isPending, isError, refetch } = useTasksQuery({
+		from: today,
+		to: today,
+		today,
+	})
+	const { completeTask } = useCompleteTask()
+
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
 			<header className="flex flex-col pt-1 md:pt-4">
@@ -21,9 +31,21 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 				</p>
 			</header>
 
-			<OverdueSection />
+			{isError && <TaskListError onRetry={() => void refetch()} />}
 
-			<DaySection date={today} today={today} />
+			<OverdueSection
+				isLoading={isPending}
+				onComplete={completeTask}
+				tasks={data?.overdue ?? []}
+			/>
+
+			<DaySection
+				date={today}
+				isLoading={isPending}
+				onComplete={completeTask}
+				tasks={data?.scheduled ?? []}
+				today={today}
+			/>
 		</main>
 	)
 }

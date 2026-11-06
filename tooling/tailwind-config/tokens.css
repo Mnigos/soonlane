@@ -17,6 +17,12 @@
 
 	--danger: #ff7066;
 
+	/* Todoist priority colors: P1 red, P2 orange, P3 blue, P4 grey. */
+	--priority-1: #d1453b;
+	--priority-2: #eb8909;
+	--priority-3: #246fe0;
+	--priority-4: #8a8a8a;
+
 	--radius: 0.375rem;
 }
 
@@ -37,6 +43,11 @@
 	--color-primary-muted: var(--primary-muted);
 
 	--color-danger: var(--danger);
+
+	--color-priority-1: var(--priority-1);
+	--color-priority-2: var(--priority-2);
+	--color-priority-3: var(--priority-3);
+	--color-priority-4: var(--priority-4);
 
 	--radius-md: var(--radius);
 

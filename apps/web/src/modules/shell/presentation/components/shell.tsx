@@ -1,8 +1,10 @@
 import type { SessionUser } from '@soonlist/contracts'
 import { cn } from '@soonlist/ui/cn'
 import { Button } from '@soonlist/ui/components/button'
+import { Toaster } from '@soonlist/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
+import { AddTaskDialog } from '@/modules/tasks/presentation/components/task/add-task-dialog'
 import {
 	isWideViewport,
 	saveSidebarPreference,
@@ -29,6 +31,12 @@ export function Shell({
 }: Readonly<ShellProps>) {
 	const [preference, setPreference] = useState(initialSidebarPreference)
 	const [isOverlayOpen, setIsOverlayOpen] = useState(false)
+	const [isAddingTask, setIsAddingTask] = useState(false)
+
+	function openAddTask() {
+		setIsOverlayOpen(false)
+		setIsAddingTask(true)
+	}
 
 	function changePreference(next: SidebarPreference) {
 		setPreference(next)
@@ -49,6 +57,7 @@ export function Shell({
 		<div className="min-h-dvh md:pl-14">
 			<ShellRail
 				className={cn('hidden md:flex', preference === 'full' && 'xl:hidden')}
+				onAddTask={openAddTask}
 				onExpand={expand}
 				user={user}
 			/>
@@ -67,6 +76,7 @@ export function Shell({
 					isOverlayOpen ? 'flex' : 'hidden',
 					preference === 'full' ? 'xl:flex' : 'xl:hidden'
 				)}
+				onAddTask={openAddTask}
 				onCollapse={collapse}
 				onNavigate={() => setIsOverlayOpen(false)}
 				user={user}
@@ -84,6 +94,10 @@ export function Shell({
 			</div>
 
 			{children}
+
+			{isAddingTask && <AddTaskDialog onClose={() => setIsAddingTask(false)} />}
+
+			<Toaster />
 		</div>
 	)
 }
