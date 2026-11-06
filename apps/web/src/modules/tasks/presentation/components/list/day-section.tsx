@@ -25,7 +25,13 @@ export function DaySection({
 	ref,
 }: Readonly<DaySectionProps>) {
 	const [isAdding, setIsAdding] = useState(false)
+	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
 	const headingId = `day-${date}-heading`
+
+	function closeComposer() {
+		setIsAdding(false)
+		setShouldFocusAddTask(true)
+	}
 
 	return (
 		<section
@@ -54,11 +60,14 @@ export function DaySection({
 			{isAdding ? (
 				<TaskComposer
 					defaultDueDate={date}
-					onCancel={() => setIsAdding(false)}
+					onCancel={closeComposer}
 					today={today}
 				/>
 			) : (
-				<AddTaskRow onClick={() => setIsAdding(true)} />
+				<AddTaskRow
+					autoFocus={shouldFocusAddTask}
+					onClick={() => setIsAdding(true)}
+				/>
 			)}
 		</section>
 	)

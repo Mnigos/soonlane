@@ -1,12 +1,14 @@
 import { Plus } from 'lucide-react'
 
 interface AddTaskRowProps {
+	autoFocus: boolean
 	onClick: () => void
 }
 
-export function AddTaskRow({ onClick }: Readonly<AddTaskRowProps>) {
+export function AddTaskRow({ autoFocus, onClick }: Readonly<AddTaskRowProps>) {
 	return (
 		<button
+			autoFocus={autoFocus}
 			className="group flex w-full cursor-pointer items-center gap-2.5 py-2 text-sm text-muted-foreground transition-colors outline-none hover:text-danger focus-visible:text-danger"
 			onClick={onClick}
 			type="button"
