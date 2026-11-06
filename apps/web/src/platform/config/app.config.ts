@@ -17,7 +17,6 @@ export class AppConfig extends Context.Service<
 		readonly googleClientSecret: string
 		readonly oauthProxy: boolean
 		readonly oauthProxySecret?: Redacted.Redacted
-		readonly version?: string
 	}
 >()('soonlist/AppConfig') {}
 
@@ -48,7 +47,6 @@ export const AppConfigLive = Layer.effect(
 		oauthProxySecret: optionalString('OAUTH_PROXY_SECRET').pipe(
 			Config.map(secret => (secret ? Redacted.make(secret) : undefined))
 		),
-		version: optionalString('VERCEL_GIT_COMMIT_SHA'),
 	}).pipe(
 		Config.map(
 			({ authUrl, vercelBranchUrl, vercelUrl, vercelEnv, ...settings }) => {

@@ -1,14 +1,10 @@
 import { sql } from 'drizzle-orm'
 import { Effect } from 'effect'
-import { AppConfig } from '../config/app.config'
 import { Db } from '../db/db.layer'
 import { os } from '../rpc/rpc.base'
 
-const LOCAL_VERSION = 'dev'
-
 export const systemRouter = {
 	health: os.system.health.effect(function* () {
-		const { version } = yield* AppConfig
 		const db = yield* (yield* Db)
 			.run(
 				'System.health',
@@ -23,6 +19,11 @@ export const systemRouter = {
 				)
 			)
 
-		return { ok: db === 'ok', db, version: version ?? LOCAL_VERSION }
+		return {
+			ok: db === 'ok',
+			db,
+			version: import.meta.env.APP_VERSION,
+			commit: import.meta.env.APP_COMMIT,
+		}
 	}),
 }

@@ -4,6 +4,7 @@ import { Button } from '@soonlist/ui/components/button'
 import { Sidebar, SidebarSection } from '@soonlist/ui/components/sidebar'
 import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
 import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
+import { APP_COMMIT, APP_VERSION, RELEASES_URL } from '../build-info.constants'
 import { SidebarNavLink } from './sidebar-nav-link'
 
 interface ShellSidebarProps {
@@ -69,6 +70,16 @@ export function ShellSidebar({
 					No labels yet
 				</p>
 			</SidebarSection>
+
+			<a
+				className="mt-auto px-2 py-1 text-caption text-faint-foreground transition-colors hover:text-muted-foreground"
+				href={RELEASES_URL}
+				rel="noreferrer"
+				target="_blank"
+				title="Release notes"
+			>
+				v{APP_VERSION} · {APP_COMMIT}
+			</a>
 		</Sidebar>
 	)
 }

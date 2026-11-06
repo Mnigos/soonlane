@@ -5,6 +5,7 @@ export const healthOutputSchema = z.object({
 	ok: z.boolean(),
 	db: z.enum(['ok', 'down']),
 	version: z.string(),
+	commit: z.string(),
 })
 
 export type HealthOutput = z.infer<typeof healthOutputSchema>
