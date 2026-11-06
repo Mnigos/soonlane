@@ -16,7 +16,7 @@ import {
 
 interface MonthGridProps {
 	month: CalendarDate
-	selected: CalendarDate
+	selected?: CalendarDate
 	today: CalendarDate
 	/** The one day in the tab order. */
 	tabbable: CalendarDate

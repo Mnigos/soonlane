@@ -1,7 +1,7 @@
 import type { Task } from '@soonlane/contracts'
 import { task, type TaskRow } from '@soonlane/db'
 import { DEFAULT_TASK_PRIORITY, toCalendarDate } from '@soonlane/domain'
-import { and, asc, between, eq, isNull, lt, sql } from 'drizzle-orm'
+import { and, asc, between, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
 import { Db } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
@@ -119,6 +119,22 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 						.returning()
 
 					return row && toTask(row)
+				}),
+			rescheduleOpen: ({ ownerId, ids, dueDate }) =>
+				db.run('TaskRepository.rescheduleOpen', async database => {
+					const rows = await database
+						.update(task)
+						.set({ dueDate })
+						.where(
+							and(
+								eq(task.ownerId, ownerId),
+								inArray(task.id, ids),
+								isNull(task.completedAt)
+							)
+						)
+						.returning()
+
+					return rows.map(toTask)
 				}),
 		})
 	})

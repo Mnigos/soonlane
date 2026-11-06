@@ -4,7 +4,7 @@ import { getDueDateShortcuts } from '../../../domain/due-date-shortcut.helper'
 import { DUE_DATE_SHORTCUT_ICONS } from '../../helpers/due-date-shortcut.constants'
 
 interface DueDateShortcutsProps {
-	selected: CalendarDate
+	selected?: CalendarDate
 	today: CalendarDate
 	onSelect: (date: CalendarDate) => void
 }

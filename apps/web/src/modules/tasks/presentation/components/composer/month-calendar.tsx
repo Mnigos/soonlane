@@ -20,7 +20,7 @@ import {
 import { MonthGrid } from './month-grid'
 
 interface MonthCalendarProps {
-	selected: CalendarDate
+	selected?: CalendarDate
 	today: CalendarDate
 	onSelect: (date: CalendarDate) => void
 }
@@ -59,7 +59,7 @@ export function MonthCalendar({
 	onSelect,
 }: Readonly<MonthCalendarProps>) {
 	// A day the calendar lists, so a past or far chosen day still leaves a tab stop.
-	const initial = clampToCalendar(selected, today)
+	const initial = clampToCalendar(selected ?? today, today)
 	const [monthCount, setMonthCount] = useState(() =>
 		getInitialMonthCount(today, initial)
 	)

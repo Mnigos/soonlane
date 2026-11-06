@@ -1,8 +1,15 @@
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
+import {
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+} from '@soonlane/ui/components/popover'
 import { ChevronDown } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { useRescheduleTasks } from '../../hooks/use-reschedule-tasks'
+import { DueDatePicker } from '../composer/due-date-picker'
 import { TaskList } from './task-list'
 
 interface OverdueSectionProps {
@@ -19,6 +26,9 @@ export function OverdueSection({
 	onComplete,
 }: Readonly<OverdueSectionProps>) {
 	const [isOpen, setIsOpen] = useState(true)
+	const [isPickerOpen, setIsPickerOpen] = useState(false)
+	const inputRef = useRef<HTMLInputElement>(null)
+	const { rescheduleTasks } = useRescheduleTasks()
 
 	return (
 		<section aria-labelledby="overdue-heading" className="pt-4">
@@ -42,13 +52,30 @@ export function OverdueSection({
 					</button>
 				</h2>
 
-				<button
-					className="cursor-pointer text-sm font-medium text-danger hover:underline disabled:cursor-default disabled:opacity-50 disabled:hover:no-underline"
-					disabled
-					type="button"
-				>
-					Reschedule
-				</button>
+				<Popover onOpenChange={setIsPickerOpen} open={isPickerOpen}>
+					<PopoverTrigger
+						className="cursor-pointer text-sm font-medium text-danger hover:underline disabled:cursor-default disabled:opacity-50 disabled:hover:no-underline"
+						disabled={isLoading || tasks.length === 0}
+					>
+						Reschedule
+					</PopoverTrigger>
+
+					<PopoverContent
+						align="end"
+						aria-label="Reschedule overdue tasks"
+						className="w-62"
+						initialFocus={inputRef}
+					>
+						<DueDatePicker
+							inputRef={inputRef}
+							onDateChange={dueDate => {
+								rescheduleTasks({ ids: tasks.map(({ id }) => id), dueDate })
+								setIsPickerOpen(false)
+							}}
+							today={today}
+						/>
+					</PopoverContent>
+				</Popover>
 			</div>
 
 			{isOpen && (

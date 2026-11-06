@@ -65,6 +65,15 @@ export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
 
 export const taskIdInputSchema = z.object({ id: z.uuid() })
 
+const RESCHEDULE_MAX_TASKS = 1000
+
+export const rescheduleTasksInputSchema = z.object({
+	ids: z.array(z.uuid()).min(1).max(RESCHEDULE_MAX_TASKS),
+	dueDate: calendarDateSchema,
+})
+
+export type RescheduleTasksInput = z.infer<typeof rescheduleTasksInputSchema>
+
 const taskErrors = {
 	...authErrors,
 	NOT_FOUND: { message: 'This task no longer exists.' },
@@ -91,4 +100,8 @@ export const tasksContract = {
 		.errors(taskErrors)
 		.input(taskIdInputSchema)
 		.output(z.object({ task: taskSchema })),
+	reschedule: oc
+		.errors(authErrors)
+		.input(rescheduleTasksInputSchema)
+		.output(z.object({ tasks: z.array(taskSchema) })),
 }
