@@ -17,6 +17,20 @@ export const tasksRouter = {
 
 		return { task: yield* tasksService.create(context.owner.id, input) }
 	}),
+	update: os.tasks.update.use(requireOwner).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return {
+			task: yield* tasksService.update(
+				context.owner.id,
+				toTaskId(input.id),
+				input
+			),
+		}
+	}),
 	complete: os.tasks.complete.use(requireOwner).effect(function* ({
 		context,
 		input,

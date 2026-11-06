@@ -3,6 +3,7 @@ import type {
 	ListTasksInput,
 	ListTasksOutput,
 	Task,
+	UpdateTaskInput,
 } from '@soonlane/contracts'
 import { type TaskId, toCalendarDate, type UserId } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
@@ -21,6 +22,11 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: CreateTaskInput
 		) => Effect.Effect<Task, DbError>
+		readonly update: (
+			ownerId: UserId,
+			id: TaskId,
+			input: UpdateTaskInput
+		) => Effect.Effect<Task, TaskNotFound | DbError>
 		readonly complete: (
 			ownerId: UserId,
 			id: TaskId
@@ -68,6 +74,16 @@ export const TasksServiceLive = Layer.effect(
 			return yield* repository.create({ ...input, ownerId })
 		})
 
+		const update = Effect.fn('TasksService.update')(function* (
+			ownerId: UserId,
+			id: TaskId,
+			input: UpdateTaskInput
+		) {
+			return yield* requireTask(
+				yield* repository.update({ ...input, ownerId, id })
+			)
+		})
+
 		const complete = Effect.fn('TasksService.complete')(function* (
 			ownerId: UserId,
 			id: TaskId
@@ -88,6 +104,6 @@ export const TasksServiceLive = Layer.effect(
 			)
 		})
 
-		return TasksService.of({ list, create, complete, uncomplete })
+		return TasksService.of({ list, create, update, complete, uncomplete })
 	})
 )
