@@ -1,0 +1,3 @@
+[run]
+# `bun run` and `bun <bin>` started at the root run node-shebang tools (tsc, drizzle-kit, ultracite) on Bun; bunx needs --bun.
+bun = true

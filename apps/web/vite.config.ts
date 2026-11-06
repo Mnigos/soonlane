@@ -70,14 +70,13 @@ export default defineConfig({
 			},
 		}),
 		nitro({
-			// The Vercel build runs Vite under Node: under Bun, Nitro adds the 'bun' export condition and bundles React's Bun-only SSR stream.
 			preset: 'vercel',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
 			vercel: {
-				// Pinned so the function runtime never follows the build machine; fra1 sits next to the Neon database in eu-central-1.
+				// Nitro's default 'bun1.x' is Bun 1.3; 'bun1.4.x' matches bunVersion in vercel.json. fra1 sits next to the Neon database in eu-central-1.
 				functions: {
-					runtime: 'nodejs22.x',
+					runtime: 'bun1.4.x',
 					maxDuration: 60,
 					regions: ['fra1'],
 				},
