@@ -8,15 +8,23 @@ export interface GoogleSignInRedirects {
 	errorCallbackURL: string
 }
 
-/** `loginHint` keeps a repeated sign-in on the same Google account. */
+interface GoogleSignInOptions {
+	loginHint?: string
+	fresh?: boolean
+}
+
+const FORCED_GOOGLE_LOGIN_PARAMS = { prompt: 'login', max_age: '0' }
+
+/** `loginHint` keeps a repeated sign-in on the same Google account; `fresh` asks Google for a new login, which Google may still skip after its own risk check. */
 export async function signInWithGoogle(
 	redirects: GoogleSignInRedirects,
-	loginHint?: string
+	{ loginHint, fresh = false }: GoogleSignInOptions = {}
 ) {
 	return await authClient.signIn.social({
 		provider: 'google',
 		...redirects,
 		loginHint,
+		additionalParams: fresh ? FORCED_GOOGLE_LOGIN_PARAMS : undefined,
 	})
 }
 

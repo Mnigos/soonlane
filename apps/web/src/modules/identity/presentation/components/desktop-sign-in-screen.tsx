@@ -43,6 +43,7 @@ export function DesktopSignInScreen({
 	return (
 		<SignInScreen
 			configured={configured}
+			fresh={fresh}
 			loginHint={user?.email}
 			oauthError={oauthError}
 			redirects={{

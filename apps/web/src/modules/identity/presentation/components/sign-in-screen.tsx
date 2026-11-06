@@ -12,6 +12,7 @@ interface SignInScreenProps {
 	isAccountDeleted?: boolean
 	redirects?: GoogleSignInRedirects
 	loginHint?: string
+	fresh?: boolean
 }
 
 export function SignInScreen({
@@ -20,6 +21,7 @@ export function SignInScreen({
 	isAccountDeleted = false,
 	redirects = LOGIN_REDIRECTS,
 	loginHint,
+	fresh = false,
 }: Readonly<SignInScreenProps>) {
 	return (
 		<SignInLayout
@@ -34,7 +36,11 @@ export function SignInScreen({
 
 			{configured ? (
 				<div className="flex flex-col gap-3">
-					<ContinueWithGoogle loginHint={loginHint} redirects={redirects} />
+					<ContinueWithGoogle
+						fresh={fresh}
+						loginHint={loginHint}
+						redirects={redirects}
+					/>
 
 					<TermsAgreement />
 				</div>

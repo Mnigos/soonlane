@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-router'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
+import { z } from 'zod'
 import { Shell } from '../components/shell'
 import { readSidebarPreference } from '../helpers/sidebar-preference.helper'
 
@@ -14,7 +15,12 @@ const getSidebarPreference = createIsomorphicFn()
 	.server(() => readSidebarPreference(getRequestHeader('cookie') ?? ''))
 	.client(() => readSidebarPreference(document.cookie))
 
+const shellSearchSchema = z.object({
+	deleteAccount: z.boolean().optional().catch(undefined),
+})
+
 export const Route = createFileRoute('/_session/app')({
+	validateSearch: shellSearchSchema,
 	beforeLoad: ({ context }) => {
 		if (!context.me.user) throw redirect({ to: '/login' })
 

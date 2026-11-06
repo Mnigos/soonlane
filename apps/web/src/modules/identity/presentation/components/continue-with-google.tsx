@@ -24,7 +24,10 @@ export function ContinueWithGoogle({
 }: Readonly<ContinueWithGoogleProps>) {
 	const { mutate, isPending, isSuccess, isError } = useMutation({
 		mutationFn: async () => {
-			const { error } = await startGoogleSignIn(redirects, loginHint)
+			const { error } = await startGoogleSignIn(redirects, {
+				loginHint,
+				fresh,
+			})
 
 			if (error) throw new Error(SIGN_IN_FAILED)
 		},
