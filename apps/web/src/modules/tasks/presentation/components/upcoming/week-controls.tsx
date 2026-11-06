@@ -1,16 +1,21 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 interface WeekControlsProps {
+	activeDayLabel: string
 	onPrevious?: () => void
 	onToday: () => void
 	onNext?: () => void
 }
 
 const STEP_CLASS =
-	'flex h-8 cursor-pointer items-center justify-center px-1.5 text-muted-foreground transition-colors hover:bg-hover hover:text-foreground disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent sm:px-2'
+	'flex h-8 shrink-0 cursor-pointer items-center justify-center px-1.5 text-muted-foreground transition-colors hover:bg-hover hover:text-foreground disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent sm:px-2'
 
-/** Day navigation: the arrows step to the previous or next day, Today returns to today's section. */
+/**
+ * Day navigation: the arrows step to the previous or next day, the middle button
+ * names the active day and returns to today's section.
+ */
 export function WeekControls({
+	activeDayLabel,
 	onPrevious,
 	onToday,
 	onNext,
@@ -31,11 +36,13 @@ export function WeekControls({
 			</button>
 
 			<button
-				className="flex h-8 cursor-pointer items-center px-2 text-sm font-medium transition-colors hover:bg-hover sm:px-3"
+				aria-label="Go to today"
+				className="flex h-8 min-w-28 shrink-0 cursor-pointer items-center justify-center px-2 text-sm font-medium whitespace-nowrap tabular-nums transition-colors hover:bg-hover sm:px-3"
 				onClick={onToday}
+				title="Go to today"
 				type="button"
 			>
-				Today
+				{activeDayLabel}
 			</button>
 
 			<button

@@ -166,6 +166,7 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 - Seven equal columns for the active day's week: weekday short name and day number side by side, stacked below `sm`. Past days faint and inert.
 - Today is bold in ink with its number on the red badge, wherever the list is scrolled.
 - The active day (the one at the top of the list) is in ink with a 2px ink segment of the header's bottom rule under it; the segment slides between days unless the owner prefers reduced motion. When the active day is today, both apply.
+- Above the strip, right of the title: previous day, the active day's name ("Today", "Tomorrow", then "Mon 9 Nov") which returns to today, next day. The name button keeps one width so the arrows never move. Below `sm` the title sits on the left to make room.
 
 ### Loading
 

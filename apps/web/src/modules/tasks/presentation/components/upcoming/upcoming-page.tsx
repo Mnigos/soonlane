@@ -1,4 +1,5 @@
 import type { CalendarDate } from '@soonlist/domain'
+import { getActiveDayLabel } from '../../../domain/day-label.helper'
 import {
 	getUpcomingDays,
 	getWeekStrip,
@@ -27,10 +28,10 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 				className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4"
 				ref={headerRef}
 			>
-				<div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3">
-					<span aria-hidden />
+				<div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3">
+					<span aria-hidden className="hidden sm:block" />
 
-					<div className="flex flex-col items-center text-center">
+					<div className="flex flex-col items-start sm:items-center sm:text-center">
 						<h1 className="text-xl font-bold">Upcoming</h1>
 
 						<p className="text-label text-muted-foreground">
@@ -40,6 +41,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 
 					<div className="flex justify-end">
 						<WeekControls
+							activeDayLabel={getActiveDayLabel(activeDay, today)}
 							onNext={nextDay && (() => scrollToDay(nextDay))}
 							onPrevious={previousDay && (() => scrollToDay(previousDay))}
 							onToday={() => scrollToDay(today)}
