@@ -1,7 +1,9 @@
 import type { UserId } from '@soonlane/domain'
 import {
+	bigint,
 	boolean,
 	index,
+	integer,
 	pgTable,
 	text,
 	timestamp,
@@ -66,4 +68,11 @@ export const verification = pgTable('verification', {
 	expiresAt: timestamp('expires_at').notNull(),
 	createdAt: timestamp('created_at').notNull().defaultNow(),
 	updatedAt: timestamp('updated_at').notNull().defaultNow(),
+})
+
+export const rateLimit = pgTable('rate_limit', {
+	id: uuid('id').primaryKey().defaultRandom(),
+	key: text('key').notNull().unique(),
+	count: integer('count').notNull(),
+	lastRequest: bigint('last_request', { mode: 'number' }).notNull(),
 })
