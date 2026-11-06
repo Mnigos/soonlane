@@ -14,6 +14,10 @@ colors:
   primary-foreground: '#ffffff'
   primary-muted: '#3d2523'
   danger: '#ff7066'
+  priority-1: '#d1453b'
+  priority-2: '#eb8909'
+  priority-3: '#246fe0'
+  priority-4: '#8a8a8a'
 typography:
   page-title:
     fontFamily: '-apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, sans-serif'
@@ -108,6 +112,10 @@ A restrained strategy: tinted neutrals plus one red accent well under 10% of any
 - **Red Wash** (`primary-muted`, #3d2523): background of the active sidebar item.
 - **Overdue Coral** (`danger`, #ff7066): text of the active sidebar item, "Reschedule", overdue dates, errors.
 
+### Priority
+
+Todoist's priority colors, used only on a task's completion circle and the flags in the priority picker: **P1** `priority-1` #d1453b, **P2** `priority-2` #eb8909, **P3** `priority-3` #246fe0, **P4** `priority-4` #8a8a8a (the default, no fill).
+
 ### Neutral
 
 - **Desk** (`background`, #1e1e1e): page background.
@@ -168,6 +176,11 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 - The active day (the one at the top of the list) is in ink with a 2px ink segment of the header's bottom rule under it; the segment slides between days unless the owner prefers reduced motion. When the active day is today, both apply.
 - Above the strip, right of the title: previous day, the active day's name ("Today", "Tomorrow", then "Mon 9 Nov") which returns to today, next day. The name button keeps one width so the arrows never move. Below `sm` the title sits on the left to make room.
 
+### Tasks
+
+- A task row: a 18px completion circle in its priority color (filled tint for P1 to P3), the title, a one-line description preview and the due time with a clock icon. A hover shows a check in the circle; clicking it completes the task, hides it from Upcoming and shows a "Task completed" toast with Undo.
+- Quick add replaces a day's "+ Add task" row inline: title, description, due date (that day), optional time, a P1 to P4 picker, Cancel and Add task. Enter submits and keeps the form open for the next task; Escape closes it.
+
 ### Loading
 
 - Skeleton bars on the hover grey in the shape of the list, never spinners.
@@ -185,6 +198,6 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 
 - **Don't** add cards, shadows or gradients.
 - **Don't** use red for anything that is not an action, the current day or overdue state.
-- **Don't** add blue; links and focus use red or neutrals.
-- **Don't** open a modal for a one- or two-field action; edit inline.
+- **Don't** add blue outside the P3 priority color; links and focus use red or neutrals.
+- **Don't** open a modal for a one- or two-field action; edit inline. The one exception is the global "Add task" in the sidebar, which opens the quick add form in a dialog.
 - **Don't** introduce projects, boards or team visuals.
