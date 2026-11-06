@@ -4,6 +4,7 @@ import { SignInScreen } from '../components/sign-in-screen'
 
 const loginSearchSchema = z.object({
 	error: z.string().optional().catch(undefined),
+	deleted: z.boolean().optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/login')({
@@ -17,7 +18,13 @@ export const Route = createFileRoute('/login')({
 
 function LoginRoute() {
 	const { me } = Route.useRouteContext()
-	const { error } = Route.useSearch()
+	const { error, deleted } = Route.useSearch()
 
-	return <SignInScreen configured={me.configured} oauthError={error} />
+	return (
+		<SignInScreen
+			configured={me.configured}
+			isAccountDeleted={deleted}
+			oauthError={error}
+		/>
+	)
 }

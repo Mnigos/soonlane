@@ -1,9 +1,10 @@
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
-import { ChevronDown, LogOut } from 'lucide-react'
+import { ChevronDown, LogOut, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { useSignOutMutation } from '../hooks/use-sign-out-mutation'
+import { DeleteAccountDialog } from './delete-account-dialog'
 
 interface UserMenuProps {
 	user: SessionUser
@@ -11,6 +12,7 @@ interface UserMenuProps {
 
 export function UserMenu({ user }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
+	const [isDeleting, setIsDeleting] = useState(false)
 	const { mutate: signOut, isPending, isError } = useSignOutMutation()
 
 	return (
@@ -49,12 +51,25 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 						{isPending ? 'Signing out…' : 'Sign out'}
 					</button>
 
+					<button
+						className="flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-danger transition-colors hover:bg-hover"
+						onClick={() => setIsDeleting(true)}
+						type="button"
+					>
+						<Trash2 aria-hidden className="size-4" />
+						Delete account
+					</button>
+
 					{isError && (
 						<p className="px-2 text-caption text-danger" role="alert">
 							Sign-out failed. Try again.
 						</p>
 					)}
 				</div>
+			)}
+
+			{isDeleting && (
+				<DeleteAccountDialog onClose={() => setIsDeleting(false)} />
 			)}
 		</div>
 	)
