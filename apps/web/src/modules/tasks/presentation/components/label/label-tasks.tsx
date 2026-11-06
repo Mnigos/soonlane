@@ -1,10 +1,9 @@
 import type { Label } from '@soonlane/contracts'
 import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
-import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useCompleteTask } from '../../hooks/use-complete-task'
+import { useLabelTasksQuery } from '../../hooks/use-label-tasks-query'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from '../list/add-task-row'
 import { DaySection } from '../list/day-section'
@@ -19,11 +18,10 @@ interface LabelTasksProps {
 
 export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 	const [isAdding, setIsAdding] = useState(false)
-	const { data, isPending, isError, refetch } = useQuery(
-		orpcQuery.tasks.listByLabel.queryOptions({
-			input: { labelId: label.id, today },
-		})
-	)
+	const { data, isPending, isError, refetch } = useLabelTasksQuery({
+		labelId: label.id,
+		today,
+	})
 	const { completeTask } = useCompleteTask(today)
 
 	if (isPending) return <TaskListSkeleton />
