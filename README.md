@@ -52,6 +52,8 @@ Run with `bun run <script>` from the root.
 
 `apps/desktop` is an Electrobun shell around the hosted web app (ADR 0004). From `apps/desktop`: `bun run dev` opens it against the dev server on port 3000, `bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/`, and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`).
 
+Sign-in returns to the app through a `soonlane://` link, which macOS delivers only to an app in `/Applications`, so `bun run dev` cannot finish a sign-in. `bun run dev:applications` builds a dev copy, installs it as `/Applications/Soonlane-dev.app` and runs it against `http://localhost:3000`. Keep only one installed copy that claims `soonlane`.
+
 ## Commits
 
 Conventional commits. `bun install` sets up husky: `pre-commit` runs `lint-staged` (Ultracite on staged files), `commit-msg` runs `commitlint`; CI runs `commitlint` on every pull request.

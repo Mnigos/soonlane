@@ -26,7 +26,7 @@ Inside `apps/web/src`:
 | `platform/`                  | Server wiring: `config/`, `db/` (`Db` layer), `app.layers`, `app.runtime` (`ManagedRuntime`), `rpc/` (base, context, router, handler, error mapping, browser and SSR clients), `system/system.router`.                                                                                                                                                              |
 | `modules/shell/presentation` | The pathless layout route (redirects signed-out visitors) and the shell: sidebar with the user menu, icon rail, drawer, sidebar preference cookie.                                                                                                                                                                                                                  |
 | `modules/tasks`              | `domain/` calendar logic and `TaskNotFound`; `application/` `TasksService` and the `TaskRepository` port; `infrastructure/task.repository` (Drizzle via `Db.run`); `presentation/` `tasks.router` (list, create, complete, uncomplete behind `requireOwner`), Upcoming (`/`), Today (`/today`), the task composer, the Add task dialog, `useToday`, `useActiveDay`. |
-| `modules/identity`           | `BetterAuthLive` (wraps `createAuth`), the `Auth` port, `identity.me`, `requireOwner`, `/login`, `/api/auth/$`, user menu and sign-out.                                                                                                                                                                                                                             |
+| `modules/identity`           | `BetterAuthLive` (wraps `createAuth`), the `Auth` port, `identity.me`, `requireOwner`, `/login`, `/desktop/sign-in`, `/desktop/callback`, `/api/auth/$`, user menu and sign-out.                                                                                                                                                                                    |
 | `components/`                | `not-found`.                                                                                                                                                                                                                                                                                                                                                        |
 
 ## Package layering
@@ -59,6 +59,8 @@ A task belongs to the signed-in owner (`task.owner_id`, cascade on user delete) 
 
 Better Auth with Google at `/api/auth`, configured by `createAuth` in `packages/auth` and built once by `BetterAuthLive` from `AppConfig` and `Db` ([ADR 0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md)). Only `OWNER_EMAIL`, verified by Google, can be created as a user. Google accepts only the production and localhost redirect URIs, so on Vercel production and previews the `oAuthProxy` plugin sends a preview's sign-in through the production callback and back; both sides share `OAUTH_PROXY_SECRET` (or `AUTH_SECRET`). Local development signs in directly. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
 
+The desktop app signs in through the system browser ([ADR 0007](docs/decisions/0007-desktop-sign-in-through-the-system-browser.md)). The `desktopSignIn` plugin in `packages/auth` lets the signed-in browser trade the app's PKCE challenge for a one-time code (2 minutes, stored hashed in `verification`) at `/desktop/sign-in`, which returns to the app through `soonlane://sign-in?code=…`. The window's `/desktop/callback` exchanges the code and the app's verifier for a session of its own, so signing out in the app leaves the browser signed in.
+
 ## Database
 
 Neon Postgres through `pg` and Drizzle. `Db` owns one pool per runtime (5 connections, 10 s `query_timeout`, an `error` listener); `Db.run` is the only place that creates `DbError`. Logs carry error names only, because driver errors embed SQL parameters such as session tokens. The Vercel build runs the migrator first against the environment's own Neon branch (`main` for production, `preview` for previews and local).
@@ -79,17 +81,18 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 
 ## Desktop app
 
-`apps/desktop/src` mirrors the web app's layering ([ADR 0005](docs/decisions/0005-desktop-app-layout.md)). `main.ts` builds `AppLive` from `platform/` (`DesktopConfig` with `SOONLANE_URL`, the `ManagedRuntime`, the Electrobun event helper). Modules: `window` opens the main window and saves its frame to `window-state.json`, ignoring a saved frame that no longer overlaps a display; `navigation` keeps the window on the app's exact origin and sends other web and mail links to the system browser; `menu` sets the app menu.
+`apps/desktop/src` mirrors the web app's layering ([ADR 0005](docs/decisions/0005-desktop-app-layout.md)). `main.ts` builds `AppLive` from `platform/` (`DesktopConfig` with `SOONLANE_URL`, the `ManagedRuntime`, the Electrobun event helper). Modules: `window` opens the main window and saves its frame to `window-state.json`, ignoring a saved frame that no longer overlaps a display; `navigation` keeps the window on the app's exact origin and sends other web and mail links to the system browser; `menu` sets the app menu; `sign-in` opens the desktop sign-in in the system browser with the challenge of its pending verifier (a new one when none is pending) and, on a `soonlane://` link, loads `/desktop/callback` with the code and that verifier. macOS delivers `soonlane://` links only to a copy of the app in `/Applications`.
 
 ## Decision records
 
-| ADR                                                                            | Decision                                                                            |
-| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| [0001](docs/decisions/0001-naming-and-layering-conventions.md)                 | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.     |
-| [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs. |
-| [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.      |
-| [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                            |
-| [0005](docs/decisions/0005-desktop-app-layout.md)                              | Desktop modules (`window`, `navigation`, `menu`) on one Effect runtime.             |
-| [0006](docs/decisions/0006-rename-to-soonlane.md)                              | The product is Soonlane; old names map to new ones.                                 |
+| ADR                                                                            | Decision                                                                                 |
+| ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| [0001](docs/decisions/0001-naming-and-layering-conventions.md)                 | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.          |
+| [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs.      |
+| [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.           |
+| [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                                 |
+| [0005](docs/decisions/0005-desktop-app-layout.md)                              | Desktop modules (`window`, `navigation`, `menu`) on one Effect runtime.                  |
+| [0006](docs/decisions/0006-rename-to-soonlane.md)                              | The product is Soonlane; old names map to new ones.                                      |
+| [0007](docs/decisions/0007-desktop-sign-in-through-the-system-browser.md)      | Desktop sign-in in the system browser, returned through a PKCE-bound `soonlane://` code. |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md).
