@@ -1,0 +1,108 @@
+---
+title: Privacy Policy
+description: What data Soonlane collects, why, where it is stored and how to delete it.
+updated: '2026-11-06'
+---
+
+Soonlane is a task list that anyone can sign up for with a Google account. This policy explains what data Soonlane collects, why, where it is stored and how you can delete it.
+
+## Who runs Soonlane
+
+Soonlane is run by Igor Makowski, who is responsible for your data (the data controller). Write to [hello@soonlane.com](mailto:hello@soonlane.com) with any question about this policy or your data.
+
+## Data from Google sign-in
+
+You sign in with Google. Soonlane asks Google only for the `openid`, `email` and `profile` scopes. With them, Soonlane receives and stores:
+
+- your name and email address, and whether Google has verified the address;
+- the web address of your Google profile picture;
+- your Google account id;
+- the tokens Google returns after sign-in (an access token, a refresh token when Google sends one, and an ID token), with their expiry times and the granted scopes.
+
+Soonlane uses this data only to sign you in, to create and recognise your account, and to show your name, email address and picture in the app. When you sign in again to confirm a sensitive action, such as deleting your account, Soonlane passes your email address to Google so it preselects the right account. Soonlane does not call any other Google API with your tokens. Your browser loads your picture directly from Google.
+
+Soonlane does not sell Google user data, does not use it for advertising, and does not share it with anyone except the service providers listed below, which host and run Soonlane.
+
+Soonlane's use and transfer of information received from Google APIs to any other app will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.
+
+## Your tasks
+
+Soonlane stores the tasks you create: the title, description, due date and time, priority, when you created the task and when you completed it. Each task belongs to your account, and the app shows it only to you. Your tasks are used for nothing else. I do not read them unless you ask me for help with your data or the law requires it.
+
+## Sessions and security
+
+When you sign in, Soonlane creates a session and stores it with your IP address and your browser's user agent. They are used only to keep you signed in and to investigate abuse or a security problem. A session lasts 7 days and is renewed at most once a day while you use Soonlane. Signing out deletes it. An expired session stops working, and its record is deleted at the latest with your account.
+
+To stop abuse, Soonlane limits how often one IP address can call its sign-in and account endpoints. For each IP address and path it keeps a count and the time of the last request, in windows of one minute to one hour. Records older than one hour are deleted as new requests come in.
+
+Signing in also creates short-lived records: a random sign-in state, valid for up to 10 minutes, and, for the desktop app, a one-time code stored hashed and valid for 2 minutes.
+
+{/* TODO(SOON-34): re-check against docs/analytics.md "Consent" */}
+
+## Cookies and analytics
+
+### Essential cookies
+
+These cookies are needed for Soonlane to work, so they do not ask for your consent:
+
+- **Session cookie** (`better-auth.session_token`, with a `__Secure-` prefix on HTTPS): keeps you signed in for the life of your session. Scripts on the page cannot read it.
+- **Signed-in hint** (`soonlane-signed-in`): holds `1` while you are signed in, so the public pages can show "Open app". It carries no user data and lasts as long as your session.
+- **Sidebar preference** (`soonlane-sidebar`): remembers whether you keep the full sidebar or the narrow one. It lasts one year.
+- **Sign-in state** (`better-auth.state`, with the same prefix): protects the Google sign-in against forged requests. It lasts 5 minutes.
+- **Consent** (`soonlane-consent`): remembers your analytics choice. An accepted choice is kept for 12 months and a rejected one for 6 months; then Soonlane asks again.
+
+### Analytics (optional)
+
+Soonlane uses PostHog to understand how the app is used. PostHog stores this data in its EU region, and your browser sends it through Soonlane's own domain. What is collected depends on your choice:
+
+- **Before you choose**, nothing loads from PostHog and your browser sends nothing.
+- **If you accept**, PostHog keeps a persistent id in your browser and links page views and product events (such as creating a task) to your account. It also records session replays, with the content of your tasks masked, and reports errors in your browser. Soonlane's server sends sign-up, sign-in and first-task events only when you have accepted.
+- **If you reject**, or your browser sends a Global Privacy Control signal, Soonlane measures visits anonymously: no cookies, no local storage, no link to your account and no session replays. PostHog counts visitors with a hash on its servers that changes every day.
+
+You can change your choice at any time under "Privacy choices" in the account menu or on the sign-in page. Withdrawing your consent removes PostHog's cookies and storage from your browser.
+
+When something breaks on Soonlane's server, it sends PostHog an error report with the error's name and stack trace, and your account id when you are signed in. It never includes your tasks. These reports do not depend on your analytics choice, because they are needed to keep Soonlane working.
+
+Deleting your account does not yet remove analytics data from PostHog automatically. Write to [hello@soonlane.com](mailto:hello@soonlane.com) and I will delete it.
+
+## Service providers and where your data is stored
+
+- **Vercel** hosts Soonlane. Its server functions run in Frankfurt, Germany. Vercel keeps request logs, including IP addresses, for a limited time.
+- **Neon** hosts the database in Frankfurt, Germany (AWS `eu-central-1`).
+- **Google** provides sign-in.
+- **PostHog** provides analytics in its EU region, as described above.
+- **Cloudflare** provides DNS for soonlane.com only; your traffic does not pass through it.
+
+Some of these providers are based in the United States. When they handle data outside the European Union, they rely on the safeguards in their data processing terms.
+
+## How long data is kept and how to delete it
+
+Your account, your Google data and tokens, and your tasks are kept until you delete your account.
+
+To delete your account, open the account menu in the app and choose "Delete account". If your last Google sign-in is more than a day old, Soonlane asks you to sign in with Google again first. Deletion removes your account, all your sessions, the stored Google tokens and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
+
+Neon keeps the database's history for point-in-time restore. Deleted data can stay in that history for up to 6 hours, then it is gone.
+
+## Legal bases
+
+Under the GDPR, Soonlane relies on:
+
+- **the contract with you** (Art. 6(1)(b)) for your account, sessions and tasks;
+- **legitimate interest** (Art. 6(1)(f)) in keeping Soonlane working and safe, for rate limits, security, error reports and anonymous measurement;
+- **your consent** (Art. 6(1)(a)) for analytics with cookies and session replays. You can withdraw it at any time.
+
+## Your rights
+
+Under the GDPR you can ask to access, correct, delete or export your data, and you can object to or restrict how it is used. To do any of this, write to [hello@soonlane.com](mailto:hello@soonlane.com); you will get an answer within one month. You can also complain to a data protection authority, such as the Polish President of the Personal Data Protection Office ([UODO](https://uodo.gov.pl/en)).
+
+## Age
+
+Soonlane is for people aged 16 or older. Do not sign up if you are younger.
+
+## Changes to this policy
+
+When this policy changes, the date at the top of this page changes too.
+
+## Contact
+
+Igor Makowski, [hello@soonlane.com](mailto:hello@soonlane.com).

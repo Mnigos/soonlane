@@ -17,6 +17,8 @@ import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport }
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
+import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
+import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
@@ -71,6 +73,18 @@ const modulesSitePresentationRoutesHomeDotrouteRoute =
     path: '/',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
+const modulesSitePresentationRoutesPrivacyDotrouteRoute =
+  modulesSitePresentationRoutesPrivacyDotrouteRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
+  } as any)
+const modulesSitePresentationRoutesTermsDotrouteRoute =
+  modulesSitePresentationRoutesTermsDotrouteRouteImport.update({
+    id: '/terms',
+    path: '/terms',
+    getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
+  } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
   modulesTasksPresentationRoutesUpcomingDotrouteRouteImport.update({
     id: '/',
@@ -121,6 +135,8 @@ export interface FileRoutesByFullPath {
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -135,6 +151,8 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -153,6 +171,8 @@ export interface FileRoutesById {
   '/_site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/_session/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -170,6 +190,8 @@ export interface FileRouteTypes {
     | '/today'
     | '/app'
     | '/login'
+    | '/privacy'
+    | '/terms'
     | '/app/'
     | '/app/today'
     | '/desktop/callback'
@@ -184,6 +206,8 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/today'
     | '/login'
+    | '/privacy'
+    | '/terms'
     | '/app'
     | '/app/today'
     | '/desktop/callback'
@@ -201,6 +225,8 @@ export interface FileRouteTypes {
     | '/_site/'
     | '/_session/app'
     | '/_session/login'
+    | '/_site/privacy'
+    | '/_site/terms'
     | '/_session/app/'
     | '/_session/app/today'
     | '/_session/desktop/callback'
@@ -276,6 +302,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof modulesSitePresentationRoutesHomeDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/_site/privacy': {
+      id: '/_site/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof modulesSitePresentationRoutesPrivacyDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/_site/terms': {
+      id: '/_site/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof modulesSitePresentationRoutesTermsDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
     '/_session/app/': {
@@ -377,12 +417,18 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren =
 
 interface modulesSitePresentationRoutesSiteDotrouteRouteChildren {
   modulesSitePresentationRoutesHomeDotrouteRoute: typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  modulesSitePresentationRoutesPrivacyDotrouteRoute: typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  modulesSitePresentationRoutesTermsDotrouteRoute: typeof modulesSitePresentationRoutesTermsDotrouteRoute
 }
 
 const modulesSitePresentationRoutesSiteDotrouteRouteChildren: modulesSitePresentationRoutesSiteDotrouteRouteChildren =
   {
     modulesSitePresentationRoutesHomeDotrouteRoute:
       modulesSitePresentationRoutesHomeDotrouteRoute,
+    modulesSitePresentationRoutesPrivacyDotrouteRoute:
+      modulesSitePresentationRoutesPrivacyDotrouteRoute,
+    modulesSitePresentationRoutesTermsDotrouteRoute:
+      modulesSitePresentationRoutesTermsDotrouteRoute,
   }
 
 const modulesSitePresentationRoutesSiteDotrouteRouteWithChildren =
