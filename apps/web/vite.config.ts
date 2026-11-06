@@ -81,8 +81,6 @@ export default defineConfig({
 				autoStaticPathsDiscovery: false,
 				crawlLinks: true,
 				failOnError: true,
-				// Nitro's preview proxy now and then answers a page's first request with Vite's 404.
-				retryCount: 2,
 				filter: page => isPublicPath(page.path),
 			},
 			pages: [
@@ -122,8 +120,6 @@ export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
-	server: {
-		port: 3000,
-		strictPort: true,
-	},
+	// Prerendering fetches from the preview server, which Nitro pins to port 3000; with 'localhost' a dev server on [::1]:3000 answered instead.
+	preview: { host: '127.0.0.1' },
 })
