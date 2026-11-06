@@ -4,7 +4,11 @@ export const COMPOSER_CHIP_CLASS =
 
 /** A control whose feature is not built yet: kept for Todoist's layout, muted and inert. */
 export const COMING_SOON_CLASS =
-	'cursor-default text-muted-foreground hover:bg-transparent'
+	'cursor-default text-muted-foreground hover:bg-transparent hover:text-muted-foreground'
 
 /** Todoist's chip icons draw 1px lines at 16px. */
 export const CHIP_ICON_STROKE = 1.5
+
+/** The date picker's full-width "Time" and "Repeat" buttons. */
+export const FOOTER_BUTTON_CLASS =
+	'flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border text-label font-semibold text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary [&_svg]:size-4 [&_svg]:shrink-0'

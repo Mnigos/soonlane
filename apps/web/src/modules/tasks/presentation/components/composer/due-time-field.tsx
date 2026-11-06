@@ -1,6 +1,7 @@
 import { Button } from '@soonlane/ui/components/button'
 import { Clock, X } from 'lucide-react'
 import { useState } from 'react'
+import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 
 interface DueTimeFieldProps {
 	value: string | undefined
@@ -18,18 +19,17 @@ export function DueTimeField({ value, onChange }: Readonly<DueTimeFieldProps>) {
 
 	if (!isOpen)
 		return (
-			<Button
-				className="w-full"
+			<button
+				className={FOOTER_BUTTON_CLASS}
 				onClick={() => {
 					setIsOpen(true)
 					setShouldFocus(true)
 				}}
-				size="sm"
-				variant="outline"
+				type="button"
 			>
-				<Clock aria-hidden />
+				<Clock aria-hidden strokeWidth={1.5} />
 				Time
-			</Button>
+			</button>
 		)
 
 	return (

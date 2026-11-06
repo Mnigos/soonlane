@@ -8,8 +8,9 @@
 	--border: #333333;
 	--border-strong: #656565;
 
-	/* Todoist's composer: the card, the grey square button and tooltips. */
+	/* Todoist's composer: the card, popovers and menus, the grey square button and tooltips. */
 	--card: #242424;
+	--popover: #222222;
 	--control: #434343;
 	--tooltip: #3d3d3d;
 
@@ -35,6 +36,11 @@
 	--due-tomorrow: #ff9a14;
 	--due-week: #a970ff;
 
+	/* Todoist's quick date icons in the date picker: orange sun, purple arrow, blue couch. */
+	--quick-tomorrow: #eb8600;
+	--quick-week: #9147ff;
+	--quick-weekend: #377eff;
+
 	--radius: 0.375rem;
 }
 
@@ -48,6 +54,7 @@
 	--color-border-strong: var(--border-strong);
 
 	--color-card: var(--card);
+	--color-popover: var(--popover);
 	--color-control: var(--control);
 	--color-tooltip: var(--tooltip);
 
@@ -71,11 +78,17 @@
 	--color-due-tomorrow: var(--due-tomorrow);
 	--color-due-week: var(--due-week);
 
+	--color-quick-tomorrow: var(--quick-tomorrow);
+	--color-quick-week: var(--quick-week);
+	--color-quick-weekend: var(--quick-weekend);
+
 	--radius-md: var(--radius);
 
 	--font-sans:
 		-apple-system, BlinkMacSystemFont, Inter, 'Segoe UI', Roboto, sans-serif;
 
+	--text-micro: 0.6875rem;
+	--text-micro--line-height: 1rem;
 	--text-caption: 0.75rem;
 	--text-caption--line-height: 1rem;
 	--text-label: 0.8125rem;

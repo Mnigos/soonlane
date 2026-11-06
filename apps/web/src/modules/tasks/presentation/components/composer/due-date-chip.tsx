@@ -51,9 +51,11 @@ export function DueDateChip({
 			</PopoverTrigger>
 
 			<PopoverContent
+				align="center"
 				aria-label="Due date"
-				className="w-64"
+				className="w-62"
 				initialFocus={inputRef}
+				sideOffset={2}
 			>
 				<DueDatePicker
 					dueDate={dueDate}
