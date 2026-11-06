@@ -55,6 +55,7 @@ export function DueDateChip({
 				aria-label="Due date"
 				className="w-62"
 				initialFocus={inputRef}
+				side="top"
 				sideOffset={2}
 			>
 				<DueDatePicker
