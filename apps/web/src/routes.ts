@@ -5,6 +5,10 @@ export const routes = rootRoute('routes/__root.tsx', [
 	route('/app', 'modules/shell/presentation/routes/shell.route.tsx', [
 		index('modules/tasks/presentation/routes/upcoming.route.tsx'),
 		route('/today', 'modules/tasks/presentation/routes/today.route.tsx'),
+		route(
+			'/labels/$name',
+			'modules/labels/presentation/routes/label.route.tsx'
+		),
 	]),
 	route('/today', 'modules/shell/presentation/routes/legacy-today.route.tsx'),
 	route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
