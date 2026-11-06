@@ -28,6 +28,8 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	let header: HTMLElement | null = null
 	let activeDay = firstDay
 	let requestedDay: CalendarDate | undefined
+	// A requested day that settled at the bottom of the page without reaching the header.
+	let pinnedDay: CalendarDate | undefined
 	let frame = 0
 	let settleTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -56,7 +58,12 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	}
 
 	function update() {
-		if (!requestedDay) setActiveDay(readTopDay())
+		if (requestedDay) return
+		// A resize at the bottom keeps the pinned day instead of falling back to an earlier top day.
+		if (pinnedDay && isScrolledToBottom()) return
+
+		pinnedDay = undefined
+		setActiveDay(readTopDay())
 	}
 
 	function scheduleUpdate() {
@@ -71,10 +78,12 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	// The last days cannot reach the top of a short page; then the requested day stays active.
 	function settle() {
 		clearTimeout(settleTimer)
-		const settledDay =
-			requestedDay && isScrolledToBottom() ? requestedDay : readTopDay()
+		const isAtBottom = isScrolledToBottom()
+
+		if (requestedDay) pinnedDay = isAtBottom ? requestedDay : undefined
+		else if (!isAtBottom) pinnedDay = undefined
 		requestedDay = undefined
-		setActiveDay(settledDay)
+		setActiveDay(pinnedDay ?? readTopDay())
 	}
 
 	return {
