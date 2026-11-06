@@ -10,7 +10,6 @@ const SAMPLE_USER = {
 	email: 'sample@soonlist.test',
 	emailVerified: true,
 } as const
-const PRODUCTION_DATABASE_ENDPOINT = 'ep-broad-resonance-bafgicl3'
 const SESSION_COOKIE = 'better-auth.session_token'
 const SESSION_TTL_MS = 86_400_000
 const TOKEN_BYTES = 24
@@ -18,15 +17,31 @@ const TOKEN_BYTES = 24
 const shouldDelete = process.argv.includes('--delete')
 const databaseUrl = process.env.DATABASE_URL
 const secret = process.env.AUTH_SECRET
+// The production Neon endpoint comes from the environment, so the open-source script never names it.
+const productionDatabaseHost = process.env.PRODUCTION_DATABASE_HOST?.trim()
+
+function getHost(url: string | undefined) {
+	if (!url) return ''
+
+	try {
+		return new URL(url).hostname
+	} catch {
+		return ''
+	}
+}
 
 if (
 	process.env.VERCEL_ENV === 'production' ||
 	process.env.NODE_ENV === 'production'
 )
 	throw new Error('dev-session refuses to run in production')
+if (!productionDatabaseHost)
+	throw new Error(
+		'PRODUCTION_DATABASE_HOST must be set so dev-session can refuse the production database'
+	)
 if (
 	[databaseUrl, process.env.DATABASE_URL_UNPOOLED].some(url =>
-		url?.includes(PRODUCTION_DATABASE_ENDPOINT)
+		getHost(url).includes(productionDatabaseHost)
 	)
 )
 	throw new Error('dev-session refuses to touch the production database')
