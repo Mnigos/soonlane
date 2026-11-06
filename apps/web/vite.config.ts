@@ -1,3 +1,4 @@
+import contentCollections from '@content-collections/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
@@ -68,6 +69,7 @@ export default defineConfig({
 		'import.meta.env.APP_COMMIT': JSON.stringify(APP_COMMIT),
 	},
 	plugins: [
+		contentCollections(),
 		tailwindcss(),
 		tanstackStart({
 			router: {
@@ -79,9 +81,16 @@ export default defineConfig({
 				autoStaticPathsDiscovery: false,
 				crawlLinks: true,
 				failOnError: true,
+				// Nitro's preview proxy now and then answers a page's first request with Vite's 404.
+				retryCount: 2,
 				filter: page => isPublicPath(page.path),
 			},
-			pages: [{ path: '/' }, { path: '/sitemap.xml' }],
+			pages: [
+				{ path: '/' },
+				{ path: '/privacy' },
+				{ path: '/terms' },
+				{ path: '/sitemap.xml' },
+			],
 			importProtection: {
 				behavior: 'error',
 				client: {

@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "bunx --bun vite dev --port 3000 --strictPort",
     "build": "bunx --bun vite build",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "bun scripts/generate-content-collections.ts && tsc --noEmit",
     "dev:session": "bun --env-file=.env.local scripts/dev-session.ts"
   },
   "dependencies": {
+    "@content-collections/core": "0.15.3",
+    "@content-collections/mdx": "0.2.2",
+    "@content-collections/vite": "0.3.1",
     "@orpc/client": "catalog:",
     "@orpc/contract": "catalog:",
     "@orpc/experimental-effect": "catalog:",
@@ -35,6 +38,7 @@
     "pg": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "remark-gfm": "4.0.1",
     "sonner": "2.0.8",
     "tailwindcss": "catalog:",
     "zod": "catalog:"

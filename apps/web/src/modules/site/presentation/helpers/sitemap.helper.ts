@@ -1,4 +1,5 @@
 import { SITE_URL } from '../site.constants'
+import { getLegalDocument } from './legal-document.helper'
 
 interface SitemapEntry {
 	path: string
@@ -6,7 +7,11 @@ interface SitemapEntry {
 }
 
 // Every prerendered public page; robots.txt points crawlers here.
-const SITEMAP_ENTRIES: SitemapEntry[] = [{ path: '/' }]
+const SITEMAP_ENTRIES: SitemapEntry[] = [
+	{ path: '/' },
+	{ path: '/privacy', lastmod: getLegalDocument('privacy').updated },
+	{ path: '/terms', lastmod: getLegalDocument('terms').updated },
+]
 
 function escapeXml(value: string) {
 	return value

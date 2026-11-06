@@ -5,6 +5,7 @@ node_modules/
 .vercel/
 .nitro/
 .tanstack/
+.content-collections/
 coverage/
 *.tsbuildinfo
 .env
