@@ -41,7 +41,7 @@ Preview URLs change per branch, so they cannot be registered. Better Auth's `oAu
 
 1. "Continue with Google" on a preview sends Google the production redirect URI and an encrypted state.
 2. Production receives the callback, exchanges the code with Google and redirects to `<preview>/api/auth/callback/google/oauth-proxy` with the encrypted profile (valid for 60 s).
-3. The preview decrypts it, applies the owner check, creates the user and session in its own database and redirects to `/`.
+3. The preview decrypts it, applies the owner check, creates the user and session in its own database and redirects to `/app`.
 
 Requirements:
 

@@ -21,12 +21,12 @@ export const Route = createFileRoute('/desktop/callback')({
 		if (error && location.hash)
 			throw redirect({ to: '/desktop/callback', replace: true })
 		// A repeated link for a sign-in that already finished has nothing to fail.
-		if (error && context.me.user) throw redirect({ to: '/', replace: true })
+		if (error && context.me.user) throw redirect({ to: '/app', replace: true })
 		if (error) return { failed: true }
 
 		// The cached identity still says signed out.
 		context.queryClient.clear()
-		throw redirect({ to: '/', replace: true })
+		throw redirect({ to: '/app', replace: true })
 	},
 	head: () => ({ meta: [{ title: 'Signing in · Soonlane' }] }),
 	pendingMs: 0,

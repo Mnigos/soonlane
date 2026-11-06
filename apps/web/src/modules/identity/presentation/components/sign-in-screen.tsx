@@ -11,7 +11,7 @@ import { GoogleIcon } from './google-icon'
 import { SignInLayout } from './sign-in-layout'
 
 const SIGN_IN_FAILED = 'Sign-in failed. Try again.'
-const LOGIN_REDIRECTS = { callbackURL: '/', errorCallbackURL: '/login' }
+const LOGIN_REDIRECTS = { callbackURL: '/app', errorCallbackURL: '/login' }
 
 async function signInWithGoogle(redirects: GoogleSignInRedirects) {
 	const { error } = await startGoogleSignIn(redirects)

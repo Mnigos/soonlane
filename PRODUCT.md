@@ -14,8 +14,8 @@ Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist 
 
 ### Scope
 
-- **Upcoming** (default view at `/`): the week strip, the Overdue section, then one section per day with an "Add task" row.
-- **Today** (`/today`): Overdue and today's tasks.
+- **Upcoming** (default view at `/app`): the week strip, the Overdue section, then one section per day with an "Add task" row.
+- **Today** (`/app/today`): Overdue and today's tasks.
 - **Labels**: tags on tasks, listed in the sidebar.
 - **Owner-only sign-in** with Google.
 

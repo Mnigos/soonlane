@@ -3,7 +3,7 @@ import { TaskListSkeleton } from '../components/list/task-list.skeleton'
 import { TodayPage } from '../components/today-page'
 import { useToday } from '../hooks/use-today'
 
-export const Route = createFileRoute('/_shell/today')({
+export const Route = createFileRoute('/app/today')({
 	head: () => ({ meta: [{ title: 'Today · Soonlane' }] }),
 	component: TodayRoute,
 })

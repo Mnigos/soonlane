@@ -7,7 +7,7 @@ export function NotFound() {
 
 			<Link
 				className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-				to="/"
+				to="/app"
 			>
 				Back to Upcoming
 			</Link>

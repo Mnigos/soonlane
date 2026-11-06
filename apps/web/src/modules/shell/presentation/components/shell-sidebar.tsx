@@ -60,14 +60,14 @@ export function ShellSidebar({
 					icon={CalendarDays}
 					label="Upcoming"
 					onNavigate={onNavigate}
-					to="/"
+					to="/app"
 				/>
 
 				<SidebarNavLink
 					icon={CalendarFold}
 					label="Today"
 					onNavigate={onNavigate}
-					to="/today"
+					to="/app/today"
 				/>
 			</nav>
 
