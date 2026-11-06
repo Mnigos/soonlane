@@ -82,11 +82,12 @@ async function withLabels(
 		.orderBy(...LABEL_ORDER)
 	const labelsByTask = new Map<TaskId, Label[]>()
 
-	for (const { taskId, label: labelRow } of assigned)
-		labelsByTask.set(taskId, [
-			...(labelsByTask.get(taskId) ?? []),
-			toLabel(labelRow),
-		])
+	for (const { taskId, label: labelRow } of assigned) {
+		const labels = labelsByTask.get(taskId) ?? []
+
+		if (labels.length === 0) labelsByTask.set(taskId, labels)
+		labels.push(toLabel(labelRow))
+	}
 
 	return rows.map(row => toTask(row, labelsByTask.get(row.id) ?? []))
 }

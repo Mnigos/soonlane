@@ -1,4 +1,4 @@
-/** Todoist's palette keys in Todoist's order; a label without a color is grey. */
+/** Todoist's palette keys in Todoist's order. */
 export const LABEL_COLORS = [
 	'berry_red',
 	'red',
