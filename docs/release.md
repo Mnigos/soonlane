@@ -1,14 +1,26 @@
 # Releases
 
-The product version lives in `version.json`; the history in `CHANGELOG.md`. Only `.github/workflows/release.yml` writes these two files, so a pull request never edits them and never conflicts with a release.
+The product version lives in `version.json`; the history in `CHANGELOG.md`. Only `.github/workflows/release.yml` writes these two files: never edit them in a pull request, so a release never conflicts with one.
+
+## Nightly
+
+Runs every day at 04:23 UTC and on **Actions → Release → Run workflow** with channel `nightly` (on `main`).
+
+- If `main` has commits since the last nightly tag (release commits do not count), `scripts/release.ts nightly` tags `main` as `vX.Y.Z-nightly.YYYYMMDD.N`. `X.Y.Z` is the next stable version computed from conventional commits; `N` counts that day's nightlies.
+- It publishes a GitHub prerelease, never marked latest, whose notes are git-cliff entries since the previous nightly.
+- Nightly never commits to `main`.
 
 ## Stable
 
 Run **Actions → Release → Run workflow** on `main` with channel `stable`.
 
-1. `scripts/release.ts stable` computes the version from conventional commits since the last stable tag `vX.Y.Z`. Before 1.0, `feat` or a breaking change bumps the minor and `fix` or `perf` the patch; other types never trigger a release. The first release uses `version.json` as is (0.1.0). The `version` input overrides the computed value.
-2. git-cliff (`cliff.toml`) regenerates `CHANGELOG.md`: one entry per `feat`, `fix` and `perf` commit, grouped by type then scope, linked to its commit and PR.
-3. The workflow commits `CHANGELOG.md` and `version.json` to `main` as `chore(release): vX.Y.Z` (`[skip ci]`), tags `vX.Y.Z`, and publishes a GitHub Release whose notes are the new changelog section.
+1. Stable promotes the commit of the latest nightly, not `main` HEAD: verify the nightly, then ship exactly that build. Merges after it wait for the next nightly.
+2. The version defaults to the one the nightly previewed (`0.2.0-nightly.*` ships as `0.2.0`); the `version` input overrides it and must be newer than the last stable tag.
+3. Version rules (before 1.0): `feat` or a breaking change bumps the minor, `fix` or `perf` the patch; other types never trigger a release. The first release uses `version.json` as is (0.1.0).
+4. git-cliff (`cliff.toml`) regenerates `CHANGELOG.md`: one entry per `feat`, `fix` and `perf` commit, grouped by type then scope, linked to its commit and PR.
+5. The workflow makes one commit on `main` touching only `CHANGELOG.md` and `version.json` (`chore(release): vX.Y.Z`, `[skip ci]`), tags the nightly's commit `vX.Y.Z`, and publishes a GitHub Release marked latest whose notes are the new changelog section.
+
+Nightly and stable share a concurrency group, so they never run at the same time.
 
 ## Version in the app
 
