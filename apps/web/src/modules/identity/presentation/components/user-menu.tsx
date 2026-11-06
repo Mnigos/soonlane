@@ -69,7 +69,10 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 			)}
 
 			{isDeleting && (
-				<DeleteAccountDialog onClose={() => setIsDeleting(false)} />
+				<DeleteAccountDialog
+					email={user.email}
+					onClose={() => setIsDeleting(false)}
+				/>
 			)}
 		</div>
 	)

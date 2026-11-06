@@ -5,10 +5,12 @@ import { useDeleteAccountMutation } from '../hooks/use-delete-account-mutation'
 import { ContinueWithGoogle } from './continue-with-google'
 
 interface DeleteAccountDialogProps {
+	email: string
 	onClose: () => void
 }
 
 export function DeleteAccountDialog({
+	email,
 	onClose,
 }: Readonly<DeleteAccountDialogProps>) {
 	const location = useLocation()
@@ -32,8 +34,10 @@ export function DeleteAccountDialog({
 							For your safety, sign in again to delete your account.
 						</p>
 
-						{/* Google returns here; a new session is fresh, so the dialog works again. */}
+						{/* Google returns here, or to the desktop app through a fresh browser sign-in; the new session passes the check. */}
 						<ContinueWithGoogle
+							fresh
+							loginHint={email}
 							redirects={{
 								callbackURL: location.href,
 								errorCallbackURL: '/login',

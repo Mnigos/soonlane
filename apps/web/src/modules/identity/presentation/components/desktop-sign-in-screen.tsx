@@ -1,4 +1,8 @@
-import { CODE_CHALLENGE_PARAM, DESKTOP_SIGN_IN_PATH } from '@soonlane/auth'
+import {
+	CODE_CHALLENGE_PARAM,
+	DESKTOP_SIGN_IN_PATH,
+	FRESH_SIGN_IN_PARAM,
+} from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
 import { DesktopHandOffScreen } from './desktop-hand-off-screen'
 import { SignInScreen } from './sign-in-screen'
@@ -7,14 +11,16 @@ interface DesktopSignInScreenProps {
 	challenge?: string
 	user: SessionUser | null
 	configured: boolean
+	fresh?: boolean
 	oauthError?: string
 }
 
-/** The system browser's page for a sign-in the desktop app started: Google first when signed out, then the hand-off. */
+/** The system browser's page for a sign-in the desktop app started: Google first when signed out or asked for a fresh sign-in, then the hand-off. */
 export function DesktopSignInScreen({
 	challenge,
 	user,
 	configured,
+	fresh = false,
 	oauthError,
 }: Readonly<DesktopSignInScreenProps>) {
 	if (!challenge)
@@ -29,16 +35,23 @@ export function DesktopSignInScreen({
 			</main>
 		)
 
-	if (user) return <DesktopHandOffScreen challenge={challenge} user={user} />
+	if (user && !fresh)
+		return <DesktopHandOffScreen challenge={challenge} user={user} />
 
-	// Google returns to this page, challenge included, so the hand-off continues after sign-in.
+	// Google returns to this page, challenge included, so the hand-off continues after sign-in; a failure keeps asking for a fresh one.
 	const returnUrl = `${DESKTOP_SIGN_IN_PATH}?${new URLSearchParams({ [CODE_CHALLENGE_PARAM]: challenge })}`
 
 	return (
 		<SignInScreen
 			configured={configured}
+			loginHint={user?.email}
 			oauthError={oauthError}
-			redirects={{ callbackURL: returnUrl, errorCallbackURL: returnUrl }}
+			redirects={{
+				callbackURL: returnUrl,
+				errorCallbackURL: fresh
+					? `${returnUrl}&${FRESH_SIGN_IN_PARAM}=true`
+					: returnUrl,
+			}}
 		/>
 	)
 }

@@ -10,6 +10,7 @@ interface SignInScreenProps {
 	oauthError?: string
 	isAccountDeleted?: boolean
 	redirects?: GoogleSignInRedirects
+	loginHint?: string
 }
 
 export function SignInScreen({
@@ -17,6 +18,7 @@ export function SignInScreen({
 	oauthError,
 	isAccountDeleted = false,
 	redirects = LOGIN_REDIRECTS,
+	loginHint,
 }: Readonly<SignInScreenProps>) {
 	return (
 		<SignInLayout
@@ -30,7 +32,7 @@ export function SignInScreen({
 			)}
 
 			{configured ? (
-				<ContinueWithGoogle redirects={redirects} />
+				<ContinueWithGoogle loginHint={loginHint} redirects={redirects} />
 			) : (
 				<div className="flex flex-col gap-1 text-sm" role="note">
 					<p className="font-semibold">Sign-in is disabled</p>

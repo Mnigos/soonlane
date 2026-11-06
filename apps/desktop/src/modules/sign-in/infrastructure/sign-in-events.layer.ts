@@ -20,7 +20,9 @@ export const SignInEventsLive = Layer.effectDiscard(
 		yield* handleEvents(mainWindow.webviewEvents('will-navigate'), event => {
 			const href = readBlockedNavigationUrl(event)
 
-			return href && isSignInStart(href, appUrl) ? signIn.start : Effect.void
+			return href && isSignInStart(href, appUrl)
+				? signIn.start(href)
+				: Effect.void
 		})
 
 		// macOS delivers `soonlane://` links here only when the app is in /Applications.

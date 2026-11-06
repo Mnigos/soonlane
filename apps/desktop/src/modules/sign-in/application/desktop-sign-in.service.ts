@@ -12,8 +12,8 @@ import {
 export class DesktopSignIn extends Context.Service<
 	DesktopSignIn,
 	{
-		/** Opens the sign-in in the system browser with the challenge of the pending verifier, or a new one. */
-		readonly start: Effect.Effect<void>
+		/** Opens the sign-in the window asked for in the system browser, with the challenge of the pending verifier or a new one. */
+		readonly start: (requestedHref: string) => Effect.Effect<void>
 		/** A `soonlane://` link: its code and the pending verifier go to the window, which trades them for a session. */
 		readonly complete: (href: string) => Effect.Effect<void>
 	}
@@ -29,7 +29,7 @@ export const DesktopSignInLive = Layer.effect(
 		const pendingVerifier = yield* Ref.make(Option.none<string>())
 
 		return DesktopSignIn.of({
-			start: Effect.gen(function* () {
+			start: Effect.fn('DesktopSignIn.start')(function* (requestedHref) {
 				// Reusing a pending verifier lets every browser tab a repeated click opened finish.
 				const verifier = Option.getOrElse(
 					yield* Ref.get(pendingVerifier),
@@ -42,12 +42,14 @@ export const DesktopSignInLive = Layer.effect(
 				yield* Ref.set(pendingVerifier, Option.some(verifier))
 
 				if (
-					!(yield* systemBrowser.open(getBrowserSignInUrl(appUrl, challenge)))
+					!(yield* systemBrowser.open(
+						getBrowserSignInUrl(appUrl, challenge, requestedHref)
+					))
 				)
 					yield* Effect.logWarning(
 						'The system browser did not open the sign-in'
 					)
-			}).pipe(Effect.withSpan('DesktopSignIn.start')),
+			}),
 			// Logs leave the link out: it carries the code.
 			complete: Effect.fn('DesktopSignIn.complete')(function* (href) {
 				const code = readSignInCode(href)
