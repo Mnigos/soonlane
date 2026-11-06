@@ -45,11 +45,13 @@ function RootError({ error }: Readonly<ErrorComponentProps>) {
 			<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-4 px-6">
 				<div className="flex flex-col gap-1">
 					<h1 className="text-xl font-semibold">Something went wrong</h1>
+
 					<p className="text-sm text-muted-foreground">
 						{(error instanceof Error && error.message) ||
 							'Could not load the page.'}
 					</p>
 				</div>
+
 				<Button className="self-start" onClick={() => void router.invalidate()}>
 					Try again
 				</Button>
@@ -64,8 +66,10 @@ function RootDocument({ children }: Readonly<PropsWithChildren>) {
 			<head>
 				<HeadContent />
 			</head>
+
 			<body className="min-h-dvh bg-background font-sans text-foreground antialiased">
 				{children}
+
 				<Scripts />
 			</body>
 		</html>

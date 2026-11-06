@@ -37,6 +37,7 @@ export function WeekControls({
 					<ChevronLeft aria-hidden className="size-4" />
 				</span>
 			)}
+
 			<Link
 				className="flex h-8 items-center px-3 text-sm font-medium transition-colors hover:bg-hover"
 				search={{}}
@@ -44,6 +45,7 @@ export function WeekControls({
 			>
 				Today
 			</Link>
+
 			<Link
 				aria-label="Next week"
 				className={CONTROL_CLASS}

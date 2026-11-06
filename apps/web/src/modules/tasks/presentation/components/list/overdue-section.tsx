@@ -26,6 +26,7 @@ export function OverdueSection() {
 						Overdue
 					</button>
 				</h2>
+
 				<button
 					className="cursor-pointer text-sm font-medium text-danger hover:underline disabled:cursor-default disabled:opacity-50 disabled:hover:no-underline"
 					disabled
@@ -34,6 +35,7 @@ export function OverdueSection() {
 					Reschedule
 				</button>
 			</div>
+
 			{isOpen && (
 				<p className="py-3 text-sm text-faint-foreground" id="overdue-tasks">
 					Nothing overdue.

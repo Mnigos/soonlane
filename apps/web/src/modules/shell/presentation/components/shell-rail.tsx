@@ -30,6 +30,7 @@ export function ShellRail({ className, onExpand }: Readonly<ShellRailProps>) {
 			>
 				<Avatar name="Soonlist" />
 			</span>
+
 			<button
 				aria-label="Expand sidebar"
 				className={sidebarRailItemVariants()}
@@ -39,6 +40,7 @@ export function ShellRail({ className, onExpand }: Readonly<ShellRailProps>) {
 			>
 				<PanelLeftOpen aria-hidden />
 			</button>
+
 			<button
 				aria-label="Add task"
 				className={cn(
@@ -52,10 +54,13 @@ export function ShellRail({ className, onExpand }: Readonly<ShellRailProps>) {
 					<Plus aria-hidden className="size-3.5" strokeWidth={2.5} />
 				</span>
 			</button>
+
 			<nav aria-label="Views" className="flex flex-col gap-0.5">
 				<RailNavLink icon={CalendarDays} label="Upcoming" to="/" />
+
 				<RailNavLink icon={CalendarFold} label="Today" to="/today" />
 			</nav>
+
 			<button
 				aria-label="Labels"
 				className={sidebarRailItemVariants()}
