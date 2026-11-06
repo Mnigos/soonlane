@@ -94,7 +94,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 						if (deleteAccount)
 							void navigate({
 								to: '.',
-								search: search => ({ ...search, deleteAccount: undefined }),
+								search: {},
 								replace: true,
 								resetScroll: false,
 							})

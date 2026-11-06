@@ -17,7 +17,7 @@ export function DeleteAccountDialog({
 	const { mutate, data, isPending, isError } = useDeleteAccountMutation()
 	const reopenURL = router.buildLocation({
 		to: '.',
-		search: search => ({ ...search, deleteAccount: true }),
+		search: { deleteAccount: true },
 	}).href
 
 	return (
