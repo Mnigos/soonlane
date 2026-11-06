@@ -14,6 +14,7 @@ import {
 	between,
 	eq,
 	inArray,
+	getColumns,
 	isNotNull,
 	isNull,
 	lt,
@@ -26,9 +27,7 @@ import {
 } from '@/modules/labels/infrastructure/label-row.helper'
 import { Db, type Database } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
-
-// Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM.
-const DUE_TIME_LENGTH = 5
+import { toTask } from './task-row.helper'
 
 type Queries = Pick<Database, 'insert' | 'select'>
 
@@ -39,27 +38,6 @@ const DAY_ORDER = [
 	asc(task.priority),
 	asc(task.createdAt),
 ]
-
-function toTask(row: TaskRow, labels: Label[]): Task {
-	const {
-		repeatUnit: unit,
-		repeatInterval: interval,
-		repeatAnchor: anchor,
-	} = row
-
-	return {
-		id: row.id,
-		title: row.title,
-		description: row.description ?? undefined,
-		dueDate: row.dueDate,
-		dueTime: row.dueTime?.slice(0, DUE_TIME_LENGTH),
-		priority: row.priority,
-		createdAt: row.createdAt,
-		completedAt: row.completedAt ?? undefined,
-		repeat: unit && interval && anchor ? { unit, interval, anchor } : undefined,
-		labels,
-	}
-}
 
 async function withLabels(
 	database: Queries,
@@ -200,6 +178,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				priority,
 				repeat,
 				labelIds = [],
+				goal,
 			}) =>
 				db.run(
 					'TaskRepository.create',
@@ -217,6 +196,8 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 									repeatUnit: repeat?.unit ?? null,
 									repeatInterval: repeat?.interval ?? null,
 									repeatAnchor: repeat?.anchor ?? null,
+									goalTarget: goal?.target ?? null,
+									goalUnit: goal?.unit ?? null,
 								})
 								.returning()
 
@@ -345,6 +326,54 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 					)
 
 					return await findTask(database, ownerId, id)
+				}),
+			// One statement on the row locked as `before`: concurrent logs never lose an increment and `logged` is what this log applied.
+			logProgress: ({ ownerId, id, amount, loggedAt }) =>
+				db.run('TaskRepository.logProgress', async database => {
+					const before = database.$with('before').as(
+						database
+							.select({ id: task.id, progress: task.goalProgress })
+							.from(task)
+							.where(
+								and(
+									eq(task.ownerId, ownerId),
+									eq(task.id, id),
+									isNotNull(task.goalTarget)
+								)
+							)
+							.for('update')
+					)
+					const progress = sql<number>`least(greatest(${task.goalProgress} + ${amount}, 0), ${task.goalTarget})`
+					const [row] = await database
+						.with(before)
+						.update(task)
+						.set({
+							goalProgress: progress,
+							// Reaching the target completes; leaving it reopens, which is how Undo works.
+							completedAt: sql`case
+								when ${progress} >= ${task.goalTarget} then coalesce(${task.completedAt}, ${loggedAt})
+								when ${task.goalProgress} >= ${task.goalTarget} then null
+								else ${task.completedAt}
+							end`,
+						})
+						.from(before)
+						.where(
+							and(
+								eq(task.ownerId, ownerId),
+								eq(task.id, id),
+								eq(task.id, before.id)
+							)
+						)
+						.returning({
+							...getColumns(task),
+							logged: sql<number>`${task.goalProgress} - ${before.progress}`,
+						})
+
+					if (!row) return undefined
+
+					const [logged] = await withLabels(database, ownerId, [row])
+
+					return logged && { task: logged, logged: row.logged }
 				}),
 		})
 	})

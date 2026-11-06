@@ -4,6 +4,8 @@ import {
 	REPEAT_UNITS,
 	type RepeatUnit,
 	SINGLE_INTERVAL_REPEAT_UNITS,
+	GOAL_TARGET_MAX,
+	GOAL_UNIT_MAX_LENGTH,
 	type TaskId,
 	type TaskPriority,
 	type UserId,
@@ -13,6 +15,7 @@ import {
 	check,
 	date,
 	index,
+	integer,
 	pgTable,
 	smallint,
 	text,
@@ -52,6 +55,10 @@ export const task = pgTable(
 		repeatAnchor: date('repeat_anchor', {
 			mode: 'string',
 		}).$type<CalendarDate>(),
+		goalTarget: integer('goal_target'),
+		goalUnit: text('goal_unit'),
+		// The current occurrence's progress, so repeating can reset it with the due date.
+		goalProgress: integer('goal_progress').notNull().default(0),
 	},
 	table => [
 		index('task_owner_due_idx').on(table.ownerId, table.dueDate),
@@ -71,6 +78,22 @@ export const task = pgTable(
 		check(
 			'task_repeat_single_interval',
 			sql`${table.repeatUnit} not in (${toSqlList(SINGLE_INTERVAL_REPEAT_UNITS)}) or ${table.repeatInterval} = 1`
+		),
+		check(
+			'task_goal_target_range',
+			sql`${table.goalTarget} between 1 and ${sql.raw(String(GOAL_TARGET_MAX))}`
+		),
+		check(
+			'task_goal_progress_range',
+			sql`${table.goalProgress} between 0 and coalesce(${table.goalTarget}, 0)`
+		),
+		check(
+			'task_goal_unit_target',
+			sql`${table.goalUnit} is null or ${table.goalTarget} is not null`
+		),
+		check(
+			'task_goal_unit_length',
+			sql`char_length(${table.goalUnit}) between 1 and ${sql.raw(String(GOAL_UNIT_MAX_LENGTH))}`
 		),
 	]
 )

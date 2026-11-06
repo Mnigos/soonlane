@@ -1,6 +1,7 @@
 import type {
 	CreateTaskInput,
 	Label,
+	LogProgressOutput,
 	Task,
 	UpdateTaskInput,
 } from '@soonlane/contracts'
@@ -61,6 +62,13 @@ export interface TaskLabel {
 	labelId: LabelId
 }
 
+export interface ProgressLog {
+	ownerId: UserId
+	id: TaskId
+	amount: number
+	loggedAt: Date
+}
+
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
@@ -97,5 +105,8 @@ export class TaskRepository extends Context.Service<
 		readonly unassignLabel: (
 			taskLabel: TaskLabel
 		) => Effect.Effect<Task | undefined, DbError>
+		readonly logProgress: (
+			log: ProgressLog
+		) => Effect.Effect<LogProgressOutput | undefined, DbError>
 	}
 >()('soonlane/TaskRepository') {}

@@ -5,6 +5,7 @@ import type {
 	ListTasksInput,
 	ListTasksOutput,
 	RescheduleTasksInput,
+	LogProgressOutput,
 	Task,
 	UpdateTaskInput,
 } from '@soonlane/contracts'
@@ -74,6 +75,11 @@ export class TasksService extends Context.Service<
 			id: TaskId,
 			labelId: LabelId
 		) => Effect.Effect<Task, TaskNotFound | LabelNotFound | DbError>
+		readonly logProgress: (
+			ownerId: UserId,
+			id: TaskId,
+			amount: number
+		) => Effect.Effect<LogProgressOutput, TaskNotFound | DbError>
 	}
 >()('soonlane/TasksService') {}
 
@@ -83,7 +89,7 @@ interface CompletionDates {
 	dueDate?: CalendarDate
 }
 
-function requireTask(task: Task | undefined) {
+function requireTask<T>(task: T | undefined) {
 	return task ? Effect.succeed(task) : Effect.fail(new TaskNotFound())
 }
 
@@ -268,6 +274,18 @@ export const TasksServiceLive = Layer.effect(
 			)
 		})
 
+		const logProgress = Effect.fn('TasksService.logProgress')(function* (
+			ownerId: UserId,
+			id: TaskId,
+			amount: number
+		) {
+			const loggedAt = new Date(yield* Clock.currentTimeMillis)
+
+			return yield* requireTask(
+				yield* repository.logProgress({ ownerId, id, amount, loggedAt })
+			)
+		})
+
 		return TasksService.of({
 			list,
 			listByLabel,
@@ -278,6 +296,7 @@ export const TasksServiceLive = Layer.effect(
 			reschedule,
 			assignLabel,
 			unassignLabel,
+			logProgress,
 		})
 	})
 )

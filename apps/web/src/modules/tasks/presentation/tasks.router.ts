@@ -102,4 +102,16 @@ export const tasksRouter = {
 			),
 		}
 	}),
+	logProgress: os.tasks.logProgress.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return yield* tasksService.logProgress(
+			context.user.id,
+			toTaskId(input.id),
+			input.amount
+		)
+	}),
 }
