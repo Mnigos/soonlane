@@ -9,6 +9,7 @@ Production: https://soonlist.vercel.app
 | Directory                   | Purpose and main technology                                                               |
 | --------------------------- | ----------------------------------------------------------------------------------------- |
 | `apps/web`                  | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4. |
+| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                   |
 | `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                               |
 | `packages/domain`           | Branded types such as `CalendarDate`.                                                     |
 | `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                            |
@@ -39,13 +40,17 @@ Run with `bun run <script>` from the root.
 
 | Script                | Purpose                                                    |
 | --------------------- | ---------------------------------------------------------- |
-| `dev`                 | Development server on port 3000.                           |
+| `dev`                 | Web development server on port 3000.                       |
 | `build`               | Production build for Vercel (`apps/web/.vercel/output`).   |
 | `typecheck`           | TypeScript in every package.                               |
 | `check` / `check:fix` | oxlint and oxfmt through Ultracite.                        |
 | `commit`              | Commitizen prompt for a conventional commit.               |
 | `db:generate`         | Drizzle migration from `packages/db/schema`.               |
 | `db:migrate`          | Apply migrations to the database in `apps/web/.env.local`. |
+
+## Desktop
+
+`apps/desktop` is an Electrobun shell around the hosted web app (ADR 0004). From `apps/desktop`: `bun run dev` opens it against the dev server on port 3000, `bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/`, and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`).
 
 ## Commits
 
