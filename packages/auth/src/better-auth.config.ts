@@ -6,6 +6,7 @@ import { APIError } from 'better-auth/api'
 import { oAuthProxy } from 'better-auth/plugins/oauth-proxy'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { desktopSignIn } from './desktop-sign-in.handler'
 import { isOwner } from './owner.helper'
 
 export const AUTH_BASE_PATH = '/api/auth'
@@ -46,8 +47,9 @@ function redactLogArgument(argument: unknown) {
 
 /**
  * Better Auth for the owner only: Google sign-in, uuid ids, the user-create
- * hook that rejects every other account, and the OAuth proxy that lets
- * Vercel previews sign in through the production callback.
+ * hook that rejects every other account, the OAuth proxy that lets
+ * Vercel previews sign in through the production callback, and the
+ * hand-off of a browser sign-in to the desktop app.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
@@ -94,6 +96,7 @@ export function createAuth(options: CreateAuthOptions) {
 						}),
 					]
 				: []),
+			desktopSignIn(),
 			// Forwards refreshed session cookies from server-side getSession calls (SSR and RPC); keep it last.
 			tanstackStartCookies(),
 		],

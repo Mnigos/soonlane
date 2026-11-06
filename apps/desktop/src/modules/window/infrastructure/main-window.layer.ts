@@ -88,6 +88,7 @@ export const MainWindowLive = Layer.effect(
 		return MainWindow.of({
 			load: url => Effect.sync(() => webview.loadURL(url.href)),
 			reload: Effect.sync(() => webview.executeJavascript('location.reload()')),
+			activate: Effect.sync(() => window.activate()),
 			webviewEvents: name => electrobunEvents(`${name}-${webview.id}`),
 		})
 	})

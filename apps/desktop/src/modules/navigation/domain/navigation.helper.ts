@@ -1,10 +1,19 @@
+import { DESKTOP_SIGN_IN_PATH } from '@soonlane/auth'
 import type { LinkTarget } from './navigation.types'
 
 const BROWSER_PROTOCOLS = new Set(['https:', 'http:', 'mailto:'])
 
-/** Native navigation rules: block everything, then allow the web app's own origin (last match wins). */
+/**
+ * Native navigation rules (last match wins): block everything, allow the web
+ * app's own origin, and block its desktop sign-in page, which has to open in
+ * the system browser because Google refuses embedded webviews.
+ */
 export function getNavigationRules(appUrl: URL) {
-	return ['^*', `${appUrl.origin}/*`]
+	return [
+		'^*',
+		`${appUrl.origin}/*`,
+		`^${appUrl.origin}${DESKTOP_SIGN_IN_PATH}*`,
+	]
 }
 
 /**
