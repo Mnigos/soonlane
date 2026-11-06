@@ -5,11 +5,11 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
-import { Calendar } from 'lucide-react'
 import { type KeyboardEvent, useRef, useState } from 'react'
 import { getDueChipLabel } from '../../../domain/due-label.helper'
 import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
+import { DueCalendarIcon } from './due-calendar-icon'
 import { DueDatePicker } from './due-date-picker'
 
 interface DueDateChipProps {
@@ -45,7 +45,7 @@ export function DueDateChip({
 				className={cn(COMPOSER_CHIP_CLASS, DUE_TONE_CLASSES[label.tone])}
 				onKeyDown={onKeyDown}
 			>
-				<Calendar aria-hidden />
+				<DueCalendarIcon />
 
 				{label.text}
 			</PopoverTrigger>

@@ -7,25 +7,15 @@ import {
 	MenuRadioItem,
 	MenuTrigger,
 } from '@soonlane/ui/components/menu'
-import { Flag } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'
 import { PRIORITY_FLAG_CLASSES } from '../../helpers/task-priority.constants'
+import { PriorityFlagIcon } from './priority-flag-icon'
 
 interface PriorityChipProps {
 	value: TaskPriority
 	onChange: (priority: TaskPriority) => void
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
-}
-
-function PriorityFlag({ priority }: Readonly<{ priority: TaskPriority }>) {
-	return (
-		<Flag
-			aria-hidden
-			className={PRIORITY_FLAG_CLASSES[priority]}
-			fill={priority === 4 ? 'none' : 'currentColor'}
-		/>
-	)
 }
 
 /** "Priority" until one is picked, then "P1" to "P3" with the colored flag, like Todoist. */
@@ -43,7 +33,10 @@ export function PriorityChip({
 				className={cn(COMPOSER_CHIP_CLASS, !isDefault && 'text-foreground')}
 				onKeyDown={onKeyDown}
 			>
-				{isDefault ? <Flag aria-hidden /> : <PriorityFlag priority={value} />}
+				<PriorityFlagIcon
+					className={isDefault ? undefined : PRIORITY_FLAG_CLASSES[value]}
+					isFilled={!isDefault}
+				/>
 
 				{isDefault ? 'Priority' : `P${value}`}
 			</MenuTrigger>
@@ -55,7 +48,11 @@ export function PriorityChip({
 				>
 					{TASK_PRIORITIES.map(priority => (
 						<MenuRadioItem key={priority} value={priority}>
-							<PriorityFlag priority={priority} />
+							<PriorityFlagIcon
+								className={cn('size-5.5', PRIORITY_FLAG_CLASSES[priority])}
+								isFilled={priority !== 4}
+								strokeWidth={0.75}
+							/>
 							Priority {priority}
 						</MenuRadioItem>
 					))}

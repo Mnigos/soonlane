@@ -11,7 +11,7 @@ export function AddTaskDialog({ onClose }: Readonly<AddTaskDialogProps>) {
 	const today = useToday()
 
 	return (
-		<Dialog label="Add task" onClose={onClose}>
+		<Dialog className="rounded-xl" label="Add task" onClose={onClose}>
 			{today && (
 				<TaskComposer
 					autoFocus={false}

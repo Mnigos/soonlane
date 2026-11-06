@@ -6,7 +6,14 @@
 	--sidebar: #262626;
 	--hover: #2c2c2c;
 	--border: #333333;
+	--border-strong: #656565;
 
+	/* Todoist's composer: the card, the grey square button and tooltips. */
+	--card: #242424;
+	--control: #434343;
+	--tooltip: #3d3d3d;
+
+	--secondary-foreground: #cbcbcb;
 	--muted-foreground: #a3a3a3;
 	--faint-foreground: #6f6f6f;
 
@@ -38,7 +45,13 @@
 	--color-sidebar: var(--sidebar);
 	--color-hover: var(--hover);
 	--color-border: var(--border);
+	--color-border-strong: var(--border-strong);
 
+	--color-card: var(--card);
+	--color-control: var(--control);
+	--color-tooltip: var(--tooltip);
+
+	--color-secondary-foreground: var(--secondary-foreground);
 	--color-muted-foreground: var(--muted-foreground);
 	--color-faint-foreground: var(--faint-foreground);
 

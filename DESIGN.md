@@ -6,7 +6,12 @@ colors:
   sidebar: '#262626'
   hover: '#2c2c2c'
   border: '#333333'
+  border-strong: '#656565'
+  card: '#242424'
+  control: '#434343'
+  tooltip: '#3d3d3d'
   foreground: '#e8e8e8'
+  secondary-foreground: '#cbcbcb'
   muted-foreground: '#a3a3a3'
   faint-foreground: '#6f6f6f'
   primary: '#dc4c3e'
@@ -129,7 +134,12 @@ Todoist's due colors, used only on the date line under a task and the composer's
 - **Sidebar** (`sidebar`, #262626): the sidebar column.
 - **Hover** (`hover`, #2c2c2c): row and button hover, skeletons.
 - **Rule** (`border`, #333333): dividers under headings and between rows.
+- **Strong Rule** (`border-strong`, #656565): the composer card's border while it has focus.
+- **Card** (`card`, #242424): the task composer card, menus and popovers.
+- **Control** (`control`, #434343): the composer's grey square "+" button.
+- **Tooltip** (`tooltip`, #3d3d3d): tooltip background.
 - **Ink** (`foreground`, #e8e8e8): task titles and headings.
+- **Chalk** (`secondary-foreground`, #cbcbcb): composer chip labels and icons, menu items, the cancel ×.
 - **Pencil** (`muted-foreground`, #a3a3a3): month label, week strip days, secondary text.
 - **Faint** (`faint-foreground`, #6f6f6f): past days, empty states, placeholders.
 
@@ -153,7 +163,7 @@ System sans (`-apple-system`, Inter, Segoe UI, Roboto). Weight carries hierarchy
 
 ## 4. Elevation
 
-Flat. The layered surfaces are the mobile drawer and the Add task dialog (both over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, and popovers and menus: `sidebar` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`.
+Flat. The layered surfaces are the mobile drawer and the Add task dialog (both over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `card` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
 
 ## 5. Components
 
@@ -186,7 +196,8 @@ Flat. The layered surfaces are the mobile drawer and the Add task dialog (both o
 ### Tasks
 
 - A task row: a 18px completion circle in its priority color (filled tint for P1 to P3), the title, a one-line description preview, then a date line with a small calendar icon in the due color: the due time if set, and for overdue tasks the date as well ("5 Nov", "5 Nov 11:30"). A hover shows a check in the circle; clicking it completes the task, hides it from Upcoming and shows a "Task completed" toast with Undo.
-- The task composer replaces a day's "+ Add task" row inline: a card with a faint border, the title and description fields, then a row of 28px outlined chips (the due date in its due color, then Priority) and, on the right, a ghost × to cancel and a red send button to add. The Priority chip opens a menu of flags P1 to P4 with a red check on the selected one, and reads "P1" to "P3" with the colored flag once picked. Enter submits and keeps the card open for the next task; Escape closes it. New chips (labels, later) join the same row.
+- The task composer replaces a day's "+ Add task" row inline, as in Todoist: a `card` box with a 12px radius, 12px padding and a `border` line that turns `border-strong` while focused. The title is 16px on a 24px line with a "Task name" placeholder; the description sits right under it, 13px on a 20px line with a "Description" placeholder, no box. Then a row of 28px controls 4px apart: the grey square "+" (`control`), then 28px outlined chips with 16px icons drawn in 1px lines, 13px labels in `secondary-foreground` and 6px padding (the date with Todoist's calendar icon in its due color and no ×, since a task always has a date; Priority; Reminders; Labels). On the right a 32px ghost × to cancel and the 32px red square send button with an up arrow, 8px apart; the send button stays red and, with no title, focuses the title. The Priority chip opens a menu centered under it: 32px rows of 22px flags and 13px labels, the selected row on the hover grey with a red check; the chip reads "P1" to "P3" with the colored flag once picked. Enter submits and keeps the card open for the next task; Escape closes it.
+- Controls Todoist has and Soonlist does not yet (the "+", Reminders, Labels) keep their place for the layout: muted, `aria-disabled`, inert, with a "Coming soon" tooltip. There is no project chip, because Soonlist has no projects.
 - The date chip opens the date picker, a 256px popover: a text field with the current date (it reads "tom", "fri", "14 Nov", "next week"; Enter applies the match), quick dates with their hints (Today, Tomorrow, This weekend from Monday to Thursday, Next week on Monday, Next weekend on Saturday of next week; the chosen day is left out), a month calendar and a "Time" button. In the calendar today is red, the chosen day sits on a red circle and past days are faint and inert; arrows step by day and week, Page Up and Page Down by month. Picking a day closes the popover; the time stays open for editing and has a clear button. There is no "No Date", since a task needs a due date.
 
 ### Loading

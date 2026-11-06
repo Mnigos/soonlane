@@ -4,8 +4,7 @@ import {
 	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { Button } from '@soonlane/ui/components/button'
-import { SendHorizontal, X } from 'lucide-react'
+import { AlarmClock, ArrowUp, Plus, Tag, X } from 'lucide-react'
 import {
 	type KeyboardEvent,
 	type SubmitEvent,
@@ -13,7 +12,12 @@ import {
 	useRef,
 	useState,
 } from 'react'
+import {
+	CHIP_ICON_STROKE,
+	COMPOSER_CHIP_CLASS,
+} from '../../helpers/composer-chip.constants'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
+import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
 import { PriorityChip } from './priority-chip'
 
@@ -63,6 +67,8 @@ export function TaskComposer({
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault()
+		// The send button stays red like Todoist's; with no title it points back to the field.
+		if (title.trim() === '') titleRef.current?.focus()
 		if (!canSubmit || isSubmittingRef.current) return
 
 		isSubmittingRef.current = true
@@ -101,34 +107,40 @@ export function TaskComposer({
 		<form
 			aria-label="Add task"
 			className={cn(
-				'my-2 flex flex-col rounded-lg border border-faint-foreground/50',
+				'my-2 flex flex-col rounded-xl border bg-card p-3 transition-colors focus-within:border-border-strong',
 				className
 			)}
 			onSubmit={submit}
 		>
-			<div className="flex flex-col gap-1 px-3 pt-3 pb-2">
-				<input
-					aria-label="Task name"
-					className={cn(FIELD_CLASS, 'text-sm font-medium')}
-					maxLength={500}
-					onChange={event => setTitle(event.target.value)}
-					onKeyDown={cancelOnEscape}
-					placeholder="Task name"
-					ref={attachTitle}
-					value={title}
-				/>
+			<input
+				aria-label="Task name"
+				className={cn(FIELD_CLASS, 'text-base leading-6')}
+				maxLength={500}
+				onChange={event => setTitle(event.target.value)}
+				onKeyDown={cancelOnEscape}
+				placeholder="Task name"
+				ref={attachTitle}
+				value={title}
+			/>
 
-				<input
-					aria-label="Description"
-					className={cn(FIELD_CLASS, 'text-label')}
-					onChange={event => setDescription(event.target.value)}
-					onKeyDown={cancelOnEscape}
-					placeholder="Description"
-					value={description}
-				/>
-			</div>
+			<input
+				aria-label="Description"
+				className={cn(FIELD_CLASS, 'text-label leading-5')}
+				onChange={event => setDescription(event.target.value)}
+				onKeyDown={cancelOnEscape}
+				placeholder="Description"
+				value={description}
+			/>
 
-			<div className="flex flex-wrap items-center gap-2 px-3 pb-3">
+			<div className="mt-1.75 flex flex-wrap items-center gap-1">
+				<ComingSoonButton
+					className="inline-flex size-7 items-center justify-center rounded-md bg-control"
+					label="More actions"
+					onKeyDown={cancelOnEscape}
+				>
+					<Plus aria-hidden className="size-5" strokeWidth={1.25} />
+				</ComingSoonButton>
+
 				<DueDateChip
 					dueDate={dueDate}
 					dueTime={dueTime}
@@ -144,31 +156,49 @@ export function TaskComposer({
 					value={priority}
 				/>
 
-				<div className="ml-auto flex items-center gap-1">
-					<Button
+				<ComingSoonButton
+					className={COMPOSER_CHIP_CLASS}
+					label="Reminders"
+					onKeyDown={cancelOnEscape}
+				>
+					<AlarmClock aria-hidden strokeWidth={CHIP_ICON_STROKE} />
+					Reminders
+				</ComingSoonButton>
+
+				<ComingSoonButton
+					className={COMPOSER_CHIP_CLASS}
+					label="Labels"
+					onKeyDown={cancelOnEscape}
+				>
+					<Tag aria-hidden strokeWidth={CHIP_ICON_STROKE} />
+					Labels
+				</ComingSoonButton>
+
+				<div className="ml-auto flex items-center gap-2">
+					<button
 						aria-label="Cancel"
+						className="flex size-8 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary"
 						onClick={onCancel}
 						onKeyDown={cancelOnEscape}
-						size="icon"
-						variant="ghost"
+						type="button"
 					>
-						<X />
-					</Button>
+						<X aria-hidden className="size-7" strokeWidth={0.9} />
+					</button>
 
-					<Button
+					<button
+						aria-disabled={!canSubmit}
 						aria-label="Add task"
-						disabled={!canSubmit}
+						className="flex size-8 cursor-pointer items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
 						onKeyDown={cancelOnEscape}
-						size="icon"
 						type="submit"
 					>
-						<SendHorizontal />
-					</Button>
+						<ArrowUp aria-hidden className="size-5" strokeWidth={2.25} />
+					</button>
 				</div>
 			</div>
 
 			{isError && (
-				<p className="px-3 pb-3 text-caption text-danger" role="alert">
+				<p className="pt-2 text-caption text-danger" role="alert">
 					Could not add the task. Try again.
 				</p>
 			)}
