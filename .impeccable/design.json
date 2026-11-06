@@ -70,6 +70,24 @@
         "displayName": "P4 Grey",
         "canonical": "#8a8a8a",
         "usage": "Priority 4 completion circle and flag only."
+      },
+      "due-today": {
+        "role": "semantic",
+        "displayName": "Due Today Green",
+        "canonical": "#1ab04d",
+        "usage": "Date line of a task due today only."
+      },
+      "due-tomorrow": {
+        "role": "semantic",
+        "displayName": "Due Tomorrow Orange",
+        "canonical": "#ff9a14",
+        "usage": "Date line of a task due tomorrow only."
+      },
+      "due-week": {
+        "role": "semantic",
+        "displayName": "Due This Week Violet",
+        "canonical": "#a970ff",
+        "usage": "Date line of a task due in the next 2 to 7 days only."
       }
     },
     "typographyMeta": {

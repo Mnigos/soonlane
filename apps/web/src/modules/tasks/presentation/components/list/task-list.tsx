@@ -1,15 +1,18 @@
 import type { Task } from '@soonlist/contracts'
+import type { CalendarDate } from '@soonlist/domain'
 import { Skeleton } from '@soonlist/ui/components/skeleton'
 import { TaskItem } from '../task/task-item'
 
 interface TaskListProps {
 	tasks: Task[]
+	today: CalendarDate
 	isLoading: boolean
 	onComplete: (task: Task) => void
 }
 
 export function TaskList({
 	tasks,
+	today,
 	isLoading,
 	onComplete,
 }: Readonly<TaskListProps>) {
@@ -25,7 +28,12 @@ export function TaskList({
 	return (
 		<ul>
 			{tasks.map(task => (
-				<TaskItem key={task.id} onComplete={onComplete} task={task} />
+				<TaskItem
+					key={task.id}
+					onComplete={onComplete}
+					task={task}
+					today={today}
+				/>
 			))}
 		</ul>
 	)

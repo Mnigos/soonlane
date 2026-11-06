@@ -23,6 +23,11 @@
 	--priority-3: #246fe0;
 	--priority-4: #8a8a8a;
 
+	/* Todoist due colors: today green, tomorrow orange, the next 2 to 7 days violet. Overdue uses danger. */
+	--due-today: #1ab04d;
+	--due-tomorrow: #ff9a14;
+	--due-week: #a970ff;
+
 	--radius: 0.375rem;
 }
 
@@ -48,6 +53,10 @@
 	--color-priority-2: var(--priority-2);
 	--color-priority-3: var(--priority-3);
 	--color-priority-4: var(--priority-4);
+
+	--color-due-today: var(--due-today);
+	--color-due-tomorrow: var(--due-tomorrow);
+	--color-due-week: var(--due-week);
 
 	--radius-md: var(--radius);
 

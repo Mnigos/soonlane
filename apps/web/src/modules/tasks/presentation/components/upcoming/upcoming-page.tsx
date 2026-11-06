@@ -69,6 +69,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 				isLoading={isPending}
 				onComplete={completeTask}
 				tasks={data?.overdue ?? []}
+				today={today}
 			/>
 
 			{days.map(date => (

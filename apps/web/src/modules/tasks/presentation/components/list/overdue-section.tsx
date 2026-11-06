@@ -1,4 +1,5 @@
 import type { Task } from '@soonlist/contracts'
+import type { CalendarDate } from '@soonlist/domain'
 import { cn } from '@soonlist/ui/cn'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
@@ -6,12 +7,14 @@ import { TaskList } from './task-list'
 
 interface OverdueSectionProps {
 	tasks: Task[]
+	today: CalendarDate
 	isLoading: boolean
 	onComplete: (task: Task) => void
 }
 
 export function OverdueSection({
 	tasks,
+	today,
 	isLoading,
 	onComplete,
 }: Readonly<OverdueSectionProps>) {
@@ -59,6 +62,7 @@ export function OverdueSection({
 							isLoading={isLoading}
 							onComplete={onComplete}
 							tasks={tasks}
+							today={today}
 						/>
 					)}
 				</div>
