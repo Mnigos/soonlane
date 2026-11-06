@@ -15,5 +15,6 @@ interface SitePageLink {
 }
 
 export const SITE_PAGE_LINKS: readonly SitePageLink[] = [
+	{ label: 'Blog', to: '/blog' },
 	{ label: 'Changelog', to: '/changelog' },
 ]

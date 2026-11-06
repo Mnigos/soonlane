@@ -9,6 +9,10 @@ interface PageHeadInput {
 	type?: 'website' | 'article'
 }
 
+export function toSiteUrl(path: string) {
+	return new URL(path, SITE_URL).href
+}
+
 export function buildPageHead({
 	title,
 	description,
@@ -16,8 +20,8 @@ export function buildPageHead({
 	image = DEFAULT_OG_IMAGE,
 	type = 'website',
 }: PageHeadInput) {
-	const url = new URL(path, SITE_URL).href
-	const imageUrl = new URL(image, SITE_URL).href
+	const url = toSiteUrl(path)
+	const imageUrl = toSiteUrl(image)
 
 	return {
 		meta: [

@@ -9,6 +9,8 @@ export const routes = rootRoute('routes/__root.tsx', [
 		),
 		route('/privacy', 'modules/site/presentation/routes/privacy.route.tsx'),
 		route('/terms', 'modules/site/presentation/routes/terms.route.tsx'),
+		route('/blog', 'modules/blog/presentation/routes/blog.route.tsx'),
+		route('/blog/$slug', 'modules/blog/presentation/routes/post.route.tsx'),
 	]),
 	layout('session', 'modules/identity/presentation/routes/session.route.tsx', [
 		route('/app', 'modules/shell/presentation/routes/shell.route.tsx', [
@@ -32,6 +34,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 	route('/today', 'modules/shell/presentation/routes/legacy-today.route.tsx'),
 	route('/robots[.]txt', 'modules/site/presentation/routes/robots.route.ts'),
 	route('/sitemap[.]xml', 'modules/site/presentation/routes/sitemap.route.ts'),
+	route('/blog/rss[.]xml', 'modules/blog/presentation/routes/rss.route.ts'),
 	route(
 		'/api/auth/$',
 		'modules/identity/presentation/routes/api.auth.$.route.ts'

@@ -45,7 +45,7 @@ export function getRouter() {
 		scrollRestoration: true,
 		defaultPreloadStaleTime: 0,
 		context: { queryClient, orpc: orpcQuery },
-		defaultNotFoundComponent: NotFound,
+		defaultNotFoundComponent: () => <NotFound className="min-h-dvh" />,
 		defaultOnCatch: captureException,
 		Wrap: ({ children }) => (
 			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

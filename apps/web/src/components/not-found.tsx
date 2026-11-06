@@ -1,8 +1,18 @@
+import { cn } from '@soonlane/ui/cn'
 import { Link } from '@tanstack/react-router'
 
-export function NotFound() {
+interface NotFoundProps {
+	className?: string
+}
+
+export function NotFound({ className }: Readonly<NotFoundProps>) {
 	return (
-		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-2 px-6">
+		<main
+			className={cn(
+				'mx-auto flex max-w-sm flex-col justify-center gap-2 px-6',
+				className
+			)}
+		>
 			<h1 className="text-xl font-semibold">Page not found</h1>
 
 			<Link

@@ -109,6 +109,8 @@ export default defineConfig({
 				{ path: '/changelog' },
 				{ path: '/privacy' },
 				{ path: '/terms' },
+				{ path: '/blog' },
+				{ path: '/blog/rss.xml' },
 				{ path: '/sitemap.xml' },
 			],
 			importProtection: {
@@ -129,6 +131,15 @@ export default defineConfig({
 			// The preset's 'npx srvx' runs from the package root and, under Bun, makes request.runtime read-only.
 			commands: { preview: 'bun ./functions/__server.func/index.mjs' },
 			vercel: {
+				// Vercel would serve the static feed as generic XML.
+				config: {
+					version: 3,
+					overrides: {
+						'blog/rss.xml': {
+							contentType: 'application/rss+xml; charset=utf-8',
+						},
+					},
+				},
 				// Nitro's default 'bun1.x' is Bun 1.3; 'bun1.4.x' matches bunVersion in vercel.json. fra1 sits next to the Neon database in eu-central-1.
 				functions: {
 					runtime: 'bun1.4.x',
