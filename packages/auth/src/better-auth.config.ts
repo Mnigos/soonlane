@@ -2,12 +2,13 @@ import { account, rateLimit, session, user, verification } from '@soonlane/db'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { APIError } from 'better-auth/api'
+import { APIError, createAuthMiddleware } from 'better-auth/api'
 import { oAuthProxy } from 'better-auth/plugins/oauth-proxy'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { canSignUp } from './auth-policy.helper'
 import { desktopSignIn } from './desktop-sign-in.handler'
+import { SIGNED_IN_HINT_COOKIE } from './signed-in-hint.constants'
 
 export const AUTH_BASE_PATH = '/api/auth'
 
@@ -50,9 +51,10 @@ const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
 
 /**
  * Better Auth for anyone with a verified Google address (optionally only the
- * allowed ones): uuid ids, rate limits kept in the database, the OAuth proxy
- * that lets Vercel previews sign in through the production callback, and the
- * hand-off of a browser sign-in to the desktop app.
+ * allowed ones): uuid ids, rate limits kept in the database, the signed-in
+ * hint cookie, the OAuth proxy that lets Vercel previews sign in through the
+ * production callback, and the hand-off of a browser sign-in to the desktop
+ * app.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
@@ -92,6 +94,23 @@ export function createAuth(options: CreateAuthOptions) {
 			},
 		},
 		socialProviders: options.google ? { google: options.google } : {},
+		hooks: {
+			after: createAuthMiddleware(async ctx => {
+				const attributes = {
+					...ctx.context.authCookies.sessionToken.attributes,
+					httpOnly: false,
+				}
+
+				// Checked first: the session lookup before a sign-out can refresh the session.
+				if (ctx.path === '/sign-out')
+					ctx.setCookie(SIGNED_IN_HINT_COOKIE, '', { ...attributes, maxAge: 0 })
+				else if (ctx.context.newSession)
+					ctx.setCookie(SIGNED_IN_HINT_COOKIE, '1', {
+						...attributes,
+						maxAge: ctx.context.sessionConfig.expiresIn,
+					})
+			}),
+		},
 		databaseHooks: {
 			user: {
 				create: {
