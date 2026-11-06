@@ -1,4 +1,4 @@
-import type { RepeatInput, Task } from '@soonlane/contracts'
+import type { Label, RepeatInput, Task } from '@soonlane/contracts'
 import {
 	DEFAULT_TASK_PRIORITY,
 	type CalendarDate,
@@ -25,6 +25,7 @@ import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useUpdateTask } from '../../hooks/use-update-task'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
+import { LabelsChip } from './labels-chip'
 import { PriorityChip } from './priority-chip'
 
 interface TaskComposerProps {
@@ -68,6 +69,7 @@ export function TaskComposer({
 	const [repeat, setRepeat] = useState<RepeatInput | undefined>(
 		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
 	)
+	const [labels, setLabels] = useState<Label[]>([])
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
@@ -126,6 +128,7 @@ export function TaskComposer({
 				dueTime,
 				priority,
 				repeat,
+				labelIds: labels.map(({ id }) => id),
 			},
 			{
 				onSuccess: () => {
@@ -134,6 +137,7 @@ export function TaskComposer({
 					setDueTime(undefined)
 					setPriority(DEFAULT_TASK_PRIORITY)
 					setRepeat(undefined)
+					setLabels([])
 					titleRef.current?.focus()
 					onCreated?.()
 				},
@@ -219,14 +223,23 @@ export function TaskComposer({
 					Reminders
 				</ComingSoonButton>
 
-				<ComingSoonButton
-					className={COMPOSER_CHIP_CLASS}
-					label="Labels"
-					onKeyDown={cancelOnEscape}
-				>
-					<Tag aria-hidden strokeWidth={CHIP_ICON_STROKE} />
-					Labels
-				</ComingSoonButton>
+				{task ? (
+					// tasks.update does not save labels yet, so editing keeps the placeholder.
+					<ComingSoonButton
+						className={COMPOSER_CHIP_CLASS}
+						label="Labels"
+						onKeyDown={cancelOnEscape}
+					>
+						<Tag aria-hidden strokeWidth={CHIP_ICON_STROKE} />
+						Labels
+					</ComingSoonButton>
+				) : (
+					<LabelsChip
+						onChange={setLabels}
+						onKeyDown={cancelOnEscape}
+						value={labels}
+					/>
+				)}
 
 				<div className="ml-auto flex items-center gap-2">
 					<button
