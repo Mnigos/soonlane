@@ -1,10 +1,11 @@
+import type { Task } from '@soonlane/contracts'
 import {
 	DEFAULT_TASK_PRIORITY,
 	type CalendarDate,
 	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { AlarmClock, ArrowUp, Plus, Tag, X } from 'lucide-react'
+import { AlarmClock, ArrowUp, Check, Plus, Tag, X } from 'lucide-react'
 import {
 	type KeyboardEvent,
 	type SubmitEvent,
@@ -17,6 +18,7 @@ import {
 	COMPOSER_CHIP_CLASS,
 } from '../../helpers/composer-chip.constants'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
+import { useUpdateTask } from '../../hooks/use-update-task'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
 import { PriorityChip } from './priority-chip'
@@ -26,6 +28,9 @@ interface TaskComposerProps {
 	today: CalendarDate
 	onCancel: () => void
 	onCreated?: () => void
+	/** Edits this task in place instead of adding a new one. */
+	task?: Task
+	onSaved?: () => void
 	/** Off in a dialog, which focuses the title itself and remembers its opener. */
 	autoFocus?: boolean
 	className?: string
@@ -35,22 +40,27 @@ const FIELD_CLASS =
 	'bg-transparent text-foreground outline-none placeholder:text-faint-foreground'
 
 /**
- * Todoist's add-task card: title, description and a row of chips. Enter
- * submits, Escape cancels; the card stays open for the next task.
+ * Todoist's task card: title, description and a row of chips. Enter submits,
+ * Escape cancels. Adding keeps the card open for the next task; saving an
+ * edit closes it.
  */
 export function TaskComposer({
 	defaultDueDate,
 	today,
 	onCancel,
 	onCreated,
+	task,
+	onSaved,
 	autoFocus = true,
 	className,
 }: Readonly<TaskComposerProps>) {
-	const [title, setTitle] = useState('')
-	const [description, setDescription] = useState('')
+	const [title, setTitle] = useState(task?.title ?? '')
+	const [description, setDescription] = useState(task?.description ?? '')
 	const [dueDate, setDueDate] = useState(defaultDueDate)
-	const [dueTime, setDueTime] = useState<string>()
-	const [priority, setPriority] = useState<TaskPriority>(DEFAULT_TASK_PRIORITY)
+	const [dueTime, setDueTime] = useState(task?.dueTime)
+	const [priority, setPriority] = useState<TaskPriority>(
+		task?.priority ?? DEFAULT_TASK_PRIORITY
+	)
 	const titleRef = useRef<HTMLInputElement>(null)
 	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
 	const attachTitle = useCallback(
@@ -63,6 +73,7 @@ export function TaskComposer({
 	// isPending lags a render, so a quick second Enter would send the task twice.
 	const isSubmittingRef = useRef(false)
 	const { mutate, isPending, isError } = useCreateTaskMutation()
+	const { updateTask } = useUpdateTask()
 	const canSubmit = title.trim() !== '' && !isPending
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
@@ -70,6 +81,24 @@ export function TaskComposer({
 		// The send button stays red like Todoist's; with no title it points back to the field.
 		if (title.trim() === '') titleRef.current?.focus()
 		if (!canSubmit || isSubmittingRef.current) return
+
+		if (task) {
+			const edited = {
+				id: task.id,
+				title: title.trim(),
+				description: description.trim() || undefined,
+				dueDate,
+				dueTime,
+				priority,
+			}
+			const isChanged = (
+				['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
+			).some(field => edited[field] !== task[field])
+
+			if (isChanged) updateTask(edited)
+			onSaved?.()
+			return
+		}
 
 		isSubmittingRef.current = true
 		mutate(
@@ -105,7 +134,7 @@ export function TaskComposer({
 
 	return (
 		<form
-			aria-label="Add task"
+			aria-label={task ? 'Edit task' : 'Add task'}
 			className={cn(
 				'my-2 flex flex-col rounded-xl border bg-card p-3 transition-colors focus-within:border-border-strong',
 				className
@@ -187,12 +216,16 @@ export function TaskComposer({
 
 					<button
 						aria-disabled={!canSubmit}
-						aria-label="Add task"
+						aria-label={task ? 'Save task' : 'Add task'}
 						className="flex size-8 cursor-pointer items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
 						onKeyDown={cancelOnEscape}
 						type="submit"
 					>
-						<ArrowUp aria-hidden className="size-5" strokeWidth={2.25} />
+						{task ? (
+							<Check aria-hidden className="size-5" strokeWidth={2.25} />
+						) : (
+							<ArrowUp aria-hidden className="size-5" strokeWidth={2.25} />
+						)}
 					</button>
 				</div>
 			</div>

@@ -1,8 +1,8 @@
-import type { ListTasksOutput, Task } from '@soonlane/contracts'
+import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
 
 type TaskBucket = keyof ListTasksOutput
 
-/** Where a task sits in one cached list, so a failed completion can put it back. */
+/** Where a task sits in one cached list, so a failed change can put it back. */
 interface TaskPlacement {
 	bucket: TaskBucket
 	task: Task
@@ -65,4 +65,27 @@ export function withTask(
 	if (tasks.some(item => item.id === task.id)) return list
 
 	return { ...list, [bucket]: [...tasks, task].toSorted(compareTasks) }
+}
+
+/** Where a task belongs in a list loaded for this range, as the server would place it. */
+export function placeTask(
+	task: Task,
+	{ from, to, today }: ListTasksInput
+): TaskPlacement | undefined {
+	if (task.dueDate < today) return { bucket: 'overdue', task }
+	if (from <= task.dueDate && task.dueDate <= to)
+		return { bucket: 'scheduled', task }
+
+	return undefined
+}
+
+/** The cached list with a task taken out and, given a placement, put there instead. */
+export function withMovedTask(
+	list: ListTasksOutput,
+	id: string,
+	placement: TaskPlacement | undefined
+): ListTasksOutput {
+	const rest = withoutTask(list, id)
+
+	return placement ? withTask(rest, placement) : rest
 }

@@ -56,6 +56,13 @@ export const createTaskInputSchema = z.object({
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
+export const updateTaskInputSchema = createTaskInputSchema.extend({
+	id: z.uuid(),
+	priority: prioritySchema,
+})
+
+export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
+
 export const taskIdInputSchema = z.object({ id: z.uuid() })
 
 const taskErrors = {
@@ -71,6 +78,10 @@ export const tasksContract = {
 	create: oc
 		.errors(authErrors)
 		.input(createTaskInputSchema)
+		.output(z.object({ task: taskSchema })),
+	update: oc
+		.errors(taskErrors)
+		.input(updateTaskInputSchema)
 		.output(z.object({ task: taskSchema })),
 	complete: oc
 		.errors(taskErrors)
