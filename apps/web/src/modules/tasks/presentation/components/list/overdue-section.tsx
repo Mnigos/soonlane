@@ -63,7 +63,7 @@ export function OverdueSection({
 					<PopoverContent
 						align="end"
 						aria-label="Reschedule overdue tasks"
-						className="w-62"
+						className="flex w-62 flex-col"
 						initialFocus={inputRef}
 					>
 						<DueDatePicker

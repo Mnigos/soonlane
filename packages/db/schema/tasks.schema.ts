@@ -1,8 +1,12 @@
-import type {
-	CalendarDate,
-	TaskId,
-	TaskPriority,
-	UserId,
+import {
+	type CalendarDate,
+	REPEAT_INTERVAL_MAX,
+	REPEAT_UNITS,
+	type RepeatUnit,
+	SINGLE_INTERVAL_REPEAT_UNITS,
+	type TaskId,
+	type TaskPriority,
+	type UserId,
 } from '@soonlane/domain'
 import { sql } from 'drizzle-orm'
 import {
@@ -17,6 +21,10 @@ import {
 	uuid,
 } from 'drizzle-orm/pg-core'
 import { user } from './auth.schema'
+
+function toSqlList(values: readonly string[]) {
+	return sql.raw(values.map(value => `'${value}'`).join(', '))
+}
 
 export const task = pgTable(
 	'task',
@@ -38,10 +46,32 @@ export const task = pgTable(
 			.notNull()
 			.defaultNow(),
 		completedAt: timestamp('completed_at', { withTimezone: true }),
+		repeatUnit: text('repeat_unit').$type<RepeatUnit>(),
+		repeatInterval: smallint('repeat_interval'),
+		// The due date the rule was set on; it keeps the weekday and day of month across short months.
+		repeatAnchor: date('repeat_anchor', {
+			mode: 'string',
+		}).$type<CalendarDate>(),
 	},
 	table => [
 		index('task_owner_due_idx').on(table.ownerId, table.dueDate),
 		check('task_priority_range', sql`${table.priority} between 1 and 4`),
+		check(
+			'task_repeat_all_or_none',
+			sql`num_nulls(${table.repeatUnit}, ${table.repeatInterval}, ${table.repeatAnchor}) in (0, 3)`
+		),
+		check(
+			'task_repeat_unit',
+			sql`${table.repeatUnit} in (${toSqlList(REPEAT_UNITS)})`
+		),
+		check(
+			'task_repeat_interval_range',
+			sql`${table.repeatInterval} between 1 and ${sql.raw(String(REPEAT_INTERVAL_MAX))}`
+		),
+		check(
+			'task_repeat_single_interval',
+			sql`${table.repeatUnit} not in (${toSqlList(SINGLE_INTERVAL_REPEAT_UNITS)}) or ${table.repeatInterval} = 1`
+		),
 	]
 )
 

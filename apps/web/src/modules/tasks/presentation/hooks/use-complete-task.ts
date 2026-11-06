@@ -1,4 +1,5 @@
-import type { ListTasksOutput } from '@soonlane/contracts'
+import type { ListTasksOutput, Task } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
@@ -9,7 +10,7 @@ import {
 } from '../helpers/task-list.helper'
 
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
-export function useCompleteTask() {
+export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
 	const listKey = orpcQuery.tasks.list.key()
 
@@ -52,11 +53,16 @@ export function useCompleteTask() {
 					)
 				toast('Could not complete the task. Try again.')
 			},
-			onSuccess: ({ task }) => {
+			onSuccess: ({ task }, input) => {
+				// A repeating task moved on; Undo puts back the due date it had before.
+				const dueDate = task.repeat ? input.dueDate : undefined
+
 				toast('Task completed', {
+					// A newer completion of this task replaces the toast, so an older Undo cannot revert it.
+					id: task.id,
 					action: {
 						label: 'Undo',
-						onClick: () => uncomplete.mutate({ id: task.id }),
+						onClick: () => uncomplete.mutate({ id: task.id, dueDate }),
 					},
 				})
 			},
@@ -64,5 +70,12 @@ export function useCompleteTask() {
 		})
 	)
 
-	return { completeTask: complete.mutate }
+	return {
+		completeTask: (task: Task) =>
+			complete.mutate({
+				id: task.id,
+				today,
+				dueDate: task.repeat ? task.dueDate : undefined,
+			}),
+	}
 }

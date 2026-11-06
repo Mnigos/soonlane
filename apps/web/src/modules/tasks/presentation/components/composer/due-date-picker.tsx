@@ -1,7 +1,13 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { CalendarDays } from 'lucide-react'
-import { type KeyboardEvent, type Ref, useId, useState } from 'react'
+import {
+	type KeyboardEvent,
+	type PropsWithChildren,
+	type Ref,
+	useId,
+	useState,
+} from 'react'
 import { formatWeekdayDayMonth } from '../../../domain/calendar-date.helper'
 import { parseDueDateText } from '../../../domain/due-date-text.helper'
 import {
@@ -9,31 +15,24 @@ import {
 	getDueChipLabel,
 } from '../../../domain/due-label.helper'
 import { isInCalendar } from '../../../domain/month-calendar.helper'
-import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
-import { ComingSoonButton } from './coming-soon-button'
-import { RepeatIcon } from './date-picker-icons'
 import { DueDateShortcuts } from './due-date-shortcuts'
-import { DueTimeField } from './due-time-field'
 import { MonthCalendar } from './month-calendar'
 
-interface DueDatePickerProps {
+interface DueDatePickerProps extends PropsWithChildren {
 	dueDate?: CalendarDate
-	dueTime?: string
 	today: CalendarDate
 	onDateChange: (date: CalendarDate) => void
-	onTimeChange?: (time: string | undefined) => void
 	inputRef: Ref<HTMLInputElement>
 }
 
-/** A text field, quick dates, a month calendar and, given `onTimeChange`, the optional time. */
+/** A text field, quick dates, a month calendar and an optional fixed footer (children). */
 export function DueDatePicker({
 	dueDate,
-	dueTime,
 	today,
 	onDateChange,
-	onTimeChange,
 	inputRef,
+	children,
 }: Readonly<DueDatePickerProps>) {
 	const shownDate = dueDate ? formatDueDate(dueDate, today) : ''
 	const [text, setText] = useState(shownDate)
@@ -50,8 +49,8 @@ export function DueDatePicker({
 	}
 
 	return (
-		<div className="flex flex-col">
-			<div className="flex h-10 items-center border-b px-3">
+		<div className="flex min-h-0 flex-col">
+			<div className="flex h-10 shrink-0 items-center border-b px-3">
 				<input
 					aria-describedby={isEdited ? matchId : undefined}
 					aria-invalid={isEdited && !match}
@@ -67,7 +66,7 @@ export function DueDatePicker({
 			</div>
 
 			{isEdited && (
-				<div className="border-b py-1" id={matchId}>
+				<div className="shrink-0 border-b py-1" id={matchId}>
 					{match ? (
 						<button
 							className="flex h-8 w-full cursor-pointer items-center gap-2.5 px-3 text-sm text-foreground transition-colors outline-none hover:bg-hover focus-visible:bg-hover"
@@ -93,24 +92,26 @@ export function DueDatePicker({
 				</div>
 			)}
 
-			<DueDateShortcuts
-				onSelect={onDateChange}
-				selected={dueDate}
-				today={today}
-			/>
+			{/* Only the dates scroll on a short screen, so the text field and footer stay in view. */}
+			<div className="min-h-0 overflow-y-auto overscroll-contain">
+				<DueDateShortcuts
+					onSelect={onDateChange}
+					selected={dueDate}
+					today={today}
+				/>
 
-			<MonthCalendar onSelect={onDateChange} selected={dueDate} today={today} />
-
-			<div className="flex flex-col gap-3 border-t p-3">
-				{onTimeChange && (
-					<DueTimeField onChange={onTimeChange} value={dueTime} />
-				)}
-
-				<ComingSoonButton className={FOOTER_BUTTON_CLASS} label="Repeat">
-					<RepeatIcon strokeWidth={1.5} />
-					Repeat
-				</ComingSoonButton>
+				<MonthCalendar
+					onSelect={onDateChange}
+					selected={dueDate}
+					today={today}
+				/>
 			</div>
+
+			{children && (
+				<div className="flex shrink-0 flex-col gap-3 border-t p-3">
+					{children}
+				</div>
+			)}
 		</div>
 	)
 }
