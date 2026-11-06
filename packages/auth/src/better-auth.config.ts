@@ -1,4 +1,4 @@
-import { account, session, user, verification } from '@soonlane/db'
+import { account, rateLimit, session, user, verification } from '@soonlane/db'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
@@ -45,11 +45,14 @@ function redactLogArgument(argument: unknown) {
 	return argument instanceof Error ? argument.name : argument
 }
 
+const RATE_LIMIT_WINDOW_S = 60
+const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
+
 /**
  * Better Auth for anyone with a verified Google address (optionally only the
- * allowed ones): uuid ids, the OAuth proxy that lets Vercel previews sign in
- * through the production callback, and the hand-off of a browser sign-in to
- * the desktop app.
+ * allowed ones): uuid ids, rate limits kept in the database, the OAuth proxy
+ * that lets Vercel previews sign in through the production callback, and the
+ * hand-off of a browser sign-in to the desktop app.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
@@ -68,9 +71,26 @@ export function createAuth(options: CreateAuthOptions) {
 		trustedOrigins: [...options.trustedOrigins],
 		database: drizzleAdapter(options.database, {
 			provider: 'pg',
-			schema: { account, session, user, verification },
+			schema: { account, rateLimit, session, user, verification },
 		}),
-		advanced: { database: { generateId: 'uuid' } },
+		advanced: {
+			database: { generateId: 'uuid' },
+			// Vercel overwrites x-forwarded-for with the client's address, so a client cannot spoof it.
+			ipAddress: { ipAddressHeaders: ['x-forwarded-for'] },
+		},
+		// Each Vercel function instance has its own memory, so the counters live in Postgres.
+		rateLimit: {
+			enabled: true,
+			storage: 'database',
+			window: RATE_LIMIT_WINDOW_S,
+			max: 100,
+			customRules: {
+				'/sign-in/social': SIGN_IN_RATE_LIMIT,
+				'/desktop-sign-in/code': SIGN_IN_RATE_LIMIT,
+				'/desktop-sign-in/exchange': SIGN_IN_RATE_LIMIT,
+				'/delete-user': { window: 3600, max: 5 },
+			},
+		},
 		socialProviders: options.google ? { google: options.google } : {},
 		databaseHooks: {
 			user: {
