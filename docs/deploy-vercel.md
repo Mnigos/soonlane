@@ -1,6 +1,6 @@
 # Deploy on Vercel
 
-The app runs as the Vercel project `soonlist` (team `mnigos-projects`) connected to `Mnigos/soonlist`. Production is https://soonlist.vercel.app from branch `main`; every other branch gets a preview deployment. The database is Neon (project `soonlist`, `eu-central-1`, database `soonlist`). The build configuration is in `apps/web/vercel.json`:
+The app runs as the Vercel project `soonlane` (team `mnigos-projects`) connected to `Mnigos/soonlane`. Production is https://soonlist.vercel.app from branch `main` until the move to soonlane.com (below); every other branch gets a preview deployment. The database is Neon (project `soonlane`, `eu-central-1`, database `soonlist`). The build configuration is in `apps/web/vercel.json`:
 
 - `installCommand`: `bun install --frozen-lockfile`; Bun installs the whole workspace from `bun.lock` in the repository root, even when the command starts in `apps/web`;
 - `buildCommand`: `bun ../../packages/db/scripts/migrate.ts && bun run build`; Drizzle migrations run against `DATABASE_URL_UNPOOLED` (the direct Neon connection), or `DATABASE_URL` without it, of the environment being built. A failed migration stops the build and the previous deployment keeps running;
@@ -59,7 +59,7 @@ bun run dev
 
 The file is git-ignored. Never print it. Local sign-in uses the localhost redirect URI directly.
 
-Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upserts "Sample User" (`sample@soonlist.test`) with a session in the development database and prints the session cookie; start the dev server with `OWNER_EMAIL=sample@soonlist.test` set in the shell and send that cookie. `dev:session --delete` removes the user and its sessions; the script refuses production envs, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host, set in Vercel's development environment) is set and absent from the database URLs.
+Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; start the dev server with `OWNER_EMAIL=sample@soonlane.test` set in the shell and send that cookie. `dev:session --delete` removes the user and its sessions; the script refuses production envs, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host, set in Vercel's development environment) is set and absent from the database URLs.
 
 ## Checks after a deployment
 
@@ -70,6 +70,17 @@ curl -s https://soonlist.vercel.app/api/auth/get-session
 # null
 ```
 
-Then open the URL, sign in with the `OWNER_EMAIL` account and check the avatar and name in the sidebar. Any other Google account ends on `/login` with "Sign-in failed. Soonlist is only available to its owner."
+Then open the URL, sign in with the `OWNER_EMAIL` account and check the avatar and name in the sidebar. Any other Google account ends on `/login` with "Sign-in failed. Soonlane is only available to its owner."
 
 The `pg` driver logs a warning about `sslmode=require` being treated as `verify-full`; it is not an error.
+
+## Moving to soonlane.com
+
+Run these steps once soonlane.com resolves to Vercel, in this order. Until then production stays on https://soonlist.vercel.app.
+
+1. In the Vercel project, add `soonlane.com` and `www.soonlane.com`, and set `www.soonlane.com` to redirect (308) to `soonlane.com`. Keep `soonlist.vercel.app` assigned to production, so the old URL still serves the app.
+2. In the Google OAuth client, add the origin `https://soonlane.com` and the redirect URI `https://soonlane.com/api/auth/callback/google`. Keep the `soonlist.vercel.app` entries until step 6.
+3. Set `AUTH_URL` for Production to `https://soonlane.com`. It takes effect with the next production deployment.
+4. Change `PRODUCTION_APP_URL` in `apps/web/src/platform/config/app-url.helper.ts` (the `oAuthProxy` production URL) and in `apps/desktop/src/platform/config/desktop.config.ts` (the desktop app's default `SOONLANE_URL`) to `https://soonlane.com`, and update the URLs in this file and in `README.md`. Merging it to `main` deploys production with the new `AUTH_URL` and proxy URL together.
+5. Right after that deployment, set `soonlist.vercel.app` to redirect (308) to `soonlane.com`. Production trusts only the `AUTH_URL` origin, so requests that stay on `soonlist.vercel.app` would fail the origin check. Sessions are per host, so the owner signs in once more on soonlane.com, and the desktop app needs a build from step 4.
+6. Run the checks above against https://soonlane.com, sign in with Google on production and on a preview, and check that both `www.soonlane.com` and `soonlist.vercel.app` redirect to the apex. Then remove the `soonlist.vercel.app` origin and redirect URI from the Google client.

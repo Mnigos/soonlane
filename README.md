@@ -1,4 +1,4 @@
-# Soonlist
+# Soonlane
 
 Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Upcoming, Today and Labels; no projects, Inbox, filters or reporting. See [PRODUCT.md](PRODUCT.md).
 
@@ -17,7 +17,7 @@ Production: https://soonlist.vercel.app
 | `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.   |
 | `tooling/typescript-config` | tsconfig presets every workspace extends.                                                 |
 | `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                        |
-| `tooling/oxlint-plugins`    | `soonlist/*` lint rules for file names, spec pairing, hooks, repositories and style.      |
+| `tooling/oxlint-plugins`    | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.      |
 
 Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Product and design: [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
@@ -70,4 +70,4 @@ Vercel, Root Directory `apps/web`, Bun 1.4 function in `fra1`, previews enabled.
 
 ## License
 
-Copyright (C) 2026 Igor Makowski. Soonlist is free software under the [GNU Affero General Public License v3.0 only](LICENSE) (`AGPL-3.0-only`): you may use, change and share it, and if you run a modified version as a network service, you must offer its source to its users.
+Copyright (C) 2026 Igor Makowski. Soonlane is free software under the [GNU Affero General Public License v3.0 only](LICENSE) (`AGPL-3.0-only`): you may use, change and share it, and if you run a modified version as a network service, you must offer its source to its users.

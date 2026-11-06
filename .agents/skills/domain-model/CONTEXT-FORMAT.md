@@ -1,6 +1,6 @@
 # Context Format
 
-Soonlist keeps context docs and ubiquitous language separate.
+Soonlane keeps context docs and ubiquitous language separate.
 
 - `UBIQUITOUS_LANGUAGE.md` is the glossary: canonical terms, aliases, ambiguity resolution, and example dialogue.
 - `CONTEXT.md` is the root domain context: scope, responsibilities, ownership, relationships, and links to ADRs/code.

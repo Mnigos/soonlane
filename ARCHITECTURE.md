@@ -7,15 +7,15 @@ A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR, Better Au
 | Path                        | What it is                                                                                                      |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Bun 1.4, `fra1`).                                          |
-| `apps/desktop`              | Electrobun macOS shell (Bun main process, WKWebView) that loads `SOONLIST_URL`; no UI of its own.               |
-| `packages/domain`           | `@soonlist/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                      |
-| `packages/db`               | `@soonlist/db`: Drizzle schema, migrations and the migrator. Server-only.                                       |
-| `packages/auth`             | `@soonlist/auth`: `createAuth` (`/server`), the browser client (`/client`), the owner policy (root). No Effect. |
-| `packages/contracts`        | `@soonlist/contracts`: the oRPC contract and Zod schemas.                                                       |
-| `packages/ui`               | `@soonlist/ui`: app-agnostic React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.   |
+| `apps/desktop`              | Electrobun macOS shell (Bun main process, WKWebView) that loads `SOONLANE_URL`; no UI of its own.               |
+| `packages/domain`           | `@soonlane/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                      |
+| `packages/db`               | `@soonlane/db`: Drizzle schema, migrations and the migrator. Server-only.                                       |
+| `packages/auth`             | `@soonlane/auth`: `createAuth` (`/server`), the browser client (`/client`), the owner policy (root). No Effect. |
+| `packages/contracts`        | `@soonlane/contracts`: the oRPC contract and Zod schemas.                                                       |
+| `packages/ui`               | `@soonlane/ui`: app-agnostic React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.   |
 | `tooling/typescript-config` | tsconfig presets: `base`, `react-library`, `react-app`.                                                         |
 | `tooling/tailwind-config`   | Tailwind 4 theme and the tokens described in `DESIGN.md`.                                                       |
-| `tooling/oxlint-plugins`    | `soonlist/*` lint rules: file names, hooks folders, repositories, style.                                        |
+| `tooling/oxlint-plugins`    | `soonlane/*` lint rules: file names, hooks folders, repositories, style.                                        |
 
 Inside `apps/web/src`:
 
@@ -65,7 +65,7 @@ Neon Postgres through `pg` and Drizzle. `Db` owns one pool per runtime (5 connec
 
 ## Server boundary
 
-Server-only code never reaches the client bundle: `platform/`, `application/`, `infrastructure/`, server-suffixed files and `routes/api.*`. TanStack Start import protection in `apps/web/vite.config.ts` fails the build on a leak; it also denies `@soonlist/auth/server`, `@soonlist/db`, `pg` and `drizzle-orm` by specifier, and excludes the four browser-safe oRPC client files in `platform/rpc`. After a build, `apps/web/.vercel/output/static/assets` must not contain `drizzle`, `pg`, `betterAuth(`, `drizzleAdapter`, `oauth-proxy`, `effect/`, `ManagedRuntime` or service names.
+Server-only code never reaches the client bundle: `platform/`, `application/`, `infrastructure/`, server-suffixed files and `routes/api.*`. TanStack Start import protection in `apps/web/vite.config.ts` fails the build on a leak; it also denies `@soonlane/auth/server`, `@soonlane/db`, `pg` and `drizzle-orm` by specifier, and excludes the four browser-safe oRPC client files in `platform/rpc`. After a build, `apps/web/.vercel/output/static/assets` must not contain `drizzle`, `pg`, `betterAuth(`, `drizzleAdapter`, `oauth-proxy`, `effect/`, `ManagedRuntime` or service names.
 
 ## Dates
 
@@ -73,13 +73,13 @@ A day is a `CalendarDate` (`YYYY-MM-DD`). The server cannot know the user's time
 
 ## Shell
 
-From `md` an icon rail is docked and the content keeps a rail-wide gutter; the content column is centered in the rest, so opening or collapsing the sidebar never moves it. From `xl` the owner's choice (full sidebar or rail) is docked and kept in the `soonlist-sidebar` cookie, read during SSR. Below `xl` the full sidebar opens over the content; phones use a drawer.
+From `md` an icon rail is docked and the content keeps a rail-wide gutter; the content column is centered in the rest, so opening or collapsing the sidebar never moves it. From `xl` the owner's choice (full sidebar or rail) is docked and kept in the `soonlane-sidebar` cookie, read during SSR. Below `xl` the full sidebar opens over the content; phones use a drawer.
 
 Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns on the `desktop:` variant: the rail, the sidebar and the phone bar leave 32px for the traffic lights and carry an `app-drag` strip that moves the window.
 
 ## Desktop app
 
-`apps/desktop/src` mirrors the web app's layering ([ADR 0005](docs/decisions/0005-desktop-app-layout.md)). `main.ts` builds `AppLive` from `platform/` (`DesktopConfig` with `SOONLIST_URL`, the `ManagedRuntime`, the Electrobun event helper). Modules: `window` opens the main window and saves its frame to `window-state.json`, ignoring a saved frame that no longer overlaps a display; `navigation` keeps the window on the app's exact origin and sends other web and mail links to the system browser; `menu` sets the app menu.
+`apps/desktop/src` mirrors the web app's layering ([ADR 0005](docs/decisions/0005-desktop-app-layout.md)). `main.ts` builds `AppLive` from `platform/` (`DesktopConfig` with `SOONLANE_URL`, the `ManagedRuntime`, the Electrobun event helper). Modules: `window` opens the main window and saves its frame to `window-state.json`, ignoring a saved frame that no longer overlaps a display; `navigation` keeps the window on the app's exact origin and sends other web and mail links to the system browser; `menu` sets the app menu.
 
 ## Decision records
 
@@ -90,5 +90,6 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 | [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.      |
 | [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                            |
 | [0005](docs/decisions/0005-desktop-app-layout.md)                              | Desktop modules (`window`, `navigation`, `menu`) on one Effect runtime.             |
+| [0006](docs/decisions/0006-rename-to-soonlane.md)                              | The product is Soonlane; old names map to new ones.                                 |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md).

@@ -1,5 +1,5 @@
 ---
-name: Soonlist
+name: Soonlane
 description: A quiet, Todoist-like dark task list organised by days.
 colors:
   background: '#1e1e1e'
@@ -87,13 +87,13 @@ components:
     padding: '0 0 8px'
 ---
 
-# Design System: Soonlist
+# Design System: Soonlane
 
 ## 1. Overview
 
 **Creative North Star: "The Dark Planner"**
 
-Soonlist looks like Todoist's dark theme: a warm-grey sidebar on the left, one centered column of days on the right, hairline dividers, and red only where something needs action. The page is a calendar read top to bottom; the date headings are the layout.
+Soonlane looks like Todoist's dark theme: a warm-grey sidebar on the left, one centered column of days on the right, hairline dividers, and red only where something needs action. The page is a calendar read top to bottom; the date headings are the layout.
 
 Tokens live in `tooling/tailwind-config/tokens.css`; primitives in `packages/ui`. The machine-readable sidecar is `.impeccable/design.json`.
 

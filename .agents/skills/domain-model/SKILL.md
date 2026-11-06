@@ -1,6 +1,6 @@
 ---
 name: domain-model
-description: Stress-tests plans and architecture against the Soonlist modules and packages, Effect ports and layers, ADRs, product docs and code reality, and maintains the UBIQUITOUS_LANGUAGE.md glossary. Use when adding a module or package, moving logic between domain/application/infrastructure/presentation, introducing a port, service or layer, naming or renaming domain concepts, resolving term conflicts, or checking a plan against the domain model.
+description: Stress-tests plans and architecture against the Soonlane modules and packages, Effect ports and layers, ADRs, product docs and code reality, and maintains the UBIQUITOUS_LANGUAGE.md glossary. Use when adding a module or package, moving logic between domain/application/infrastructure/presentation, introducing a port, service or layer, naming or renaming domain concepts, resolving term conflicts, or checking a plan against the domain model.
 ---
 
 # Domain Model
@@ -33,7 +33,7 @@ Use [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) for context docs, [ADR-FORMAT.md](.
 8. Keep `UBIQUITOUS_LANGUAGE.md` current: when a task introduces, renames or retires a domain term or UI label, update it in the same change (format in GLOSSARY-FORMAT.md). Update context docs only when the user asks.
 9. Recommend `adr-authoring` only when the decision is hard to reverse, surprising without context, and based on a real trade-off.
 
-## Soonlist Boundaries
+## Soonlane Boundaries
 
 - `packages/domain`: brands (`CalendarDate`, `UserId`) and constants shared by every workspace. No Effect, framework, ORM or RPC.
 - `packages/contracts`: the oRPC contract and Zod schemas; the only API boundary between server, browser and the future desktop app.
