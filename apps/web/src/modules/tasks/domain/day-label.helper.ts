@@ -20,3 +20,11 @@ export function getDayHeading(date: CalendarDate, today: CalendarDate) {
 		.filter(part => part !== undefined)
 		.join(LABEL_SEPARATOR)
 }
+
+/** Short name of the day the Upcoming list shows at its top, e.g. "Today", "Tomorrow" or "Mon 9 Nov". */
+export function getActiveDayLabel(date: CalendarDate, today: CalendarDate) {
+	return (
+		getRelativeDayName(date, today) ??
+		`${formatWeekday(date, 'short')} ${formatDayMonth(date)}`
+	)
+}
