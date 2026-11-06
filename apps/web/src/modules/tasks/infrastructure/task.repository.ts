@@ -1,6 +1,11 @@
-import type { Task } from '@soonlane/contracts'
-import { task, type TaskRow } from '@soonlane/db'
-import { DEFAULT_TASK_PRIORITY, toCalendarDate } from '@soonlane/domain'
+import type { Label, Task } from '@soonlane/contracts'
+import { label, task, taskLabel, type TaskRow } from '@soonlane/db'
+import {
+	DEFAULT_TASK_PRIORITY,
+	type TaskId,
+	toCalendarDate,
+	type UserId,
+} from '@soonlane/domain'
 import {
 	and,
 	asc,
@@ -10,10 +15,15 @@ import {
 	isNotNull,
 	isNull,
 	lt,
+	or,
 	sql,
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
-import { Db } from '@/platform/db/db.layer'
+import {
+	LABEL_ORDER,
+	toLabel,
+} from '@/modules/labels/infrastructure/label-row.helper'
+import { Db, type Database } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
 
 // Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM.
@@ -27,7 +37,7 @@ const DAY_ORDER = [
 	asc(task.createdAt),
 ]
 
-function toTask(row: TaskRow): Task {
+function toTask(row: TaskRow, labels: Label[]): Task {
 	const {
 		repeatUnit: unit,
 		repeatInterval: interval,
@@ -44,7 +54,51 @@ function toTask(row: TaskRow): Task {
 		createdAt: row.createdAt,
 		completedAt: row.completedAt ?? undefined,
 		repeat: unit && interval && anchor ? { unit, interval, anchor } : undefined,
+		labels,
 	}
+}
+
+// One query loads the labels of every row, however many tasks there are.
+async function withLabels(
+	database: Database,
+	ownerId: UserId,
+	rows: TaskRow[]
+): Promise<Task[]> {
+	if (rows.length === 0) return []
+
+	const assigned = await database
+		.select({ taskId: taskLabel.taskId, label })
+		.from(taskLabel)
+		.innerJoin(label, eq(label.id, taskLabel.labelId))
+		.where(
+			and(
+				eq(label.ownerId, ownerId),
+				inArray(
+					taskLabel.taskId,
+					rows.map(row => row.id)
+				)
+			)
+		)
+		.orderBy(...LABEL_ORDER)
+	const labelsByTask = new Map<TaskId, Label[]>()
+
+	for (const { taskId, label: labelRow } of assigned)
+		labelsByTask.set(taskId, [
+			...(labelsByTask.get(taskId) ?? []),
+			toLabel(labelRow),
+		])
+
+	return rows.map(row => toTask(row, labelsByTask.get(row.id) ?? []))
+}
+
+async function findTask(database: Database, ownerId: UserId, id: TaskId) {
+	const rows = await database
+		.select()
+		.from(task)
+		.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+	const [found] = await withLabels(database, ownerId, rows)
+
+	return found
 }
 
 export const DrizzleTaskRepositoryLive = Layer.effect(
@@ -53,8 +107,8 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 		const db = yield* Db
 
 		return TaskRepository.of({
-			listOpenBetween: ({ ownerId, from, to }) =>
-				db.run('TaskRepository.listOpenBetween', async database => {
+			listOpen: ({ ownerId, before, from, to }) =>
+				db.run('TaskRepository.listOpen', async database => {
 					const rows = await database
 						.select()
 						.from(task)
@@ -62,38 +116,18 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							and(
 								eq(task.ownerId, ownerId),
 								isNull(task.completedAt),
-								between(task.dueDate, from, to)
+								or(lt(task.dueDate, before), between(task.dueDate, from, to))
 							)
 						)
 						.orderBy(...DAY_ORDER)
 
-					return rows.map(toTask)
-				}),
-			listOpenBefore: ({ ownerId, before }) =>
-				db.run('TaskRepository.listOpenBefore', async database => {
-					const rows = await database
-						.select()
-						.from(task)
-						.where(
-							and(
-								eq(task.ownerId, ownerId),
-								isNull(task.completedAt),
-								lt(task.dueDate, before)
-							)
-						)
-						.orderBy(...DAY_ORDER)
-
-					return rows.map(toTask)
+					return await withLabels(database, ownerId, rows)
 				}),
 			find: ({ ownerId, id }) =>
-				db.run('TaskRepository.find', async database => {
-					const [row] = await database
-						.select()
-						.from(task)
-						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
-
-					return row && toTask(row)
-				}),
+				db.run(
+					'TaskRepository.find',
+					async database => await findTask(database, ownerId, id)
+				),
 			create: ({
 				ownerId,
 				title,
@@ -121,7 +155,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 
 					if (!row) throw new Error('Task insert returned no row')
 
-					return toTask(row)
+					return toTask(row, [])
 				}),
 			update: ({
 				ownerId,
@@ -153,17 +187,18 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				}),
 			setCompletion: ({ ownerId, id, completedAt, dueDate }) =>
 				db.run('TaskRepository.setCompletion', async database => {
-					const [row] = await database
+					const rows = await database
 						.update(task)
 						.set({ completedAt: completedAt ?? null, dueDate })
 						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
 						.returning()
+					const [updated] = await withLabels(database, ownerId, rows)
 
-					return row && toTask(row)
+					return updated
 				}),
 			advanceDueDate: ({ ownerId, id, from, to }) =>
 				db.run('TaskRepository.advanceDueDate', async database => {
-					const [row] = await database
+					const rows = await database
 						.update(task)
 						.set({ dueDate: to })
 						.where(
@@ -175,8 +210,9 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							)
 						)
 						.returning()
+					const [advanced] = await withLabels(database, ownerId, rows)
 
-					return row && toTask(row)
+					return advanced
 				}),
 			rescheduleOpen: ({ ownerId, ids, dueDate }) =>
 				db.run('TaskRepository.rescheduleOpen', async database => {
@@ -192,7 +228,52 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 						)
 						.returning()
 
-					return rows.map(toTask)
+					return await withLabels(database, ownerId, rows)
+				}),
+			labelExists: ({ ownerId, labelId }) =>
+				db.run('TaskRepository.labelExists', async database => {
+					const [row] = await database
+						.select({ id: label.id })
+						.from(label)
+						.where(and(eq(label.ownerId, ownerId), eq(label.id, labelId)))
+
+					return row !== undefined
+				}),
+			// Inserts nothing unless both the task and the label belong to the owner.
+			assignLabel: ({ ownerId, id, labelId }) =>
+				db.run('TaskRepository.assignLabel', async database => {
+					await database
+						.insert(taskLabel)
+						.select(
+							database
+								.select({ taskId: task.id, labelId: label.id })
+								.from(task)
+								.innerJoin(
+									label,
+									and(eq(label.ownerId, ownerId), eq(label.id, labelId))
+								)
+								.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+						)
+						.onConflictDoNothing()
+
+					return await findTask(database, ownerId, id)
+				}),
+			unassignLabel: ({ ownerId, id, labelId }) =>
+				db.run('TaskRepository.unassignLabel', async database => {
+					await database.delete(taskLabel).where(
+						and(
+							eq(taskLabel.labelId, labelId),
+							inArray(
+								taskLabel.taskId,
+								database
+									.select({ id: task.id })
+									.from(task)
+									.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+							)
+						)
+					)
+
+					return await findTask(database, ownerId, id)
 				}),
 		})
 	})

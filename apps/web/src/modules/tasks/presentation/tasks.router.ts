@@ -1,4 +1,4 @@
-import { toCalendarDate, toTaskId } from '@soonlane/domain'
+import { toCalendarDate, toLabelId, toTaskId } from '@soonlane/domain'
 import { requireOwner } from '@/modules/identity/presentation/require-owner.middleware'
 import { os } from '@/platform/rpc/rpc.base'
 import { TasksService } from '../application/tasks.service'
@@ -65,5 +65,33 @@ export const tasksRouter = {
 		const tasksService = yield* TasksService
 
 		return { tasks: yield* tasksService.reschedule(context.owner.id, input) }
+	}),
+	assignLabel: os.tasks.assignLabel.use(requireOwner).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return {
+			task: yield* tasksService.assignLabel(
+				context.owner.id,
+				toTaskId(input.id),
+				toLabelId(input.labelId)
+			),
+		}
+	}),
+	unassignLabel: os.tasks.unassignLabel.use(requireOwner).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return {
+			task: yield* tasksService.unassignLabel(
+				context.owner.id,
+				toTaskId(input.id),
+				toLabelId(input.labelId)
+			),
+		}
 	}),
 }

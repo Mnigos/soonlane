@@ -11,6 +11,7 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
+import { labelSchema } from './labels.contract'
 
 const calendarDateSchema = z.iso
 	.date()
@@ -37,6 +38,7 @@ export const taskSchema = z.object({
 	createdAt: z.date(),
 	completedAt: z.date().optional(),
 	repeat: repeatSchema.extend({ anchor: z.iso.date() }).optional(),
+	labels: z.array(labelSchema),
 })
 
 export type Task = z.infer<typeof taskSchema>
@@ -114,6 +116,11 @@ export const rescheduleTasksInputSchema = z.object({
 
 export type RescheduleTasksInput = z.infer<typeof rescheduleTasksInputSchema>
 
+export const taskLabelInputSchema = z.object({
+	id: z.uuid(),
+	labelId: z.uuid(),
+})
+
 const taskErrors = {
 	...authErrors,
 	NOT_FOUND: { message: 'This task no longer exists.' },
@@ -144,4 +151,12 @@ export const tasksContract = {
 		.errors(authErrors)
 		.input(rescheduleTasksInputSchema)
 		.output(z.object({ tasks: z.array(taskSchema) })),
+	assignLabel: oc
+		.errors(taskErrors)
+		.input(taskLabelInputSchema)
+		.output(z.object({ task: taskSchema })),
+	unassignLabel: oc
+		.errors(taskErrors)
+		.input(taskLabelInputSchema)
+		.output(z.object({ task: taskSchema })),
 }
