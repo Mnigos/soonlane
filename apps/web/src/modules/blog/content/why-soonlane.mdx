@@ -1,0 +1,65 @@
+---
+title: Why Soonlane
+description: Why I built another Todoist-style task list, why it opens on Upcoming, and why it is free and open source.
+date: '2026-11-06'
+draft: true
+---
+
+I used Todoist for years. It is a good app. But most days I only touched a small part of it: the list of what is due today, what slipped from yesterday, and what is coming up next week. Projects, filters, karma and team features sat around that list and got in the way.
+
+So I built the part I used. It is called Soonlane, and today anyone can use it.
+
+## What it is
+
+Soonlane is a task list organised by days. You sign in with your Google account and get your own private list. Nobody else sees your tasks, and there is nothing to share or invite people to.
+
+It is free. The code is open source under AGPL-3.0, and you can read all of it [on GitHub](https://github.com/Mnigos/soonlane).
+
+## Upcoming first
+
+Most task apps open on an inbox. Soonlane opens on Upcoming.
+
+Upcoming is one long scroll. At the top is Overdue, the things that slipped. Then Today. Then tomorrow, the day after, and every day after that. A week strip above the list tells you where you are, and each day in it jumps to that day in the list.
+
+I wanted this because "what do I have to do and when" is the only question I ask a task list. A day heading answers it. You do not need a project tree or a filter to see your week. You scroll.
+
+Today has its own view too. It shows Overdue and today's tasks and nothing else, for the moments when the rest of the week is noise.
+
+## Adding a task
+
+Adding a task should take a few seconds, or you stop doing it. Every day in Upcoming has its own "Add task" row, so a task you add under Friday is due on Friday. The sidebar has an "Add task" button as well.
+
+When you pick a date, you can type it instead of clicking through a calendar. The date field reads what you write:
+
+```text
+tod
+tomorrow
+fri
+next week
+14 Nov
+2026-11-14
+```
+
+There are also quick picks for Today, Tomorrow, This weekend, Next week and Next weekend, and you can set a time and a priority from the same card.
+
+## Quiet on purpose
+
+The look follows Todoist's dark theme, because it works and because it is familiar. A dark page, thin dividers, one column of days. Red only shows up where something needs you: the Add task button, today's date and overdue tasks.
+
+There are no streaks, scores or badges. There is no dashboard of counts. A task list should tell you what is next and then get out of the way.
+
+It should also be fast. Pages render on the server, and completing a task updates the list right away, with an Undo in case you clicked the wrong circle.
+
+## Why free and open source
+
+I built Soonlane for myself first, and I would build it the same way if nobody else used it. Charging for it would turn it into a different project. Keeping the code open means you can see exactly what happens to your data, and you can run your own copy if you want to.
+
+If you delete your account, your tasks go with it. The [privacy policy](/privacy) explains what is stored and where.
+
+## What is next
+
+A desktop app for the Mac is next. It uses the same API as the web app, so your list is the same in both places. On phones, Soonlane uses a responsive layout: the sidebar becomes a drawer and the rest stays the same. There is no separate phone app planned.
+
+After that come the things I miss most from my old setup: editing and rescheduling tasks, and labels.
+
+If you want to try it, sign in with Google and add the first thing you need to do tomorrow. If something is broken or missing, open an issue on GitHub.
