@@ -45,7 +45,14 @@ await Promise.all(
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-					<img alt="" height={56} src={logoUrl} width={56} />
+					{/* The ring starts 12/64 into the favicon tile; pull it back so it lines up with the title. */}
+					<img
+						alt=""
+						height={56}
+						src={logoUrl}
+						style={{ marginLeft: -(56 * 12) / 64 }}
+						width={56}
+					/>
 
 					<span style={{ fontSize: 32, fontWeight: 700, color: '#e8e8e8' }}>
 						{SITE_NAME}
