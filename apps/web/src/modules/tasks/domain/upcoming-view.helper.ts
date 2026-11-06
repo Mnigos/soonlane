@@ -8,59 +8,50 @@ import {
 	getWeekStart,
 	isBefore,
 } from './calendar-date.helper'
-import { DAYS_PER_WEEK, UPCOMING_DAY_COUNT } from './calendar.constants'
+import { DAYS_PER_WEEK, UPCOMING_WEEK_COUNT } from './calendar.constants'
 
 export interface WeekStripDay {
 	date: CalendarDate
 	weekday: string
 	dayOfMonth: number
 	isToday: boolean
+	isActive: boolean
 	isPast: boolean
 }
 
-export interface UpcomingView {
-	weekStart: CalendarDate
-	isCurrentWeek: boolean
-	previousWeek: CalendarDate
-	nextWeek: CalendarDate
+export interface WeekStrip {
 	monthLabel: string
-	weekDays: WeekStripDay[]
-	days: CalendarDate[]
-	showsOverdue: boolean
+	days: WeekStripDay[]
 }
 
-/**
- * Days the Upcoming view shows for the selected week. The current week lists
- * from today with the overdue section; a later week lists from its Monday. A
- * week before the current one falls back to the current week.
- */
-export function getUpcomingView(
-	today: CalendarDate,
-	requestedWeek?: CalendarDate
-): UpcomingView {
-	const currentWeek = getWeekStart(today)
-	const requestedStart = requestedWeek && getWeekStart(requestedWeek)
-	const weekStart =
-		requestedStart && isBefore(currentWeek, requestedStart)
-			? requestedStart
-			: currentWeek
-	const isCurrentWeek = weekStart === currentWeek
-	const listStart = isCurrentWeek ? today : weekStart
+/** Days the Upcoming list renders: today through the Sunday that closes the eighth week after the current one. */
+export function getUpcomingDays(today: CalendarDate): CalendarDate[] {
+	const lastDay = addDays(
+		getWeekStart(today),
+		(UPCOMING_WEEK_COUNT + 1) * DAYS_PER_WEEK - 1
+	)
+	const days: CalendarDate[] = []
 
+	for (let day = today; !isBefore(lastDay, day); day = addDays(day, 1))
+		days.push(day)
+
+	return days
+}
+
+/** The week around the active day (the one at the top of the list), with today marked separately. */
+export function getWeekStrip(
+	today: CalendarDate,
+	activeDay: CalendarDate
+): WeekStrip {
 	return {
-		weekStart,
-		isCurrentWeek,
-		previousWeek: addDays(weekStart, -DAYS_PER_WEEK),
-		nextWeek: addDays(weekStart, DAYS_PER_WEEK),
-		monthLabel: formatMonthYear(listStart),
-		weekDays: getDaysFrom(weekStart, DAYS_PER_WEEK).map(date => ({
+		monthLabel: formatMonthYear(activeDay),
+		days: getDaysFrom(getWeekStart(activeDay), DAYS_PER_WEEK).map(date => ({
 			date,
 			weekday: formatWeekday(date, 'short'),
 			dayOfMonth: getDayOfMonth(date),
 			isToday: date === today,
+			isActive: date === activeDay,
 			isPast: isBefore(date, today),
 		})),
-		days: getDaysFrom(listStart, UPCOMING_DAY_COUNT),
-		showsOverdue: isCurrentWeek,
 	}
 }
