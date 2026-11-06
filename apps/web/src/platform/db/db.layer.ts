@@ -24,7 +24,7 @@ export class Db extends Context.Service<
 			execute: (database: Database) => Promise<TResult>
 		) => Effect.Effect<TResult, DbError>
 	}
->()('soonlist/Db') {}
+>()('soonlane/Db') {}
 
 export const DbLive = Layer.effect(
 	Db,

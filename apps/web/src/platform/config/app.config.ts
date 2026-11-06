@@ -18,7 +18,7 @@ export class AppConfig extends Context.Service<
 		readonly oauthProxy: boolean
 		readonly oauthProxySecret?: Redacted.Redacted
 	}
->()('soonlist/AppConfig') {}
+>()('soonlane/AppConfig') {}
 
 function optionalString(name: string) {
 	return Config.option(Config.nonEmptyString(name)).pipe(

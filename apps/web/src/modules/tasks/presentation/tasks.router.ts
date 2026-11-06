@@ -1,4 +1,4 @@
-import { toTaskId } from '@soonlist/domain'
+import { toTaskId } from '@soonlane/domain'
 import { requireOwner } from '@/modules/identity/presentation/require-owner.middleware'
 import { os } from '@/platform/rpc/rpc.base'
 import { TasksService } from '../application/tasks.service'

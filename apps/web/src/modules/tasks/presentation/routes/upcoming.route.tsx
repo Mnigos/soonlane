@@ -4,7 +4,7 @@ import { UpcomingPage } from '../components/upcoming/upcoming-page'
 import { useToday } from '../hooks/use-today'
 
 export const Route = createFileRoute('/_shell/')({
-	head: () => ({ meta: [{ title: 'Upcoming · Soonlist' }] }),
+	head: () => ({ meta: [{ title: 'Upcoming · Soonlane' }] }),
 	component: UpcomingRoute,
 })
 

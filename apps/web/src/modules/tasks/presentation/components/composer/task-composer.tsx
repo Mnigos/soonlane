@@ -2,9 +2,9 @@ import {
 	DEFAULT_TASK_PRIORITY,
 	type CalendarDate,
 	type TaskPriority,
-} from '@soonlist/domain'
-import { cn } from '@soonlist/ui/cn'
-import { Button } from '@soonlist/ui/components/button'
+} from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
+import { Button } from '@soonlane/ui/components/button'
 import { SendHorizontal, X } from 'lucide-react'
 import {
 	type KeyboardEvent,

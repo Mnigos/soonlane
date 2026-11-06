@@ -71,7 +71,7 @@ export default defineConfig({
 		'**/routeTree.gen.ts',
 		'packages/db/migrations/**',
 	],
-	jsPlugins: ['./tooling/oxlint-plugins/soonlist.plugin.mts'],
+	jsPlugins: ['./tooling/oxlint-plugins/soonlane.plugin.mts'],
 	options: { typeAware: true },
 	env: { browser: true, node: true, es2024: true },
 	globals: { Bun: 'readonly' },
@@ -143,11 +143,11 @@ export default defineConfig({
 		},
 		{
 			files: ['apps/web/**'],
-			rules: { 'soonlist/hook-query-naming': 'error' },
+			rules: { 'soonlane/hook-query-naming': 'error' },
 		},
 		{
 			files: ['apps/**/*.tsx', 'packages/**/*.tsx'],
-			rules: { 'soonlist/jsx-sibling-spacing': 'error' },
+			rules: { 'soonlane/jsx-sibling-spacing': 'error' },
 		},
 		{
 			files: [
@@ -163,7 +163,7 @@ export default defineConfig({
 			rules: { 'import/no-cycle': 'off' },
 		},
 		{
-			// Drizzle relational queries load the whole schema via `import * as schema` and `@soonlist/db` re-exports it as public API.
+			// Drizzle relational queries load the whole schema via `import * as schema` and `@soonlane/db` re-exports it as public API.
 			files: ['packages/db/schema/index.ts'],
 			rules: { 'oxc/no-barrel-file': 'off' },
 		},

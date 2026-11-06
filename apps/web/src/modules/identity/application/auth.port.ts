@@ -1,4 +1,4 @@
-import type { AuthUser } from '@soonlist/auth'
+import type { AuthUser } from '@soonlane/auth'
 import { Context } from 'effect'
 
 export interface AuthSession {
@@ -12,4 +12,4 @@ export class Auth extends Context.Service<
 		readonly handle: (request: Request) => Promise<Response>
 		readonly getSession: (headers: Headers) => Promise<AuthSession | null>
 	}
->()('soonlist/Auth') {}
+>()('soonlane/Auth') {}

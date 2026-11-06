@@ -1,4 +1,4 @@
-import { Dialog } from '@soonlist/ui/components/dialog'
+import { Dialog } from '@soonlane/ui/components/dialog'
 import { useToday } from '../../hooks/use-today'
 import { TaskComposer } from '../composer/task-composer'
 

@@ -1,5 +1,5 @@
-import type { Task } from '@soonlist/contracts'
-import type { CalendarDate } from '@soonlist/domain'
+import type { Task } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
 import { type Ref, useState } from 'react'
 import { getDayHeading } from '../../../domain/day-label.helper'
 import { TaskComposer } from '../composer/task-composer'

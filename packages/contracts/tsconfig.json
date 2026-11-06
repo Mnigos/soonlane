@@ -1,5 +1,5 @@
 {
-  "extends": "@soonlist/typescript-config/base.json",
+  "extends": "@soonlane/typescript-config/base.json",
   "compilerOptions": {
     "types": ["bun"]
   },

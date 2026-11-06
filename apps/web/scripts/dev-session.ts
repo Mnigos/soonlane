@@ -1,5 +1,5 @@
 import { createHmac, randomBytes } from 'node:crypto'
-import { session, user } from '@soonlist/db'
+import { session, user } from '@soonlane/db'
 import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
@@ -7,7 +7,7 @@ import { Pool } from 'pg'
 // Local QA only: a synthetic signed-in owner for screenshots, never a login route in the app.
 const SAMPLE_USER = {
 	name: 'Sample User',
-	email: 'sample@soonlist.test',
+	email: 'sample@soonlane.test',
 	emailVerified: true,
 } as const
 const SESSION_COOKIE = 'better-auth.session_token'

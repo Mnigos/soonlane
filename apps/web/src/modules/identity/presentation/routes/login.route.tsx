@@ -11,7 +11,7 @@ export const Route = createFileRoute('/login')({
 	beforeLoad: ({ context }) => {
 		if (context.me.user) throw redirect({ to: '/' })
 	},
-	head: () => ({ meta: [{ title: 'Sign in · Soonlist' }] }),
+	head: () => ({ meta: [{ title: 'Sign in · Soonlane' }] }),
 	component: LoginRoute,
 })
 

@@ -1,4 +1,4 @@
-import type { UserId } from '@soonlist/domain'
+import type { UserId } from '@soonlane/domain'
 import {
 	boolean,
 	index,

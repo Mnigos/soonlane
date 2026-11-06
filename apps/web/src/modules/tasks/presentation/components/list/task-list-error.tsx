@@ -1,4 +1,4 @@
-import { Button } from '@soonlist/ui/components/button'
+import { Button } from '@soonlane/ui/components/button'
 
 interface TaskListErrorProps {
 	onRetry: () => void

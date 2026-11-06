@@ -1,5 +1,5 @@
 {
-  "name": "@soonlist/domain",
+  "name": "@soonlane/domain",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@soonlist/typescript-config": "workspace:*",
+    "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   }

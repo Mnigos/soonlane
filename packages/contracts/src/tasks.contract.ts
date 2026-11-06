@@ -3,7 +3,7 @@ import {
 	TASK_DESCRIPTION_MAX_LENGTH,
 	TASK_PRIORITIES,
 	TASK_TITLE_MAX_LENGTH,
-} from '@soonlist/domain'
+} from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
 

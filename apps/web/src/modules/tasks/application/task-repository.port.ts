@@ -1,5 +1,5 @@
-import type { CreateTaskInput, Task } from '@soonlist/contracts'
-import type { CalendarDate, TaskId, UserId } from '@soonlist/domain'
+import type { CreateTaskInput, Task } from '@soonlane/contracts'
+import type { CalendarDate, TaskId, UserId } from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
 
@@ -38,4 +38,4 @@ export class TaskRepository extends Context.Service<
 			completion: TaskCompletion
 		) => Effect.Effect<Task | undefined, DbError>
 	}
->()('soonlist/TaskRepository') {}
+>()('soonlane/TaskRepository') {}

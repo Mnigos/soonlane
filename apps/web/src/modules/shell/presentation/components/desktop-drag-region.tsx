@@ -1,4 +1,4 @@
-import { cn } from '@soonlist/ui/cn'
+import { cn } from '@soonlane/ui/cn'
 
 interface DesktopDragRegionProps {
 	className?: string

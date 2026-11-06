@@ -1,5 +1,5 @@
-import type { CalendarDate } from '@soonlist/domain'
-import { cn } from '@soonlist/ui/cn'
+import type { CalendarDate } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react'
 import { type KeyboardEvent, useId, useState } from 'react'
 import {

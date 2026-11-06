@@ -1,12 +1,12 @@
-import { TASK_PRIORITIES, type TaskPriority } from '@soonlist/domain'
-import { cn } from '@soonlist/ui/cn'
+import { TASK_PRIORITIES, type TaskPriority } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import {
 	Menu,
 	MenuContent,
 	MenuRadioGroup,
 	MenuRadioItem,
 	MenuTrigger,
-} from '@soonlist/ui/components/menu'
+} from '@soonlane/ui/components/menu'
 import { Flag } from 'lucide-react'
 import type { KeyboardEvent } from 'react'
 import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'

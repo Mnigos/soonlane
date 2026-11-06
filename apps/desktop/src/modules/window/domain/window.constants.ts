@@ -1,6 +1,6 @@
 import type { Duration } from 'effect'
 
-export const WINDOW_TITLE = 'Soonlist'
+export const WINDOW_TITLE = 'Soonlane'
 
 /** The first launch's size; the system centers the window. */
 export const DEFAULT_WINDOW_SIZE = { width: 1200, height: 800 }

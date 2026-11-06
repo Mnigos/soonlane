@@ -1,5 +1,5 @@
 {
-  "name": "soonlist",
+  "name": "soonlane",
   "private": true,
   "license": "AGPL-3.0-only",
   "workspaces": {
@@ -41,21 +41,21 @@
     }
   },
   "scripts": {
-    "dev": "turbo dev --filter=@soonlist/web",
+    "dev": "turbo dev --filter=@soonlane/web",
     "build": "turbo build",
     "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json",
     "check": "ultracite check",
     "check:fix": "ultracite fix --unsafe",
     "prepare": "husky",
     "commit": "cz",
-    "db:generate": "bun --filter @soonlist/db db:generate",
-    "db:migrate": "bun --filter @soonlist/db db:migrate"
+    "db:generate": "bun --filter @soonlane/db db:generate",
+    "db:migrate": "bun --filter @soonlane/db db:migrate"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.3",
     "@commitlint/config-conventional": "^21.2.3",
     "@commitlint/types": "^21.2.3",
-    "@soonlist/typescript-config": "workspace:*",
+    "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "commitizen": "^4.3.2",
     "cz-conventional-changelog": "^3.3.0",

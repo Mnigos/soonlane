@@ -1,4 +1,4 @@
-import type { CalendarDate } from '@soonlist/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { useMemo, useSyncExternalStore } from 'react'
 
 // A section counts as reached when its top is within this distance below the sticky header.

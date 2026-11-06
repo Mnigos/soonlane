@@ -1,4 +1,4 @@
-import { authClient } from '@soonlist/auth/client'
+import { authClient } from '@soonlane/auth/client'
 import {
 	mutationOptions,
 	useMutation,

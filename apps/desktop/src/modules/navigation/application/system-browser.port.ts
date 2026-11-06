@@ -6,4 +6,4 @@ export class SystemBrowser extends Context.Service<
 		/** Whether the system accepted the URL. */
 		readonly open: (url: URL) => Effect.Effect<boolean>
 	}
->()('soonlist/SystemBrowser') {}
+>()('soonlane/SystemBrowser') {}

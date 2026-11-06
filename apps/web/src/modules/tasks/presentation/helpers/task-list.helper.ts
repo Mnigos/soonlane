@@ -1,4 +1,4 @@
-import type { ListTasksOutput, Task } from '@soonlist/contracts'
+import type { ListTasksOutput, Task } from '@soonlane/contracts'
 
 /** Scheduled tasks grouped by due date; the server already orders them within a day. */
 export function groupTasksByDay(tasks: Task[]) {

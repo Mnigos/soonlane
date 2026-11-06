@@ -1,4 +1,4 @@
-import type { CalendarDate } from '@soonlist/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { getActiveDayLabel } from '../../../domain/day-label.helper'
 import {
 	getUpcomingDays,

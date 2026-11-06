@@ -1,4 +1,4 @@
-import { type CalendarDate, toCalendarDate } from '@soonlist/domain'
+import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
 import {
 	addDays,
 	getDaysInMonth,

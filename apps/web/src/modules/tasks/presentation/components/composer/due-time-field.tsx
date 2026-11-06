@@ -1,4 +1,4 @@
-import { Button } from '@soonlist/ui/components/button'
+import { Button } from '@soonlane/ui/components/button'
 import { Clock, X } from 'lucide-react'
 import { useState } from 'react'
 
