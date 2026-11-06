@@ -74,6 +74,26 @@ curl -s https://soonlist.vercel.app/api/auth/get-session
 
 Then open the URL, sign in with Google and check the avatar and name in the sidebar. A second Google account signs up and starts with an empty Upcoming; neither account sees the other's tasks. With `ALLOWED_EMAILS` set, a Google account that is not on the list and has no account yet ends on `/login` with "Sign-ups are closed on this server."
 
+The public pages and the sitemap are static files; only soonlane.com may be crawled ([ADR 0008](decisions/0008-public-site-inside-the-web-app.md)), so until the move below `soonlist.vercel.app/robots.txt` also answers `Disallow: /`:
+
+```sh
+curl -s https://soonlane.com/robots.txt
+# User-agent: *, Allow: /, Disallow: /app, /api/, /login, /desktop/, Sitemap: https://soonlane.com/sitemap.xml
+curl -s https://soonlane.com/sitemap.xml
+# a <urlset> with https://soonlane.com/, /privacy and /terms
+curl -sI https://soonlane.com/ | grep -i x-vercel-cache
+# present: the prerendered HTML, served without the function
+```
+
+Previews sit behind Vercel's deployment protection, so check them through the CLI, which signs the request:
+
+```sh
+bunx vercel@latest curl /robots.txt --deployment <preview-url> --scope mnigos-projects
+# User-agent: * and Disallow: / (every host other than soonlane.com)
+bunx vercel@latest curl /sitemap.xml --deployment <preview-url> --scope mnigos-projects
+# the same three https://soonlane.com URLs
+```
+
 The Better Auth rate limiter keeps its counters in the `rate_limit` table. The 11th `POST /api/auth/sign-in/social` from one IP within a minute returns 429.
 
 The `pg` driver logs a warning about `sslmode=require` being treated as `verify-full`; it is not an error.
