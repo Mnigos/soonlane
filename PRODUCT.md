@@ -6,11 +6,11 @@ product
 
 ## Users
 
-One person: the owner, planning their own days. They open Soonlist many times a day, mostly on a laptop in short bursts: add a task the moment it comes up, glance at what is due today, move what slipped, and look a week or two ahead. A desktop app is next; it uses the same `/api/rpc` API as the web app. Phones get a responsive layout, not a separate app.
+One person: the owner, planning their own days. They open Soonlane many times a day, mostly on a laptop in short bursts: add a task the moment it comes up, glance at what is due today, move what slipped, and look a week or two ahead. A desktop app is next; it uses the same `/api/rpc` API as the web app. Phones get a responsive layout, not a separate app.
 
 ## Product Purpose
 
-Soonlist is a personal, Upcoming-first task list. It keeps the parts of Todoist the owner actually uses (Upcoming, Today, Overdue, labels) and drops the rest. Success means the owner trusts it as the one place for "what do I have to do and when", opens it without friction, and never fights it for features meant for teams.
+Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist the owner actually uses (Upcoming, Today, Overdue, labels) and drops the rest. Success means the owner trusts it as the one place for "what do I have to do and when", opens it without friction, and never fights it for features meant for teams.
 
 ### Scope
 

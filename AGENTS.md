@@ -1,4 +1,4 @@
-# Soonlist agent rules
+# Soonlane agent rules
 
 Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (React 19, Router, Query) on Vercel; Effect 4 on the server; oRPC v2; Drizzle on Neon Postgres; Better Auth (Google, owner-only); Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
 
@@ -16,7 +16,7 @@ Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (
 - `apps/web/src/modules/<module>/`: `domain/` is pure (no Effect services, framework, ORM or RPC); `application/` holds ports and services (`Context.Service`, `*Live` layer, `Effect.fn('Service.method')`); `infrastructure/` implements ports (repositories run queries through `Db.run` and never catch); `presentation/` holds routers, middleware, components, hooks, routes.
 - `apps/desktop/src/` uses the same `platform/` and `modules/<module>/{domain,application,infrastructure}` split; Electrobun is imported only in `infrastructure/`, `platform/electrobun/` and `main.ts`.
 - `apps/web/src/platform/`: config, `AppLive`, the single `ManagedRuntime`, oRPC wiring. Tagged errors (`Data.TaggedError` with `code`) become oRPC errors only in `platform/rpc/rpc.base.ts`.
-- Server-only: `platform/`, `application/`, `infrastructure/`, `*.router|handler|port|service|repository|layer|middleware.ts`, `*.server.*`, `routes/api.*`, and the specifiers `@soonlist/auth/server`, `@soonlist/db`, `pg`, `drizzle-orm`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
+- Server-only: `platform/`, `application/`, `infrastructure/`, `*.router|handler|port|service|repository|layer|middleware.ts`, `*.server.*`, `routes/api.*`, and the specifiers `@soonlane/auth/server`, `@soonlane/db`, `pg`, `drizzle-orm`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
 
 ## Code
 
@@ -26,7 +26,7 @@ Personal Todoist-like task list for one owner. Bun + Turborepo; TanStack Start (
 - Runtime only in the file suffix (`.server.ts`), never in identifiers.
 - Implementation files stay under 400 lines.
 - Never edit generated migrations; change `packages/db/schema` and run `bun run db:generate`.
-- Run `bun run check:fix`; the `soonlist/*` rules in `tooling/oxlint-plugins` enforce the remaining style.
+- Run `bun run check:fix`; the `soonlane/*` rules in `tooling/oxlint-plugins` enforce the remaining style.
 
 ## Skills
 

@@ -1,6 +1,6 @@
 ---
 name: adr-authoring
-description: Creates or updates Soonlist architecture decision records under docs/decisions. Use when the user asks for an ADR, decision record, architecture decision, accepted/proposed decision, or when domain-model work produces a hard-to-reverse architectural trade-off.
+description: Creates or updates Soonlane architecture decision records under docs/decisions. Use when the user asks for an ADR, decision record, architecture decision, accepted/proposed decision, or when domain-model work produces a hard-to-reverse architectural trade-off.
 ---
 
 # ADR Authoring
