@@ -55,6 +55,17 @@ export function withoutTask(
 	}
 }
 
+/** The cached list with a newer copy of a task wherever the task sits. */
+export function withUpdatedTask(
+	list: ListTasksOutput,
+	task: Task
+): ListTasksOutput {
+	const update = (tasks: Task[]) =>
+		tasks.map(item => (item.id === task.id ? task : item))
+
+	return { overdue: update(list.overdue), scheduled: update(list.scheduled) }
+}
+
 /** The cached list with a task back in its place, keeping every other change to the list. */
 export function withTask(
 	list: ListTasksOutput,

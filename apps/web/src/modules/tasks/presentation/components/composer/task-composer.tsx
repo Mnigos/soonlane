@@ -1,4 +1,9 @@
-import type { Label, RepeatInput, Task } from '@soonlane/contracts'
+import type {
+	CreateTaskInput,
+	Label,
+	RepeatInput,
+	Task,
+} from '@soonlane/contracts'
 import {
 	DEFAULT_TASK_PRIORITY,
 	type CalendarDate,
@@ -27,6 +32,7 @@ import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useUpdateTask } from '../../hooks/use-update-task'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
+import { GoalChip } from './goal-chip'
 import { LabelsChip } from './labels-chip'
 import { PriorityChip } from './priority-chip'
 
@@ -48,6 +54,16 @@ interface TaskComposerProps {
 
 const FIELD_CLASS =
 	'bg-transparent text-foreground outline-none placeholder:text-faint-foreground'
+
+function getSavedRule(
+	task: Task | undefined,
+	scheduledDate: CalendarDate,
+	repeat: RepeatInput | undefined
+) {
+	return task
+		? getEditedRule(task, scheduledDate, repeat)
+		: repeat && { ...repeat, anchor: scheduledDate }
+}
 
 /**
  * Todoist's task card: title, description and a row of chips. Enter submits,
@@ -81,9 +97,8 @@ export function TaskComposer({
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
-	const savedRule = task
-		? getEditedRule(task, scheduledDate, repeat)
-		: repeat && { ...repeat, anchor: scheduledDate }
+	const savedRule = getSavedRule(task, scheduledDate, repeat)
+	const [goal, setGoal] = useState<CreateTaskInput['goal']>()
 	const titleRef = useRef<HTMLInputElement>(null)
 	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
 	const attachTitle = useCallback(
@@ -137,6 +152,7 @@ export function TaskComposer({
 				priority,
 				repeat,
 				labelIds: pickedLabels.map(({ id }) => id),
+				goal,
 			},
 			{
 				onSuccess: () => {
@@ -146,6 +162,7 @@ export function TaskComposer({
 					setPriority(DEFAULT_TASK_PRIORITY)
 					setRepeat(undefined)
 					resetLabels()
+					setGoal(undefined)
 					titleRef.current?.focus()
 					onCreated?.()
 				},
@@ -220,6 +237,13 @@ export function TaskComposer({
 					onChange={setPriority}
 					onKeyDown={cancelOnEscape}
 					value={priority}
+				/>
+
+				<GoalChip
+					isReadOnly={Boolean(task)}
+					onChange={setGoal}
+					onKeyDown={cancelOnEscape}
+					value={task?.goal ?? goal}
 				/>
 
 				{task ? (
