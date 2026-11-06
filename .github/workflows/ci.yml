@@ -36,6 +36,9 @@ jobs:
         with:
           bun-version: 1.4.2
       - run: bun install --frozen-lockfile
+      # Type-aware lint resolves the desktop app's electrobun imports from the projected SDK.
+      - run: bun run sdk
+        working-directory: apps/desktop
       - run: bun run check
       - run: bun run typecheck
       - run: bun run build
