@@ -1,0 +1,15 @@
+import { Option, Schema } from 'effect'
+
+const menuClickEventSchema = Schema.Struct({
+	data: Schema.Struct({ action: Schema.String }),
+})
+
+const decodeMenuClick = Schema.decodeUnknownOption(menuClickEventSchema)
+
+/** The `action` of the menu item an application-menu-clicked event reports. */
+export function readMenuAction(event: unknown) {
+	return decodeMenuClick(event).pipe(
+		Option.map(({ data }) => data.action),
+		Option.getOrUndefined
+	)
+}

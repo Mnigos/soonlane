@@ -25,6 +25,9 @@
     },
     "apps/desktop": {
       "name": "@soonlist/desktop",
+      "dependencies": {
+        "effect": "catalog:",
+      },
       "devDependencies": {
         "@soonlist/typescript-config": "workspace:*",
         "electrobun": "2.0.6",

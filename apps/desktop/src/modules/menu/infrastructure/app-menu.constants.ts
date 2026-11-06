@@ -1,6 +1,5 @@
 import type { ApplicationMenuItemConfig } from 'electrobun'
-
-export const RELOAD_ACTION = 'reload'
+import { RELOAD_ACTION } from '../domain/menu.constants'
 
 export const APP_MENU = [
 	{

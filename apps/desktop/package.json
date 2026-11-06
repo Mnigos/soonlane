@@ -9,6 +9,9 @@
     "sdk": "bunx --bun electrobun prepare",
     "typecheck": "bun run sdk && tsc --noEmit"
   },
+  "dependencies": {
+    "effect": "catalog:"
+  },
   "devDependencies": {
     "@soonlist/typescript-config": "workspace:*",
     "electrobun": "2.0.6",
