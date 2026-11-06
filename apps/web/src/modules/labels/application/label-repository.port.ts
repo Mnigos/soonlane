@@ -1,6 +1,7 @@
 import type {
 	CreateLabelInput,
 	Label,
+	ListedLabel,
 	UpdateLabelInput,
 } from '@soonlane/contracts'
 import type { LabelId, UserId } from '@soonlane/domain'
@@ -23,7 +24,7 @@ export interface LabelChange extends OwnedLabel, LabelChanges {}
 export class LabelRepository extends Context.Service<
 	LabelRepository,
 	{
-		readonly list: (ownerId: UserId) => Effect.Effect<Label[], DbError>
+		readonly list: (ownerId: UserId) => Effect.Effect<ListedLabel[], DbError>
 		readonly create: (label: NewLabel) => Effect.Effect<Label, DbError>
 		readonly update: (
 			change: LabelChange

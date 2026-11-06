@@ -14,6 +14,12 @@ export const labelSchema = z.object({
 
 export type Label = z.infer<typeof labelSchema>
 
+export const listedLabelSchema = labelSchema.extend({
+	openTaskCount: z.number().int().nonnegative(),
+})
+
+export type ListedLabel = z.infer<typeof listedLabelSchema>
+
 export const createLabelInputSchema = z.object({
 	name: labelNameSchema,
 	color: labelColorSchema.optional(),
@@ -43,7 +49,7 @@ const labelNameTaken = { message: 'A label with this name already exists.' }
 export const labelsContract = {
 	list: oc
 		.errors(authErrors)
-		.output(z.object({ labels: z.array(labelSchema) })),
+		.output(z.object({ labels: z.array(listedLabelSchema) })),
 	create: oc
 		.errors({ ...authErrors, CONFLICT: labelNameTaken })
 		.input(createLabelInputSchema)
