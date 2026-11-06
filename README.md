@@ -22,7 +22,7 @@ Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md
 
 ## Getting started
 
-Prerequisites: Bun **1.4.2** (pinned by `packageManager`) and Node 22+ for the Vite build.
+Prerequisites: Bun **1.4.2** (pinned by `packageManager`). Node is not needed: `bunfig.toml` runs every script and tool under Bun, including the Vite build.
 
 ```sh
 bun install
@@ -61,7 +61,7 @@ Versions, the changelog and GitHub Releases come from the release workflow; see 
 
 ## Deploy
 
-Vercel, Root Directory `apps/web`, Node 22 function in `fra1`, previews enabled. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
+Vercel, Root Directory `apps/web`, Bun 1.4 function in `fra1`, previews enabled. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
 
 ## License
 
