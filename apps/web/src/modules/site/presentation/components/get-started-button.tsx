@@ -45,12 +45,16 @@ export function GetStartedButton({
 				if (isRedirecting) return
 
 				// Back from Google restores this page from the bfcache with the mutation still redirecting.
+				const restore = new AbortController()
 				window.addEventListener(
 					'pageshow',
 					pageShow => {
-						if (pageShow.persisted) reset()
+						if (!pageShow.persisted) return
+
+						restore.abort()
+						reset()
 					},
-					{ once: true }
+					{ signal: restore.signal }
 				)
 				mutate()
 			}}
