@@ -54,4 +54,12 @@ export const tasksRouter = {
 			),
 		}
 	}),
+	reschedule: os.tasks.reschedule.use(requireOwner).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return { tasks: yield* tasksService.reschedule(context.owner.id, input) }
+	}),
 }

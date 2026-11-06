@@ -18,15 +18,15 @@ import { DueTimeField } from './due-time-field'
 import { MonthCalendar } from './month-calendar'
 
 interface DueDatePickerProps {
-	dueDate: CalendarDate
-	dueTime: string | undefined
+	dueDate?: CalendarDate
+	dueTime?: string
 	today: CalendarDate
 	onDateChange: (date: CalendarDate) => void
-	onTimeChange: (time: string | undefined) => void
+	onTimeChange?: (time: string | undefined) => void
 	inputRef: Ref<HTMLInputElement>
 }
 
-/** The date chip's popover: a text field, quick dates, a month calendar and the optional time. */
+/** A text field, quick dates, a month calendar and, given `onTimeChange`, the optional time. */
 export function DueDatePicker({
 	dueDate,
 	dueTime,
@@ -35,7 +35,7 @@ export function DueDatePicker({
 	onTimeChange,
 	inputRef,
 }: Readonly<DueDatePickerProps>) {
-	const shownDate = formatDueDate(dueDate, today)
+	const shownDate = dueDate ? formatDueDate(dueDate, today) : ''
 	const [text, setText] = useState(shownDate)
 	const matchId = useId()
 	const isEdited = text.trim() !== '' && text !== shownDate
@@ -102,7 +102,9 @@ export function DueDatePicker({
 			<MonthCalendar onSelect={onDateChange} selected={dueDate} today={today} />
 
 			<div className="flex flex-col gap-3 border-t p-3">
-				<DueTimeField onChange={onTimeChange} value={dueTime} />
+				{onTimeChange && (
+					<DueTimeField onChange={onTimeChange} value={dueTime} />
+				)}
 
 				<ComingSoonButton className={FOOTER_BUTTON_CLASS} label="Repeat">
 					<RepeatIcon strokeWidth={1.5} />

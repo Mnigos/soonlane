@@ -33,6 +33,12 @@ export interface TaskCompletion {
 	completedAt?: Date
 }
 
+export interface TaskReschedule {
+	ownerId: UserId
+	ids: TaskId[]
+	dueDate: CalendarDate
+}
+
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
@@ -49,5 +55,8 @@ export class TaskRepository extends Context.Service<
 		readonly setCompletion: (
 			completion: TaskCompletion
 		) => Effect.Effect<Task | undefined, DbError>
+		readonly rescheduleOpen: (
+			reschedule: TaskReschedule
+		) => Effect.Effect<Task[], DbError>
 	}
 >()('soonlane/TaskRepository') {}

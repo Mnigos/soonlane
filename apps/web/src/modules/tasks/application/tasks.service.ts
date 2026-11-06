@@ -2,10 +2,16 @@ import type {
 	CreateTaskInput,
 	ListTasksInput,
 	ListTasksOutput,
+	RescheduleTasksInput,
 	Task,
 	UpdateTaskInput,
 } from '@soonlane/contracts'
-import { type TaskId, toCalendarDate, type UserId } from '@soonlane/domain'
+import {
+	type TaskId,
+	toCalendarDate,
+	toTaskId,
+	type UserId,
+} from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
 import { TaskNotFound } from '../domain/task.errors'
@@ -35,6 +41,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			id: TaskId
 		) => Effect.Effect<Task, TaskNotFound | DbError>
+		readonly reschedule: (
+			ownerId: UserId,
+			input: RescheduleTasksInput
+		) => Effect.Effect<Task[], DbError>
 	}
 >()('soonlane/TasksService') {}
 
@@ -104,6 +114,24 @@ export const TasksServiceLive = Layer.effect(
 			)
 		})
 
-		return TasksService.of({ list, create, update, complete, uncomplete })
+		const reschedule = Effect.fn('TasksService.reschedule')(function* (
+			ownerId: UserId,
+			{ ids, dueDate }: RescheduleTasksInput
+		) {
+			return yield* repository.rescheduleOpen({
+				ownerId,
+				ids: ids.map(toTaskId),
+				dueDate: toCalendarDate(dueDate),
+			})
+		})
+
+		return TasksService.of({
+			list,
+			create,
+			update,
+			complete,
+			uncomplete,
+			reschedule,
+		})
 	})
 )

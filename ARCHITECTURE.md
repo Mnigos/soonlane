@@ -53,7 +53,7 @@ browser (orpcQuery + TanStack Query) or SSR (in-process client)
 
 ## Tasks
 
-A task belongs to the signed-in owner (`task.owner_id`, cascade on user delete) and has a title, an optional description, a due date (`date`, no time zone), an optional due time (`time`), a priority 1 to 4 (default 4), `created_at` and a nullable `completed_at`. `tasks.list` takes `{ from, to, today }` from the browser and returns the open tasks due before `today` (overdue) and between `from` and `to`, ordered by time, priority, then age. Completing is optimistic in the TanStack Query cache and offers Undo (`tasks.uncomplete`). `tasks.update` replaces the title, description, due date and time, and priority; the cache moves the edited task at once to the day, Overdue or range its new date belongs to. The Overdue "Reschedule" action and labels come later.
+A task belongs to the signed-in owner (`task.owner_id`, cascade on user delete) and has a title, an optional description, a due date (`date`, no time zone), an optional due time (`time`), a priority 1 to 4 (default 4), `created_at` and a nullable `completed_at`. `tasks.list` takes `{ from, to, today }` from the browser and returns the open tasks due before `today` (overdue) and between `from` and `to`, ordered by time, priority, then age. Completing is optimistic in the TanStack Query cache and offers Undo (`tasks.uncomplete`). `tasks.update` replaces the title, description, due date and time, and priority; the cache moves the edited task at once to the day, Overdue or range its new date belongs to. Reschedule on Overdue moves the shown overdue tasks to one day (`tasks.reschedule` takes their ids, skips completed and foreign ones and keeps due times), also optimistically. Labels come later.
 
 ## Sign-in
 
