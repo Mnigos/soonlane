@@ -2,7 +2,7 @@ import { type AnyORPCError, isDefinedError } from '@orpc/client'
 import { LABEL_NAME_MAX_LENGTH, type LabelColor } from '@soonlane/domain'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { Tag } from 'lucide-react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { getLabelColor } from '../helpers/label-color.helper'
 
 interface LabelNameFieldProps {
@@ -13,7 +13,8 @@ interface LabelNameFieldProps {
 		UseMutationResult<unknown, AnyORPCError | Error>,
 		'error' | 'isPending' | 'reset'
 	>
-	onSave: (name: string) => void
+	/** Starts the save; calls `onSettled` once it succeeds or fails, or right away when nothing is sent. */
+	onSave: (name: string, onSettled: () => void) => void
 	onCancel: () => void
 }
 
@@ -27,17 +28,26 @@ export function LabelNameField({
 	onCancel,
 }: Readonly<LabelNameFieldProps>) {
 	const [value, setValue] = useState(defaultValue)
+	// isPending lags a render, so a quick second Enter would save the label twice.
+	const isSavingRef = useRef(false)
 
 	return (
 		<form
 			className="flex flex-col gap-1"
 			onSubmit={event => {
 				event.preventDefault()
-				if (mutation.isPending) return
+				if (isSavingRef.current) return
 				const name = value.trim()
 
-				if (name === '') onCancel()
-				else onSave(name)
+				if (name === '') {
+					onCancel()
+					return
+				}
+
+				isSavingRef.current = true
+				onSave(name, () => {
+					isSavingRef.current = false
+				})
 			}}
 		>
 			<div className="flex h-8 items-center gap-2 rounded-md border border-border-strong bg-background px-2">
