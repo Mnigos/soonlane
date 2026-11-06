@@ -15,7 +15,7 @@ colors:
   secondary-foreground: '#cbcbcb'
   muted-foreground: '#a3a3a3'
   faint-foreground: '#6f6f6f'
-  primary: '#dc4c3e'
+  primary: '#cf473a'
   primary-hover: '#c3392c'
   primary-foreground: '#ffffff'
   primary-muted: '#3d2523'
@@ -123,7 +123,7 @@ A restrained strategy: tinted neutrals plus one red accent well under 10% of any
 
 ### Primary
 
-- **Todoist Red** (`primary`, #dc4c3e): the "Add task" button, today's badge in the week strip, the plus icon in "Add task" rows, focus outlines.
+- **Todoist Red** (`primary`, #cf473a): the "Add task" button, today's badge in the week strip, the plus icon in "Add task" rows, focus outlines. White text on it is 4.55:1 and on Pressed Red 5.33:1, both above the AA minimum of 4.5:1.
 - **Pressed Red** (`primary-hover`, #c3392c): hover and active state of red controls.
 - **Red Wash** (`primary-muted`, #3d2523): background of the active sidebar item.
 - **Overdue Coral** (`danger`, #ff7066): text of the active sidebar item, "Reschedule", overdue dates, errors.
@@ -180,7 +180,7 @@ Flat. The layered surfaces are the mobile drawer and the Add task dialog (both o
 
 ### Buttons
 
-- **Primary**: red fill, white text, 36px, 6px radius.
+- **Primary**: red fill, white text (passes AA), 36px, 6px radius.
 - **Ghost / icon**: no fill, muted icon, hover background; 32px square for icon buttons.
 - **Outline**: 1px rule border, used for "Continue with Google".
 - Focus: 2px red outline offset by 2px.

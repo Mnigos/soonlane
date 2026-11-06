@@ -37,9 +37,9 @@
       "primary": {
         "role": "primary",
         "displayName": "Todoist Red",
-        "canonical": "#dc4c3e",
+        "canonical": "#cf473a",
         "usage": "Add task actions, the today badge, focus outlines.",
-        "tonalRamp": ["#3d2523", "#c3392c", "#dc4c3e", "#ff7066"]
+        "tonalRamp": ["#3d2523", "#c3392c", "#cf473a", "#ff7066"]
       },
       "danger": {
         "role": "semantic",
