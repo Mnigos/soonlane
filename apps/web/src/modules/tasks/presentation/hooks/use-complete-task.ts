@@ -1,4 +1,4 @@
-import type { ListTasksOutput } from '@soonlist/contracts'
+import type { ListTasksOutput } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'

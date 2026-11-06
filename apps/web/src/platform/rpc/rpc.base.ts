@@ -1,7 +1,7 @@
 import '@orpc/experimental-effect/extensions/effect'
 import { middlewareGen } from '@orpc/experimental-effect'
 import { implement } from '@orpc/server'
-import { contract } from '@soonlist/contracts'
+import { contract } from '@soonlane/contracts'
 import { Effect } from 'effect'
 import { isBoundaryError, toORPCError } from './error-mapping.helper'
 import type { RpcContext } from './rpc.context'

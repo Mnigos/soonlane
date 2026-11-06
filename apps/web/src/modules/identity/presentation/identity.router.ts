@@ -1,4 +1,4 @@
-import { isOwner } from '@soonlist/auth'
+import { isOwner } from '@soonlane/auth'
 import { AppConfig } from '@/platform/config/app.config'
 import { os } from '@/platform/rpc/rpc.base'
 import { Auth } from '../application/auth.port'

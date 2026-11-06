@@ -1,5 +1,5 @@
-import type { CalendarDate } from '@soonlist/domain'
-import { cn } from '@soonlist/ui/cn'
+import type { CalendarDate } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import type { WeekStripDay } from '../../../domain/upcoming-view.helper'
 
 interface WeekStripProps {

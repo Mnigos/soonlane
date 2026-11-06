@@ -1,5 +1,5 @@
-import { account, session, user, verification } from '@soonlist/db'
-import { ACCESS_ERROR_MESSAGES } from '@soonlist/domain'
+import { account, session, user, verification } from '@soonlane/db'
+import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError } from 'better-auth/api'
@@ -51,7 +51,7 @@ function redactLogArgument(argument: unknown) {
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
-		appName: 'Soonlist',
+		appName: 'Soonlane',
 		logger: {
 			log: (level, message, ...args: unknown[]) =>
 				options.log(

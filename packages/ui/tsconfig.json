@@ -1,4 +1,4 @@
 {
-  "extends": "@soonlist/typescript-config/react-library.json",
+  "extends": "@soonlane/typescript-config/react-library.json",
   "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

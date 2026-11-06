@@ -1,4 +1,4 @@
-import { sidebarItemVariants } from '@soonlist/ui/components/sidebar'
+import { sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import { Link, type LinkProps } from '@tanstack/react-router'
 import type { LucideIcon } from 'lucide-react'
 

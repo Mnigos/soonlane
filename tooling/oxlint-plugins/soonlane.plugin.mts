@@ -11,7 +11,7 @@ import { propsWithChildrenRule } from './props-with-children.rule.mts'
 import { typeParamPrefixRule } from './type-param-prefix.rule.mts'
 
 export default definePlugin({
-	meta: { name: 'soonlist' },
+	meta: { name: 'soonlane' },
 	rules: {
 		'declaration-group-spacing': declarationGroupSpacingRule,
 		'file-role-folder': fileRoleFolderRule,

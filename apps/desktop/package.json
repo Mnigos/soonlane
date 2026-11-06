@@ -1,10 +1,10 @@
 {
-  "name": "@soonlist/desktop",
+  "name": "@soonlane/desktop",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "SOONLIST_URL=http://localhost:3000 bunx --bun electrobun dev",
+    "dev": "SOONLANE_URL=http://localhost:3000 bunx --bun electrobun dev",
     "package": "bunx --bun electrobun build --env=stable",
     "sdk": "bunx --bun electrobun prepare",
     "typecheck": "bun run sdk && tsc --noEmit"
@@ -13,7 +13,7 @@
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@soonlist/typescript-config": "workspace:*",
+    "@soonlane/typescript-config": "workspace:*",
     "electrobun": "2.0.6",
     "typescript": "catalog:"
   }

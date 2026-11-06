@@ -1,4 +1,4 @@
-import type { UserId } from '@soonlist/domain'
+import type { UserId } from '@soonlane/domain'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/u
 const MIN_SECRET_LENGTH = 32

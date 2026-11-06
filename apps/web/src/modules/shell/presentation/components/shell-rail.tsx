@@ -1,10 +1,10 @@
-import type { SessionUser } from '@soonlist/contracts'
-import { cn } from '@soonlist/ui/cn'
-import { Avatar } from '@soonlist/ui/components/avatar'
+import type { SessionUser } from '@soonlane/contracts'
+import { cn } from '@soonlane/ui/cn'
+import { Avatar } from '@soonlane/ui/components/avatar'
 import {
 	SidebarRail,
 	sidebarRailItemVariants,
-} from '@soonlist/ui/components/sidebar'
+} from '@soonlane/ui/components/sidebar'
 import {
 	CalendarDays,
 	CalendarFold,

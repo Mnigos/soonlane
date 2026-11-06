@@ -3,7 +3,7 @@ import type {
 	TaskId,
 	TaskPriority,
 	UserId,
-} from '@soonlist/domain'
+} from '@soonlane/domain'
 import { sql } from 'drizzle-orm'
 import {
 	check,

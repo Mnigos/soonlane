@@ -1,5 +1,5 @@
-import { signInWithGoogle as startGoogleSignIn } from '@soonlist/auth/client'
-import { Button } from '@soonlist/ui/components/button'
+import { signInWithGoogle as startGoogleSignIn } from '@soonlane/auth/client'
+import { Button } from '@soonlane/ui/components/button'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import { GoogleIcon } from './google-icon'
 
@@ -31,7 +31,7 @@ export function SignInScreen({
 	return (
 		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 px-6 py-16">
 			<div className="flex flex-col gap-1.5">
-				<h1 className="text-2xl font-bold tracking-tight">Soonlist</h1>
+				<h1 className="text-2xl font-bold tracking-tight">Soonlane</h1>
 
 				<p className="text-sm text-muted-foreground">
 					Your tasks, from today onwards.
@@ -67,7 +67,7 @@ export function SignInScreen({
 
 					<p className="text-muted-foreground">
 						Signing in from the desktop app arrives in the next update. Until
-						then, use Soonlist in your browser.
+						then, use Soonlane in your browser.
 					</p>
 				</div>
 			)}
@@ -76,7 +76,7 @@ export function SignInScreen({
 				<p className="text-sm font-medium text-danger" role="alert">
 					{isError
 						? SIGN_IN_FAILED
-						: 'Sign-in failed. Soonlist is only available to its owner.'}
+						: 'Sign-in failed. Soonlane is only available to its owner.'}
 				</p>
 			)}
 		</main>

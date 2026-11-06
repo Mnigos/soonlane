@@ -3,8 +3,8 @@ import type {
 	ListTasksInput,
 	ListTasksOutput,
 	Task,
-} from '@soonlist/contracts'
-import { type TaskId, toCalendarDate, type UserId } from '@soonlist/domain'
+} from '@soonlane/contracts'
+import { type TaskId, toCalendarDate, type UserId } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
 import { TaskNotFound } from '../domain/task.errors'
@@ -30,7 +30,7 @@ export class TasksService extends Context.Service<
 			id: TaskId
 		) => Effect.Effect<Task, TaskNotFound | DbError>
 	}
->()('soonlist/TasksService') {}
+>()('soonlane/TasksService') {}
 
 function requireTask(task: Task | undefined) {
 	return task ? Effect.succeed(task) : Effect.fail(new TaskNotFound())

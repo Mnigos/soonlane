@@ -1,5 +1,5 @@
 {
-  "extends": "@soonlist/typescript-config/react-app.json",
+  "extends": "@soonlane/typescript-config/react-app.json",
   "compilerOptions": {
     "paths": {
       "@/*": ["./src/*"]

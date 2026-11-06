@@ -12,7 +12,7 @@ export class Navigation extends Context.Service<
 		/** A navigation the rules blocked: it can only leave the app, so it goes to the system browser or nowhere. */
 		readonly leaveApp: (href: string) => Effect.Effect<void>
 	}
->()('soonlist/Navigation') {}
+>()('soonlane/Navigation') {}
 
 export const NavigationLive = Layer.effect(
 	Navigation,

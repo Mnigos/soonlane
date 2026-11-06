@@ -3,7 +3,7 @@ import { RELOAD_ACTION } from '../domain/menu.constants'
 
 export const APP_MENU = [
 	{
-		label: 'Soonlist',
+		label: 'Soonlane',
 		submenu: [
 			{ role: 'about' },
 			{ type: 'separator' },

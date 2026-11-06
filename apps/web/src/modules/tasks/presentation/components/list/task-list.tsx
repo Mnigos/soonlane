@@ -1,6 +1,6 @@
-import type { Task } from '@soonlist/contracts'
-import type { CalendarDate } from '@soonlist/domain'
-import { Skeleton } from '@soonlist/ui/components/skeleton'
+import type { Task } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
+import { Skeleton } from '@soonlane/ui/components/skeleton'
 import { TaskItem } from '../task/task-item'
 
 interface TaskListProps {

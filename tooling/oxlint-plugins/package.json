@@ -1,5 +1,5 @@
 {
-  "name": "@soonlist/oxlint-plugins",
+  "name": "@soonlane/oxlint-plugins",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -8,7 +8,7 @@
   },
   "devDependencies": {
     "@oxlint/plugins": "1.86.0",
-    "@soonlist/typescript-config": "workspace:*",
+    "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "oxfmt": "0.71.0",
     "oxlint": "1.86.0",

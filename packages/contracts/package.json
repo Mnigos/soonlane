@@ -1,5 +1,5 @@
 {
-  "name": "@soonlist/contracts",
+  "name": "@soonlane/contracts",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",
@@ -11,11 +11,11 @@
   },
   "dependencies": {
     "@orpc/contract": "catalog:",
-    "@soonlist/domain": "workspace:*",
+    "@soonlane/domain": "workspace:*",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@soonlist/typescript-config": "workspace:*",
+    "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "typescript": "catalog:"
   }

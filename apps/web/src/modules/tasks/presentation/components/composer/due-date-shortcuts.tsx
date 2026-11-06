@@ -1,5 +1,5 @@
-import type { CalendarDate } from '@soonlist/domain'
-import { cn } from '@soonlist/ui/cn'
+import type { CalendarDate } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import { getDueDateShortcuts } from '../../../domain/due-date-shortcut.helper'
 import { DUE_DATE_SHORTCUT_ICONS } from '../../helpers/due-date-shortcut.constants'
 

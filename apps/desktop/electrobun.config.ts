@@ -3,8 +3,8 @@ import productVersion from '../../version.json' with { type: 'json' }
 
 export default {
 	app: {
-		name: 'Soonlist',
-		identifier: 'com.mnigos.soonlist',
+		name: 'Soonlane',
+		identifier: 'com.mnigos.soonlane',
 		version: productVersion.version,
 	},
 	build: {

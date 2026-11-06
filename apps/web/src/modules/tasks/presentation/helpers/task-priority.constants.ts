@@ -1,4 +1,4 @@
-import type { TaskPriority } from '@soonlist/domain'
+import type { TaskPriority } from '@soonlane/domain'
 
 export const PRIORITY_CIRCLE_CLASSES = {
 	1: 'border-priority-1 bg-priority-1/15 text-priority-1',

@@ -10,4 +10,4 @@ export class FrameStore extends Context.Service<
 		/** Runs synchronously, so it can finish inside the window's close callback. */
 		readonly save: (frame: WindowFrame) => Effect.Effect<void, FrameStoreError>
 	}
->()('soonlist/FrameStore') {}
+>()('soonlane/FrameStore') {}

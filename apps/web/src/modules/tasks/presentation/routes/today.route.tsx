@@ -4,7 +4,7 @@ import { TodayPage } from '../components/today-page'
 import { useToday } from '../hooks/use-today'
 
 export const Route = createFileRoute('/_shell/today')({
-	head: () => ({ meta: [{ title: 'Today · Soonlist' }] }),
+	head: () => ({ meta: [{ title: 'Today · Soonlane' }] }),
 	component: TodayRoute,
 })
 

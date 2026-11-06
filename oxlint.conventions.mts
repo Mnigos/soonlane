@@ -21,7 +21,7 @@ interface ImportRestriction {
 }
 
 const CROSS_WORKSPACE_IMPORT_MESSAGE =
-	'Import other apps and packages through their aliases or @soonlist/* packages, not relative paths.'
+	'Import other apps and packages through their aliases or @soonlane/* packages, not relative paths.'
 
 const WORKSPACE_GROUPS = ['apps', 'packages', 'tooling'] as const
 
@@ -102,9 +102,9 @@ function restrictImports(...restrictions: readonly ImportRestriction[]) {
 // oxlint config types use mutable tuples, so rule maps below use satisfies without as const.
 export const CONVENTION_RULES = {
 	'max-lines': ['error', { max: 400 }],
-	'soonlist/declaration-group-spacing': 'error',
-	'soonlist/inferred-type-placement': 'error',
-	'soonlist/type-param-prefix': 'error',
+	'soonlane/declaration-group-spacing': 'error',
+	'soonlane/inferred-type-placement': 'error',
+	'soonlane/type-param-prefix': 'error',
 	'typescript/no-non-null-assertion': 'error',
 } satisfies OxlintOverride['rules']
 
@@ -160,18 +160,18 @@ export const CONVENTION_OVERRIDES = [
 	]),
 	{
 		files: ['apps/**', 'packages/**'],
-		rules: { 'soonlist/props-with-children': 'error' },
+		rules: { 'soonlane/props-with-children': 'error' },
 	},
 	{
 		files: [...ROLE_NAMED_SOURCES],
 		rules: {
-			'soonlist/file-role-suffix': 'error',
-			'soonlist/file-role-folder': 'warn',
-			'soonlist/hooks-dir-only-hooks': 'error',
+			'soonlane/file-role-suffix': 'error',
+			'soonlane/file-role-folder': 'warn',
+			'soonlane/hooks-dir-only-hooks': 'error',
 		},
 	},
 	{
 		files: ['**/*.repository.ts'],
-		rules: { 'soonlist/no-repository-try-catch': 'error' },
+		rules: { 'soonlane/no-repository-try-catch': 'error' },
 	},
 ] satisfies OxlintOverride[]

@@ -8,7 +8,7 @@ const appUrlSchema = Schema.URLFromString.check(
 		url =>
 			url.protocol === 'https:' ||
 			url.protocol === 'http:' ||
-			'SOONLIST_URL must be an http or https URL'
+			'SOONLANE_URL must be an http or https URL'
 	)
 )
 
@@ -17,12 +17,12 @@ export class DesktopConfig extends Context.Service<
 	{
 		readonly appUrl: URL
 	}
->()('soonlist/DesktopConfig') {}
+>()('soonlane/DesktopConfig') {}
 
-/** The hosted web app the window loads; `bun run dev` points `SOONLIST_URL` at the local dev server. */
+/** The hosted web app the window loads; `bun run dev` points `SOONLANE_URL` at the local dev server. */
 export const DesktopConfigLive = Layer.effect(
 	DesktopConfig,
-	Config.schema(appUrlSchema, 'SOONLIST_URL').pipe(
+	Config.schema(appUrlSchema, 'SOONLANE_URL').pipe(
 		Config.withDefault(new URL(PRODUCTION_APP_URL)),
 		Config.map(appUrl => ({ appUrl }))
 	)

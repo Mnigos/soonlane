@@ -1,5 +1,5 @@
 import { middlewareGen } from '@orpc/experimental-effect'
-import { isOwner } from '@soonlist/auth'
+import { isOwner } from '@soonlane/auth'
 import { AppConfig } from '@/platform/config/app.config'
 import { os } from '@/platform/rpc/rpc.base'
 import { Forbidden, Unauthorized } from '../domain/identity.errors'

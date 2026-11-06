@@ -1,6 +1,6 @@
 import type { RouterContractClient } from '@orpc/contract'
 import { createRouterClient } from '@orpc/server'
-import type { Contract } from '@soonlist/contracts'
+import type { Contract } from '@soonlane/contracts'
 import { getRequestHeaders } from '@tanstack/react-start/server'
 import { runtime } from '@/platform/app.runtime'
 import { createRpcContext } from '@/platform/rpc/rpc.context'

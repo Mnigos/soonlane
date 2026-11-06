@@ -1,10 +1,10 @@
-import type { CalendarDate } from '@soonlist/domain'
-import { cn } from '@soonlist/ui/cn'
+import type { CalendarDate } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
-} from '@soonlist/ui/components/popover'
+} from '@soonlane/ui/components/popover'
 import { Calendar } from 'lucide-react'
 import { type KeyboardEvent, useRef, useState } from 'react'
 import { getDueChipLabel } from '../../../domain/due-label.helper'
