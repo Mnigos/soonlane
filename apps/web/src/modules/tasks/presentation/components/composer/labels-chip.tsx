@@ -5,8 +5,14 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { Tag, X } from 'lucide-react'
-import { type KeyboardEvent, useRef } from 'react'
+import {
+	type Dispatch,
+	type KeyboardEvent,
+	type SetStateAction,
+	useRef,
+} from 'react'
 import { getLabelColor } from '@/modules/labels/presentation/helpers/label-color.helper'
+import { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import {
 	CHIP_ICON_STROKE,
 	COMPOSER_CHIP_CLASS,
@@ -15,7 +21,7 @@ import { LabelPicker } from './label-picker'
 
 interface LabelsChipProps {
 	value: Label[]
-	onChange: (labels: Label[]) => void
+	onChange: Dispatch<SetStateAction<Label[]>>
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
@@ -26,11 +32,23 @@ export function LabelsChip({
 	onKeyDown,
 }: Readonly<LabelsChipProps>) {
 	const inputRef = useRef<HTMLInputElement>(null)
+	const triggerRef = useRef<HTMLButtonElement>(null)
+	// Lives here, not in the picker, so a label created after the popover closes still gets ticked.
+	const createLabel = useCreateLabelMutation()
 
 	return (
 		<>
-			<Popover>
-				<PopoverTrigger className={COMPOSER_CHIP_CLASS} onKeyDown={onKeyDown}>
+			<Popover
+				onOpenChange={open => {
+					// Resetting a pending create would drop its success callback.
+					if (!open && createLabel.isError) createLabel.reset()
+				}}
+			>
+				<PopoverTrigger
+					className={COMPOSER_CHIP_CLASS}
+					onKeyDown={onKeyDown}
+					ref={triggerRef}
+				>
 					<Tag aria-hidden strokeWidth={CHIP_ICON_STROKE} />
 					Labels
 				</PopoverTrigger>
@@ -41,7 +59,12 @@ export function LabelsChip({
 					className="w-62"
 					initialFocus={inputRef}
 				>
-					<LabelPicker inputRef={inputRef} onChange={onChange} value={value} />
+					<LabelPicker
+						createLabel={createLabel}
+						inputRef={inputRef}
+						onChange={onChange}
+						value={value}
+					/>
 				</PopoverContent>
 			</Popover>
 
@@ -61,7 +84,10 @@ export function LabelsChip({
 					<button
 						aria-label={`Remove label ${label.name}`}
 						className="flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
-						onClick={() => onChange(value.filter(({ id }) => id !== label.id))}
+						onClick={() => {
+							onChange(value.filter(({ id }) => id !== label.id))
+							triggerRef.current?.focus()
+						}}
 						onKeyDown={onKeyDown}
 						type="button"
 					>

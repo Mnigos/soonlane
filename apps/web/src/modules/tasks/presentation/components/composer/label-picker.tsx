@@ -8,9 +8,9 @@ import {
 } from '@soonlane/ui/components/combobox'
 import { useQuery } from '@tanstack/react-query'
 import { Check, Plus, Tag } from 'lucide-react'
-import { type Ref, useState } from 'react'
+import { type Dispatch, type Ref, type SetStateAction, useState } from 'react'
 import { getLabelColor } from '@/modules/labels/presentation/helpers/label-color.helper'
-import { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
+import type { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	CHIP_ICON_STROKE,
@@ -21,7 +21,8 @@ import {
 
 interface LabelPickerProps {
 	value: Label[]
-	onChange: (labels: Label[]) => void
+	onChange: Dispatch<SetStateAction<Label[]>>
+	createLabel: ReturnType<typeof useCreateLabelMutation>
 	inputRef: Ref<HTMLInputElement>
 }
 
@@ -35,11 +36,11 @@ const ROW_CLASS =
 export function LabelPicker({
 	value,
 	onChange,
+	createLabel,
 	inputRef,
 }: Readonly<LabelPickerProps>) {
 	const [query, setQuery] = useState('')
 	const { data, isError } = useQuery(orpcQuery.labels.list.queryOptions())
-	const createLabel = useCreateLabelMutation()
 	const labels = data?.labels ?? []
 	const name = query.trim()
 	const search = name.toLowerCase()
@@ -76,7 +77,11 @@ export function LabelPicker({
 					{ name },
 					{
 						onSuccess: ({ label }) => {
-							onChange([...value, label])
+							onChange(picked =>
+								picked.some(({ id }) => id === label.id)
+									? picked
+									: [...picked, label]
+							)
 							setQuery('')
 						},
 					}
