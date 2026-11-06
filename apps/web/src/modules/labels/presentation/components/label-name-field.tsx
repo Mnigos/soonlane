@@ -33,6 +33,7 @@ export function LabelNameField({
 			className="flex flex-col gap-1"
 			onSubmit={event => {
 				event.preventDefault()
+				if (mutation.isPending) return
 				const name = value.trim()
 
 				if (name === '') onCancel()
