@@ -6,9 +6,11 @@ import { GITHUB_URL, SITE_NAME, SITE_PAGE_LINKS } from '../site.constants'
 import { GetStartedButton } from './get-started-button'
 import { GithubIcon } from './github-icon'
 
-// Cookies have no change event; React reads the snapshot again on every render.
-function subscribe() {
-	return () => undefined
+// Cookies have no change event; a sign-in or sign-out in another tab shows when this tab is visible again.
+function subscribe(onChange: () => void) {
+	document.addEventListener('visibilitychange', onChange)
+
+	return () => document.removeEventListener('visibilitychange', onChange)
 }
 
 function hasSignedInHint() {
