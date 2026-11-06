@@ -53,6 +53,7 @@ export function SidebarSection({
 			>
 				{label}
 			</h2>
+
 			{children}
 		</section>
 	)

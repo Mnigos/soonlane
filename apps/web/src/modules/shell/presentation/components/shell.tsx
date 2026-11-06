@@ -52,6 +52,7 @@ export function Shell({
 				onExpand={expand}
 				user={user}
 			/>
+
 			{isOverlayOpen && (
 				<button
 					aria-label="Close sidebar"
@@ -60,6 +61,7 @@ export function Shell({
 					type="button"
 				/>
 			)}
+
 			<ShellSidebar
 				className={cn(
 					isOverlayOpen ? 'flex' : 'hidden',
@@ -69,6 +71,7 @@ export function Shell({
 				onNavigate={() => setIsOverlayOpen(false)}
 				user={user}
 			/>
+
 			<div className="flex h-12 items-center px-3 md:hidden">
 				<Button
 					aria-label="Open sidebar"
@@ -79,6 +82,7 @@ export function Shell({
 					<PanelLeftOpen />
 				</Button>
 			</div>
+
 			{children}
 		</div>
 	)

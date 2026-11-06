@@ -39,6 +39,7 @@ export function ShellRail({
 			>
 				<Avatar name={user.name} src={user.image} />
 			</button>
+
 			<button
 				aria-label="Expand sidebar"
 				className={sidebarRailItemVariants()}
@@ -48,6 +49,7 @@ export function ShellRail({
 			>
 				<PanelLeftOpen aria-hidden />
 			</button>
+
 			<button
 				aria-label="Add task"
 				className={cn(
@@ -61,10 +63,13 @@ export function ShellRail({
 					<Plus aria-hidden className="size-3.5" strokeWidth={2.5} />
 				</span>
 			</button>
+
 			<nav aria-label="Views" className="flex flex-col gap-0.5">
 				<RailNavLink icon={CalendarDays} label="Upcoming" to="/" />
+
 				<RailNavLink icon={CalendarFold} label="Today" to="/today" />
 			</nav>
+
 			<button
 				aria-label="Labels"
 				className={sidebarRailItemVariants()}

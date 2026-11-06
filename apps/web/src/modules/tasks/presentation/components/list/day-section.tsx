@@ -22,6 +22,7 @@ export function DaySection({ date, today }: Readonly<DaySectionProps>) {
 			>
 				{getDayHeading(date, today)}
 			</h2>
+
 			<AddTaskRow />
 		</section>
 	)
