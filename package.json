@@ -41,7 +41,7 @@
     }
   },
   "scripts": {
-    "dev": "turbo dev",
+    "dev": "turbo dev --filter=@soonlist/web",
     "build": "turbo build",
     "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json",
     "check": "ultracite check",

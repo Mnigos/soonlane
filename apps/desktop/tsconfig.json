@@ -1,0 +1,12 @@
+{
+  "extends": "@soonlist/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM"],
+    "types": ["bun"],
+    "paths": {
+      "electrobun": ["./.hutch/devkit/api/sdks/main/index.ts"],
+      "electrobun/*": ["./.hutch/devkit/api/sdks/main/entries/*.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "*.ts"]
+}
