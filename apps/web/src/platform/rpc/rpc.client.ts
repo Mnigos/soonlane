@@ -4,13 +4,17 @@ import type { RouterContractClient } from '@orpc/contract'
 import type { Contract } from '@soonlist/contracts'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { RPC_PREFIX } from './rpc-prefix.constants'
-import { createServerRpcClient } from './rpc.client.server'
+import { createInProcessRpcClient } from './rpc.client.server'
 
 type RpcClient = RouterContractClient<Contract>
 
-// SSR calls procedures in-process with the incoming request's cookies, the browser over HTTP; the client build drops the server branch and its import.
+function createHttpRpcClient(): RpcClient {
+	return createORPCClient(new RPCLink({ url: RPC_PREFIX }))
+}
+
+// SSR calls procedures in process with the incoming request's cookies, the browser over HTTP; the client build drops the in-process branch and its import.
 const getRpcClient = createIsomorphicFn()
-	.server((): RpcClient => createServerRpcClient())
-	.client((): RpcClient => createORPCClient(new RPCLink({ url: RPC_PREFIX })))
+	.server(createInProcessRpcClient)
+	.client(createHttpRpcClient)
 
 export const rpc = getRpcClient()

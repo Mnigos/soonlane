@@ -6,7 +6,7 @@ import { runtime } from '@/platform/app.runtime'
 import { createRpcContext } from '@/platform/rpc/rpc.context'
 import { router } from '@/platform/rpc/rpc.router'
 
-export function createServerRpcClient(): RouterContractClient<Contract> {
+export function createInProcessRpcClient(): RouterContractClient<Contract> {
 	return createRouterClient(router, {
 		context: async () =>
 			await createRpcContext(

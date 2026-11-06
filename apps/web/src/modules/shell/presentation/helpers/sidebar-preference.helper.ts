@@ -5,7 +5,7 @@ const COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
 // Tailwind's xl breakpoint: from here the full sidebar fits beside the centered column without covering it.
 const WIDE_VIEWPORT_QUERY = '(min-width: 80rem)'
 
-export function toSidebarPreference(value?: string): SidebarPreference {
+function toSidebarPreference(value?: string): SidebarPreference {
 	return value === 'rail' ? 'rail' : 'full'
 }
 
