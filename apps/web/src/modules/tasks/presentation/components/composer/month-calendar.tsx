@@ -12,7 +12,7 @@ import {
 import { CALENDAR_MONTH_COUNT } from '../../../domain/calendar.constants'
 import {
 	clampMonthCount,
-	getCalendarLastDay,
+	clampToCalendar,
 	getCalendarMonths,
 	getInitialMonthCount,
 	getMonthOffset,
@@ -58,15 +58,13 @@ export function MonthCalendar({
 	today,
 	onSelect,
 }: Readonly<MonthCalendarProps>) {
-	const initial = isBefore(selected, today) ? today : selected
+	// A day the calendar lists, so a past or far chosen day still leaves a tab stop.
+	const initial = clampToCalendar(selected, today)
 	const [monthCount, setMonthCount] = useState(() =>
 		getInitialMonthCount(today, initial)
 	)
 	const months = getCalendarMonths(today, monthCount)
-	const initialIndex = Math.min(
-		getMonthOffset(today, initial),
-		months.length - 1
-	)
+	const initialIndex = getMonthOffset(today, initial)
 	const [shownIndex, setShownIndex] = useState(initialIndex)
 	const [focused, setFocused] = useState(initial)
 	const [isKeyboardFocus, setIsKeyboardFocus] = useState(false)
@@ -102,26 +100,26 @@ export function MonthCalendar({
 		)
 		const month = months[index]
 
-		if (index === shownIndex || !month) return
+		if (!month) return
 
+		// Updaters, as several scroll events can arrive before React renders.
 		setShownIndex(index)
-		if (index >= monthCount - MONTHS_AHEAD)
-			setMonthCount(clampMonthCount(monthCount + CALENDAR_MONTH_COUNT))
+		setMonthCount(count =>
+			index >= count - MONTHS_AHEAD
+				? clampMonthCount(count + CALENDAR_MONTH_COUNT)
+				: count
+		)
 		// Scrolled by wheel or the arrows, the tab stop follows, so Tab lands in the month on screen.
-		if (
-			!container.contains(document.activeElement) &&
-			getMonthStart(focused) !== month
-		) {
-			setFocused(getTabStop(month))
+		if (!container.contains(document.activeElement)) {
+			setFocused(current =>
+				getMonthStart(current) === month ? current : getTabStop(month)
+			)
 			setIsKeyboardFocus(false)
 		}
 	}
 
 	function moveFocus(date: CalendarDate) {
-		const lastDay = getCalendarLastDay(today)
-		let next = date
-		if (isBefore(next, today)) next = today
-		if (isBefore(lastDay, next)) next = lastDay
+		const next = clampToCalendar(date, today)
 
 		setMonthCount(count =>
 			Math.max(

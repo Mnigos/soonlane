@@ -78,6 +78,14 @@ export function isInCalendar(date: CalendarDate, today: CalendarDate) {
 	return !(isBefore(date, today) || isBefore(getCalendarLastDay(today), date))
 }
 
+/** The nearest day the date picker offers: today for a past day, its last day for a later one. */
+export function clampToCalendar(date: CalendarDate, today: CalendarDate) {
+	const lastDay = getCalendarLastDay(today)
+	if (isBefore(date, today)) return today
+
+	return isBefore(lastDay, date) ? lastDay : date
+}
+
 /** "Dec" between months in the picker, "Jan 2027" once the year changes. */
 export function formatMonthHeading(
 	monthStart: CalendarDate,
