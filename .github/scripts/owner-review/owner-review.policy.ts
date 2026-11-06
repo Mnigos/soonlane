@@ -8,7 +8,8 @@ import type {
 } from './owner-review.types'
 
 export const OWNER_ID = 56_691_628
-export const REPOSITORY = 'mnigos/soonlane'
+// The old name keeps the commands working whichever lands first: this change or the GitHub rename.
+export const REPOSITORIES = new Set(['mnigos/soonlane', 'mnigos/soonlist'])
 export const BOT_LOGIN = 'github-actions[bot]'
 export const MARKER_PREFIX = '<!-- owner-review-command:'
 export const DISMISS_MESSAGE = 'New commits require a fresh /approve.'
@@ -103,7 +104,7 @@ export function getPullSkipReason(pull: PullRequest) {
 		return 'pull request is not open and ready'
 	if (!isOwnerUser(pull.user)) return 'pull request is not authored by owner'
 	if (
-		pull.base.repo.full_name.toLowerCase() !== REPOSITORY ||
+		!REPOSITORIES.has(pull.base.repo.full_name.toLowerCase()) ||
 		pull.head.repo?.full_name !== pull.base.repo.full_name
 	)
 		return 'pull request head is not in the base repository'
