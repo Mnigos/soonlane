@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
+  "bunVersion": "1.4.x",
   "installCommand": "bun install --frozen-lockfile",
   "buildCommand": "bun ../../packages/db/scripts/migrate.ts && bun run build"
 }
