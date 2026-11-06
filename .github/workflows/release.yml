@@ -53,7 +53,7 @@ jobs:
         if: steps.release.outputs.has_changes == 'true'
         run: |
           git tag "$TAG" "$SOURCE"
-          bunx git-cliff --tag-pattern '^v[0-9]+\.[0-9]+\.[0-9]+-nightly\.' --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
+          bun git-cliff --tag-pattern '^v[0-9]+\.[0-9]+\.[0-9]+-nightly\.' --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
           git push origin "$TAG"
           gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag --prerelease --latest=false
         env:
@@ -96,8 +96,8 @@ jobs:
         run: |
           echo "Promoting $NIGHTLY_TAG ($SOURCE) as $TAG"
           git tag "$TAG" "$SOURCE"
-          bunx git-cliff --output CHANGELOG.md
-          bunx git-cliff --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
+          bun git-cliff --output CHANGELOG.md
+          bun git-cliff --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
           bun --no-env-file scripts/release.ts write-version "$VERSION"
         env:
           NIGHTLY_TAG: ${{ steps.release.outputs.nightly_tag }}
