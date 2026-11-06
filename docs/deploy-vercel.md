@@ -74,15 +74,16 @@ curl -s https://soonlist.vercel.app/api/auth/get-session
 
 Then open the URL, sign in with Google and check the avatar and name in the sidebar. A second Google account signs up and starts with an empty Upcoming; neither account sees the other's tasks. With `ALLOWED_EMAILS` set, a Google account that is not on the list and has no account yet ends on `/login` with "Sign-ups are closed on this server."
 
-The public pages and the sitemap are static files; only soonlane.com may be crawled ([ADR 0008](decisions/0008-public-site-inside-the-web-app.md)), so until the move below `soonlist.vercel.app/robots.txt` also answers `Disallow: /`:
+The public pages and the sitemap are static files; only soonlane.com may be crawled ([ADR 0008](decisions/0008-public-site-inside-the-web-app.md)). Until the move below, run these against `soonlist.vercel.app`, whose `robots.txt` answers `Disallow: /`; after it, against soonlane.com:
 
 ```sh
 curl -s https://soonlane.com/robots.txt
 # User-agent: *, Allow: /, Disallow: /app, /api/, /login, /desktop/, Sitemap: https://soonlane.com/sitemap.xml
 curl -s https://soonlane.com/sitemap.xml
 # a <urlset> with https://soonlane.com/, /privacy and /terms
-curl -sI https://soonlane.com/ | grep -i x-vercel-cache
-# present: the prerendered HTML, served without the function
+curl -sI https://soonlane.com/ | grep -i -E '^HTTP|x-vercel-id'
+# 200 and an x-vercel-id with only the edge region (arn1::…): the prerendered HTML.
+# A function response adds its region (arn1::fra1::…), as /login does.
 ```
 
 Previews sit behind Vercel's deployment protection, so check them through the CLI, which signs the request:
