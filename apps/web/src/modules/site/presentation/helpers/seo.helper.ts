@@ -42,6 +42,6 @@ export function buildPageHead({
 export function jsonLdScript(data: WithContext<Thing>) {
 	return {
 		type: 'application/ld+json',
-		children: JSON.stringify(data).replaceAll('<', String.raw`<`),
+		children: JSON.stringify(data).replaceAll('<', String.raw`\u003c`),
 	}
 }
