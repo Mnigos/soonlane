@@ -3,6 +3,7 @@ import { useMemo, useSyncExternalStore } from 'react'
 
 // A section counts as reached when its top is within this distance below the sticky header.
 const REACHED_TOLERANCE_PX = 4
+// Without scrollend, a requested scroll settles once no scroll event came for this long.
 const SCROLL_SETTLE_FALLBACK_MS = 1000
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
@@ -47,8 +48,20 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		for (const listener of listeners) listener()
 	}
 
+	function hasReached(date: CalendarDate) {
+		const top = sections.get(date)?.getBoundingClientRect().top
+
+		return (
+			top !== undefined &&
+			Math.abs(top - getHeaderBottom()) <= REACHED_TOLERANCE_PX
+		)
+	}
+
 	function update() {
-		if (requestedDay) return
+		if (requestedDay) {
+			if (hasReached(requestedDay)) settle()
+			return
+		}
 
 		setActiveDay(readTopDay())
 	}
@@ -68,10 +81,21 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		setActiveDay(readTopDay())
 	}
 
+	function armSettleTimer() {
+		clearTimeout(settleTimer)
+		settleTimer = setTimeout(settle, SCROLL_SETTLE_FALLBACK_MS)
+	}
+
+	function handleScroll() {
+		// A slow smooth scroll keeps re-arming the timer, so it never settles mid-way.
+		if (requestedDay) armSettleTimer()
+		scheduleUpdate()
+	}
+
 	return {
 		subscribe(listener: () => void) {
 			listeners.add(listener)
-			window.addEventListener('scroll', scheduleUpdate, { passive: true })
+			window.addEventListener('scroll', handleScroll, { passive: true })
 			window.addEventListener('resize', scheduleUpdate)
 			window.addEventListener('scrollend', settle)
 			scheduleUpdate()
@@ -80,7 +104,7 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 				listeners.delete(listener)
 				if (listeners.size > 0) return
 
-				window.removeEventListener('scroll', scheduleUpdate)
+				window.removeEventListener('scroll', handleScroll)
 				window.removeEventListener('resize', scheduleUpdate)
 				window.removeEventListener('scrollend', settle)
 				cancelAnimationFrame(frame)
@@ -119,8 +143,7 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 				behavior: reduceMotion ? 'auto' : 'smooth',
 			})
 			// scrollend never fires when the page is already there, so a timer settles it too.
-			clearTimeout(settleTimer)
-			settleTimer = setTimeout(settle, SCROLL_SETTLE_FALLBACK_MS)
+			armSettleTimer()
 		},
 	}
 }
