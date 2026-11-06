@@ -18,7 +18,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 			<button
 				aria-controls="user-menu"
 				aria-expanded={isOpen}
-				className="flex h-9 min-w-0 cursor-pointer items-center gap-2 rounded-md px-1 transition-colors hover:bg-hover"
+				className="flex h-8 min-w-0 cursor-pointer items-center gap-2 rounded-md px-1 transition-colors hover:bg-hover"
 				onClick={() => setIsOpen(open => !open)}
 				type="button"
 			>
@@ -40,7 +40,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 					</p>
 
 					<button
-						className="flex h-9 cursor-pointer items-center gap-2.5 rounded-md px-2 text-sm transition-colors hover:bg-hover disabled:opacity-50"
+						className="flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm transition-colors hover:bg-hover disabled:opacity-50"
 						disabled={isPending}
 						onClick={() => signOut()}
 						type="button"
