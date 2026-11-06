@@ -1,6 +1,7 @@
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
+import { useNavigate, useSearch } from '@tanstack/react-router'
 import { ChevronDown, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
@@ -17,8 +18,18 @@ interface UserMenuProps {
 
 export function UserMenu({ user }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
-	const [isDeleting, setIsDeleting] = useState(false)
+	const { deleteAccount: isDeleting } = useSearch({ from: '/_session/app' })
+	const navigate = useNavigate()
 	const { mutate: signOut, isPending, isError } = useSignOutMutation()
+
+	// The open dialog lives in the URL, so the fresh sign-in's return reopens it.
+	function setDeleteAccount(deleteAccount: true | undefined) {
+		void navigate({
+			to: '.',
+			search: search => ({ ...search, deleteAccount }),
+			replace: true,
+		})
+	}
 
 	return (
 		<div className="flex min-w-0 flex-col">
@@ -66,7 +77,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 
 					<button
 						className="flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-danger transition-colors hover:bg-hover"
-						onClick={() => setIsDeleting(true)}
+						onClick={() => setDeleteAccount(true)}
 						type="button"
 					>
 						<Trash2 aria-hidden className="size-4" />
@@ -84,7 +95,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 			{isDeleting && (
 				<DeleteAccountDialog
 					email={user.email}
-					onClose={() => setIsDeleting(false)}
+					onClose={() => setDeleteAccount(undefined)}
 				/>
 			)}
 		</div>
