@@ -37,5 +37,6 @@ What Electrobun 2.0.6 provides (read from `docs.electrobun.dev` and the SDK that
 
 ## Related
 
-- `apps/desktop/src/main.ts`, `tooling/tailwind-config/theme.css` (`desktop:` variant, `app-drag`)
+- [ADR 0005](0005-desktop-app-layout.md): the modules and Effect runtime inside `apps/desktop/src`
+- `apps/desktop/src/modules/window`, `apps/desktop/src/modules/navigation`, `tooling/tailwind-config/theme.css` (`desktop:` variant, `app-drag`)
 - Electrobun docs: https://docs.electrobun.dev/electrobun/apis/browser-window/, https://docs.electrobun.dev/electrobun/apis/browser-view/

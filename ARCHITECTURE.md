@@ -77,6 +77,10 @@ From `md` an icon rail is docked and the content keeps a rail-wide gutter; the c
 
 Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns on the `desktop:` variant: the rail, the sidebar and the phone bar leave 32px for the traffic lights and carry an `app-drag` strip that moves the window.
 
+## Desktop app
+
+`apps/desktop/src` mirrors the web app's layering ([ADR 0005](docs/decisions/0005-desktop-app-layout.md)). `main.ts` builds `AppLive` from `platform/` (`DesktopConfig` with `SOONLIST_URL`, the `ManagedRuntime`, the Electrobun event helper). Modules: `window` opens the main window and saves its frame to `window-state.json`, ignoring a saved frame that no longer overlaps a display; `navigation` keeps the window on the app's exact origin and sends other web and mail links to the system browser; `menu` sets the app menu.
+
 ## Decision records
 
 | ADR                                                                            | Decision                                                                            |
@@ -85,5 +89,6 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 | [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs. |
 | [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.      |
 | [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                            |
+| [0005](docs/decisions/0005-desktop-app-layout.md)                              | Desktop modules (`window`, `navigation`, `menu`) on one Effect runtime.             |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md).
