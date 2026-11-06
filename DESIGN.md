@@ -196,6 +196,16 @@ System sans (`-apple-system`, Inter, Segoe UI, Roboto). Weight carries hierarchy
 
 **The Spoken Date Rule.** Dates are written the way people say them: "5 Nov", "Today", "Tomorrow", weekday names in full in headings.
 
+### Public site
+
+The landing page and the other public pages (`modules/site`) use the same font stack, colors and hairlines, plus a display scale the app never uses (`site-*` in `tokens.css`):
+
+- **Site display** (700, 2.25rem on phones growing to 3rem from about 960px, line 1.15, tracking -0.025em): the landing's one `h1`.
+- **Site title** (700, 1.75rem, line 1.25, tracking -0.015em): section headings such as the feature rows, "Questions" and the closing band.
+- **Site body** (400, 1.0625rem, line 1.6): paragraphs and FAQ answers.
+
+Sections stack in a 1120px column and are split by full-width `border` rules, never cards, panels, gradients or shadows. Feature rows put text and screenshot side by side from `lg`, alternating sides, and stack text first on phones. Screenshots of the app get the 1px `border` and an 8px radius and nothing else; the hero's phone screenshot overlaps the desktop one's corner with a ring in the page background (4px, 8px from `lg`). Red stays on "Get started" (or "Open app") and focus outlines.
+
 ## 4. Elevation
 
 Flat. The layered surfaces are the mobile drawer, the Add task dialog and the Delete account dialog (all over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.

@@ -1,28 +1,12 @@
-import { SIGNED_IN_HINT_COOKIE } from '@soonlane/auth'
 import { buttonVariants } from '@soonlane/ui/components/button'
 import { Link } from '@tanstack/react-router'
-import { useSyncExternalStore } from 'react'
+import { useSignedInHint } from '../hooks/use-signed-in-hint'
 import { GITHUB_URL, SITE_NAME, SITE_PAGE_LINKS } from '../site.constants'
 import { GetStartedButton } from './get-started-button'
 import { GithubIcon } from './github-icon'
 
-// Cookies have no change event; another tab's sign-in shows once this tab is visible again.
-function subscribe(onChange: () => void) {
-	document.addEventListener('visibilitychange', onChange)
-
-	return () => document.removeEventListener('visibilitychange', onChange)
-}
-
-function hasSignedInHint() {
-	return document.cookie.split('; ').includes(`${SIGNED_IN_HINT_COOKIE}=1`)
-}
-
 export function SiteHeader() {
-	const isSignedIn = useSyncExternalStore(
-		subscribe,
-		hasSignedInHint,
-		() => false
-	)
+	const isSignedIn = useSignedInHint()
 
 	return (
 		<header className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-4 px-4 sm:px-6">

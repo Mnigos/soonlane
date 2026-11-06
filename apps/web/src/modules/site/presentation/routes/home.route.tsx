@@ -1,18 +1,23 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { GetStartedButton } from '../components/get-started-button'
+import { ClosingBand } from '../components/closing-band'
+import { FeatureRow } from '../components/feature-row'
+import { LandingFaq } from '../components/landing-faq'
+import { LandingHero } from '../components/landing-hero'
+import { OpenSourceSection } from '../components/open-source-section'
 import { buildPageHead, jsonLdScript } from '../helpers/seo.helper'
 import {
-	GITHUB_URL,
-	SITE_DESCRIPTION,
-	SITE_NAME,
-	SITE_URL,
-} from '../site.constants'
+	LANDING_DESCRIPTION,
+	LANDING_FEATURES,
+	LANDING_HERO,
+	LANDING_TITLE,
+} from '../landing.constants'
+import { SITE_NAME, SITE_URL } from '../site.constants'
 
 export const Route = createFileRoute('/_site/')({
 	head: () => ({
 		...buildPageHead({
-			title: `${SITE_NAME}: your tasks, from today onwards`,
-			description: SITE_DESCRIPTION,
+			title: LANDING_TITLE,
+			description: LANDING_DESCRIPTION,
 			path: '/',
 		}),
 		scripts: [
@@ -22,6 +27,23 @@ export const Route = createFileRoute('/_site/')({
 				name: SITE_NAME,
 				url: SITE_URL,
 			}),
+			jsonLdScript({
+				'@context': 'https://schema.org',
+				'@type': 'SoftwareApplication',
+				name: SITE_NAME,
+				description: LANDING_DESCRIPTION,
+				url: SITE_URL,
+				applicationCategory: 'BusinessApplication',
+				operatingSystem: 'Web, macOS',
+				offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+				license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+				author: {
+					'@type': 'Person',
+					name: 'Igor Makowski',
+					url: 'https://github.com/Mnigos',
+				},
+				screenshot: new URL(LANDING_HERO.desktopImage.src, SITE_URL).href,
+			}),
 		],
 	}),
 	component: HomeRoute,
@@ -29,32 +51,22 @@ export const Route = createFileRoute('/_site/')({
 
 function HomeRoute() {
 	return (
-		<main className="mx-auto flex w-full max-w-[1120px] flex-1 flex-col justify-center gap-8 px-4 py-16 sm:px-6">
-			<div className="flex max-w-[680px] flex-col gap-3">
-				<h1 className="text-2xl font-bold tracking-tight">{SITE_NAME}</h1>
+		<main className="flex-1 divide-y">
+			<LandingHero />
 
-				<p className="text-secondary-foreground">
-					A quiet task list organised by days. Upcoming shows what is overdue,
-					what is due today and every day after it, and a Todoist-style composer
-					reads the date as you type the task.
-				</p>
+			{LANDING_FEATURES.map((feature, index) => (
+				<FeatureRow
+					feature={feature}
+					isReversed={index % 2 === 1}
+					key={feature.title}
+				/>
+			))}
 
-				<p className="text-secondary-foreground">
-					Soonlane is free and open source under AGPL-3.0. Sign in with your
-					Google account to get your own list.
-				</p>
-			</div>
+			<OpenSourceSection />
 
-			<div className="flex flex-col items-start gap-6">
-				<GetStartedButton />
+			<LandingFaq />
 
-				<a
-					className="rounded-sm text-sm underline underline-offset-4"
-					href={GITHUB_URL}
-				>
-					View on GitHub
-				</a>
-			</div>
+			<ClosingBand />
 		</main>
 	)
 }

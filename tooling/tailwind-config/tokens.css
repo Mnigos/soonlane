@@ -136,4 +136,15 @@
 	--text-caption--line-height: 1rem;
 	--text-label: 0.8125rem;
 	--text-label--line-height: 1.25;
+
+	--text-site-display: clamp(2.25rem, 1.5rem + 2.5vw, 3rem);
+	--text-site-display--line-height: 1.15;
+	--text-site-display--font-weight: 700;
+	--text-site-display--letter-spacing: -0.025em;
+	--text-site-title: 1.75rem;
+	--text-site-title--line-height: 1.25;
+	--text-site-title--font-weight: 700;
+	--text-site-title--letter-spacing: -0.015em;
+	--text-site-body: 1.0625rem;
+	--text-site-body--line-height: 1.6;
 }

@@ -3,8 +3,6 @@ import type { LinkProps } from '@tanstack/react-router'
 // Fixed, so previews and other hosts never compete with soonlane.com.
 export const SITE_URL = 'https://soonlane.com'
 export const SITE_NAME = 'Soonlane'
-export const SITE_DESCRIPTION =
-	'A quiet task list organised by days: Upcoming with Overdue, Today and every day after, and a composer that reads typed dates. Free and open source.'
 export const GITHUB_URL = 'https://github.com/Mnigos/soonlane'
 export const LICENSE_URL = `${GITHUB_URL}/blob/main/LICENSE`
 export const CONTACT_EMAIL = 'hello@soonlane.com'
