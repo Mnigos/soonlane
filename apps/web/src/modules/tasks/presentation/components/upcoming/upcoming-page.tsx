@@ -1,16 +1,23 @@
 import type { CalendarDate } from '@soonlane/domain'
+import { useCallback, useState } from 'react'
+import { flushSync } from 'react-dom'
+import { addDays, isBefore } from '../../../domain/calendar-date.helper'
+import {
+	UPCOMING_WEEK_COUNT,
+	UPCOMING_WEEKS_PER_LOAD,
+} from '../../../domain/calendar.constants'
 import { getActiveDayLabel } from '../../../domain/day-label.helper'
 import {
-	getUpcomingDays,
+	getUpcomingLastDay,
+	getUpcomingRanges,
 	getWeekStrip,
 } from '../../../domain/upcoming-view.helper'
-import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useActiveDay } from '../../hooks/use-active-day'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
-import { DaySection } from '../list/day-section'
 import { OverdueSection } from '../list/overdue-section'
 import { TaskListError } from '../list/task-list-error'
+import { UpcomingRange } from './upcoming-range'
 import { WeekControls } from './week-controls'
 import { WeekStrip } from './week-strip'
 
@@ -19,21 +26,34 @@ interface UpcomingPageProps {
 }
 
 export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
-	const days = getUpcomingDays(today)
+	const [weekCount, setWeekCount] = useState(UPCOMING_WEEK_COUNT)
+	const ranges = getUpcomingRanges(today, weekCount)
+	const lastDay = getUpcomingLastDay(today, weekCount)
 	const { activeDay, headerRef, sectionRef, scrollToDay } = useActiveDay(today)
 	const strip = getWeekStrip(today, activeDay)
-	const activeIndex = days.indexOf(activeDay)
-	const previousDay = days[activeIndex - 1]
-	const nextDay = days[activeIndex + 1]
+	const previousDay = isBefore(today, activeDay)
+		? addDays(activeDay, -1)
+		: undefined
+	const nextDay = addDays(activeDay, 1)
+	// The first range's query, shared with its section list, also brings the overdue tasks.
 	const { data, isPending, isError, refetch } = useTasksQuery({
 		from: today,
-		to: days.at(-1) ?? today,
+		to: getUpcomingLastDay(today, UPCOMING_WEEK_COUNT),
 		today,
 	})
 	const { completeTask } = useCompleteTask()
-	const tasksByDay = groupTasksByDay(data?.scheduled ?? [])
+	const loadMore = useCallback(
+		() => setWeekCount(count => count + UPCOMING_WEEKS_PER_LOAD),
+		[]
+	)
 
-	// Room below the last day so it can scroll up under the sticky header, which is at least 6rem tall.
+	function goToNextDay() {
+		// Past the last rendered day, append the next weeks first, so the day exists to scroll to.
+		if (isBefore(lastDay, nextDay)) flushSync(loadMore)
+		scrollToDay(nextDay)
+	}
+
+	// Room below the last day so it can scroll up under the sticky header (at least 6rem tall) while the next weeks load.
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-[calc(100dvh-6rem)] md:px-10">
 			<header
@@ -54,7 +74,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 					<div className="flex justify-end">
 						<WeekControls
 							activeDayLabel={getActiveDayLabel(activeDay, today)}
-							onNext={nextDay && (() => scrollToDay(nextDay))}
+							onNext={goToNextDay}
 							onPrevious={previousDay && (() => scrollToDay(previousDay))}
 							onToday={() => scrollToDay(today)}
 						/>
@@ -73,14 +93,15 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 				today={today}
 			/>
 
-			{days.map(date => (
-				<DaySection
-					date={date}
-					isLoading={isPending}
-					key={date}
+			{ranges.map(({ from, to }, index) => (
+				<UpcomingRange
+					from={from}
+					key={from}
 					onComplete={completeTask}
-					ref={sectionRef(date)}
-					tasks={tasksByDay.get(date) ?? []}
+					onLoadMore={index === ranges.length - 1 ? loadMore : undefined}
+					sectionRef={sectionRef}
+					showsError={index > 0}
+					to={to}
 					today={today}
 				/>
 			))}

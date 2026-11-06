@@ -8,7 +8,11 @@ import {
 	getWeekStart,
 	isBefore,
 } from './calendar-date.helper'
-import { DAYS_PER_WEEK, UPCOMING_WEEK_COUNT } from './calendar.constants'
+import {
+	DAYS_PER_WEEK,
+	UPCOMING_WEEK_COUNT,
+	UPCOMING_WEEKS_PER_LOAD,
+} from './calendar.constants'
 
 export interface WeekStripDay {
 	date: CalendarDate
@@ -24,16 +28,53 @@ export interface WeekStrip {
 	days: WeekStripDay[]
 }
 
-/** Days the Upcoming list renders: today through the Sunday that closes the eighth week after the current one. */
-export function getUpcomingDays(today: CalendarDate): CalendarDate[] {
-	const lastDay = addDays(
-		getWeekStart(today),
-		(UPCOMING_WEEK_COUNT + 1) * DAYS_PER_WEEK - 1
-	)
+/** The Sunday that closes the `weekCount`-th week after the current one. */
+export function getUpcomingLastDay(
+	today: CalendarDate,
+	weekCount: number
+): CalendarDate {
+	return addDays(getWeekStart(today), (weekCount + 1) * DAYS_PER_WEEK - 1)
+}
+
+export interface DayRange {
+	from: CalendarDate
+	to: CalendarDate
+}
+
+/**
+ * The ranges the Upcoming list loads for `weekCount` weeks after the current
+ * one: today to the end of the eighth week, then four weeks at a time. They
+ * touch without overlapping, so every day is in exactly one.
+ */
+export function getUpcomingRanges(
+	today: CalendarDate,
+	weekCount: number
+): DayRange[] {
+	const ranges: DayRange[] = []
+	let from = today
+
+	for (
+		let weeks = UPCOMING_WEEK_COUNT;
+		weeks <= weekCount;
+		weeks += UPCOMING_WEEKS_PER_LOAD
+	) {
+		const to = getUpcomingLastDay(today, weeks)
+
+		ranges.push({ from, to })
+		from = addDays(to, 1)
+	}
+
+	return ranges
+}
+
+/** Every day from `from` through `to`. */
+export function getDaysThrough(
+	from: CalendarDate,
+	to: CalendarDate
+): CalendarDate[] {
 	const days: CalendarDate[] = []
 
-	for (let day = today; !isBefore(lastDay, day); day = addDays(day, 1))
-		days.push(day)
+	for (let day = from; !isBefore(to, day); day = addDays(day, 1)) days.push(day)
 
 	return days
 }
