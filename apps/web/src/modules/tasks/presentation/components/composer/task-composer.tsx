@@ -54,13 +54,16 @@ export function TaskComposer({
 		},
 		[autoFocus]
 	)
+	// isPending lags a render, so a quick second Enter would send the task twice.
+	const isSubmittingRef = useRef(false)
 	const { mutate, isPending, isError } = useCreateTaskMutation()
 	const canSubmit = title.trim() !== '' && !isPending
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault()
-		if (!canSubmit) return
+		if (!canSubmit || isSubmittingRef.current) return
 
+		isSubmittingRef.current = true
 		mutate(
 			{
 				title,
@@ -75,6 +78,9 @@ export function TaskComposer({
 					setPriority(DEFAULT_TASK_PRIORITY)
 					titleRef.current?.focus()
 					onCreated?.()
+				},
+				onSettled: () => {
+					isSubmittingRef.current = false
 				},
 			}
 		)
