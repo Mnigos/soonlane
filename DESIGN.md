@@ -92,6 +92,10 @@ components:
     height: '36px'
   day-heading:
     backgroundColor: 'transparent'
+    textColor: '{colors.muted-foreground}'
+    padding: '0 0 8px'
+  day-heading-today:
+    backgroundColor: 'transparent'
     textColor: '{colors.foreground}'
     padding: '0 0 8px'
 ---
@@ -147,7 +151,7 @@ The date picker's quick date icons use Todoist's own icon colors: the green cale
 - **Tooltip** (`tooltip`, #3d3d3d): tooltip background.
 - **Ink** (`foreground`, #e8e8e8): task titles and headings.
 - **Chalk** (`secondary-foreground`, #cbcbcb): composer chip labels and icons, menu items, the cancel ×.
-- **Pencil** (`muted-foreground`, #a3a3a3): month label, week strip days, secondary text.
+- **Pencil** (`muted-foreground`, #a3a3a3): month label, week strip days, headings of days after today, secondary text.
 - **Faint** (`faint-foreground`, #6f6f6f): past days, empty states, placeholders.
 
 ### Named Rules
@@ -190,7 +194,7 @@ Flat. The layered surfaces are the mobile drawer and the Add task dialog (both o
 
 ### Day sections
 
-- Heading with a hairline below, then task rows, then a muted "+ Add task" row whose plus turns into a filled red circle on hover.
+- Heading with a hairline below (today's in ink, later days in pencil, like Todoist), then task rows, then a muted "+ Add task" row whose plus turns into a filled red circle on hover.
 - The Overdue section has a collapse chevron and a coral "Reschedule" action on the right.
 
 ### Week strip
