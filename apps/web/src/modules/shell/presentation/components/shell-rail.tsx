@@ -71,9 +71,9 @@ export function ShellRail({
 			</button>
 
 			<nav aria-label="Views" className="flex flex-col gap-0.5">
-				<RailNavLink icon={CalendarDays} label="Upcoming" to="/" />
+				<RailNavLink icon={CalendarDays} label="Upcoming" to="/app" />
 
-				<RailNavLink icon={CalendarFold} label="Today" to="/today" />
+				<RailNavLink icon={CalendarFold} label="Today" to="/app/today" />
 			</nav>
 
 			<button

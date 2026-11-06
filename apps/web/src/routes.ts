@@ -1,10 +1,12 @@
-import { index, layout, rootRoute, route } from '@tanstack/virtual-file-routes'
+import { index, rootRoute, route } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('routes/__root.tsx', [
-	layout('shell', 'modules/shell/presentation/routes/shell.route.tsx', [
+	index('modules/shell/presentation/routes/root-redirect.route.tsx'),
+	route('/app', 'modules/shell/presentation/routes/shell.route.tsx', [
 		index('modules/tasks/presentation/routes/upcoming.route.tsx'),
 		route('/today', 'modules/tasks/presentation/routes/today.route.tsx'),
 	]),
+	route('/today', 'modules/shell/presentation/routes/legacy-today.route.tsx'),
 	route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
 	route(
 		'/desktop/sign-in',

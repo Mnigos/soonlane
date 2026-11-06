@@ -9,7 +9,7 @@ const getSidebarPreference = createIsomorphicFn()
 	.server(() => readSidebarPreference(getRequestHeader('cookie') ?? ''))
 	.client(() => readSidebarPreference(document.cookie))
 
-export const Route = createFileRoute('/_shell')({
+export const Route = createFileRoute('/app')({
 	beforeLoad: ({ context }) => {
 		if (!context.me.user) throw redirect({ to: '/login' })
 

@@ -66,7 +66,7 @@ export const MainWindowLive = Layer.effect(
 		const window = yield* Effect.sync(() => {
 			const created = new BrowserWindow({
 				title: WINDOW_TITLE,
-				url: appUrl.href,
+				url: new URL('/app', appUrl).href,
 				frame: restoreFrame(
 					Option.getOrUndefined(saved),
 					Screen.getAllDisplays().map(({ workArea }) => workArea)
