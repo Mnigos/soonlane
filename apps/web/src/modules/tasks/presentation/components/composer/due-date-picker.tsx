@@ -15,6 +15,11 @@ import {
 	getDueChipLabel,
 } from '../../../domain/due-label.helper'
 import { isInCalendar } from '../../../domain/month-calendar.helper'
+import {
+	PICKER_FIELD_CLASS,
+	PICKER_FIELD_ROW_CLASS,
+	PICKER_NOTE_CLASS,
+} from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { DueDateShortcuts } from './due-date-shortcuts'
 import { MonthCalendar } from './month-calendar'
@@ -50,12 +55,12 @@ export function DueDatePicker({
 
 	return (
 		<div className="flex min-h-0 flex-col">
-			<div className="flex h-10 shrink-0 items-center border-b px-3">
+			<div className={PICKER_FIELD_ROW_CLASS}>
 				<input
 					aria-describedby={isEdited ? matchId : undefined}
 					aria-invalid={isEdited && !match}
 					aria-label="Due date"
-					className="w-full bg-transparent text-sm text-foreground outline-none placeholder:text-faint-foreground"
+					className={PICKER_FIELD_CLASS}
 					onChange={event => setText(event.target.value)}
 					onFocus={event => event.currentTarget.select()}
 					onKeyDown={applyOnEnter}
@@ -85,9 +90,7 @@ export function DueDatePicker({
 							{formatWeekdayDayMonth(match)}
 						</button>
 					) : (
-						<p className="flex h-8 items-center px-3 text-label text-faint-foreground">
-							No date found
-						</p>
+						<p className={PICKER_NOTE_CLASS}>No date found</p>
 					)}
 				</div>
 			)}
