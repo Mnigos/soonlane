@@ -12,6 +12,7 @@ import {
 	Plus,
 	Tag,
 } from 'lucide-react'
+import { DesktopDragRegion } from './desktop-drag-region'
 import { RailNavLink } from './rail-nav-link'
 
 interface ShellRailProps {
@@ -30,8 +31,10 @@ export function ShellRail({
 	return (
 		<SidebarRail
 			aria-label="Sidebar"
-			className={cn('fixed inset-y-0 left-0 z-20', className)}
+			className={cn('fixed inset-y-0 left-0 z-20 desktop:pt-8', className)}
 		>
+			<DesktopDragRegion />
+
 			<button
 				aria-label={`${user.name}, open the account menu`}
 				className={sidebarRailItemVariants()}

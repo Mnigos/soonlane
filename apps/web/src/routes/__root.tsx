@@ -67,7 +67,8 @@ function RootError({ error }: Readonly<ErrorComponentProps>) {
 
 function RootDocument({ children }: Readonly<PropsWithChildren>) {
 	return (
-		<html lang="en">
+		// The desktop shell sets data-shell on <html> before hydration.
+		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />
 			</head>

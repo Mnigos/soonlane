@@ -10,6 +10,7 @@ import {
 	saveSidebarPreference,
 } from '../helpers/sidebar-preference.helper'
 import type { SidebarPreference } from '../sidebar-preference.types'
+import { DesktopDragRegion } from './desktop-drag-region'
 import { ShellRail } from './shell-rail'
 import { ShellSidebar } from './shell-sidebar'
 
@@ -82,7 +83,9 @@ export function Shell({
 				user={user}
 			/>
 
-			<div className="flex h-12 items-center px-3 md:hidden">
+			<div className="relative flex h-12 items-center px-3 md:hidden desktop:pl-20">
+				<DesktopDragRegion className="w-20" />
+
 				<Button
 					aria-label="Open sidebar"
 					onClick={() => setIsOverlayOpen(true)}
