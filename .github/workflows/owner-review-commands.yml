@@ -16,7 +16,7 @@ jobs:
   review:
     name: Apply owner review command
     if: |
-      (github.repository == 'Mnigos/soonlane' || github.repository == 'Mnigos/soonlist') &&
+      github.repository == 'Mnigos/soonlane' &&
       (
         (
           github.event_name == 'issue_comment' &&

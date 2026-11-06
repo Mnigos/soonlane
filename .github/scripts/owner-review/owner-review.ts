@@ -2,7 +2,7 @@ import { execFile } from 'node:child_process'
 import { readFile } from 'node:fs/promises'
 import { promisify } from 'node:util'
 import { applyCommentCommand, applyReviewCommand } from './owner-review.handler'
-import { REPOSITORIES } from './owner-review.policy'
+import { REPOSITORY } from './owner-review.policy'
 import type {
 	ActionsContext,
 	IssueComment,
@@ -36,7 +36,7 @@ export async function runOwnerReviewCommands({
 	const { eventName, payload } = context
 	const logOnly = (reason: string) => log(`Skipped: ${reason}`)
 
-	if (!REPOSITORIES.has(context.repository.toLowerCase()))
+	if (context.repository.toLowerCase() !== REPOSITORY)
 		return logOnly('unsupported repository')
 
 	const pullNumber = getEventPullNumber(context)
