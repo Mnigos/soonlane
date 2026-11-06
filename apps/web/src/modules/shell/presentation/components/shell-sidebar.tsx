@@ -26,6 +26,7 @@ export function ShellSidebar({
 		>
 			<div className="flex items-start justify-between gap-2 pt-0.5">
 				<UserMenu user={user} />
+
 				<Button
 					aria-label="Collapse sidebar"
 					onClick={onCollapse}
@@ -54,6 +55,7 @@ export function ShellSidebar({
 					onNavigate={onNavigate}
 					to="/"
 				/>
+
 				<SidebarNavLink
 					icon={CalendarFold}
 					label="Today"

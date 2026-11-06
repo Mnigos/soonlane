@@ -32,11 +32,13 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 					)}
 				/>
 			</button>
+
 			{isOpen && (
 				<div className="flex flex-col gap-0.5 py-1" id="user-menu">
 					<p className="truncate px-2 py-1 text-caption text-muted-foreground">
 						{user.email}
 					</p>
+
 					<button
 						className="flex h-9 cursor-pointer items-center gap-2.5 rounded-md px-2 text-sm transition-colors hover:bg-hover disabled:opacity-50"
 						disabled={isPending}
@@ -46,6 +48,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 						<LogOut aria-hidden className="size-4 text-muted-foreground" />
 						{isPending ? 'Signing out…' : 'Sign out'}
 					</button>
+
 					{isError && (
 						<p className="px-2 text-caption text-danger" role="alert">
 							Sign-out failed. Try again.

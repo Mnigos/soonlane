@@ -137,6 +137,10 @@ export default defineConfig({
 			rules: { 'soonlist/hook-query-naming': 'error' },
 		},
 		{
+			files: ['apps/**/*.tsx', 'packages/**/*.tsx'],
+			rules: { 'soonlist/jsx-sibling-spacing': 'error' },
+		},
+		{
 			files: ['apps/web/**', 'packages/*/src/**', 'packages/*/schema/**'],
 			rules: { 'oxc/no-barrel-file': ['error', { threshold: 0 }] },
 		},

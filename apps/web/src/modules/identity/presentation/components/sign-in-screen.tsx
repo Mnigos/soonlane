@@ -32,6 +32,7 @@ export function SignInScreen({
 		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 px-6 py-16">
 			<div className="flex flex-col gap-1.5">
 				<h1 className="text-2xl font-bold tracking-tight">Soonlist</h1>
+
 				<p className="text-sm text-muted-foreground">
 					Your tasks, from today onwards.
 				</p>
@@ -50,6 +51,7 @@ export function SignInScreen({
 			) : (
 				<div className="flex flex-col gap-1 text-sm" role="note">
 					<p className="font-semibold">Sign-in is disabled</p>
+
 					<p className="text-muted-foreground">
 						Google is not configured on this server. Set the environment
 						variables and restart the app.
