@@ -13,6 +13,7 @@ import {
 	useRef,
 	useState,
 } from 'react'
+import { usePickedLabels } from '@/modules/labels/presentation/hooks/use-picked-labels'
 import {
 	getEditedDueDate,
 	getEditedRule,
@@ -70,6 +71,7 @@ export function TaskComposer({
 		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
 	)
 	const [labels, setLabels] = useState<Label[]>([])
+	const pickedLabels = usePickedLabels(labels)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
@@ -128,7 +130,7 @@ export function TaskComposer({
 				dueTime,
 				priority,
 				repeat,
-				labelIds: labels.map(({ id }) => id),
+				labelIds: pickedLabels.map(({ id }) => id),
 			},
 			{
 				onSuccess: () => {
@@ -237,7 +239,7 @@ export function TaskComposer({
 					<LabelsChip
 						onChange={setLabels}
 						onKeyDown={cancelOnEscape}
-						value={labels}
+						value={pickedLabels}
 					/>
 				)}
 
