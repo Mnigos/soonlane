@@ -4,5 +4,5 @@
     "types": ["bun"],
     "allowImportingTsExtensions": true
   },
-  "include": ["*.ts", "*.mts", ".github/scripts/**/*.ts"]
+  "include": ["*.ts", "*.mts", "scripts/**/*.ts", ".github/scripts/**/*.ts"]
 }

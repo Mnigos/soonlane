@@ -1,0 +1,44 @@
+# git-cliff configuration. CHANGELOG.md and version.json are written only by the release workflow.
+
+[changelog]
+header = """
+# Changelog
+
+Written by the release workflow from conventional commits; never edit this file by hand.
+
+"""
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}](https://github.com/Mnigos/soonlist/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+{% for group, commits in commits | group_by(attribute="group") %}
+{% for scope, scoped in commits | group_by(attribute="scope") %}
+### {{ group | striptags | trim }} › {{ scope }}
+
+{% for commit in scoped -%}
+- {{ commit.message | split(pat="\n") | first | upper_first | trim }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/Mnigos/soonlist/commit/{{ commit.id }}))
+{% endfor %}
+{% endfor %}\
+{% endfor %}\
+{% endif %}\
+"""
+footer = ""
+trim = true
+postprocessors = [
+	{ pattern = '\n{3,}', replace = "\n\n" },
+	{ pattern = '\(#([0-9]+)\)', replace = "([#${1}](https://github.com/Mnigos/soonlist/pull/${1}))" },
+]
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+# Stable releases only; nightly prereleases use --tag-pattern on the command line.
+tag_pattern = "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+topo_order = false
+sort_commits = "oldest"
+commit_parsers = [
+	{ message = "^feat", group = "<!-- 0 -->Features", default_scope = "general" },
+	{ message = "^fix", group = "<!-- 1 -->Bug fixes", default_scope = "general" },
+	{ message = "^perf", group = "<!-- 2 -->Performance", default_scope = "general" },
+	{ message = ".*", skip = true },
+]
