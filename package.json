@@ -42,7 +42,7 @@
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
-    "typecheck": "turbo typecheck",
+    "typecheck": "turbo typecheck && tsc --noEmit -p tsconfig.json",
     "check": "ultracite check",
     "check:fix": "ultracite fix --unsafe",
     "prepare": "husky",
