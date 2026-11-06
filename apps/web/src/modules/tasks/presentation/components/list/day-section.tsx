@@ -2,7 +2,7 @@ import type { Task } from '@soonlist/contracts'
 import type { CalendarDate } from '@soonlist/domain'
 import { type Ref, useState } from 'react'
 import { getDayHeading } from '../../../domain/day-label.helper'
-import { TaskQuickAdd } from '../task/task-quick-add'
+import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from './add-task-row'
 import { TaskList } from './task-list'
 
@@ -48,9 +48,10 @@ export function DaySection({
 			/>
 
 			{isAdding ? (
-				<TaskQuickAdd
+				<TaskComposer
 					defaultDueDate={date}
 					onCancel={() => setIsAdding(false)}
+					today={today}
 				/>
 			) : (
 				<AddTaskRow onClick={() => setIsAdding(true)} />
