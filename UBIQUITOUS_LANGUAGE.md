@@ -11,9 +11,9 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Today         | "Today"                                    | `useToday`, `getToday`                   | The owner's local calendar day, read in the browser. Never the server's date.             |
 | Upcoming      | "Upcoming"                                 | `upcoming.route`, `getUpcomingDays`      | The default view: Overdue, then every day from today to the end of the eighth week ahead. |
 | Day heading   | "5 Nov · Today · Thursday"                 | `getDayHeading`                          | Date, relative name for today and tomorrow, weekday.                                      |
-| Overdue       | "Overdue", "Reschedule"                    | `OverdueSection`                         | Unfinished tasks due before today. Shown only on the current week.                        |
+| Overdue       | "Overdue", "Reschedule"                    | `OverdueSection`                         | Unfinished tasks due before today, listed once above the days.                            |
 | Week          | week strip, "Today", previous and next day | `getWeekStrip`, `getWeekStart`           | Monday to Sunday; the strip shows the active day's week.                                  |
-| Active day    | red badge in the week strip                | `useActiveDay`                           | The day whose section sits at the top of the Upcoming list; not the same as Today.        |
+| Active day    | underline in the week strip                | `useActiveDay`                           | The day whose section sits at the top of the Upcoming list; not the same as Today.        |
 | Owner         | name and avatar in the sidebar             | `OWNER_EMAIL`, `isOwner`, `requireOwner` | The one Google account allowed in.                                                        |
 | Label         | "Labels"                                   | `label` (later)                          | A tag on tasks, listed in the sidebar. Not a project.                                     |
 
