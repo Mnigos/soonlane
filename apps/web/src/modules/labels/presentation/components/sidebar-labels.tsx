@@ -67,8 +67,8 @@ export function SidebarLabels({ onNavigate }: Readonly<SidebarLabelsProps>) {
 					label="Label name"
 					mutation={createLabel}
 					onCancel={stopAdding}
-					onSave={name =>
-						createLabel.mutate({ name }, { onSuccess: stopAdding })
+					onSave={(name, onSettled) =>
+						createLabel.mutate({ name }, { onSuccess: stopAdding, onSettled })
 					}
 				/>
 			)}

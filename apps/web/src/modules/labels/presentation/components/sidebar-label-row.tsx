@@ -40,8 +40,9 @@ export function SidebarLabelRow({
 		updateLabel.reset()
 	}
 
-	function rename(name: string) {
+	function rename(name: string, onSettled: () => void) {
 		if (name === label.name) {
+			onSettled()
 			stopRenaming()
 			return
 		}
@@ -58,6 +59,7 @@ export function SidebarLabelRow({
 							replace: true,
 						})
 				},
+				onSettled,
 			}
 		)
 	}
