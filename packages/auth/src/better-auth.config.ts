@@ -6,8 +6,8 @@ import { APIError } from 'better-auth/api'
 import { oAuthProxy } from 'better-auth/plugins/oauth-proxy'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { canSignUp } from './auth-policy.helper'
 import { desktopSignIn } from './desktop-sign-in.handler'
-import { isOwner } from './owner.helper'
 
 export const AUTH_BASE_PATH = '/api/auth'
 
@@ -34,7 +34,7 @@ export interface CreateAuthOptions {
 	baseUrl: string
 	trustedOrigins: readonly string[]
 	secret: string
-	ownerEmail: string
+	allowedEmails: readonly string[]
 	google?: GoogleProviderOptions
 	oauthProxy?: OAuthProxyOptions
 	log: AuthLogger
@@ -46,10 +46,10 @@ function redactLogArgument(argument: unknown) {
 }
 
 /**
- * Better Auth for the owner only: Google sign-in, uuid ids, the user-create
- * hook that rejects every other account, the OAuth proxy that lets
- * Vercel previews sign in through the production callback, and the
- * hand-off of a browser sign-in to the desktop app.
+ * Better Auth for anyone with a verified Google address (optionally only the
+ * allowed ones): uuid ids, the OAuth proxy that lets Vercel previews sign in
+ * through the production callback, and the hand-off of a browser sign-in to
+ * the desktop app.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
@@ -76,9 +76,10 @@ export function createAuth(options: CreateAuthOptions) {
 			user: {
 				create: {
 					before: async candidate => {
-						if (!isOwner(candidate, options.ownerEmail))
+						if (!canSignUp(candidate, options.allowedEmails))
 							throw new APIError('FORBIDDEN', {
-								message: ACCESS_ERROR_MESSAGES.FORBIDDEN,
+								code: 'SIGN_UPS_CLOSED',
+								message: ACCESS_ERROR_MESSAGES.SIGN_UPS_CLOSED,
 							})
 
 						return { data: candidate }

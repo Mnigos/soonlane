@@ -1,3 +1,4 @@
+import { parseAllowedEmails } from '@soonlane/auth'
 import { Config, Context, Layer, Option, Redacted } from 'effect'
 import {
 	resolveBaseUrl,
@@ -12,7 +13,7 @@ export class AppConfig extends Context.Service<
 		readonly baseUrl: string
 		readonly trustedOrigins: readonly string[]
 		readonly authSecret: Redacted.Redacted
-		readonly ownerEmail: string
+		readonly allowedEmails: readonly string[]
 		readonly googleClientId: string
 		readonly googleClientSecret: string
 		readonly oauthProxy: boolean
@@ -37,7 +38,10 @@ export const AppConfigLive = Layer.effect(
 		authSecret: Config.redacted('AUTH_SECRET').pipe(
 			Config.withDefault(Redacted.make(''))
 		),
-		ownerEmail: Config.string('OWNER_EMAIL').pipe(Config.withDefault('')),
+		allowedEmails: Config.string('ALLOWED_EMAILS').pipe(
+			Config.withDefault(''),
+			Config.map(parseAllowedEmails)
+		),
 		googleClientId: Config.string('GOOGLE_CLIENT_ID').pipe(
 			Config.withDefault('')
 		),

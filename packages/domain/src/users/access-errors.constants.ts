@@ -1,4 +1,4 @@
 export const ACCESS_ERROR_MESSAGES = {
 	UNAUTHORIZED: 'Sign in to continue.',
-	FORBIDDEN: 'Soonlane is only available to its owner.',
+	SIGN_UPS_CLOSED: 'Sign-ups are closed on this server.',
 } as const satisfies Record<string, string>

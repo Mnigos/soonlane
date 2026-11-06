@@ -26,7 +26,7 @@ function DesktopSignInRoute() {
 		<DesktopSignInScreen
 			challenge={challenge}
 			configured={me.configured}
-			hasOAuthError={Boolean(error)}
+			oauthError={error}
 			user={me.user}
 		/>
 	)

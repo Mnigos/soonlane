@@ -7,7 +7,7 @@ function toBase64Url(bytes: Uint8Array) {
 		.replace(/=+$/u, '')
 }
 
-/** The secret the desktop app keeps while the owner signs in in the browser (PKCE code verifier). */
+/** The secret the desktop app keeps while the user signs in in the browser (PKCE code verifier). */
 export function createCodeVerifier() {
 	return toBase64Url(crypto.getRandomValues(new Uint8Array(VERIFIER_BYTES)))
 }

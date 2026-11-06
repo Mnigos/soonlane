@@ -11,7 +11,7 @@ export const Route = createFileRoute('/login')({
 	beforeLoad: ({ context }) => {
 		if (context.me.user) throw redirect({ to: '/app' })
 	},
-	head: () => ({ meta: [{ title: 'Sign in · Soonlane' }] }),
+	head: () => ({ meta: [{ title: 'Log in · Soonlane' }] }),
 	component: LoginRoute,
 })
 
@@ -19,7 +19,5 @@ function LoginRoute() {
 	const { me } = Route.useRouteContext()
 	const { error } = Route.useSearch()
 
-	return (
-		<SignInScreen configured={me.configured} hasOAuthError={Boolean(error)} />
-	)
+	return <SignInScreen configured={me.configured} oauthError={error} />
 }

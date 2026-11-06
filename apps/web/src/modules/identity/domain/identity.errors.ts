@@ -8,11 +8,3 @@ export class Unauthorized extends Data.TaggedError('Unauthorized') {
 		return ACCESS_ERROR_MESSAGES.UNAUTHORIZED
 	}
 }
-
-export class Forbidden extends Data.TaggedError('Forbidden') {
-	readonly code = 'FORBIDDEN'
-
-	override get message() {
-		return ACCESS_ERROR_MESSAGES.FORBIDDEN
-	}
-}

@@ -1,31 +1,31 @@
 import { toCalendarDate, toLabelId, toTaskId } from '@soonlane/domain'
-import { requireOwner } from '@/modules/identity/presentation/require-owner.middleware'
+import { requireUser } from '@/modules/identity/presentation/require-user.middleware'
 import { os } from '@/platform/rpc/rpc.base'
 import { TasksService } from '../application/tasks.service'
 
 export const tasksRouter = {
-	list: os.tasks.list.use(requireOwner).effect(function* ({ context, input }) {
+	list: os.tasks.list.use(requireUser).effect(function* ({ context, input }) {
 		const tasksService = yield* TasksService
 
-		return yield* tasksService.list(context.owner.id, input)
+		return yield* tasksService.list(context.user.id, input)
 	}),
-	listByLabel: os.tasks.listByLabel.use(requireOwner).effect(function* ({
+	listByLabel: os.tasks.listByLabel.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
 		const tasksService = yield* TasksService
 
-		return yield* tasksService.listByLabel(context.owner.id, input)
+		return yield* tasksService.listByLabel(context.user.id, input)
 	}),
-	create: os.tasks.create.use(requireOwner).effect(function* ({
+	create: os.tasks.create.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
 		const tasksService = yield* TasksService
 
-		return { task: yield* tasksService.create(context.owner.id, input) }
+		return { task: yield* tasksService.create(context.user.id, input) }
 	}),
-	update: os.tasks.update.use(requireOwner).effect(function* ({
+	update: os.tasks.update.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
@@ -33,26 +33,26 @@ export const tasksRouter = {
 
 		return {
 			task: yield* tasksService.update(
-				context.owner.id,
+				context.user.id,
 				toTaskId(input.id),
 				input
 			),
 		}
 	}),
-	complete: os.tasks.complete.use(requireOwner).effect(function* ({
+	complete: os.tasks.complete.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
 		const tasksService = yield* TasksService
 
 		return {
-			task: yield* tasksService.complete(context.owner.id, toTaskId(input.id), {
+			task: yield* tasksService.complete(context.user.id, toTaskId(input.id), {
 				today: input.today ? toCalendarDate(input.today) : undefined,
 				dueDate: input.dueDate ? toCalendarDate(input.dueDate) : undefined,
 			}),
 		}
 	}),
-	uncomplete: os.tasks.uncomplete.use(requireOwner).effect(function* ({
+	uncomplete: os.tasks.uncomplete.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
@@ -60,21 +60,21 @@ export const tasksRouter = {
 
 		return {
 			task: yield* tasksService.uncomplete(
-				context.owner.id,
+				context.user.id,
 				toTaskId(input.id),
 				input.dueDate ? toCalendarDate(input.dueDate) : undefined
 			),
 		}
 	}),
-	reschedule: os.tasks.reschedule.use(requireOwner).effect(function* ({
+	reschedule: os.tasks.reschedule.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
 		const tasksService = yield* TasksService
 
-		return { tasks: yield* tasksService.reschedule(context.owner.id, input) }
+		return { tasks: yield* tasksService.reschedule(context.user.id, input) }
 	}),
-	assignLabel: os.tasks.assignLabel.use(requireOwner).effect(function* ({
+	assignLabel: os.tasks.assignLabel.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
@@ -82,13 +82,13 @@ export const tasksRouter = {
 
 		return {
 			task: yield* tasksService.assignLabel(
-				context.owner.id,
+				context.user.id,
 				toTaskId(input.id),
 				toLabelId(input.labelId)
 			),
 		}
 	}),
-	unassignLabel: os.tasks.unassignLabel.use(requireOwner).effect(function* ({
+	unassignLabel: os.tasks.unassignLabel.use(requireUser).effect(function* ({
 		context,
 		input,
 	}) {
@@ -96,7 +96,7 @@ export const tasksRouter = {
 
 		return {
 			task: yield* tasksService.unassignLabel(
-				context.owner.id,
+				context.user.id,
 				toTaskId(input.id),
 				toLabelId(input.labelId)
 			),
