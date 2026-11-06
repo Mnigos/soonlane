@@ -12,8 +12,12 @@ const COMPONENT_FILE_PATTERN =
 const HOOK_FILE_PATTERN = /^use-[a-z0-9-]+\.tsx?$/u
 const GENERATED_PATTERN = /\.(?:gen|d)\.ts$/u
 const IGNORED_SEGMENTS = ['routes', 'scripts'] as const
-// Entry points whose names TanStack Start and the virtual route config fix.
-const FRAMEWORK_ENTRIES = ['/src/router.tsx', '/src/routes.ts'] as const
+// Entry points whose names TanStack Start, the virtual route config and the Electrobun config fix.
+const FRAMEWORK_ENTRIES = [
+	'/src/router.tsx',
+	'/src/routes.ts',
+	'apps/desktop/src/main.ts',
+] as const
 
 function isIgnored(file: FilePath) {
 	return (
