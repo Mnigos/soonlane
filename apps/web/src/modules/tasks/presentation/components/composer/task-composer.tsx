@@ -44,6 +44,8 @@ export function TaskComposer({
 }: Readonly<TaskComposerProps>) {
 	const [title, setTitle] = useState('')
 	const [description, setDescription] = useState('')
+	const [dueDate, setDueDate] = useState(defaultDueDate)
+	const [dueTime, setDueTime] = useState<string>()
 	const [priority, setPriority] = useState<TaskPriority>(DEFAULT_TASK_PRIORITY)
 	const titleRef = useRef<HTMLInputElement>(null)
 	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
@@ -68,13 +70,15 @@ export function TaskComposer({
 			{
 				title,
 				description: description.trim() || undefined,
-				dueDate: defaultDueDate,
+				dueDate,
+				dueTime,
 				priority,
 			},
 			{
 				onSuccess: () => {
 					setTitle('')
 					setDescription('')
+					setDueTime(undefined)
 					setPriority(DEFAULT_TASK_PRIORITY)
 					titleRef.current?.focus()
 					onCreated?.()
@@ -125,7 +129,14 @@ export function TaskComposer({
 			</div>
 
 			<div className="flex flex-wrap items-center gap-2 px-3 pb-3">
-				<DueDateChip dueDate={defaultDueDate} today={today} />
+				<DueDateChip
+					dueDate={dueDate}
+					dueTime={dueTime}
+					onDateChange={setDueDate}
+					onKeyDown={cancelOnEscape}
+					onTimeChange={setDueTime}
+					today={today}
+				/>
 
 				<PriorityChip
 					onChange={setPriority}
