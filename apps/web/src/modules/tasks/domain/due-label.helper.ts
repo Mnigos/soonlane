@@ -48,16 +48,23 @@ export function getDueLabel(
 	return { text: dueTime, tone }
 }
 
+/** "14 Nov", with the year when it is not this year: "6 Jan 2027". */
+export function formatDueDate(dueDate: CalendarDate, today: CalendarDate) {
+	const year = dueDate.slice(0, 4)
+
+	return year === today.slice(0, 4)
+		? formatDayMonth(dueDate)
+		: `${formatDayMonth(dueDate)} ${year}`
+}
+
 function getDueDateName(dueDate: CalendarDate, today: CalendarDate) {
 	const relative = getRelativeDayName(dueDate, today)
 	if (relative) return relative
 	// A weekday name is unambiguous only within the next six days.
 	if (!isBefore(dueDate, today) && isBefore(dueDate, addDays(today, WEEK_DAYS)))
 		return formatWeekday(dueDate, 'long')
-	if (dueDate.slice(0, 4) !== today.slice(0, 4))
-		return `${formatDayMonth(dueDate)} ${dueDate.slice(0, 4)}`
 
-	return formatDayMonth(dueDate)
+	return formatDueDate(dueDate, today)
 }
 
 /** The date chip of the task composer, e.g. "Today", "Monday", "14 Nov" or "Tomorrow 11:30". */

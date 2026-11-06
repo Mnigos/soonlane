@@ -85,3 +85,53 @@ export function formatWeekday(date: CalendarDate, width: 'long' | 'short') {
 export function formatMonthYear(date: CalendarDate) {
 	return formatUtc(date, { month: 'long', year: 'numeric' })
 }
+
+/** "Mon 9 Nov", the hint next to a date shortcut. */
+export function formatWeekdayDayMonth(date: CalendarDate) {
+	return `${formatWeekday(date, 'short')} ${formatDayMonth(date)}`
+}
+
+export function formatMonthShortYear(date: CalendarDate) {
+	return formatUtc(date, { month: 'short', year: 'numeric' })
+}
+
+/** The weekday as a column of a Monday-first week, 0 for Monday to 6 for Sunday. */
+export function getWeekdayIndex(date: CalendarDate) {
+	return (
+		(toUtcDate(date).getUTCDay() - WEEK_STARTS_ON + DAYS_PER_WEEK) %
+		DAYS_PER_WEEK
+	)
+}
+
+export function getMonthStart(date: CalendarDate): CalendarDate {
+	return toCalendarDate(`${date.slice(0, 7)}-01`)
+}
+
+export function addMonths(monthStart: CalendarDate, months: number) {
+	const date = toUtcDate(monthStart)
+	date.setUTCMonth(date.getUTCMonth() + months, 1)
+
+	return fromUtcDate(date)
+}
+
+export function getDaysInMonth(monthStart: CalendarDate) {
+	return getDayOfMonth(addDays(addMonths(monthStart, 1), -1))
+}
+
+/** "Friday 6 November 2026", the accessible name of a calendar day. */
+export function formatLongDate(date: CalendarDate) {
+	return formatUtc(date, {
+		weekday: 'long',
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+	})
+}
+
+/** The same day of another month, or that month's last day when it is shorter. */
+export function shiftMonths(date: CalendarDate, months: number) {
+	const monthStart = addMonths(getMonthStart(date), months)
+	const day = Math.min(getDayOfMonth(date), getDaysInMonth(monthStart))
+
+	return addDays(monthStart, day - 1)
+}
