@@ -27,7 +27,7 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Desktop sign-in | "Continue with Google" in the app, "Open the desktop app" | `DesktopSignIn`, `desktopSignIn()`              | Signing the desktop app in through the system browser, which hands a sign-in code back through a `soonlane://` link.                 |
 | Sign-in code    | none                                                      | `createDesktopSignInCode`, `SIGN_IN_CODE_PARAM` | A one-time code the signed-in browser makes for the app's challenge; it lasts 2 minutes and is worthless without the app's verifier. |
 | Code verifier   | none                                                      | `createCodeVerifier`, `toCodeChallenge`         | The secret the desktop app keeps in memory during a desktop sign-in; the browser sees only its SHA-256 challenge.                    |
-| Label           | "Labels"                                                  | `label` (later)                                 | A tag on tasks, listed in the sidebar. Not a project.                                                                                |
+| Label           | "Labels"                                                  | `label` table, `Label`, `LABEL_COLORS`          | The owner's tag on tasks: a name unique ignoring case, an optional Todoist palette color. Not a project.                             |
 
 ## Codebase
 
