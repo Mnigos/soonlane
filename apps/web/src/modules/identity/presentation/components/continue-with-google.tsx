@@ -24,10 +24,15 @@ export function ContinueWithGoogle({
 }: Readonly<ContinueWithGoogleProps>) {
 	const { mutate, isPending, isSuccess, isError } = useMutation({
 		mutationFn: async () => {
-			const { error } = await startGoogleSignIn(redirects, {
-				loginHint,
-				fresh,
-			})
+			// A preview's Google errors return through production's callback, which follows relative URLs to production.
+			const { origin } = window.location
+			const { error } = await startGoogleSignIn(
+				{
+					callbackURL: new URL(redirects.callbackURL, origin).href,
+					errorCallbackURL: new URL(redirects.errorCallbackURL, origin).href,
+				},
+				{ loginHint, fresh }
+			)
 
 			if (error) throw new Error(SIGN_IN_FAILED)
 		},
