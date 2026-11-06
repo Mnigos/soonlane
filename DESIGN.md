@@ -14,6 +14,7 @@ colors:
   primary-foreground: '#ffffff'
   primary-muted: '#3d2523'
   danger: '#ff7066'
+  today: '#a970ff'
 typography:
   page-title:
     fontFamily: '-apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, sans-serif'
@@ -103,10 +104,11 @@ A restrained strategy: tinted neutrals plus one red accent well under 10% of any
 
 ### Primary
 
-- **Todoist Red** (`primary`, #dc4c3e): the "Add task" button, the today badge in the week strip, the plus icon in "Add task" rows, focus outlines.
+- **Todoist Red** (`primary`, #dc4c3e): the "Add task" button, the active-day badge in the week strip, the plus icon in "Add task" rows, focus outlines.
 - **Pressed Red** (`primary-hover`, #c3392c): hover and active state of red controls.
 - **Red Wash** (`primary-muted`, #3d2523): background of the active sidebar item.
 - **Overdue Coral** (`danger`, #ff7066): text of the active sidebar item, "Reschedule", overdue dates, errors.
+- **Today Purple** (`today`, #a970ff): today's label and dot in the week strip, wherever the list is scrolled. Nothing else.
 
 ### Neutral
 
@@ -151,7 +153,7 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 
 ### Sidebar
 
-- Full: 256px wide on `sidebar` grey. User row with the collapse button, then the red "Add task" action, nav items (34px rows, 18px icons) and labelled sections such as "Labels".
+- Full: 224px wide on `sidebar` grey. User row with the collapse button, then the red "Add task" action, nav items (32px rows, 18px icons) and labelled sections such as "Labels".
 - Rail: 56px of icon buttons (avatar, expand, Add task, Upcoming, Today, Labels), each with `aria-label` and a tooltip.
 - Active item: red wash background with coral text. Inactive: ink text, hover background.
 - The sidebar never moves the content: from `md` the page keeps a rail-wide gutter and the column is centered in the rest. From `xl` (1280px) the owner's choice, full or rail, is docked and remembered in a cookie; between `md` and `xl` the rail is docked and the full sidebar opens over the content; below `md` it is a drawer opened from the top-left button.
@@ -163,7 +165,8 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 
 ### Week strip
 
-- Seven equal columns, weekday short name plus day number. Past days faint and inert; today bold with the number on a red badge.
+- Seven equal columns for the active day's week: weekday short name and day number side by side, stacked below `sm`. Past days faint and inert.
+- The active day (the one at the top of the list) is bold with its number on the red badge; today is purple with a small purple dot, so both stay visible when they differ.
 
 ### Loading
 
