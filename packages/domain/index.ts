@@ -1,5 +1,7 @@
 export * from './src/dates/calendar-date.constants'
 export * from './src/dates/calendar-date.types'
+export * from './src/labels/label-id.types'
+export * from './src/labels/label.constants'
 export type * from './src/shared/brand.types'
 export * from './src/tasks/repeat-rule.constants'
 export * from './src/tasks/task-id.types'

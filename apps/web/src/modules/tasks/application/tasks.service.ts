@@ -8,12 +8,14 @@ import type {
 } from '@soonlane/contracts'
 import {
 	type CalendarDate,
+	type LabelId,
 	type TaskId,
 	toCalendarDate,
 	toTaskId,
 	type UserId,
 } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
+import { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import type { DbError } from '@/platform/db/db.errors'
 import {
 	getEditedDueDate,
@@ -54,6 +56,16 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: RescheduleTasksInput
 		) => Effect.Effect<Task[], DbError>
+		readonly assignLabel: (
+			ownerId: UserId,
+			id: TaskId,
+			labelId: LabelId
+		) => Effect.Effect<Task, TaskNotFound | LabelNotFound | DbError>
+		readonly unassignLabel: (
+			ownerId: UserId,
+			id: TaskId,
+			labelId: LabelId
+		) => Effect.Effect<Task, TaskNotFound | LabelNotFound | DbError>
 	}
 >()('soonlane/TasksService') {}
 
@@ -67,6 +79,10 @@ function requireTask(task: Task | undefined) {
 	return task ? Effect.succeed(task) : Effect.fail(new TaskNotFound())
 }
 
+function requireLabel(exists: boolean) {
+	return exists ? Effect.void : Effect.fail(new LabelNotFound())
+}
+
 export const TasksServiceLive = Layer.effect(
 	TasksService,
 	Effect.gen(function* () {
@@ -77,19 +93,19 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			{ from, to, today }: ListTasksInput
 		) {
-			const [overdue, scheduled] = yield* Effect.all(
-				[
-					repository.listOpenBefore({ ownerId, before: toCalendarDate(today) }),
-					repository.listOpenBetween({
-						ownerId,
-						from: toCalendarDate(from),
-						to: toCalendarDate(to),
-					}),
-				],
-				{ concurrency: 2 }
-			)
+			const tasks = yield* repository.listOpen({
+				ownerId,
+				before: toCalendarDate(today),
+				from: toCalendarDate(from),
+				to: toCalendarDate(to),
+			})
 
-			return { overdue, scheduled }
+			return {
+				overdue: tasks.filter(({ dueDate }) => dueDate < today),
+				scheduled: tasks.filter(
+					({ dueDate }) => dueDate >= from && dueDate <= to
+				),
+			}
 		})
 
 		const create = Effect.fn('TasksService.create')(function* (
@@ -194,6 +210,30 @@ export const TasksServiceLive = Layer.effect(
 			})
 		})
 
+		const assignLabel = Effect.fn('TasksService.assignLabel')(function* (
+			ownerId: UserId,
+			id: TaskId,
+			labelId: LabelId
+		) {
+			yield* requireLabel(yield* repository.labelExists({ ownerId, labelId }))
+
+			return yield* requireTask(
+				yield* repository.assignLabel({ ownerId, id, labelId })
+			)
+		})
+
+		const unassignLabel = Effect.fn('TasksService.unassignLabel')(function* (
+			ownerId: UserId,
+			id: TaskId,
+			labelId: LabelId
+		) {
+			yield* requireLabel(yield* repository.labelExists({ ownerId, labelId }))
+
+			return yield* requireTask(
+				yield* repository.unassignLabel({ ownerId, id, labelId })
+			)
+		})
+
 		return TasksService.of({
 			list,
 			create,
@@ -201,6 +241,8 @@ export const TasksServiceLive = Layer.effect(
 			complete,
 			uncomplete,
 			reschedule,
+			assignLabel,
+			unassignLabel,
 		})
 	})
 )

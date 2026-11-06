@@ -3,20 +3,16 @@ import type {
 	Task,
 	UpdateTaskInput,
 } from '@soonlane/contracts'
-import type { CalendarDate, TaskId, UserId } from '@soonlane/domain'
+import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
 import type { RepeatRule } from '../domain/repeat-rule.helper'
 
-export interface OpenTasksBetween {
-	ownerId: UserId
-	from: CalendarDate
-	to: CalendarDate
-}
-
-export interface OpenTasksBefore {
+export interface OpenTasks {
 	ownerId: UserId
 	before: CalendarDate
+	from: CalendarDate
+	to: CalendarDate
 }
 
 export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
@@ -54,15 +50,16 @@ export interface TaskReschedule {
 	dueDate: CalendarDate
 }
 
+export interface TaskLabel {
+	ownerId: UserId
+	id: TaskId
+	labelId: LabelId
+}
+
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
-		readonly listOpenBetween: (
-			params: OpenTasksBetween
-		) => Effect.Effect<Task[], DbError>
-		readonly listOpenBefore: (
-			params: OpenTasksBefore
-		) => Effect.Effect<Task[], DbError>
+		readonly listOpen: (params: OpenTasks) => Effect.Effect<Task[], DbError>
 		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
 		readonly update: (
@@ -77,5 +74,14 @@ export class TaskRepository extends Context.Service<
 		readonly rescheduleOpen: (
 			reschedule: TaskReschedule
 		) => Effect.Effect<Task[], DbError>
+		readonly labelExists: (
+			label: Omit<TaskLabel, 'id'>
+		) => Effect.Effect<boolean, DbError>
+		readonly assignLabel: (
+			taskLabel: TaskLabel
+		) => Effect.Effect<Task | undefined, DbError>
+		readonly unassignLabel: (
+			taskLabel: TaskLabel
+		) => Effect.Effect<Task | undefined, DbError>
 	}
 >()('soonlane/TaskRepository') {}
