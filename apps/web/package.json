@@ -1,6 +1,7 @@
 {
   "name": "@soonlist/web",
   "private": true,
+  "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite dev --port 3000 --strictPort",

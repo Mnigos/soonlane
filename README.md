@@ -54,3 +54,7 @@ Conventional commits. `bun install` sets up husky: `pre-commit` runs `lint-stage
 ## Deploy
 
 Vercel, Root Directory `apps/web`, Node 22 function in `fra1`, previews enabled. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
+
+## License
+
+Copyright (C) 2026 Igor Makowski. Soonlist is free software under the [GNU Affero General Public License v3.0 only](LICENSE) (`AGPL-3.0-only`): you may use, change and share it, and if you run a modified version as a network service, you must offer its source to its users.
