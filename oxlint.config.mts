@@ -138,7 +138,7 @@ export default defineConfig({
 			},
 		},
 		{
-			files: ['apps/web/scripts/**', 'packages/db/scripts/**'],
+			files: ['scripts/**', 'apps/web/scripts/**', 'packages/db/scripts/**'],
 			rules: { 'no-console': 'off' },
 		},
 		{
