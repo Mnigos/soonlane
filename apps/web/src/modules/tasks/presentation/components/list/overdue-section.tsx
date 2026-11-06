@@ -12,7 +12,7 @@ export function OverdueSection() {
 					<button
 						aria-controls="overdue-tasks"
 						aria-expanded={isOpen}
-						className="-ml-6 flex cursor-pointer items-center gap-1.5"
+						className="flex cursor-pointer items-center gap-1.5 md:-ml-6"
 						onClick={() => setIsOpen(open => !open)}
 						type="button"
 					>
