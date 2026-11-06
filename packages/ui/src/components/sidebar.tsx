@@ -1,5 +1,11 @@
 import { cva } from 'class-variance-authority'
-import { type ComponentProps, type PropsWithChildren, useId } from 'react'
+import { ChevronDown } from 'lucide-react'
+import {
+	type ComponentProps,
+	type PropsWithChildren,
+	type ReactNode,
+	useId,
+} from 'react'
 import { cn } from '../utils/cn.util'
 
 export function Sidebar({
@@ -37,24 +43,55 @@ export function SidebarRail({
 
 interface SidebarSectionProps extends PropsWithChildren {
 	label: string
+	isOpen: boolean
+	onOpenChange: (isOpen: boolean) => void
+	action?: ReactNode
 }
 
+/** A group whose heading collapses it, with an optional action (an icon button) at the right. */
 export function SidebarSection({
 	label,
+	isOpen,
+	onOpenChange,
+	action,
 	children,
 }: Readonly<SidebarSectionProps>) {
 	const headingId = useId()
+	const contentId = useId()
 
 	return (
-		<section aria-labelledby={headingId} className="flex flex-col gap-1">
-			<h2
-				className="px-2 text-sm font-semibold text-muted-foreground"
-				id={headingId}
-			>
-				{label}
-			</h2>
+		<section aria-labelledby={headingId} className="flex flex-col gap-0.5">
+			<div className="flex h-8 items-center justify-between gap-2">
+				<h2
+					className="text-sm font-semibold text-muted-foreground"
+					id={headingId}
+				>
+					<button
+						aria-controls={contentId}
+						aria-expanded={isOpen}
+						className="flex h-8 cursor-pointer items-center gap-1 rounded-md px-2 transition-colors hover:text-foreground"
+						onClick={() => onOpenChange(!isOpen)}
+						type="button"
+					>
+						{label}
+						<ChevronDown
+							aria-hidden
+							className={cn(
+								'size-4 transition-transform',
+								!isOpen && '-rotate-90'
+							)}
+						/>
+					</button>
+				</h2>
 
-			{children}
+				{action}
+			</div>
+
+			{isOpen && (
+				<div className="flex flex-col gap-0.5" id={contentId}>
+					{children}
+				</div>
+			)}
 		</section>
 	)
 }

@@ -1,0 +1,134 @@
+import type { ListedLabel } from '@soonlane/contracts'
+import { cn } from '@soonlane/ui/cn'
+import {
+	Menu,
+	MenuContent,
+	MenuItem,
+	MenuTrigger,
+} from '@soonlane/ui/components/menu'
+import { sidebarItemVariants } from '@soonlane/ui/components/sidebar'
+import { Link, useNavigate, useParams } from '@tanstack/react-router'
+import { Ellipsis, Pencil, Tag, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { getLabelColor } from '../helpers/label-color.helper'
+import { useUpdateLabelMutation } from '../hooks/use-update-label-mutation'
+import { DeleteLabelDialog } from './delete-label-dialog'
+import { LabelNameField } from './label-name-field'
+
+interface SidebarLabelRowProps {
+	label: ListedLabel
+	onNavigate: () => void
+}
+
+// Leaves room on touch screens, where the "…" button is always shown beside the count.
+const LINK_CLASS = 'pr-2 [&_svg]:size-4 pointer-coarse:pr-9'
+
+export function SidebarLabelRow({
+	label,
+	onNavigate,
+}: Readonly<SidebarLabelRowProps>) {
+	const [isRenaming, setIsRenaming] = useState(false)
+	const [isDeleting, setIsDeleting] = useState(false)
+	const updateLabel = useUpdateLabelMutation()
+	const navigate = useNavigate()
+	const isViewOpen = useParams({ strict: false }).name === label.name
+
+	function stopRenaming() {
+		setIsRenaming(false)
+		updateLabel.reset()
+	}
+
+	function rename(name: string) {
+		if (name === label.name) {
+			stopRenaming()
+			return
+		}
+
+		updateLabel.mutate(
+			{ id: label.id, name },
+			{
+				onSuccess: () => {
+					stopRenaming()
+					if (isViewOpen)
+						void navigate({
+							to: '/labels/$name',
+							params: { name },
+							replace: true,
+						})
+				},
+			}
+		)
+	}
+
+	if (isRenaming)
+		return (
+			<li>
+				<LabelNameField
+					color={label.color}
+					defaultValue={label.name}
+					label={`Rename ${label.name}`}
+					mutation={updateLabel}
+					onCancel={stopRenaming}
+					onSave={rename}
+				/>
+			</li>
+		)
+
+	return (
+		<li className="group/label relative">
+			<Link
+				activeProps={{
+					className: cn(sidebarItemVariants({ state: 'active' }), LINK_CLASS),
+				}}
+				inactiveProps={{
+					className: cn(sidebarItemVariants({ state: 'inactive' }), LINK_CLASS),
+				}}
+				onClick={onNavigate}
+				params={{ name: label.name }}
+				to="/labels/$name"
+			>
+				<Tag aria-hidden style={{ color: getLabelColor(label.color) }} />
+
+				<span className="truncate">{label.name}</span>
+
+				{label.openTaskCount > 0 && (
+					<span className="ml-auto text-caption text-muted-foreground group-focus-within/label:invisible group-hover/label:invisible group-has-data-popup-open/label:invisible pointer-coarse:visible">
+						{label.openTaskCount}
+					</span>
+				)}
+			</Link>
+
+			<Menu>
+				<MenuTrigger
+					aria-label={`More actions for ${label.name}`}
+					className="absolute top-1 right-1 flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-colors group-focus-within/label:opacity-100 group-hover/label:opacity-100 hover:bg-hover hover:text-foreground data-popup-open:opacity-100 pointer-coarse:opacity-100"
+				>
+					<Ellipsis aria-hidden className="size-4" />
+				</MenuTrigger>
+
+				<MenuContent align="start" className="w-40 py-1" side="right">
+					<MenuItem onClick={() => setIsRenaming(true)}>
+						<Pencil aria-hidden className="size-4" />
+						Rename
+					</MenuItem>
+
+					<MenuItem className="text-danger" onClick={() => setIsDeleting(true)}>
+						<Trash2 aria-hidden className="size-4" />
+						Delete
+					</MenuItem>
+				</MenuContent>
+			</Menu>
+
+			{isDeleting && (
+				<DeleteLabelDialog
+					label={label}
+					onClose={() => setIsDeleting(false)}
+					onDeleted={() => {
+						setIsDeleting(false)
+						if (isViewOpen) void navigate({ to: '/' })
+					}}
+				/>
+			)}
+		</li>
+	)
+}

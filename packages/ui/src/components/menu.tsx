@@ -44,6 +44,19 @@ export function MenuContent({
 const ITEM_CLASS =
 	'flex h-8 cursor-pointer items-center gap-3 pr-1.75 pl-2 text-label outline-none select-none data-disabled:pointer-events-none data-disabled:opacity-50 data-checked:bg-hover data-highlighted:bg-hover [&_svg]:shrink-0'
 
+export function MenuItem({
+	className,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.Item>>) {
+	return (
+		<BaseMenu.Item
+			className={cn(ITEM_CLASS, className)}
+			data-slot="menu-item"
+			{...props}
+		/>
+	)
+}
+
 /** A radio item that closes the menu when picked and shows a red check while selected. */
 export function MenuRadioItem({
 	className,
