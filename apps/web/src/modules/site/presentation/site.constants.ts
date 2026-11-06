@@ -14,4 +14,6 @@ interface SitePageLink {
 	to: LinkProps['to']
 }
 
-export const SITE_PAGE_LINKS: readonly SitePageLink[] = []
+export const SITE_PAGE_LINKS: readonly SitePageLink[] = [
+	{ label: 'Changelog', to: '/changelog' },
+]
