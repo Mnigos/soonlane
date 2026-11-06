@@ -5,6 +5,7 @@ import { Sidebar, SidebarSection } from '@soonlist/ui/components/sidebar'
 import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
 import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
 import { APP_COMMIT, APP_VERSION, RELEASES_URL } from '../build-info.constants'
+import { DesktopDragRegion } from './desktop-drag-region'
 import { SidebarNavLink } from './sidebar-nav-link'
 
 interface ShellSidebarProps {
@@ -25,8 +26,10 @@ export function ShellSidebar({
 	return (
 		<Sidebar
 			aria-label="Sidebar"
-			className={cn('fixed inset-y-0 left-0 z-40', className)}
+			className={cn('fixed inset-y-0 left-0 z-40 desktop:pt-8', className)}
 		>
+			<DesktopDragRegion />
+
 			<div className="flex items-start justify-between gap-2 pt-0.5">
 				<UserMenu user={user} />
 

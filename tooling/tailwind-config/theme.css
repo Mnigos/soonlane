@@ -1,6 +1,16 @@
 @import 'tailwindcss';
 @import './tokens.css';
 
+/* Inside the macOS desktop shell (apps/desktop marks <html data-shell="desktop">): room for the traffic lights. */
+@custom-variant desktop (&:where([data-shell='desktop'], [data-shell='desktop'] *));
+
+/* WebKit drops app-region from the CSSOM; the desktop shell's preload reads the custom property instead. */
+@utility app-drag {
+	-webkit-app-region: drag;
+	app-region: drag;
+	--electrobun-app-region: drag;
+}
+
 @layer base {
 	html {
 		color-scheme: dark;
