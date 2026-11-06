@@ -1,6 +1,6 @@
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
-import { useLocation } from '@tanstack/react-router'
+import { useRouter } from '@tanstack/react-router'
 import { useDeleteAccountMutation } from '../hooks/use-delete-account-mutation'
 import { ContinueWithGoogle } from './continue-with-google'
 
@@ -13,8 +13,12 @@ export function DeleteAccountDialog({
 	email,
 	onClose,
 }: Readonly<DeleteAccountDialogProps>) {
-	const location = useLocation()
+	const router = useRouter()
 	const { mutate, data, isPending, isError } = useDeleteAccountMutation()
+	const reopenURL = router.buildLocation({
+		to: '.',
+		search: search => ({ ...search, deleteAccount: true }),
+	}).href
 
 	return (
 		<Dialog className="max-w-md" label="Delete account" onClose={onClose}>
@@ -23,8 +27,8 @@ export function DeleteAccountDialog({
 					<h2 className="text-base font-semibold">Delete your account?</h2>
 
 					<p className="text-sm text-muted-foreground">
-						This deletes your account and all your tasks right away. It cannot
-						be undone.
+						This deletes {email} and all its tasks right away. It cannot be
+						undone.
 					</p>
 				</div>
 
@@ -38,8 +42,8 @@ export function DeleteAccountDialog({
 							fresh
 							loginHint={email}
 							redirects={{
-								callbackURL: location.href,
-								errorCallbackURL: '/login',
+								callbackURL: reopenURL,
+								errorCallbackURL: reopenURL,
 							}}
 						/>
 					</div>

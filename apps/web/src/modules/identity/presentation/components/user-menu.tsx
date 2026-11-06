@@ -18,18 +18,11 @@ interface UserMenuProps {
 
 export function UserMenu({ user }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
-	const { deleteAccount: isDeleting } = useSearch({ from: '/_session/app' })
+	// The fresh sign-in's callback URL carries the flag, so the return from Google reopens the dialog.
+	const { deleteAccount } = useSearch({ from: '/_session/app' })
+	const [isDeleting, setIsDeleting] = useState(deleteAccount === true)
 	const navigate = useNavigate()
 	const { mutate: signOut, isPending, isError } = useSignOutMutation()
-
-	// The open dialog lives in the URL, so the fresh sign-in's return reopens it.
-	function setDeleteAccount(deleteAccount: true | undefined) {
-		void navigate({
-			to: '.',
-			search: search => ({ ...search, deleteAccount }),
-			replace: true,
-		})
-	}
 
 	return (
 		<div className="flex min-w-0 flex-col">
@@ -77,7 +70,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 
 					<button
 						className="flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-danger transition-colors hover:bg-hover"
-						onClick={() => setDeleteAccount(true)}
+						onClick={() => setIsDeleting(true)}
 						type="button"
 					>
 						<Trash2 aria-hidden className="size-4" />
@@ -95,7 +88,17 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 			{isDeleting && (
 				<DeleteAccountDialog
 					email={user.email}
-					onClose={() => setDeleteAccount(undefined)}
+					onClose={() => {
+						setIsDeleting(false)
+
+						if (deleteAccount)
+							void navigate({
+								to: '.',
+								search: search => ({ ...search, deleteAccount: undefined }),
+								replace: true,
+								resetScroll: false,
+							})
+					}}
 				/>
 			)}
 		</div>
