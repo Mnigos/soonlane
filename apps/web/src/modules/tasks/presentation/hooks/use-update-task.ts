@@ -1,4 +1,5 @@
 import { type ListTasksOutput, listTasksInputSchema } from '@soonlane/contracts'
+import { toCalendarDate } from '@soonlane/domain'
 import {
 	notifyManager,
 	useMutation,
@@ -7,6 +8,7 @@ import {
 import { toast } from 'sonner'
 import { z } from 'zod'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
+import { getEditedRule } from '../../domain/repeat-rule.helper'
 import {
 	findTaskPlacement,
 	placeTask,
@@ -24,6 +26,8 @@ export function useUpdateTask() {
 	const update = useMutation(
 		orpcQuery.tasks.update.mutationOptions({
 			onMutate: async ({ id, ...changes }) => {
+				// An Undo from an earlier completion would overwrite this edit's date.
+				toast.dismiss(id)
 				await queryClient.cancelQueries({ queryKey: listKey })
 				const lists = queryClient.getQueriesData<ListTasksOutput>({
 					queryKey: listKey,
@@ -36,12 +40,19 @@ export function useUpdateTask() {
 
 				if (!current) return { previous }
 
-				// Like the server, an absent description or time clears it.
+				// Like the server, an absent description or time clears it; an absent rule stays and null clears it.
 				const task = {
 					...current,
 					description: undefined,
 					dueTime: undefined,
 					...changes,
+					repeat: getEditedRule(
+						current,
+						toCalendarDate(changes.dueDate),
+						changes.repeat === undefined
+							? current.repeat
+							: (changes.repeat ?? undefined)
+					),
 				}
 
 				// One render for every list (here and in the rollback), so a moved task never shows twice and its row can take focus there.

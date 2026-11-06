@@ -5,9 +5,11 @@ import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Calendar, Check, PencilLine } from 'lucide-react'
 import { useState } from 'react'
 import { getDueLabel } from '../../../domain/due-label.helper'
+import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
+import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
 
 interface TaskItemProps {
@@ -47,6 +49,12 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const [isEditing, setIsEditing] = useState(false)
 	const [shouldFocusEdit, setShouldFocusEdit] = useState(false)
 	const due = getDueLabel(toCalendarDate(task.dueDate), task.dueTime, today)
+	const repeatText =
+		task.repeat &&
+		formatRepeatRule(
+			{ ...task.repeat, anchor: toCalendarDate(task.repeat.anchor) },
+			'long'
+		)
 
 	function closeComposer() {
 		setIsEditing(false)
@@ -93,15 +101,28 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 					</p>
 				)}
 
-				{due && (
+				{(due || repeatText) && (
 					<p
 						className={cn(
 							'flex items-center gap-1 text-caption',
-							DUE_TONE_CLASSES[due.tone]
+							due ? DUE_TONE_CLASSES[due.tone] : 'text-muted-foreground'
 						)}
 					>
-						<Calendar aria-hidden className="size-3" />
-						{due.text}
+						{due && (
+							<>
+								<Calendar aria-hidden className="size-3" />
+
+								{due.text}
+							</>
+						)}
+
+						{repeatText && (
+							<>
+								<RepeatIcon className="size-3" />
+
+								<span className="sr-only">Repeats: {repeatText}</span>
+							</>
+						)}
 					</p>
 				)}
 			</div>

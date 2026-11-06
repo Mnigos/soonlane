@@ -1,7 +1,17 @@
 import type { Task } from '@soonlane/contracts'
 import { task, type TaskRow } from '@soonlane/db'
 import { DEFAULT_TASK_PRIORITY, toCalendarDate } from '@soonlane/domain'
-import { and, asc, between, eq, inArray, isNull, lt, sql } from 'drizzle-orm'
+import {
+	and,
+	asc,
+	between,
+	eq,
+	inArray,
+	isNotNull,
+	isNull,
+	lt,
+	sql,
+} from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
 import { Db } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
@@ -18,6 +28,12 @@ const DAY_ORDER = [
 ]
 
 function toTask(row: TaskRow): Task {
+	const {
+		repeatUnit: unit,
+		repeatInterval: interval,
+		repeatAnchor: anchor,
+	} = row
+
 	return {
 		id: row.id,
 		title: row.title,
@@ -27,6 +43,7 @@ function toTask(row: TaskRow): Task {
 		priority: row.priority,
 		createdAt: row.createdAt,
 		completedAt: row.completedAt ?? undefined,
+		repeat: unit && interval && anchor ? { unit, interval, anchor } : undefined,
 	}
 }
 
@@ -68,7 +85,24 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 
 					return rows.map(toTask)
 				}),
-			create: ({ ownerId, title, description, dueDate, dueTime, priority }) =>
+			find: ({ ownerId, id }) =>
+				db.run('TaskRepository.find', async database => {
+					const [row] = await database
+						.select()
+						.from(task)
+						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+
+					return row && toTask(row)
+				}),
+			create: ({
+				ownerId,
+				title,
+				description,
+				dueDate,
+				dueTime,
+				priority,
+				repeat,
+			}) =>
 				db.run('TaskRepository.create', async database => {
 					const [row] = await database
 						.insert(task)
@@ -79,6 +113,9 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							dueDate: toCalendarDate(dueDate),
 							dueTime: dueTime ?? null,
 							priority: priority ?? DEFAULT_TASK_PRIORITY,
+							repeatUnit: repeat?.unit ?? null,
+							repeatInterval: repeat?.interval ?? null,
+							repeatAnchor: repeat?.anchor ?? null,
 						})
 						.returning()
 
@@ -94,6 +131,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				dueDate,
 				dueTime,
 				priority,
+				repeat,
 			}) =>
 				db.run('TaskRepository.update', async database => {
 					const [row] = await database
@@ -104,18 +142,38 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							dueDate: toCalendarDate(dueDate),
 							dueTime: dueTime ?? null,
 							priority,
+							repeatUnit: repeat?.unit ?? null,
+							repeatInterval: repeat?.interval ?? null,
+							repeatAnchor: repeat?.anchor ?? null,
 						})
 						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
 						.returning()
 
 					return row && toTask(row)
 				}),
-			setCompletion: ({ ownerId, id, completedAt }) =>
+			setCompletion: ({ ownerId, id, completedAt, dueDate }) =>
 				db.run('TaskRepository.setCompletion', async database => {
 					const [row] = await database
 						.update(task)
-						.set({ completedAt: completedAt ?? null })
+						.set({ completedAt: completedAt ?? null, dueDate })
 						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+						.returning()
+
+					return row && toTask(row)
+				}),
+			advanceDueDate: ({ ownerId, id, from, to }) =>
+				db.run('TaskRepository.advanceDueDate', async database => {
+					const [row] = await database
+						.update(task)
+						.set({ dueDate: to })
+						.where(
+							and(
+								eq(task.ownerId, ownerId),
+								eq(task.id, id),
+								eq(task.dueDate, from),
+								isNotNull(task.repeatUnit)
+							)
+						)
 						.returning()
 
 					return row && toTask(row)

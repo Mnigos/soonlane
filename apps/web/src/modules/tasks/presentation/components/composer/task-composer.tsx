@@ -1,4 +1,4 @@
-import type { Task } from '@soonlane/contracts'
+import type { RepeatInput, Task } from '@soonlane/contracts'
 import {
 	DEFAULT_TASK_PRIORITY,
 	type CalendarDate,
@@ -13,6 +13,10 @@ import {
 	useRef,
 	useState,
 } from 'react'
+import {
+	getEditedDueDate,
+	getEditedRule,
+} from '../../../domain/repeat-rule.helper'
 import {
 	CHIP_ICON_STROKE,
 	COMPOSER_CHIP_CLASS,
@@ -61,6 +65,15 @@ export function TaskComposer({
 	const [priority, setPriority] = useState<TaskPriority>(
 		task?.priority ?? DEFAULT_TASK_PRIORITY
 	)
+	const [repeat, setRepeat] = useState<RepeatInput | undefined>(
+		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
+	)
+	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
+	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
+	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
+	const savedRule = task
+		? getEditedRule(task, scheduledDate, repeat)
+		: repeat && { ...repeat, anchor: scheduledDate }
 	const titleRef = useRef<HTMLInputElement>(null)
 	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
 	const attachTitle = useCallback(
@@ -87,13 +100,17 @@ export function TaskComposer({
 				id: task.id,
 				title: title.trim(),
 				description: description.trim() || undefined,
-				dueDate,
+				dueDate: scheduledDate,
 				dueTime,
 				priority,
+				repeat: repeat ?? null,
 			}
-			const isChanged = (
-				['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
-			).some(field => edited[field] !== task[field])
+			const isChanged =
+				(
+					['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
+				).some(field => edited[field] !== task[field]) ||
+				repeat?.unit !== task.repeat?.unit ||
+				repeat?.interval !== task.repeat?.interval
 
 			if (isChanged) updateTask(edited)
 			onSaved?.()
@@ -105,9 +122,10 @@ export function TaskComposer({
 			{
 				title,
 				description: description.trim() || undefined,
-				dueDate,
+				dueDate: scheduledDate,
 				dueTime,
 				priority,
+				repeat,
 			},
 			{
 				onSuccess: () => {
@@ -115,6 +133,7 @@ export function TaskComposer({
 					setDescription('')
 					setDueTime(undefined)
 					setPriority(DEFAULT_TASK_PRIORITY)
+					setRepeat(undefined)
 					titleRef.current?.focus()
 					onCreated?.()
 				},
@@ -171,11 +190,17 @@ export function TaskComposer({
 				</ComingSoonButton>
 
 				<DueDateChip
-					dueDate={dueDate}
+					dueDate={scheduledDate}
 					dueTime={dueTime}
 					onDateChange={setDueDate}
 					onKeyDown={cancelOnEscape}
+					onRepeatChange={rule => {
+						// Keeps the date on the chip, which the old rule may have moved off the picked day.
+						setDueDate(scheduledDate)
+						setRepeat(rule)
+					}}
 					onTimeChange={setDueTime}
+					repeat={savedRule}
 					today={today}
 				/>
 

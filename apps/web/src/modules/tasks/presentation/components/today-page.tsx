@@ -19,7 +19,7 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 		to: today,
 		today,
 	})
-	const { completeTask } = useCompleteTask()
+	const { completeTask } = useCompleteTask(today)
 
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">

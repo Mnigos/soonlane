@@ -41,7 +41,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 		to: getUpcomingLastDay(today, UPCOMING_WEEK_COUNT),
 		today,
 	})
-	const { completeTask } = useCompleteTask()
+	const { completeTask } = useCompleteTask(today)
 	const loadMore = useCallback(
 		() => setWeekCount(count => count + UPCOMING_WEEKS_PER_LOAD),
 		[]

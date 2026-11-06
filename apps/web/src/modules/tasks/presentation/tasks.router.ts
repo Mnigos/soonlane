@@ -1,4 +1,4 @@
-import { toTaskId } from '@soonlane/domain'
+import { toCalendarDate, toTaskId } from '@soonlane/domain'
 import { requireOwner } from '@/modules/identity/presentation/require-owner.middleware'
 import { os } from '@/platform/rpc/rpc.base'
 import { TasksService } from '../application/tasks.service'
@@ -38,7 +38,10 @@ export const tasksRouter = {
 		const tasksService = yield* TasksService
 
 		return {
-			task: yield* tasksService.complete(context.owner.id, toTaskId(input.id)),
+			task: yield* tasksService.complete(context.owner.id, toTaskId(input.id), {
+				today: input.today ? toCalendarDate(input.today) : undefined,
+				dueDate: input.dueDate ? toCalendarDate(input.dueDate) : undefined,
+			}),
 		}
 	}),
 	uncomplete: os.tasks.uncomplete.use(requireOwner).effect(function* ({
@@ -50,7 +53,8 @@ export const tasksRouter = {
 		return {
 			task: yield* tasksService.uncomplete(
 				context.owner.id,
-				toTaskId(input.id)
+				toTaskId(input.id),
+				input.dueDate ? toCalendarDate(input.dueDate) : undefined
 			),
 		}
 	}),

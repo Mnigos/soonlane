@@ -146,3 +146,8 @@ export function shiftMonths(date: CalendarDate, months: number) {
 
 	return addDays(monthStart, day - 1)
 }
+
+/** "6 November", the day of a yearly repeat. */
+export function formatDayLongMonth(date: CalendarDate) {
+	return formatUtc(date, { day: 'numeric', month: 'long' })
+}

@@ -6,6 +6,7 @@ import type {
 import type { CalendarDate, TaskId, UserId } from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
+import type { RepeatRule } from '../domain/repeat-rule.helper'
 
 export interface OpenTasksBetween {
 	ownerId: UserId
@@ -18,19 +19,33 @@ export interface OpenTasksBefore {
 	before: CalendarDate
 }
 
-export interface NewTask extends CreateTaskInput {
+export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
 	ownerId: UserId
+	repeat?: RepeatRule
 }
 
-export interface TaskUpdate extends UpdateTaskInput {
+export interface TaskUpdate extends Omit<UpdateTaskInput, 'repeat'> {
 	ownerId: UserId
 	id: TaskId
+	repeat?: RepeatRule
 }
 
 export interface TaskCompletion {
 	ownerId: UserId
 	id: TaskId
 	completedAt?: Date
+	dueDate?: CalendarDate
+}
+
+export interface TaskKey {
+	ownerId: UserId
+	id: TaskId
+}
+
+/** Moves the due date only while it is still `from`, so concurrent completions advance it once. */
+export interface DueDateAdvance extends TaskKey {
+	from: CalendarDate
+	to: CalendarDate
 }
 
 export interface TaskReschedule {
@@ -48,12 +63,16 @@ export class TaskRepository extends Context.Service<
 		readonly listOpenBefore: (
 			params: OpenTasksBefore
 		) => Effect.Effect<Task[], DbError>
+		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
 		readonly update: (
 			update: TaskUpdate
 		) => Effect.Effect<Task | undefined, DbError>
 		readonly setCompletion: (
 			completion: TaskCompletion
+		) => Effect.Effect<Task | undefined, DbError>
+		readonly advanceDueDate: (
+			advance: DueDateAdvance
 		) => Effect.Effect<Task | undefined, DbError>
 		readonly rescheduleOpen: (
 			reschedule: TaskReschedule
