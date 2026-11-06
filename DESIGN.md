@@ -18,6 +18,9 @@ colors:
   priority-2: '#eb8909'
   priority-3: '#246fe0'
   priority-4: '#8a8a8a'
+  due-today: '#1ab04d'
+  due-tomorrow: '#ff9a14'
+  due-week: '#a970ff'
 typography:
   page-title:
     fontFamily: '-apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, sans-serif'
@@ -116,6 +119,10 @@ A restrained strategy: tinted neutrals plus one red accent well under 10% of any
 
 Todoist's priority colors, used only on a task's completion circle and the flags in the priority picker: **P1** `priority-1` #d1453b, **P2** `priority-2` #eb8909, **P3** `priority-3` #246fe0, **P4** `priority-4` #8a8a8a (the default, no fill).
 
+### Due dates
+
+Todoist's due colors, used only on the date line under a task: **today** `due-today` #1ab04d, **tomorrow** `due-tomorrow` #ff9a14, **the next 2 to 7 days** `due-week` #a970ff, later dates in `muted-foreground`, overdue in `danger`.
+
 ### Neutral
 
 - **Desk** (`background`, #1e1e1e): page background.
@@ -178,7 +185,7 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 
 ### Tasks
 
-- A task row: a 18px completion circle in its priority color (filled tint for P1 to P3), the title, a one-line description preview and the due time with a clock icon. A hover shows a check in the circle; clicking it completes the task, hides it from Upcoming and shows a "Task completed" toast with Undo.
+- A task row: a 18px completion circle in its priority color (filled tint for P1 to P3), the title, a one-line description preview, then a date line with a small calendar icon in the due color: the due time if set, and for overdue tasks the date as well ("5 Nov", "5 Nov 11:30"). A hover shows a check in the circle; clicking it completes the task, hides it from Upcoming and shows a "Task completed" toast with Undo.
 - Quick add replaces a day's "+ Add task" row inline: title, description, due date (that day), optional time, a P1 to P4 picker, Cancel and Add task. Enter submits and keeps the form open for the next task; Escape closes it.
 
 ### Loading

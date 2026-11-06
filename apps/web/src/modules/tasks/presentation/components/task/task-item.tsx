@@ -1,14 +1,20 @@
 import type { Task } from '@soonlist/contracts'
+import { type CalendarDate, toCalendarDate } from '@soonlist/domain'
 import { cn } from '@soonlist/ui/cn'
-import { Check, Clock } from 'lucide-react'
+import { Calendar, Check } from 'lucide-react'
+import { getDueLabel } from '../../../domain/due-label.helper'
+import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 
 interface TaskItemProps {
 	task: Task
+	today: CalendarDate
 	onComplete: (task: Task) => void
 }
 
-export function TaskItem({ task, onComplete }: Readonly<TaskItemProps>) {
+export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
+	const due = getDueLabel(toCalendarDate(task.dueDate), task.dueTime, today)
+
 	return (
 		<li className="flex gap-2.5 border-b py-2.5">
 			<button
@@ -36,10 +42,15 @@ export function TaskItem({ task, onComplete }: Readonly<TaskItemProps>) {
 					</p>
 				)}
 
-				{task.dueTime && (
-					<p className="flex items-center gap-1 text-caption text-muted-foreground">
-						<Clock aria-hidden className="size-3" />
-						{task.dueTime}
+				{due && (
+					<p
+						className={cn(
+							'flex items-center gap-1 text-caption',
+							DUE_TONE_CLASSES[due.tone]
+						)}
+					>
+						<Calendar aria-hidden className="size-3" />
+						{due.text}
 					</p>
 				)}
 			</div>

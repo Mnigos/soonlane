@@ -40,7 +40,12 @@ export function DaySection({
 				{getDayHeading(date, today)}
 			</h2>
 
-			<TaskList isLoading={isLoading} onComplete={onComplete} tasks={tasks} />
+			<TaskList
+				isLoading={isLoading}
+				onComplete={onComplete}
+				tasks={tasks}
+				today={today}
+			/>
 
 			{isAdding ? (
 				<TaskQuickAdd

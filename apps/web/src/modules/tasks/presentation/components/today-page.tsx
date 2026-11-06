@@ -37,6 +37,7 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 				isLoading={isPending}
 				onComplete={completeTask}
 				tasks={data?.overdue ?? []}
+				today={today}
 			/>
 
 			<DaySection
