@@ -40,7 +40,7 @@ export function ShellSidebar({
 			</div>
 
 			<button
-				className="group flex h-8.5 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-sm font-semibold text-danger transition-colors hover:bg-hover"
+				className="group flex h-8 cursor-pointer items-center gap-2 rounded-md px-1.5 text-sm font-semibold text-danger transition-colors hover:bg-hover"
 				type="button"
 			>
 				<span className="flex size-5.5 items-center justify-center rounded-full bg-primary text-primary-foreground group-hover:bg-primary-hover">

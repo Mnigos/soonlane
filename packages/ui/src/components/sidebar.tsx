@@ -9,7 +9,7 @@ export function Sidebar({
 	return (
 		<aside
 			className={cn(
-				'w-64 shrink-0 flex-col gap-4 overflow-y-auto bg-sidebar px-2.5 py-2',
+				'w-56 shrink-0 flex-col gap-3 overflow-y-auto bg-sidebar px-2 py-2',
 				className
 			)}
 			data-slot="sidebar"
@@ -66,7 +66,7 @@ const SIDEBAR_ITEM_STATES = {
 
 /** Row style for sidebar links; apply `state: 'active'` through the router's active props so colors never conflict. */
 export const sidebarItemVariants = cva(
-	'flex h-8.5 items-center gap-2.5 rounded-md px-2 text-sm transition-colors [&_svg]:size-4.5 [&_svg]:shrink-0',
+	'flex h-8 items-center gap-2 rounded-md px-2 text-sm transition-colors [&_svg]:size-4.5 [&_svg]:shrink-0',
 	{
 		variants: { state: SIDEBAR_ITEM_STATES },
 		defaultVariants: { state: 'inactive' },
