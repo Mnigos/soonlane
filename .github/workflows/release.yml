@@ -28,7 +28,7 @@ jobs:
   nightly:
     name: Release nightly
     if: |
-      (github.repository == 'Mnigos/soonlane' || github.repository == 'Mnigos/soonlist') &&
+      github.repository == 'Mnigos/soonlane' &&
       (github.event_name == 'schedule' || (inputs.channel == 'nightly' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -69,7 +69,7 @@ jobs:
   stable:
     name: Release stable
     if: |
-      (github.repository == 'Mnigos/soonlane' || github.repository == 'Mnigos/soonlist') &&
+      github.repository == 'Mnigos/soonlane' &&
       github.event_name == 'workflow_dispatch' && inputs.channel == 'stable' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
