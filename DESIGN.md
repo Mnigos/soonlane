@@ -8,6 +8,7 @@ colors:
   border: '#333333'
   border-strong: '#656565'
   card: '#242424'
+  popover: '#222222'
   control: '#434343'
   tooltip: '#3d3d3d'
   foreground: '#e8e8e8'
@@ -26,6 +27,9 @@ colors:
   due-today: '#1ab04d'
   due-tomorrow: '#ff9a14'
   due-week: '#a970ff'
+  quick-tomorrow: '#eb8600'
+  quick-week: '#9147ff'
+  quick-weekend: '#377eff'
 typography:
   page-title:
     fontFamily: '-apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, sans-serif'
@@ -128,6 +132,8 @@ Todoist's priority colors, used only on a task's completion circle and the flags
 
 Todoist's due colors, used only on the date line under a task and the composer's date chip: **today** `due-today` #1ab04d, **tomorrow** `due-tomorrow` #ff9a14, **the next 2 to 7 days** `due-week` #a970ff, later dates in `muted-foreground`, overdue in `danger`.
 
+The date picker's quick date icons use Todoist's own icon colors: the green calendar in `due-today`, the sun in **`quick-tomorrow`** #eb8600, the next week arrow in **`quick-week`** #9147ff, the weekend couch in **`quick-weekend`** #377eff.
+
 ### Neutral
 
 - **Desk** (`background`, #1e1e1e): page background.
@@ -135,7 +141,8 @@ Todoist's due colors, used only on the date line under a task and the composer's
 - **Hover** (`hover`, #2c2c2c): row and button hover, skeletons.
 - **Rule** (`border`, #333333): dividers under headings and between rows.
 - **Strong Rule** (`border-strong`, #656565): the composer card's border while it has focus.
-- **Card** (`card`, #242424): the task composer card, menus and popovers.
+- **Card** (`card`, #242424): the task composer card.
+- **Popover** (`popover`, #222222): menus and popovers, a step darker than the card as in Todoist.
 - **Control** (`control`, #434343): the composer's grey square "+" button.
 - **Tooltip** (`tooltip`, #3d3d3d): tooltip background.
 - **Ink** (`foreground`, #e8e8e8): task titles and headings.
@@ -163,7 +170,7 @@ System sans (`-apple-system`, Inter, Segoe UI, Roboto). Weight carries hierarchy
 
 ## 4. Elevation
 
-Flat. The layered surfaces are the mobile drawer and the Add task dialog (both over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `card` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
+Flat. The layered surfaces are the mobile drawer and the Add task dialog (both over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
 
 ## 5. Components
 
@@ -198,7 +205,7 @@ Flat. The layered surfaces are the mobile drawer and the Add task dialog (both o
 - A task row: a 18px completion circle in its priority color (filled tint for P1 to P3), the title, a one-line description preview, then a date line with a small calendar icon in the due color: the due time if set, and for overdue tasks the date as well ("5 Nov", "5 Nov 11:30"). A hover shows a check in the circle; clicking it completes the task, hides it from Upcoming and shows a "Task completed" toast with Undo.
 - The task composer replaces a day's "+ Add task" row inline, as in Todoist: a `card` box with a 12px radius, 12px padding and a `border` line that turns `border-strong` while focused. The title is 16px on a 24px line with a "Task name" placeholder; the description sits right under it, 13px on a 20px line with a "Description" placeholder, no box. Then a row of 28px controls 4px apart: the grey square "+" (`control`), then 28px outlined chips with 16px icons drawn in 1px lines, 13px labels in `secondary-foreground` and 6px padding (the date with Todoist's calendar icon in its due color and no ×, since a task always has a date; Priority; Reminders; Labels). On the right a 32px ghost × to cancel and the 32px red square send button with an up arrow, 8px apart; the send button stays red and, with no title, focuses the title. The Priority chip opens a menu centered under it: 32px rows of 22px flags and 13px labels, the selected row on the hover grey with a red check; the chip reads "P1" to "P3" with the colored flag once picked. Enter submits and keeps the card open for the next task; Escape closes it.
 - Controls Todoist has and Soonlist does not yet (the "+", Reminders, Labels) keep their place for the layout: muted, `aria-disabled`, inert, with a "Coming soon" tooltip. There is no project chip, because Soonlist has no projects.
-- The date chip opens the date picker, a 256px popover: a text field with the current date (it reads "tom", "fri", "14 Nov", "next week"; Enter applies the match), quick dates with their hints (Today, Tomorrow, This weekend from Monday to Thursday, Next week on Monday, Next weekend on Saturday of next week; the chosen day is left out), a month calendar and a "Time" button. In the calendar today is red, the chosen day sits on a red circle and past days are faint and inert; arrows step by day and week, Page Up and Page Down by month. Picking a day closes the popover; the time stays open for editing and has a clear button. There is no "No Date", since a task needs a due date.
+- The date chip opens the date picker, Todoist's 248px popover centered over the chip, 2px away: a 40px text field with the current date (it reads "tom", "fri", "14 Nov", "next week"; Enter applies the match), then 32px quick date rows with 22px icons drawn in 1px lines, 13px medium labels and 13px hints in `secondary-foreground` (Today, Tomorrow, This weekend from Monday to Thursday, Next week on Monday, Next weekend on Saturday of next week; the chosen day is left out). Below them Todoist's scrolling calendar: a fixed header with the month at the top in 13px bold ("Nov 2026"), previous, this month (a small circle) and next, and the weekday initials; under it a year of months from today's week, each after the first headed by its short name ("Dec", "Jan 2027"). Days sit in 32px rows on 24px circles: today red with a small dot, the chosen day on a red circle, weekends in `secondary-foreground`, past days faint and inert. The arrows scroll to a month's first week; arrow keys step by day and week, Page Up and Page Down by month. At the bottom the full-width 32px "Time" and "Repeat" buttons; Repeat is a "Coming soon" placeholder. Picking a day closes the popover; the time stays open for editing and has a clear button. There is no "No Date", since a task needs a due date.
 
 ### Loading
 
@@ -217,6 +224,6 @@ Flat. The layered surfaces are the mobile drawer and the Add task dialog (both o
 
 - **Don't** add cards, shadows or gradients.
 - **Don't** use red for anything that is not an action, the current day or overdue state.
-- **Don't** add blue outside the P3 priority color; links and focus use red or neutrals.
+- **Don't** add blue outside the P3 priority color and the date picker's weekend couch; links and focus use red or neutrals.
 - **Don't** open a modal for a one- or two-field action; edit inline. The one exception is the global "Add task" in the sidebar, which opens the task composer in a dialog.
 - **Don't** introduce projects, boards or team visuals.

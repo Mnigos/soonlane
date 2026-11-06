@@ -30,7 +30,7 @@ export function MenuContent({
 			>
 				<BaseMenu.Popup
 					className={cn(
-						'overflow-hidden rounded-lg border bg-card text-secondary-foreground shadow-lg outline-none',
+						'overflow-hidden rounded-lg border bg-popover text-secondary-foreground shadow-lg outline-none',
 						className
 					)}
 					data-slot="menu-content"

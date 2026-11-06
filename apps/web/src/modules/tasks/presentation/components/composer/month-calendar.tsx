@@ -1,18 +1,20 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react'
-import { type KeyboardEvent, useId, useState } from 'react'
+import { type KeyboardEvent, useCallback, useState } from 'react'
 import {
 	addDays,
 	addMonths,
-	formatLongDate,
 	formatMonthShortYear,
-	getDayOfMonth,
 	getMonthStart,
 	isBefore,
 	shiftMonths,
 } from '../../../domain/calendar-date.helper'
-import { getMonthWeeks } from '../../../domain/month-calendar.helper'
+import {
+	getCalendarMonths,
+	getMonthOffset,
+} from '../../../domain/month-calendar.helper'
+import { MonthGrid } from './month-grid'
 
 interface MonthCalendarProps {
 	selected: CalendarDate
@@ -28,16 +30,22 @@ const KEY_STEPS: Record<string, number> = {
 	ArrowDown: 7,
 }
 const NAV_BUTTON_CLASS =
-	'flex size-7 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-40 [&_svg]:size-4'
+	'flex size-7 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-30 [&_svg]:size-4'
 
-function focusElement(element: HTMLButtonElement | null) {
-	element?.focus()
+/** Where each month's first week sits in the scroller, just below its "Dec" heading. */
+function getMonthTops(container: HTMLElement) {
+	return [...container.querySelectorAll<HTMLElement>('[data-month]')].map(
+		section =>
+			section.querySelector<HTMLElement>('[data-week]')?.offsetTop ??
+			section.offsetTop
+	)
 }
 
 /**
- * A month grid like Todoist's: today in red, the chosen day on a red circle,
- * past days dimmed. Arrow keys move by day and week, Page Up and Page Down by
- * month; only one day is in the tab order.
+ * Todoist's scrolling calendar: a year of months from today's week, under a
+ * header that names the month at the top. Today is red, the chosen day sits
+ * on a red circle and past days are dimmed. Arrow keys move by day and week,
+ * Page Up and Page Down by month; only one day is in the tab order.
  */
 export function MonthCalendar({
 	selected,
@@ -45,24 +53,55 @@ export function MonthCalendar({
 	onSelect,
 }: Readonly<MonthCalendarProps>) {
 	const initial = isBefore(selected, today) ? today : selected
-	const [month, setMonth] = useState(getMonthStart(initial))
+	const months = getCalendarMonths(today, initial)
+	const lastDay = addDays(addMonths(months.at(-1) ?? initial, 1), -1)
+	const initialIndex = getMonthOffset(today, initial)
+	const [shownIndex, setShownIndex] = useState(initialIndex)
 	const [focused, setFocused] = useState(initial)
 	const [isKeyboardFocus, setIsKeyboardFocus] = useState(false)
-	const monthLabelId = useId()
-	const firstMonth = getMonthStart(today)
-	const firstSelectable = isBefore(month, today) ? today : month
-	const tabbable = getMonthStart(focused) === month ? focused : firstSelectable
+	const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
+	// Stable, so a re-render does not scroll back; it opens on the chosen day's month, as Todoist does.
+	const attachScroller = useCallback(
+		(container: HTMLDivElement | null) => {
+			setScroller(container)
+			const top = container ? getMonthTops(container)[initialIndex] : undefined
+			if (top !== undefined) container?.scrollTo({ top })
+		},
+		[initialIndex]
+	)
 
-	function showMonth(next: CalendarDate) {
-		setMonth(next)
+	function scrollToMonth(index: number) {
+		const month = months[index]
+		const top = scroller ? getMonthTops(scroller)[index] : undefined
+
+		if (!month || top === undefined) return
+
+		scroller?.scrollTo({ top })
+		// The tab stop follows the arrows, so Tab lands in the month on screen; focus stays on the arrow.
+		setFocused(
+			getMonthStart(initial) === month
+				? initial
+				: isBefore(month, today)
+					? today
+					: month
+		)
 		setIsKeyboardFocus(false)
 	}
 
+	function showMonthAtTop(container: HTMLElement) {
+		const index = getMonthTops(container).findLastIndex(
+			top => top <= container.scrollTop + 1
+		)
+
+		setShownIndex(Math.max(index, 0))
+	}
+
 	function moveFocus(date: CalendarDate) {
-		const next = isBefore(date, today) ? today : date
+		let next = date
+		if (isBefore(next, today)) next = today
+		if (isBefore(lastDay, next)) next = lastDay
 
 		setFocused(next)
-		setMonth(getMonthStart(next))
 		setIsKeyboardFocus(true)
 	}
 
@@ -81,104 +120,72 @@ export function MonthCalendar({
 	}
 
 	return (
-		<div className="flex flex-col gap-2 px-3 py-2">
-			<div className="flex items-center justify-between">
-				<p
-					aria-live="polite"
-					className="text-sm font-semibold"
-					id={monthLabelId}
-				>
-					{formatMonthShortYear(month)}
+		<div className="flex flex-col">
+			<div className="flex items-center justify-between pt-1.5 pr-2.5 pb-1 pl-4">
+				<p aria-live="polite" className="text-label font-bold">
+					{formatMonthShortYear(months[shownIndex] ?? initial)}
 				</p>
 
-				<div className="flex items-center">
+				<div className="flex items-center gap-1">
 					<button
 						aria-label="Previous month"
 						className={NAV_BUTTON_CLASS}
-						disabled={month === firstMonth}
-						onClick={() => showMonth(addMonths(month, -1))}
+						disabled={shownIndex === 0}
+						onClick={() => scrollToMonth(shownIndex - 1)}
 						type="button"
 					>
-						<ChevronLeft aria-hidden />
+						<ChevronLeft aria-hidden strokeWidth={1.5} />
 					</button>
 
 					<button
 						aria-label="This month"
-						className={cn(NAV_BUTTON_CLASS, '[&_svg]:size-3')}
-						disabled={month === firstMonth}
-						onClick={() => showMonth(firstMonth)}
+						className={cn(NAV_BUTTON_CLASS, '[&_svg]:size-2.5')}
+						disabled={shownIndex === 0}
+						onClick={() => scrollToMonth(0)}
 						type="button"
 					>
-						<Circle aria-hidden />
+						<Circle aria-hidden strokeWidth={2.5} />
 					</button>
 
 					<button
 						aria-label="Next month"
 						className={NAV_BUTTON_CLASS}
-						onClick={() => showMonth(addMonths(month, 1))}
+						disabled={shownIndex === months.length - 1}
+						onClick={() => scrollToMonth(shownIndex + 1)}
 						type="button"
 					>
-						<ChevronRight aria-hidden />
+						<ChevronRight aria-hidden strokeWidth={1.5} />
 					</button>
 				</div>
 			</div>
 
-			<fieldset
-				aria-labelledby={monthLabelId}
-				className="flex min-w-0 flex-col"
+			<div
+				aria-hidden
+				className="grid h-4.5 grid-cols-7 items-center px-2.5 text-center text-micro text-secondary-foreground"
 			>
-				<div
-					aria-hidden
-					className="grid grid-cols-7 text-center text-caption text-muted-foreground"
-				>
-					{WEEKDAY_INITIALS.map((weekday, index) => (
-						<span className="py-1" key={`${weekday}-${String(index)}`}>
-							{weekday}
-						</span>
-					))}
-				</div>
-
-				{getMonthWeeks(month).map(week => (
-					<div
-						className="grid grid-cols-7 justify-items-center"
-						key={week.find(Boolean)}
-					>
-						{week.map((date, index) => {
-							if (!date) return <span key={`blank-${String(index)}`} />
-
-							const isPast = isBefore(date, today)
-							const isSelected = date === selected
-
-							return (
-								<button
-									aria-current={date === today ? 'date' : undefined}
-									aria-label={formatLongDate(date)}
-									aria-pressed={isSelected}
-									className={cn(
-										'flex size-8 cursor-pointer items-center justify-center rounded-full text-label text-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary disabled:pointer-events-none disabled:text-faint-foreground',
-										date === today && 'font-semibold text-danger',
-										isSelected &&
-											'bg-primary font-semibold text-primary-foreground hover:bg-primary-hover'
-									)}
-									disabled={isPast}
-									key={date}
-									onClick={() => onSelect(date)}
-									onKeyDown={event => onDayKeyDown(event, date)}
-									ref={
-										date === tabbable && isKeyboardFocus
-											? focusElement
-											: undefined
-									}
-									tabIndex={date === tabbable ? 0 : -1}
-									type="button"
-								>
-									{getDayOfMonth(date)}
-								</button>
-							)
-						})}
-					</div>
+				{WEEKDAY_INITIALS.map((weekday, index) => (
+					<span key={`${weekday}-${String(index)}`}>{weekday}</span>
 				))}
-			</fieldset>
+			</div>
+
+			<div
+				className="relative h-47 overflow-y-auto overscroll-contain"
+				onScroll={event => showMonthAtTop(event.currentTarget)}
+				ref={attachScroller}
+			>
+				{months.map(month => (
+					<MonthGrid
+						key={month}
+						month={month}
+						onDayKeyDown={onDayKeyDown}
+						onSelect={onSelect}
+						selected={selected}
+						shouldFocus={isKeyboardFocus}
+						tabbable={focused}
+						today={today}
+					/>
+				))}
+			</div>
 		</div>
 	)
 }

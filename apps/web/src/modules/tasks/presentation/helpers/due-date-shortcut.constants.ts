@@ -1,20 +1,20 @@
-import {
-	CalendarDays,
-	type LucideIcon,
-	Sofa,
-	SquareArrowRight,
-	Sun,
-} from 'lucide-react'
+import type { ComponentType, SVGProps } from 'react'
 import type { DueDateShortcutId } from '../../domain/due-date-shortcut.helper'
+import {
+	NextWeekIcon,
+	TomorrowIcon,
+	WeekendIcon,
+} from '../components/composer/date-picker-icons'
+import { DueCalendarIcon } from '../components/composer/due-calendar-icon'
 
-/** Todoist's shortcut icons in the due colors; the weekend sofa stays grey because blue is reserved for P3. */
+/** Todoist's quick date icons: green calendar, orange sun, purple arrow, blue couch. */
 export const DUE_DATE_SHORTCUT_ICONS = {
-	today: { icon: CalendarDays, className: 'text-due-today' },
-	tomorrow: { icon: Sun, className: 'text-due-tomorrow' },
-	'this-weekend': { icon: Sofa, className: 'text-muted-foreground' },
-	'next-week': { icon: SquareArrowRight, className: 'text-due-week' },
-	'next-weekend': { icon: Sofa, className: 'text-muted-foreground' },
+	today: { icon: DueCalendarIcon, className: 'text-due-today' },
+	tomorrow: { icon: TomorrowIcon, className: 'text-quick-tomorrow' },
+	'this-weekend': { icon: WeekendIcon, className: 'text-quick-weekend' },
+	'next-week': { icon: NextWeekIcon, className: 'text-quick-week' },
+	'next-weekend': { icon: WeekendIcon, className: 'text-quick-weekend' },
 } as const satisfies Record<
 	DueDateShortcutId,
-	{ icon: LucideIcon; className: string }
+	{ icon: ComponentType<SVGProps<SVGSVGElement>>; className: string }
 >

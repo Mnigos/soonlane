@@ -91,6 +91,10 @@ export function formatWeekdayDayMonth(date: CalendarDate) {
 	return `${formatWeekday(date, 'short')} ${formatDayMonth(date)}`
 }
 
+export function formatMonthShort(date: CalendarDate) {
+	return formatUtc(date, { month: 'short' })
+}
+
 export function formatMonthShortYear(date: CalendarDate) {
 	return formatUtc(date, { month: 'short', year: 'numeric' })
 }
@@ -101,6 +105,13 @@ export function getWeekdayIndex(date: CalendarDate) {
 		(toUtcDate(date).getUTCDay() - WEEK_STARTS_ON + DAYS_PER_WEEK) %
 		DAYS_PER_WEEK
 	)
+}
+
+const SATURDAY_INDEX = 5
+
+/** Saturday or Sunday, which Todoist's calendar shows in grey. */
+export function isWeekend(date: CalendarDate) {
+	return getWeekdayIndex(date) >= SATURDAY_INDEX
 }
 
 export function getMonthStart(date: CalendarDate): CalendarDate {

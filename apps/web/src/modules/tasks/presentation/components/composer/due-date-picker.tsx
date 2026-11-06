@@ -11,7 +11,10 @@ import {
 	formatDueDate,
 	getDueChipLabel,
 } from '../../../domain/due-label.helper'
+import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
+import { ComingSoonButton } from './coming-soon-button'
+import { RepeatIcon } from './date-picker-icons'
 import { DueDateShortcuts } from './due-date-shortcuts'
 import { DueTimeField } from './due-time-field'
 import { MonthCalendar } from './month-calendar'
@@ -50,7 +53,7 @@ export function DueDatePicker({
 
 	return (
 		<div className="flex flex-col">
-			<div className="border-b px-3 py-2.5">
+			<div className="flex h-10 items-center border-b px-3">
 				<input
 					aria-describedby={isEdited ? matchId : undefined}
 					aria-invalid={isEdited && !match}
@@ -100,8 +103,13 @@ export function DueDatePicker({
 
 			<MonthCalendar onSelect={onDateChange} selected={dueDate} today={today} />
 
-			<div className="border-t px-3 py-2.5">
+			<div className="flex flex-col gap-3 border-t p-3">
 				<DueTimeField onChange={onTimeChange} value={dueTime} />
+
+				<ComingSoonButton className={FOOTER_BUTTON_CLASS} label="Repeat">
+					<RepeatIcon strokeWidth={1.5} />
+					Repeat
+				</ComingSoonButton>
 			</div>
 		</div>
 	)

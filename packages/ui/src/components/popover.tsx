@@ -31,7 +31,7 @@ export function PopoverContent({
 			>
 				<BasePopover.Popup
 					className={cn(
-						'max-h-(--available-height) overflow-y-auto rounded-lg border bg-sidebar text-foreground shadow-lg outline-none',
+						'max-h-(--available-height) overflow-y-auto rounded-lg border bg-popover text-foreground shadow-lg outline-none',
 						className
 					)}
 					data-slot="popover-content"

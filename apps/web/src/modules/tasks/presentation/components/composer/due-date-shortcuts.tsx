@@ -27,13 +27,17 @@ export function DueDateShortcuts({
 				return (
 					<li key={id}>
 						<button
-							className="flex h-8 w-full cursor-pointer items-center gap-2.5 px-3 text-sm text-foreground transition-colors outline-none hover:bg-hover focus-visible:bg-hover"
+							className="flex h-8 w-full cursor-pointer items-center gap-3 pr-4 pl-3 text-label font-medium text-foreground transition-colors outline-none hover:bg-hover focus-visible:bg-hover"
 							onClick={() => onSelect(date)}
 							type="button"
 						>
-							<Icon aria-hidden className={cn('size-4', className)} />
+							<Icon
+								aria-hidden
+								className={cn('size-5.5 shrink-0', className)}
+								strokeWidth={id === 'today' ? 0.75 : 1.1}
+							/>
 							{label}
-							<span className="ml-auto text-label text-muted-foreground">
+							<span className="ml-auto font-normal text-secondary-foreground">
 								{hint}
 							</span>
 						</button>
