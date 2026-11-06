@@ -8,6 +8,7 @@ import type {
 export type ComposerSource =
 	| 'day_row'
 	| 'label_view'
+	| 'quick_add'
 	| 'sidebar_dialog'
 	| 'task_row'
 

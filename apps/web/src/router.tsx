@@ -7,6 +7,7 @@ import {
 	captureException,
 	trackRouter,
 } from './modules/analytics/presentation/analytics.client'
+import { syncDockBadge } from './modules/tasks/presentation/helpers/dock-badge.helper'
 import { orpcQuery } from './platform/rpc/rpc-query.client'
 import { serializer } from './platform/rpc/rpc-serializer.constants'
 import { routeTree } from './routeTree.gen'
@@ -54,6 +55,7 @@ export function getRouter() {
 
 	setupRouterSsrQueryIntegration({ router, queryClient })
 	trackRouter(router)
+	syncDockBadge(queryClient)
 
 	return router
 }
