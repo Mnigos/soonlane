@@ -1,5 +1,5 @@
-import { buttonVariants } from '@soonlane/ui/components/button'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
+import { GetStartedButton } from '../components/get-started-button'
 import { buildPageHead, jsonLdScript } from '../helpers/seo.helper'
 import {
 	GITHUB_URL,
@@ -29,8 +29,8 @@ export const Route = createFileRoute('/_site/')({
 
 function HomeRoute() {
 	return (
-		<main className="mx-auto flex w-full max-w-[680px] flex-1 flex-col justify-center gap-8 px-6 py-16">
-			<div className="flex flex-col gap-3">
+		<main className="mx-auto flex w-full max-w-[1120px] flex-1 flex-col justify-center gap-8 px-4 py-16 sm:px-6">
+			<div className="flex max-w-[680px] flex-col gap-3">
 				<h1 className="text-2xl font-bold tracking-tight">{SITE_NAME}</h1>
 
 				<p className="text-secondary-foreground">
@@ -45,13 +45,11 @@ function HomeRoute() {
 				</p>
 			</div>
 
-			<div className="flex flex-wrap items-center gap-6">
-				<Link className={buttonVariants({ size: 'lg' })} to="/login">
-					Get started
-				</Link>
+			<div className="flex flex-col items-start gap-6">
+				<GetStartedButton />
 
 				<a
-					className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+					className="rounded-sm text-sm underline underline-offset-4"
 					href={GITHUB_URL}
 				>
 					View on GitHub
