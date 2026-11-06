@@ -29,7 +29,7 @@ An existing App Store app is already called Soonlist, so the desktop app could n
 ## Consequences
 
 - The desktop app gets a new bundle identifier, so macOS treats it as a new app: the old `Soonlist.app` and its data folder (`~/Library/Application Support/com.mnigos.soonlist`, which holds only the saved window frame) stay until deleted, and the first launch of Soonlane opens a window with the default frame.
-- GitHub redirects the old repository URL, but `github.repository` reports only the current name. The release and owner review workflows accepted both names until the repository was renamed on 2026-11-06, after this change merged; now they check only `Mnigos/soonlane`.
+- GitHub redirects the old repository URL, but `github.repository` reports only the current name. The release and owner review workflows accepted both names while the repository was renamed: the rename came on 2026-11-06, after this change merged, and a follow-up (#24) then made them check only `Mnigos/soonlane`.
 - The Neon database keeps the name `soonlist`; renaming it would change every connection string for no gain.
 
 ## Related
