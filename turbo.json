@@ -9,13 +9,14 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".output/**", ".vercel/output/**"]
+      "outputs": [".output/**", ".vercel/output/**"],
+      "env": ["VERCEL_GIT_COMMIT_SHA"]
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
     }
   },
-  "globalDependencies": ["apps/web/.env.local"],
+  "globalDependencies": ["apps/web/.env.local", "version.json"],
   "globalPassThroughEnv": [
     "DATABASE_URL",
     "DATABASE_URL_UNPOOLED",
@@ -28,7 +29,6 @@
     "VERCEL_ENV",
     "VERCEL_URL",
     "VERCEL_BRANCH_URL",
-    "VERCEL_GIT_COMMIT_SHA",
     "NODE_ENV",
     "CI"
   ]

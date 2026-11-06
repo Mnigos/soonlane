@@ -3,7 +3,13 @@ import { tanstackStart } from '@tanstack/react-start/plugin/vite'
 import react from '@vitejs/plugin-react'
 import { nitro } from 'nitro/vite'
 import { defineConfig } from 'vite'
+import versionFile from '../../version.json' with { type: 'json' }
 import { routes } from './src/routes'
+
+// The product version comes from version.json (written by the release workflow); the commit from Vercel, 'dev' locally.
+const SHORT_SHA_LENGTH = 7
+const APP_COMMIT =
+	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'
 
 // A custom list replaces TanStack Start's default client deny list, so it repeats '**/*.server.*'.
 const SERVER_ONLY_FILES = [
@@ -41,6 +47,10 @@ const BROWSER_SAFE_PLATFORM_FILES = [
 ]
 
 export default defineConfig({
+	define: {
+		'import.meta.env.APP_VERSION': JSON.stringify(versionFile.version),
+		'import.meta.env.APP_COMMIT': JSON.stringify(APP_COMMIT),
+	},
 	plugins: [
 		tailwindcss(),
 		tanstackStart({
