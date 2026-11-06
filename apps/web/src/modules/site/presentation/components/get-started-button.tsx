@@ -2,6 +2,7 @@ import { signInWithGoogle } from '@soonlane/auth/client'
 import { buttonVariants } from '@soonlane/ui/components/button'
 import { mutationOptions, useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
+import { TermsAgreement } from './terms-agreement'
 
 const SIGN_UP_REDIRECTS = { callbackURL: '/app', errorCallbackURL: '/login' }
 
@@ -55,23 +56,7 @@ export function GetStartedButton({
 		<div className="flex flex-col items-start gap-3">
 			{button}
 
-			<p className="text-caption text-muted-foreground">
-				By continuing you agree to the{' '}
-				<Link
-					className="text-foreground underline underline-offset-2"
-					to="/terms"
-				>
-					Terms
-				</Link>{' '}
-				and the{' '}
-				<Link
-					className="text-foreground underline underline-offset-2"
-					to="/privacy"
-				>
-					Privacy Policy
-				</Link>
-				.
-			</p>
+			<TermsAgreement />
 		</div>
 	)
 }

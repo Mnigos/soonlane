@@ -1,5 +1,6 @@
 import type { GoogleSignInRedirects } from '@soonlane/auth/client'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
+import { TermsAgreement } from '@/modules/site/presentation/components/terms-agreement'
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 import { SignInLayout } from './sign-in-layout'
 
@@ -32,7 +33,11 @@ export function SignInScreen({
 			)}
 
 			{configured ? (
-				<ContinueWithGoogle loginHint={loginHint} redirects={redirects} />
+				<div className="flex flex-col gap-3">
+					<ContinueWithGoogle loginHint={loginHint} redirects={redirects} />
+
+					<TermsAgreement />
+				</div>
 			) : (
 				<div className="flex flex-col gap-1 text-sm" role="note">
 					<p className="font-semibold">Sign-in is disabled</p>
