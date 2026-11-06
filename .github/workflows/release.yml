@@ -1,19 +1,22 @@
 name: Release
 
 on:
+  schedule:
+    # Daily nightly check; minute 23 avoids the busy top of the hour.
+    - cron: '23 4 * * *'
   workflow_dispatch:
     inputs:
       channel:
-        description: Release channel
+        description: Release channel. Stable promotes the commit of the latest nightly.
         type: choice
-        options: [stable]
-        default: stable
+        options: [nightly, stable]
+        default: nightly
       version:
-        description: Version override (X.Y.Z). Defaults to the version computed from conventional commits since the last stable tag.
+        description: Stable only. Version override (X.Y.Z); defaults to the version the latest nightly previewed.
         type: string
         required: false
 
-# One release at a time; a running release is never canceled.
+# Nightly and stable share one group, so they never overlap; a running release is never canceled.
 concurrency:
   group: release
   cancel-in-progress: false
@@ -22,9 +25,11 @@ permissions:
   contents: read
 
 jobs:
-  stable:
-    name: Release stable
-    if: github.repository == 'Mnigos/soonlist' && github.ref == 'refs/heads/main'
+  nightly:
+    name: Release nightly
+    if: |
+      github.repository == 'Mnigos/soonlist' &&
+      (github.event_name == 'schedule' || (inputs.channel == 'nightly' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -41,20 +46,63 @@ jobs:
           bun-version-file: package.json
       - name: Install
         run: bun install --frozen-lockfile
-      - name: Compute version
+      - name: Compute nightly
+        id: release
+        run: bun --no-env-file scripts/release.ts nightly >> "$GITHUB_OUTPUT"
+      - name: Tag and publish the prerelease
+        if: steps.release.outputs.has_changes == 'true'
+        run: |
+          git tag "$TAG" "$SOURCE"
+          bunx git-cliff --tag-pattern '^v[0-9]+\.[0-9]+\.[0-9]+-nightly\.' --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
+          git push origin "$TAG"
+          gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag --prerelease --latest=false
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          SOURCE: ${{ steps.release.outputs.source }}
+      - name: Report no changes
+        if: steps.release.outputs.has_changes != 'true'
+        run: echo "No commits on main since $PREVIOUS_TAG; no nightly today."
+        env:
+          PREVIOUS_TAG: ${{ steps.release.outputs.previous_tag }}
+
+  stable:
+    name: Release stable
+    if: |
+      github.repository == 'Mnigos/soonlist' &&
+      github.event_name == 'workflow_dispatch' && inputs.channel == 'stable' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+      - name: Install
+        run: bun install --frozen-lockfile
+      - name: Compute version from the latest nightly
         id: release
         run: bun --no-env-file scripts/release.ts stable --version "$VERSION_INPUT" >> "$GITHUB_OUTPUT"
         env:
           VERSION_INPUT: ${{ inputs.version }}
       - name: Write changelog and version file
         run: |
+          echo "Promoting $NIGHTLY_TAG ($SOURCE) as $TAG"
           git tag "$TAG" "$SOURCE"
           bunx git-cliff --output CHANGELOG.md
           bunx git-cliff --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
           bun --no-env-file scripts/release.ts write-version "$VERSION"
         env:
-          TAG: ${{ steps.release.outputs.tag }}
+          NIGHTLY_TAG: ${{ steps.release.outputs.nightly_tag }}
           SOURCE: ${{ steps.release.outputs.source }}
+          TAG: ${{ steps.release.outputs.tag }}
           VERSION: ${{ steps.release.outputs.version }}
       - name: Commit, tag and publish
         run: |
