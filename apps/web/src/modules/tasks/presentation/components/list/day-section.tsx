@@ -1,5 +1,6 @@
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import { type Ref, useState } from 'react'
 import { getDayHeading } from '../../../domain/day-label.helper'
 import { TaskComposer } from '../composer/task-composer'
@@ -34,7 +35,10 @@ export function DaySection({
 			ref={ref}
 		>
 			<h2
-				className="border-b pb-2 text-sm font-semibold text-foreground"
+				className={cn(
+					'border-b pb-2 text-sm font-semibold',
+					date === today ? 'text-foreground' : 'text-muted-foreground'
+				)}
 				id={headingId}
 			>
 				{getDayHeading(date, today)}
