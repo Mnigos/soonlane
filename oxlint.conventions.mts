@@ -112,6 +112,7 @@ const FRONTEND_APPS = ['apps/web'] as const
 
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
+	'apps/desktop/src/**',
 	'packages/*/*.ts',
 	'packages/*/src/**',
 	'packages/db/schema/**',

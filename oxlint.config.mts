@@ -150,7 +150,12 @@ export default defineConfig({
 			rules: { 'soonlist/jsx-sibling-spacing': 'error' },
 		},
 		{
-			files: ['apps/web/**', 'packages/*/src/**', 'packages/*/schema/**'],
+			files: [
+				'apps/web/**',
+				'apps/desktop/src/**',
+				'packages/*/src/**',
+				'packages/*/schema/**',
+			],
 			rules: { 'oxc/no-barrel-file': ['error', { threshold: 0 }] },
 		},
 		{
