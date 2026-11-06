@@ -24,9 +24,11 @@ Preview builds are not skipped: previews and local development use their own Neo
 | `DATABASE_URL_UNPOOLED` | Neon `main`, direct           | Neon `preview`, direct      | Neon `preview`, direct  |
 | `AUTH_URL`              | `https://soonlist.vercel.app` | unset (derived, see below)  | `http://localhost:3000` |
 | `AUTH_SECRET`           | random, at least 32 characters | random, at least 32 characters | random, at least 32 characters |
-| `OWNER_EMAIL`           | the owner's Google address    | same                        | same                    |
+| `ALLOWED_EMAILS`        | unset                         | unset                       | unset                   |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | same               | same                    |
 | `OAUTH_PROXY_SECRET`    | optional, random              | same value as Production    | not needed              |
+
+`ALLOWED_EMAILS` is optional: a comma-separated list of addresses (case-insensitive) that may create an account. Leave it unset so anyone can sign up. Set it only to close sign-ups, for example while abuse is going on or on a self-hosted copy; existing accounts keep signing in. To open sign-ups again, delete the variable in the Vercel project settings and redeploy.
 
 Without `AUTH_URL` the base URL is `https://$VERCEL_BRANCH_URL`, then `https://$VERCEL_URL`. Better Auth and `/api/rpc` accept requests from the base URL and from both Vercel hosts of the deployment.
 
@@ -41,13 +43,13 @@ Preview URLs change per branch, so they cannot be registered. Better Auth's `oAu
 
 1. "Continue with Google" on a preview sends Google the production redirect URI and an encrypted state.
 2. Production receives the callback, exchanges the code with Google and redirects to `<preview>/api/auth/callback/google/oauth-proxy` with the encrypted profile (valid for 60 s).
-3. The preview decrypts it, applies the owner check, creates the user and session in its own database and redirects to `/app`.
+3. The preview decrypts it, applies the sign-up check, creates the user and session in its own database and redirects to `/app`.
 
 Requirements:
 
 - Production must run a build that contains the plugin; until then preview sign-in fails at the production callback.
 - Production and Preview must share the encryption secret: set the same `OAUTH_PROXY_SECRET` in both, or keep the same `AUTH_SECRET` in both. A dedicated `OAUTH_PROXY_SECRET` is preferred, so preview and production session secrets can differ.
-- If the consent screen is in testing mode, `OWNER_EMAIL` must be a test user.
+- The consent screen asks only for `openid`, `email` and `profile`, so in Testing mode any Google account can sign in without being on the test-user list.
 
 ## Local environment
 
@@ -59,7 +61,7 @@ bun run dev
 
 The file is git-ignored. Never print it. Local sign-in uses the localhost redirect URI directly.
 
-Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; start the dev server with `OWNER_EMAIL=sample@soonlane.test` set in the shell and send that cookie. `dev:session --delete` removes the user and its sessions; the script refuses production envs, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host, set in Vercel's development environment) is set and absent from the database URLs.
+Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server (if `ALLOWED_EMAILS` is set locally, it must include `sample@soonlane.test`). `dev:session --delete` removes the user with its sessions and tasks; the script refuses production envs, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host, set in Vercel's development environment) is set and absent from the database URLs.
 
 ## Checks after a deployment
 
@@ -70,7 +72,9 @@ curl -s https://soonlist.vercel.app/api/auth/get-session
 # null
 ```
 
-Then open the URL, sign in with the `OWNER_EMAIL` account and check the avatar and name in the sidebar. Any other Google account ends on `/login` with "Sign-in failed. Soonlane is only available to its owner."
+Then open the URL, sign in with Google and check the avatar and name in the sidebar. A second Google account signs up and starts with an empty Upcoming; neither account sees the other's tasks. With `ALLOWED_EMAILS` set, a Google account that is not on the list and has no account yet ends on `/login` with "Sign-ups are closed on this server."
+
+The Better Auth rate limiter keeps its counters in the `rate_limit` table. The 11th `POST /api/auth/sign-in/social` from one IP within a minute returns 429.
 
 The `pg` driver logs a warning about `sslmode=require` being treated as `verify-full`; it is not an error.
 

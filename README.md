@@ -13,7 +13,7 @@ Production: https://soonlist.vercel.app
 | `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                               |
 | `packages/domain`           | Branded types such as `CalendarDate`.                                                     |
 | `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                            |
-| `packages/auth`             | Better Auth factory (Google, owner-only, OAuth proxy) and the browser auth client.        |
+| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.      |
 | `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.   |
 | `tooling/typescript-config` | tsconfig presets every workspace extends.                                                 |
 | `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                        |

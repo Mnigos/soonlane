@@ -6,7 +6,7 @@ product
 
 ## Users
 
-One person: the owner, planning their own days. They open Soonlane many times a day, mostly on a laptop in short bursts: add a task the moment it comes up, glance at what is due today, move what slipped, and look a week or two ahead. A desktop app is next; it uses the same `/api/rpc` API as the web app. Phones get a responsive layout, not a separate app.
+Anyone with a Google account, each planning their own days in a private list. They open Soonlane many times a day, mostly on a laptop in short bursts: add a task the moment it comes up, glance at what is due today, move what slipped, and look a week or two ahead. A desktop app is next; it uses the same `/api/rpc` API as the web app. Phones get a responsive layout, not a separate app.
 
 ## Product Purpose
 
@@ -17,7 +17,7 @@ Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist 
 - **Upcoming** (default view at `/app`): the week strip, the Overdue section, then one section per day with an "Add task" row.
 - **Today** (`/app/today`): Overdue and today's tasks.
 - **Labels**: tags on tasks, listed in the sidebar; each label's view (`/app/labels/$name`) lists its open tasks by day.
-- **Owner-only sign-in** with Google.
+- **Sign in with Google**; anyone can sign up, and anyone can delete their account with all its tasks.
 
 Out of scope: projects, Inbox, filters, reporting, sharing, collaboration, comments, reminders by email.
 
