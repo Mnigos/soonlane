@@ -1,3 +1,4 @@
+import { existsSync, readFileSync } from 'node:fs'
 import contentCollections from '@content-collections/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -12,6 +13,13 @@ const SHORT_SHA_LENGTH = 7
 const APP_COMMIT =
 	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'
 const APP_ENVIRONMENT = process.env.VERCEL_ENV || 'development'
+
+// Missing until the first stable release.
+const CHANGELOG_PATH = new URL('../../CHANGELOG.md', import.meta.url)
+const CHANGELOG = existsSync(CHANGELOG_PATH)
+	? readFileSync(CHANGELOG_PATH, 'utf-8')
+	: ''
+const CHANGELOG_MODULE = 'virtual:changelog'
 
 // A custom list replaces TanStack Start's default client deny list, so it repeats '**/*.server.*'.
 const SERVER_ONLY_FILES = [
@@ -37,6 +45,7 @@ const SERVER_ONLY_SPECIFIERS = [
 	'@soonlane/db/migrator',
 	'pg',
 	'posthog-node',
+	CHANGELOG_MODULE,
 	/^drizzle-orm(\/|$)/u,
 ]
 
@@ -73,6 +82,15 @@ export default defineConfig({
 	},
 	plugins: [
 		contentCollections(),
+		{
+			name: 'changelog',
+			resolveId: id =>
+				id === CHANGELOG_MODULE ? `\0${CHANGELOG_MODULE}` : undefined,
+			load: id =>
+				id === `\0${CHANGELOG_MODULE}`
+					? `export default ${JSON.stringify(CHANGELOG)}`
+					: undefined,
+		},
 		tailwindcss(),
 		tanstackStart({
 			router: {
@@ -88,6 +106,7 @@ export default defineConfig({
 			},
 			pages: [
 				{ path: '/' },
+				{ path: '/changelog' },
 				{ path: '/privacy' },
 				{ path: '/terms' },
 				{ path: '/sitemap.xml' },

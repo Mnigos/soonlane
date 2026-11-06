@@ -17,6 +17,7 @@ import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport }
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
+import { Route as modulesChangelogPresentationRoutesChangelogDotrouteRouteImport } from './modules/changelog/presentation/routes/changelog.route'
 import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
 import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
 import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
@@ -72,6 +73,12 @@ const modulesSitePresentationRoutesHomeDotrouteRoute =
   modulesSitePresentationRoutesHomeDotrouteRouteImport.update({
     id: '/',
     path: '/',
+    getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
+  } as any)
+const modulesChangelogPresentationRoutesChangelogDotrouteRoute =
+  modulesChangelogPresentationRoutesChangelogDotrouteRouteImport.update({
+    id: '/changelog',
+    path: '/changelog',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
 const modulesSitePresentationRoutesPrivacyDotrouteRoute =
@@ -142,6 +149,7 @@ export interface FileRoutesByFullPath {
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
@@ -159,6 +167,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
@@ -180,6 +189,7 @@ export interface FileRoutesById {
   '/_site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/_session/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/_site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
@@ -200,6 +210,7 @@ export interface FileRouteTypes {
     | '/today'
     | '/app'
     | '/login'
+    | '/changelog'
     | '/privacy'
     | '/terms'
     | '/ingest/$'
@@ -217,6 +228,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/today'
     | '/login'
+    | '/changelog'
     | '/privacy'
     | '/terms'
     | '/ingest/$'
@@ -237,6 +249,7 @@ export interface FileRouteTypes {
     | '/_site/'
     | '/_session/app'
     | '/_session/login'
+    | '/_site/changelog'
     | '/_site/privacy'
     | '/_site/terms'
     | '/ingest/$'
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof modulesSitePresentationRoutesHomeDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/_site/changelog': {
+      id: '/_site/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof modulesChangelogPresentationRoutesChangelogDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
     '/_site/privacy': {
@@ -438,6 +458,7 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren =
 
 interface modulesSitePresentationRoutesSiteDotrouteRouteChildren {
   modulesSitePresentationRoutesHomeDotrouteRoute: typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  modulesChangelogPresentationRoutesChangelogDotrouteRoute: typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   modulesSitePresentationRoutesPrivacyDotrouteRoute: typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   modulesSitePresentationRoutesTermsDotrouteRoute: typeof modulesSitePresentationRoutesTermsDotrouteRoute
 }
@@ -446,6 +467,8 @@ const modulesSitePresentationRoutesSiteDotrouteRouteChildren: modulesSitePresent
   {
     modulesSitePresentationRoutesHomeDotrouteRoute:
       modulesSitePresentationRoutesHomeDotrouteRoute,
+    modulesChangelogPresentationRoutesChangelogDotrouteRoute:
+      modulesChangelogPresentationRoutesChangelogDotrouteRoute,
     modulesSitePresentationRoutesPrivacyDotrouteRoute:
       modulesSitePresentationRoutesPrivacyDotrouteRoute,
     modulesSitePresentationRoutesTermsDotrouteRoute:
