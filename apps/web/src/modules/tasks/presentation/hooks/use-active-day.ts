@@ -3,18 +3,10 @@ import { useMemo, useSyncExternalStore } from 'react'
 
 // A section counts as reached when its top is within this distance below the sticky header.
 const REACHED_TOLERANCE_PX = 4
-const BOTTOM_TOLERANCE_PX = 2
 const SCROLL_SETTLE_FALLBACK_MS = 1000
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 type SectionRef = (element: HTMLElement | null) => () => void
-
-function isScrolledToBottom() {
-	return (
-		window.scrollY + window.innerHeight >=
-		document.documentElement.scrollHeight - BOTTOM_TOLERANCE_PX
-	)
-}
 
 /**
  * Tracks which day section sits at the top of the list, just under the sticky
@@ -28,8 +20,6 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	let header: HTMLElement | null = null
 	let activeDay = firstDay
 	let requestedDay: CalendarDate | undefined
-	// A requested day that settled at the bottom of the page without reaching the header.
-	let pinnedDay: CalendarDate | undefined
 	let frame = 0
 	let settleTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -59,10 +49,7 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 
 	function update() {
 		if (requestedDay) return
-		// A resize at the bottom keeps the pinned day instead of falling back to an earlier top day.
-		if (pinnedDay && isScrolledToBottom()) return
 
-		pinnedDay = undefined
 		setActiveDay(readTopDay())
 	}
 
@@ -75,15 +62,10 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		})
 	}
 
-	// The last days cannot reach the top of a short page; then the requested day stays active.
 	function settle() {
 		clearTimeout(settleTimer)
-		const isAtBottom = isScrolledToBottom()
-
-		if (requestedDay) pinnedDay = isAtBottom ? requestedDay : undefined
-		else if (!isAtBottom) pinnedDay = undefined
 		requestedDay = undefined
-		setActiveDay(pinnedDay ?? readTopDay())
+		setActiveDay(readTopDay())
 	}
 
 	return {
