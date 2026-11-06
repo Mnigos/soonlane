@@ -93,7 +93,10 @@ export function createAuth(options: CreateAuthOptions) {
 				'/delete-user': { window: 3600, max: 5 },
 			},
 		},
-		socialProviders: options.google ? { google: options.google } : {},
+		// Redirect sign-in only: a client-held Google ID token would turn a stale session into a fresh one.
+		socialProviders: options.google
+			? { google: { ...options.google, disableIdTokenSignIn: true } }
+			: {},
 		user: { deleteUser: { enabled: true } },
 		hooks: {
 			after: createAuthMiddleware(async ctx => {
