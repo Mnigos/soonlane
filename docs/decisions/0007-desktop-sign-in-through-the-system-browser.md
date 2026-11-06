@@ -21,7 +21,7 @@ What the installed tools offer (read from `node_modules/better-auth` 1.7.18 and 
   - `POST /api/auth/desktop-sign-in/exchange` takes `{ code, verifier }`, consumes the code first, checks `SHA-256(verifier)` against the stored challenge, then creates a new session for the user and sets its cookie.
 - The desktop app keeps the verifier (32 random bytes) in memory only. "Continue with Google" in the window is a plain link to `/desktop/sign-in`; a navigation rule blocks that path in the window, and the blocked `will-navigate` makes the main process open `/desktop/sign-in?challenge=…` in the system browser.
 - `/desktop/sign-in` signs the owner in with Google if needed (returning to the same URL), then waits for a click on "Open the desktop app", which creates the code and opens `soonlane://sign-in?code=…`.
-- On `open-url` the main process takes the pending verifier, brings the window to the front and loads `/desktop/callback#code=…&verifier=…`. That page (client-only) calls the exchange, so the `Set-Cookie` lands in the webview's own cookie store, and then opens `/`.
+- On `open-url` the main process takes the pending verifier, brings the window to the front and loads `/desktop/callback#code=…&verifier=…`. That page (client-only) calls the exchange, so the `Set-Cookie` lands in the webview's own cookie store, and then opens `/app`.
 - The scheme is `soonlane`, the product's name ([ADR 0006](0006-rename-to-soonlane.md)). The contract the three sides share (scheme, paths, parameter names, the S256 helper) lives in `@soonlane/auth`; there is no separate desktop bridge package, because no other message crosses between the page and the main process.
 
 ## Consequences
