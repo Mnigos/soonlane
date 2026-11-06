@@ -1,4 +1,4 @@
-import { Effect, Layer, Option, Ref, Stream } from 'effect'
+import { Effect, Layer, Option, Queue, Ref, Stream } from 'effect'
 import { BrowserWindow, Screen } from 'electrobun'
 import { DesktopConfig } from '../../../platform/config/desktop.config'
 import {
@@ -9,6 +9,7 @@ import { getNavigationRules } from '../../navigation/domain/navigation.helper'
 import { FrameStore } from '../application/frame-store.port'
 import { MainWindow } from '../application/main-window.port'
 import { applyFrameEvent, restoreFrame } from '../domain/window-frame.helper'
+import type { WindowFrame } from '../domain/window-frame.schemas'
 import { FRAME_SAVE_DELAY, WINDOW_TITLE } from '../domain/window.constants'
 import { SHELL_PRELOAD } from './shell-preload.constants'
 
@@ -28,13 +29,24 @@ const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 		)
 	})
 
-	yield* Stream.merge(
-		electrobunEvents(`resize-${window.id}`),
-		electrobunEvents(`move-${window.id}`)
-	).pipe(
-		Stream.mapEffect(event =>
-			Ref.update(latest, frame => applyFrameEvent(frame, event))
-		),
+	// Each event updates the frame inside its callback, in arrival order; only the file write waits.
+	const frameChanges = Stream.callback<WindowFrame>(queue => {
+		const track = (event: unknown) => {
+			Queue.offerUnsafe(
+				queue,
+				Effect.runSync(
+					Ref.updateAndGet(latest, frame => applyFrameEvent(frame, event))
+				)
+			)
+		}
+
+		return Effect.all([
+			listen(`resize-${window.id}`, track),
+			listen(`move-${window.id}`, track),
+		])
+	})
+
+	yield* frameChanges.pipe(
 		Stream.debounce(FRAME_SAVE_DELAY),
 		Stream.runForEach(save),
 		Effect.forkScoped
