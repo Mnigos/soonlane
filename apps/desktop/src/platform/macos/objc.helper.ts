@@ -4,7 +4,14 @@ import { dlopen, FFIType } from 'bun:ffi'
 
 const LIBOBJC = '/usr/lib/libobjc.A.dylib'
 
-const { objc_getClass, sel_registerName } = dlopen(LIBOBJC, {
+const {
+	objc_autoreleasePoolPop,
+	objc_autoreleasePoolPush,
+	objc_getClass,
+	sel_registerName,
+} = dlopen(LIBOBJC, {
+	objc_autoreleasePoolPop: { args: [FFIType.ptr], returns: FFIType.void },
+	objc_autoreleasePoolPush: { args: [], returns: FFIType.ptr },
 	objc_getClass: { args: [FFIType.cstring], returns: FFIType.ptr },
 	sel_registerName: { args: [FFIType.cstring], returns: FFIType.ptr },
 }).symbols
@@ -12,6 +19,16 @@ const { objc_getClass, sel_registerName } = dlopen(LIBOBJC, {
 /** A NUL-terminated UTF-8 copy of the text, for C string arguments. */
 export function utf8(text: string) {
 	return Buffer.from(`${text}\0`)
+}
+
+/** Releases what the body autoreleases; the Bun worker thread never drains a pool of its own. */
+export function withAutoreleasePool<T>(body: () => T) {
+	const pool = objc_autoreleasePoolPush()
+	try {
+		return body()
+	} finally {
+		objc_autoreleasePoolPop(pool)
+	}
 }
 
 export function getClass(name: string) {
