@@ -4,14 +4,17 @@ import { ChevronLeft, ChevronRight, Circle } from 'lucide-react'
 import { type KeyboardEvent, useCallback, useState } from 'react'
 import {
 	addDays,
-	addMonths,
 	formatMonthShortYear,
 	getMonthStart,
 	isBefore,
 	shiftMonths,
 } from '../../../domain/calendar-date.helper'
+import { CALENDAR_MONTH_COUNT } from '../../../domain/calendar.constants'
 import {
+	clampMonthCount,
+	getCalendarLastDay,
 	getCalendarMonths,
+	getInitialMonthCount,
 	getMonthOffset,
 } from '../../../domain/month-calendar.helper'
 import { MonthGrid } from './month-grid'
@@ -29,6 +32,8 @@ const KEY_STEPS: Record<string, number> = {
 	ArrowUp: -7,
 	ArrowDown: 7,
 }
+// The list grows by a year once fewer months than this are left below the one on screen.
+const MONTHS_AHEAD = 3
 const NAV_BUTTON_CLASS =
 	'flex size-7 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-30 [&_svg]:size-4'
 
@@ -42,10 +47,11 @@ function getMonthTops(container: HTMLElement) {
 }
 
 /**
- * Todoist's scrolling calendar: a year of months from today's week, under a
- * header that names the month at the top. Today is red, the chosen day sits
- * on a red circle and past days are dimmed. Arrow keys move by day and week,
- * Page Up and Page Down by month; only one day is in the tab order.
+ * Todoist's scrolling calendar: months from today's week, under a header that
+ * names the month at the top, growing by a year as you near the end, up to ten
+ * years ahead. Today is red, the chosen day sits on a red circle and past days
+ * are dimmed. Arrow keys move by day and week, Page Up and Page Down by month;
+ * only one day is in the tab order, in the month on screen.
  */
 export function MonthCalendar({
 	selected,
@@ -53,9 +59,14 @@ export function MonthCalendar({
 	onSelect,
 }: Readonly<MonthCalendarProps>) {
 	const initial = isBefore(selected, today) ? today : selected
-	const months = getCalendarMonths(today, initial)
-	const lastDay = addDays(addMonths(months.at(-1) ?? initial, 1), -1)
-	const initialIndex = getMonthOffset(today, initial)
+	const [monthCount, setMonthCount] = useState(() =>
+		getInitialMonthCount(today, initial)
+	)
+	const months = getCalendarMonths(today, monthCount)
+	const initialIndex = Math.min(
+		getMonthOffset(today, initial),
+		months.length - 1
+	)
 	const [shownIndex, setShownIndex] = useState(initialIndex)
 	const [focused, setFocused] = useState(initial)
 	const [isKeyboardFocus, setIsKeyboardFocus] = useState(false)
@@ -70,37 +81,54 @@ export function MonthCalendar({
 		[initialIndex]
 	)
 
+	/** The day Tab lands on in a month: the chosen day, today or the 1st. */
+	function getTabStop(month: CalendarDate) {
+		if (getMonthStart(initial) === month) return initial
+
+		return isBefore(month, today) ? today : month
+	}
+
 	function scrollToMonth(index: number) {
-		const month = months[index]
 		const top = scroller ? getMonthTops(scroller)[index] : undefined
-
-		if (!month || top === undefined) return
-
-		scroller?.scrollTo({ top })
-		// The tab stop follows the arrows, so Tab lands in the month on screen; focus stays on the arrow.
-		setFocused(
-			getMonthStart(initial) === month
-				? initial
-				: isBefore(month, today)
-					? today
-					: month
-		)
-		setIsKeyboardFocus(false)
+		if (top !== undefined) scroller?.scrollTo({ top })
 	}
 
 	function showMonthAtTop(container: HTMLElement) {
-		const index = getMonthTops(container).findLastIndex(
-			top => top <= container.scrollTop + 1
+		const index = Math.max(
+			getMonthTops(container).findLastIndex(
+				top => top <= container.scrollTop + 1
+			),
+			0
 		)
+		const month = months[index]
 
-		setShownIndex(Math.max(index, 0))
+		if (index === shownIndex || !month) return
+
+		setShownIndex(index)
+		if (index >= monthCount - MONTHS_AHEAD)
+			setMonthCount(clampMonthCount(monthCount + CALENDAR_MONTH_COUNT))
+		// Scrolled by wheel or the arrows, the tab stop follows, so Tab lands in the month on screen.
+		if (
+			!container.contains(document.activeElement) &&
+			getMonthStart(focused) !== month
+		) {
+			setFocused(getTabStop(month))
+			setIsKeyboardFocus(false)
+		}
 	}
 
 	function moveFocus(date: CalendarDate) {
+		const lastDay = getCalendarLastDay(today)
 		let next = date
 		if (isBefore(next, today)) next = today
 		if (isBefore(lastDay, next)) next = lastDay
 
+		setMonthCount(count =>
+			Math.max(
+				count,
+				clampMonthCount(getMonthOffset(today, next) + 1 + MONTHS_AHEAD)
+			)
+		)
 		setFocused(next)
 		setIsKeyboardFocus(true)
 	}

@@ -10,7 +10,11 @@ import {
 	getWeekdayIndex,
 	isBefore,
 } from './calendar-date.helper'
-import { CALENDAR_MONTH_COUNT, DAYS_PER_WEEK } from './calendar.constants'
+import {
+	CALENDAR_HORIZON_MONTHS,
+	CALENDAR_MONTH_COUNT,
+	DAYS_PER_WEEK,
+} from './calendar.constants'
 
 const MONTHS_PER_YEAR = 12
 
@@ -39,20 +43,39 @@ export function getVisibleWeeks(monthStart: CalendarDate, today: CalendarDate) {
 	)
 }
 
-/** The months the date picker lists: a year from today's month, or up to the chosen month when later. */
-export function getCalendarMonths(today: CalendarDate, selected: CalendarDate) {
+/** How many months the picker lists at first: a year past the later of today's and the chosen month. */
+export function getInitialMonthCount(
+	today: CalendarDate,
+	selected: CalendarDate
+) {
+	return clampMonthCount(
+		Math.max(getMonthOffset(today, selected), 0) + CALENDAR_MONTH_COUNT
+	)
+}
+
+/** A month count kept between one and the picker's horizon, ten years from today's month. */
+export function clampMonthCount(count: number) {
+	return Math.min(Math.max(count, 1), CALENDAR_HORIZON_MONTHS + 1)
+}
+
+/** The first `count` months of the date picker, from today's month on. */
+export function getCalendarMonths(today: CalendarDate, count: number) {
 	const first = getMonthStart(today)
-	const yearEnd = addMonths(first, CALENDAR_MONTH_COUNT - 1)
-	const selectedMonth = getMonthStart(selected)
-	const last = isBefore(yearEnd, selectedMonth) ? selectedMonth : yearEnd
-	const months = [first]
 
-	for (let month = first; isBefore(month, last);) {
-		month = addMonths(month, 1)
-		months.push(month)
-	}
+	return Array.from({ length: count }, (_, index) => addMonths(first, index))
+}
 
-	return months
+/** The last day the date picker offers, at the end of its horizon's month. */
+export function getCalendarLastDay(today: CalendarDate) {
+	return addDays(
+		addMonths(getMonthStart(today), CALENDAR_HORIZON_MONTHS + 1),
+		-1
+	)
+}
+
+/** Whether the date picker offers a day: from today up to its horizon's last month. */
+export function isInCalendar(date: CalendarDate, today: CalendarDate) {
+	return !(isBefore(date, today) || isBefore(getCalendarLastDay(today), date))
 }
 
 /** "Dec" between months in the picker, "Jan 2027" once the year changes. */
