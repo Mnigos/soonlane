@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite dev --port 3000 --strictPort",
-    "build": "bunx --bun vite build",
+    "build": "bun scripts/generate-content-collections.ts && bun scripts/og-images.tsx && bunx --bun vite build",
     "typecheck": "bun scripts/generate-content-collections.ts && tsc --noEmit",
     "dev:session": "bun --env-file=.env.local scripts/dev-session.ts",
     "postinstall": "bun scripts/generate-content-collections.ts"
@@ -47,12 +47,14 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
+    "satori": "0.63.2",
     "schema-dts": "2.1.0",
     "typescript": "catalog:",
     "vite": "catalog:"

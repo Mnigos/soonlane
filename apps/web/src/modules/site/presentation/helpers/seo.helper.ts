@@ -6,6 +6,8 @@ interface PageHeadInput {
 	description: string
 	path: string
 	image?: string
+	imageAlt?: string
+	imageSize?: { width: number; height: number }
 	type?: 'website' | 'article'
 }
 
@@ -18,6 +20,8 @@ export function buildPageHead({
 	description,
 	path,
 	image = DEFAULT_OG_IMAGE,
+	imageAlt,
+	imageSize,
 	type = 'website',
 }: PageHeadInput) {
 	const url = toSiteUrl(path)
@@ -32,11 +36,19 @@ export function buildPageHead({
 			{ property: 'og:type', content: type },
 			{ property: 'og:url', content: url },
 			{ property: 'og:image', content: imageUrl },
+			...(imageSize
+				? [
+						{ property: 'og:image:width', content: String(imageSize.width) },
+						{ property: 'og:image:height', content: String(imageSize.height) },
+					]
+				: []),
+			...(imageAlt ? [{ property: 'og:image:alt', content: imageAlt }] : []),
 			{ property: 'og:site_name', content: SITE_NAME },
 			{ name: 'twitter:card', content: 'summary_large_image' },
 			{ name: 'twitter:title', content: title },
 			{ name: 'twitter:description', content: description },
 			{ name: 'twitter:image', content: imageUrl },
+			...(imageAlt ? [{ name: 'twitter:image:alt', content: imageAlt }] : []),
 		],
 		links: [{ rel: 'canonical', href: url }],
 	}

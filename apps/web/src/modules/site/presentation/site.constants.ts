@@ -8,6 +8,12 @@ export const LICENSE_URL = `${GITHUB_URL}/blob/main/LICENSE`
 export const RELEASES_URL = `${GITHUB_URL}/releases`
 export const CONTACT_EMAIL = 'hello@soonlane.com'
 export const DEFAULT_OG_IMAGE = '/og/default.png'
+export const DATE_FORMAT = new Intl.DateTimeFormat('en-GB', {
+	day: 'numeric',
+	month: 'short',
+	year: 'numeric',
+	timeZone: 'UTC',
+})
 
 interface SitePageLink {
 	label: string

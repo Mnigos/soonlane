@@ -12,3 +12,4 @@ coverage/
 .env*
 !.env.example
 .DS_Store
+apps/web/public/og/blog/
