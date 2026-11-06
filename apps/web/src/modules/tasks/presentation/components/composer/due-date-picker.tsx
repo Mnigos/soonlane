@@ -2,15 +2,13 @@ import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { CalendarDays } from 'lucide-react'
 import { type KeyboardEvent, type Ref, useId, useState } from 'react'
-import {
-	formatWeekdayDayMonth,
-	isBefore,
-} from '../../../domain/calendar-date.helper'
+import { formatWeekdayDayMonth } from '../../../domain/calendar-date.helper'
 import { parseDueDateText } from '../../../domain/due-date-text.helper'
 import {
 	formatDueDate,
 	getDueChipLabel,
 } from '../../../domain/due-label.helper'
+import { isInCalendar } from '../../../domain/month-calendar.helper'
 import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { ComingSoonButton } from './coming-soon-button'
@@ -42,7 +40,7 @@ export function DueDatePicker({
 	const matchId = useId()
 	const isEdited = text.trim() !== '' && text !== shownDate
 	const parsed = isEdited ? parseDueDateText(text, today) : undefined
-	const match = parsed && !isBefore(parsed, today) ? parsed : undefined
+	const match = parsed && isInCalendar(parsed, today) ? parsed : undefined
 
 	function applyOnEnter(event: KeyboardEvent<HTMLInputElement>) {
 		if (event.key !== 'Enter') return
