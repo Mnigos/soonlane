@@ -92,6 +92,10 @@ export function formatMonthYear(date: CalendarDate) {
 	return formatUtc(date, { month: 'long', year: 'numeric' })
 }
 
+export function formatDayMonthYear(date: CalendarDate) {
+	return formatUtc(date, { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
 /** "Mon 9 Nov", the hint next to a date shortcut. */
 export function formatWeekdayDayMonth(date: CalendarDate) {
 	return `${formatWeekday(date, 'short')} ${formatDayMonth(date)}`

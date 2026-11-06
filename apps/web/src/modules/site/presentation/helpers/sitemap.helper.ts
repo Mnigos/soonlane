@@ -1,3 +1,4 @@
+import { RELEASES } from '@/modules/changelog/infrastructure/releases.constants'
 import { SITE_URL } from '../site.constants'
 import { getLegalDocument } from './legal-document.helper'
 
@@ -8,6 +9,7 @@ interface SitemapEntry {
 
 const SITEMAP_ENTRIES: SitemapEntry[] = [
 	{ path: '/' },
+	{ path: '/changelog', lastmod: RELEASES[0]?.date },
 	{ path: '/privacy', lastmod: getLegalDocument('privacy').updated },
 	{ path: '/terms', lastmod: getLegalDocument('terms').updated },
 ]

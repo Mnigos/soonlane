@@ -5,7 +5,11 @@ import { Sidebar } from '@soonlane/ui/components/sidebar'
 import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
 import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
 import { SidebarLabels } from '@/modules/labels/presentation/components/sidebar-labels'
-import { APP_COMMIT, APP_VERSION, RELEASES_URL } from '../build-info.constants'
+import {
+	APP_COMMIT,
+	APP_VERSION,
+	RELEASE_NOTES_URL,
+} from '../build-info.constants'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { SidebarNavLink } from './sidebar-nav-link'
 
@@ -81,7 +85,7 @@ export function ShellSidebar({
 
 			<a
 				className="mt-auto px-2 py-1 text-caption text-faint-foreground transition-colors hover:text-muted-foreground"
-				href={RELEASES_URL}
+				href={RELEASE_NOTES_URL}
 				rel="noreferrer"
 				target="_blank"
 				title="Release notes"

@@ -5,6 +5,7 @@ export const SITE_URL = 'https://soonlane.com'
 export const SITE_NAME = 'Soonlane'
 export const GITHUB_URL = 'https://github.com/Mnigos/soonlane'
 export const LICENSE_URL = `${GITHUB_URL}/blob/main/LICENSE`
+export const RELEASES_URL = `${GITHUB_URL}/releases`
 export const CONTACT_EMAIL = 'hello@soonlane.com'
 export const DEFAULT_OG_IMAGE = '/og/default.png'
 
