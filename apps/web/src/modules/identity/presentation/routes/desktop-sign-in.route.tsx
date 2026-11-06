@@ -13,7 +13,7 @@ const desktopSignInSearchSchema = z.object({
 	fresh: z.boolean().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/desktop/sign-in')({
+export const Route = createFileRoute('/_session/desktop/sign-in')({
 	validateSearch: desktopSignInSearchSchema,
 	head: () => ({ meta: [{ title: 'Desktop sign-in · Soonlane' }] }),
 	component: DesktopSignInRoute,

@@ -46,6 +46,22 @@ const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/platform/rpc/rpc-serializer.constants.ts',
 ]
 
+// Prerendering runs the server bundle at build time without env vars, so it must stay off routes that read the session.
+const NON_PUBLIC_PATHS = [
+	'/app',
+	'/login',
+	'/desktop',
+	'/api',
+	'/robots.txt',
+	'/today',
+]
+
+function isPublicPath(path: string) {
+	return !NON_PUBLIC_PATHS.some(
+		prefix => path === prefix || path.startsWith(`${prefix}/`)
+	)
+}
+
 export default defineConfig({
 	define: {
 		'import.meta.env.APP_VERSION': JSON.stringify(versionFile.version),
@@ -58,6 +74,14 @@ export default defineConfig({
 				routesDirectory: '.',
 				virtualRouteConfig: routes,
 			},
+			prerender: {
+				enabled: true,
+				autoStaticPathsDiscovery: false,
+				crawlLinks: true,
+				failOnError: true,
+				filter: page => isPublicPath(page.path),
+			},
+			pages: [{ path: '/' }, { path: '/sitemap.xml' }],
 			importProtection: {
 				behavior: 'error',
 				client: {
@@ -73,6 +97,8 @@ export default defineConfig({
 			preset: 'vercel',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
+			// Prerendering serves the function through this command: the preset's 'npx srvx' runs from the package root and misses it, and under Bun srvx makes the request's runtime field read-only.
+			commands: { preview: 'bun ./functions/__server.func/index.mjs' },
 			vercel: {
 				// Nitro's default 'bun1.x' is Bun 1.3; 'bun1.4.x' matches bunVersion in vercel.json. fra1 sits next to the Neon database in eu-central-1.
 				functions: {
