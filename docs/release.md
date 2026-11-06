@@ -22,6 +22,10 @@ Run **Actions → Release → Run workflow** on `main` with channel `stable`.
 
 Nightly and stable share a concurrency group, so they never run at the same time.
 
+`[skip ci]` only stops GitHub Actions. Vercel builds every push to `main` (the project has no Ignored Build Step), so the release commit deploys production and rebuilds `/changelog` from the new `CHANGELOG.md`. After the first stable release, check that the deployment for the release commit reached Ready.
+
 ## Version in the app
 
-The build reads `version.json` and `VERCEL_GIT_COMMIT_SHA` (`dev` locally). `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to the releases page.
+The build reads `version.json` and `VERCEL_GIT_COMMIT_SHA` (`dev` locally). `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to that version's section on `/changelog` (GitHub Releases for prerelease versions).
+
+`/changelog` is prerendered from `CHANGELOG.md` at build time; a line that does not match the `cliff.toml` format fails the build. Nightlies are listed only on GitHub Releases.
