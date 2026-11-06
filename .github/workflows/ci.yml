@@ -35,9 +35,6 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.2
-      - uses: actions/setup-node@v5
-        with:
-          node-version: 22
       - run: bun install --frozen-lockfile
       - run: bun run check
       - run: bun run typecheck
