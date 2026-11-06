@@ -101,7 +101,7 @@ Tokens live in `tooling/tailwind-config/tokens.css`; primitives in `packages/ui`
 
 - Dark, flat, low-contrast chrome; content in near-white.
 - One accent, Todoist red, used for actions, the current day and overdue state.
-- Rows and dividers, never cards.
+- Rows and dividers, never cards. The task composer is the one bordered card, as in Todoist.
 - Desktop first with a centered list column at most 768px wide; phones get a drawer sidebar.
 
 ## 2. Colors
@@ -117,11 +117,11 @@ A restrained strategy: tinted neutrals plus one red accent well under 10% of any
 
 ### Priority
 
-Todoist's priority colors, used only on a task's completion circle and the flags in the priority picker: **P1** `priority-1` #d1453b, **P2** `priority-2` #eb8909, **P3** `priority-3` #246fe0, **P4** `priority-4` #8a8a8a (the default, no fill).
+Todoist's priority colors, used only on a task's completion circle and the flags in the composer's Priority chip and menu: **P1** `priority-1` #d1453b, **P2** `priority-2` #eb8909, **P3** `priority-3` #246fe0, **P4** `priority-4` #8a8a8a (the default, no fill).
 
 ### Due dates
 
-Todoist's due colors, used only on the date line under a task: **today** `due-today` #1ab04d, **tomorrow** `due-tomorrow` #ff9a14, **the next 2 to 7 days** `due-week` #a970ff, later dates in `muted-foreground`, overdue in `danger`.
+Todoist's due colors, used only on the date line under a task and the composer's date chip: **today** `due-today` #1ab04d, **tomorrow** `due-tomorrow` #ff9a14, **the next 2 to 7 days** `due-week` #a970ff, later dates in `muted-foreground`, overdue in `danger`.
 
 ### Neutral
 
@@ -153,7 +153,7 @@ System sans (`-apple-system`, Inter, Segoe UI, Roboto). Weight carries hierarchy
 
 ## 4. Elevation
 
-Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop) and the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow.
+Flat. The layered surfaces are the mobile drawer and the Add task dialog (both over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, and popovers and menus: `sidebar` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`.
 
 ## 5. Components
 
@@ -186,7 +186,7 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 ### Tasks
 
 - A task row: a 18px completion circle in its priority color (filled tint for P1 to P3), the title, a one-line description preview, then a date line with a small calendar icon in the due color: the due time if set, and for overdue tasks the date as well ("5 Nov", "5 Nov 11:30"). A hover shows a check in the circle; clicking it completes the task, hides it from Upcoming and shows a "Task completed" toast with Undo.
-- Quick add replaces a day's "+ Add task" row inline: title, description, due date (that day), optional time, a P1 to P4 picker, Cancel and Add task. Enter submits and keeps the form open for the next task; Escape closes it.
+- The task composer replaces a day's "+ Add task" row inline: a card with a faint border, the title and description fields, then a row of 28px outlined chips (the due date in its due color, then Priority) and, on the right, a ghost × to cancel and a red send button to add. The Priority chip opens a menu of flags P1 to P4 with a red check on the selected one, and reads "P1" to "P3" with the colored flag once picked. Enter submits and keeps the card open for the next task; Escape closes it. New chips (labels, later) join the same row.
 
 ### Loading
 
@@ -206,5 +206,5 @@ Flat. The only layered surfaces are the mobile drawer (over a 60% black backdrop
 - **Don't** add cards, shadows or gradients.
 - **Don't** use red for anything that is not an action, the current day or overdue state.
 - **Don't** add blue outside the P3 priority color; links and focus use red or neutrals.
-- **Don't** open a modal for a one- or two-field action; edit inline. The one exception is the global "Add task" in the sidebar, which opens the quick add form in a dialog.
+- **Don't** open a modal for a one- or two-field action; edit inline. The one exception is the global "Add task" in the sidebar, which opens the task composer in a dialog.
 - **Don't** introduce projects, boards or team visuals.
