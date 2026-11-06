@@ -1,3 +1,4 @@
+import { cn } from '@soonlane/ui/cn'
 import { buttonVariants } from '@soonlane/ui/components/button'
 import { Link } from '@tanstack/react-router'
 import { useSignedInHint } from '../hooks/use-signed-in-hint'
@@ -19,7 +20,10 @@ export function SiteHeader() {
 				<nav aria-label="Site" className="flex items-center gap-1">
 					{SITE_PAGE_LINKS.map(({ label, to }) => (
 						<Link
-							className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+							className={cn(
+								buttonVariants({ variant: 'ghost', size: 'sm' }),
+								'hidden sm:inline-flex'
+							)}
 							key={label}
 							to={to}
 						>
