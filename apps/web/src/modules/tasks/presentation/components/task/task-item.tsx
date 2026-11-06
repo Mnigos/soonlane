@@ -16,17 +16,50 @@ interface TaskItemProps {
 	onComplete: (task: Task) => void
 }
 
+// A saved date can move the row to another list or off the page, taking its focused Edit button along.
+function keepFocusAfterMove(button: HTMLButtonElement) {
+	return () => {
+		if (document.activeElement !== button) return
+
+		const movedSelector = `[data-edit-task="${button.dataset.editTask}"]`
+		const row = button.closest('li')
+		const neighbours = [row?.nextElementSibling, row?.previousElementSibling]
+		const section = button.closest('section')
+
+		// After the commit, so the task's row has mounted wherever it moved to.
+		queueMicrotask(() => {
+			if (document.activeElement !== document.body) return
+
+			const target = [
+				document.querySelector<HTMLElement>(movedSelector),
+				...neighbours.map(neighbour =>
+					neighbour?.querySelector<HTMLElement>('[data-edit-task]')
+				),
+				section?.querySelector<HTMLElement>('input, button'),
+			].find(element => element?.isConnected)
+
+			target?.focus()
+		})
+	}
+}
+
 export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const [isEditing, setIsEditing] = useState(false)
+	const [shouldFocusEdit, setShouldFocusEdit] = useState(false)
 	const due = getDueLabel(toCalendarDate(task.dueDate), task.dueTime, today)
+
+	function closeComposer() {
+		setIsEditing(false)
+		setShouldFocusEdit(true)
+	}
 
 	if (isEditing)
 		return (
 			<li>
 				<TaskComposer
 					defaultDueDate={toCalendarDate(task.dueDate)}
-					onCancel={() => setIsEditing(false)}
-					onSaved={() => setIsEditing(false)}
+					onCancel={closeComposer}
+					onSaved={closeComposer}
 					task={task}
 					today={today}
 				/>
@@ -77,8 +110,11 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 			<Tooltip label="Edit task">
 				<button
 					aria-label="Edit task"
+					autoFocus={shouldFocusEdit}
 					className="-my-1.5 ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary-foreground opacity-0 transition group-focus-within/task:opacity-100 group-hover/task:opacity-100 hover:bg-hover focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-primary pointer-coarse:opacity-100"
+					data-edit-task={task.id}
 					onClick={() => setIsEditing(true)}
+					ref={keepFocusAfterMove}
 					type="button"
 				>
 					<PencilLine
