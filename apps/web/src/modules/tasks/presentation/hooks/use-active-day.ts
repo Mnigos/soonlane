@@ -18,6 +18,7 @@ type SectionRef = (element: HTMLElement | null) => () => void
 function createActiveDayTracker(firstDay: CalendarDate) {
 	const sections = new Map<CalendarDate, HTMLElement>()
 	const listeners = new Set<() => void>()
+	let sortedSections: [CalendarDate, HTMLElement][] | undefined
 	let header: HTMLElement | null = null
 	let activeDay = firstDay
 	let requestedDay: CalendarDate | undefined
@@ -28,14 +29,27 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		return header?.getBoundingClientRect().bottom ?? 0
 	}
 
+	// Sections sit in date order on the page, so a binary search finds the top one in a long list.
 	function readTopDay() {
 		const line = getHeaderBottom() + REACHED_TOLERANCE_PX
+		sortedSections ??= [...sections].toSorted(([a], [b]) => a.localeCompare(b))
 		let topDay = firstDay
+		let low = 0
+		let high = sortedSections.length - 1
 
-		for (const date of [...sections.keys()].toSorted()) {
-			if ((sections.get(date)?.getBoundingClientRect().top ?? 0) > line) break
+		while (low <= high) {
+			const middle = Math.floor((low + high) / 2)
+			const section = sortedSections[middle]
 
-			topDay = date
+			if (!section) break
+
+			const [date, element] = section
+
+			if (element.getBoundingClientRect().top > line) high = middle - 1
+			else {
+				topDay = date
+				low = middle + 1
+			}
 		}
 
 		return topDay
@@ -120,9 +134,13 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		sectionRef(date: CalendarDate): SectionRef {
 			return element => {
 				if (element) sections.set(date, element)
+				sortedSections = undefined
 
 				return () => {
-					if (sections.get(date) === element) sections.delete(date)
+					if (sections.get(date) !== element) return
+
+					sections.delete(date)
+					sortedSections = undefined
 				}
 			}
 		},
