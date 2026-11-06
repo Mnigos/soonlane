@@ -33,8 +33,9 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 	const { completeTask } = useCompleteTask()
 	const tasksByDay = groupTasksByDay(data?.scheduled ?? [])
 
+	// Room below the last day so it can scroll up under the sticky header, which is at least 6rem tall.
 	return (
-		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
+		<main className="mx-auto w-full max-w-3xl px-6 pb-[calc(100dvh-6rem)] md:px-10">
 			<header
 				className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4"
 				ref={headerRef}
