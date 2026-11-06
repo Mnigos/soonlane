@@ -6,7 +6,7 @@ A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR, Better Au
 
 | Path                        | What it is                                                                                                      |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Node 22, `fra1`).                                          |
+| `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Bun 1.4, `fra1`).                                          |
 | `packages/domain`           | `@soonlist/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                      |
 | `packages/db`               | `@soonlist/db`: Drizzle schema, migrations and the migrator. Server-only.                                       |
 | `packages/auth`             | `@soonlist/auth`: `createAuth` (`/server`), the browser client (`/client`), the owner policy (root). No Effect. |
