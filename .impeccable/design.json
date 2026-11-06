@@ -46,6 +46,30 @@
         "displayName": "Overdue Coral",
         "canonical": "#ff7066",
         "usage": "Active sidebar text, Reschedule, overdue dates, errors."
+      },
+      "priority-1": {
+        "role": "semantic",
+        "displayName": "P1 Red",
+        "canonical": "#d1453b",
+        "usage": "Priority 1 completion circle and flag only."
+      },
+      "priority-2": {
+        "role": "semantic",
+        "displayName": "P2 Orange",
+        "canonical": "#eb8909",
+        "usage": "Priority 2 completion circle and flag only."
+      },
+      "priority-3": {
+        "role": "semantic",
+        "displayName": "P3 Blue",
+        "canonical": "#246fe0",
+        "usage": "Priority 3 completion circle and flag only."
+      },
+      "priority-4": {
+        "role": "semantic",
+        "displayName": "P4 Grey",
+        "canonical": "#8a8a8a",
+        "usage": "Priority 4 completion circle and flag only."
       }
     },
     "typographyMeta": {

@@ -18,15 +18,15 @@ A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR, Better Au
 
 Inside `apps/web/src`:
 
-| Path                         | What it is                                                                                                                                                                                             |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `routes.ts`, `router.tsx`    | Virtual route config and the router.                                                                                                                                                                   |
-| `routes/`                    | `__root` (fetches `identity.me`) and `/api/rpc/$`.                                                                                                                                                     |
-| `platform/`                  | Server wiring: `config/`, `db/` (`Db` layer), `app.layers`, `app.runtime` (`ManagedRuntime`), `rpc/` (base, context, router, handler, error mapping, browser and SSR clients), `system/system.router`. |
-| `modules/shell/presentation` | The pathless layout route (redirects signed-out visitors) and the shell: sidebar with the user menu, icon rail, drawer, sidebar preference cookie.                                                     |
-| `modules/tasks`              | `domain/` calendar logic; `presentation/` Upcoming (`/`), Today (`/today`), `useToday`.                                                                                                                |
-| `modules/identity`           | `BetterAuthLive` (wraps `createAuth`), the `Auth` port, `identity.me`, `requireOwner`, `/login`, `/api/auth/$`, user menu and sign-out.                                                                |
-| `components/`                | `not-found`.                                                                                                                                                                                           |
+| Path                         | What it is                                                                                                                                                                                                                                                                                                                                                  |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `routes.ts`, `router.tsx`    | Virtual route config and the router.                                                                                                                                                                                                                                                                                                                        |
+| `routes/`                    | `__root` (fetches `identity.me`) and `/api/rpc/$`.                                                                                                                                                                                                                                                                                                          |
+| `platform/`                  | Server wiring: `config/`, `db/` (`Db` layer), `app.layers`, `app.runtime` (`ManagedRuntime`), `rpc/` (base, context, router, handler, error mapping, browser and SSR clients), `system/system.router`.                                                                                                                                                      |
+| `modules/shell/presentation` | The pathless layout route (redirects signed-out visitors) and the shell: sidebar with the user menu, icon rail, drawer, sidebar preference cookie.                                                                                                                                                                                                          |
+| `modules/tasks`              | `domain/` calendar logic and `TaskNotFound`; `application/` `TasksService` and the `TaskRepository` port; `infrastructure/task.repository` (Drizzle via `Db.run`); `presentation/` `tasks.router` (list, create, complete, uncomplete behind `requireOwner`), Upcoming (`/`), Today (`/today`), quick add, the Add task dialog, `useToday`, `useActiveDay`. |
+| `modules/identity`           | `BetterAuthLive` (wraps `createAuth`), the `Auth` port, `identity.me`, `requireOwner`, `/login`, `/api/auth/$`, user menu and sign-out.                                                                                                                                                                                                                     |
+| `components/`                | `not-found`.                                                                                                                                                                                                                                                                                                                                                |
 
 ## Package layering
 
@@ -49,6 +49,10 @@ browser (orpcQuery + TanStack Query) or SSR (in-process client)
 ```
 
 `createRpcHandler` rejects any `Origin` other than the request's own and `AppConfig.trustedOrigins` (the base URL plus the Vercel branch and deployment hosts). Only `POST` reaches procedures. `system.health` returns `{ ok, db, version }`.
+
+## Tasks
+
+A task belongs to the signed-in owner (`task.owner_id`, cascade on user delete) and has a title, an optional description, a due date (`date`, no time zone), an optional due time (`time`), a priority 1 to 4 (default 4), `created_at` and a nullable `completed_at`. `tasks.list` takes `{ from, to, today }` from the browser and returns the open tasks due before `today` (overdue) and between `from` and `to`, ordered by time, priority, then age. Completing is optimistic in the TanStack Query cache and offers Undo (`tasks.uncomplete`). Edit, reschedule and labels come later.
 
 ## Sign-in
 
