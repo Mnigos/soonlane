@@ -42,6 +42,8 @@ const MONTH_DAY_PATTERN = /^([a-z]{3,})\.?\s+(\d{1,2})(?:,?\s+(\d{4}))?$/u
 const SPACES_PATTERN = /\s+/gu
 
 function toDate(year: number, month: number, day: number) {
+	if (month < 0 || month >= MONTHS.length) return undefined
+
 	const monthStart = toCalendarDate(
 		`${year}-${String(month + 1).padStart(2, '0')}-01`
 	)
