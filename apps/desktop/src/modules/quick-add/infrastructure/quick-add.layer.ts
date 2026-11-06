@@ -12,6 +12,8 @@ import {
 	messageSender,
 	utf8,
 } from '../../../platform/macos/objc.helper'
+import { readMenuAction } from '../../menu/domain/menu-event.helper'
+import { QUICK_ADD_ACTION } from '../../menu/domain/menu.constants'
 import { followNavigation } from '../../navigation/infrastructure/navigation-events.layer'
 import { openAppWindow } from '../../window/infrastructure/app-window.helper'
 import { isQuickAddDone } from '../domain/quick-add-event.helper'
@@ -128,7 +130,11 @@ export const QuickAddLive = Layer.effectDiscard(
 			Effect.withSpan('QuickAdd.open')
 		)
 
-		// Presses are handled one at a time, so a quick double press still opens one window.
-		yield* handleEvents(shortcutPresses, () => open)
+		const menuPresses = electrobunEvents('application-menu-clicked').pipe(
+			Stream.filter(event => readMenuAction(event) === QUICK_ADD_ACTION)
+		)
+
+		// Shortcut and menu presses are handled one at a time, so a quick double press still opens one window.
+		yield* handleEvents(Stream.merge(shortcutPresses, menuPresses), () => open)
 	})
 )

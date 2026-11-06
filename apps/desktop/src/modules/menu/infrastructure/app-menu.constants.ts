@@ -1,5 +1,6 @@
 import type { ApplicationMenuItemConfig } from 'electrobun'
-import { RELOAD_ACTION } from '../domain/menu.constants'
+import { QUICK_ADD_SHORTCUT } from '../../quick-add/domain/quick-add.constants'
+import { QUICK_ADD_ACTION, RELOAD_ACTION } from '../domain/menu.constants'
 
 export const APP_MENU = [
 	{
@@ -12,6 +13,17 @@ export const APP_MENU = [
 			{ role: 'showAll' },
 			{ type: 'separator' },
 			{ role: 'quit' },
+		],
+	},
+	{
+		label: 'File',
+		submenu: [
+			// Electrobun's global monitor never sees ⌥Space while Soonlane is in front; this key equivalent does.
+			{
+				label: 'Quick Add',
+				action: QUICK_ADD_ACTION,
+				accelerator: QUICK_ADD_SHORTCUT,
+			},
 		],
 	},
 	{
