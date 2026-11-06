@@ -1,9 +1,10 @@
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
-import { Sidebar, SidebarSection } from '@soonlane/ui/components/sidebar'
+import { Sidebar } from '@soonlane/ui/components/sidebar'
 import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
 import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
+import { SidebarLabels } from '@/modules/labels/presentation/components/sidebar-labels'
 import { APP_COMMIT, APP_VERSION, RELEASES_URL } from '../build-info.constants'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { SidebarNavLink } from './sidebar-nav-link'
@@ -71,11 +72,7 @@ export function ShellSidebar({
 				/>
 			</nav>
 
-			<SidebarSection label="Labels">
-				<p className="px-2 py-1.5 text-label text-faint-foreground">
-					No labels yet
-				</p>
-			</SidebarSection>
+			<SidebarLabels onNavigate={onNavigate} />
 
 			<a
 				className="mt-auto px-2 py-1 text-caption text-faint-foreground transition-colors hover:text-muted-foreground"
