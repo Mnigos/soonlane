@@ -27,7 +27,7 @@ What the installed tools offer (read from `node_modules/better-auth` 1.7.18 and 
 ## Consequences
 
 - An intercepted `soonlane://` link is useless without the verifier, which never leaves the app; a link built from someone else's challenge fails the same check. A wrong verifier also spends the code.
-- The desktop session is separate from the browser's: signing out in the app leaves the browser signed in, and signing in again from the app skips Google and needs only the click.
+- The desktop session is separate from the browser's: signing out in the app leaves the browser signed in, and signing in again from the app skips Google and needs only the click. The desktop session keeps the browser session's `createdAt`, and `/desktop/sign-in?fresh=true` (the app forwards `fresh`) goes through Google first, so account deletion's fresh-session check holds ([ADR 0009](0009-open-sign-in.md)).
 - The click is deliberate: a page that redirected on its own would hand a code to any app that registered `soonlane` and sent the owner a link with its own challenge.
 - A sign-in started before the app quits cannot finish after a relaunch; the owner starts again.
 - Electrobun's native layer logs every URL the window loads (`NSLog`, 2.0.6), so the callback URL with the code and the verifier reaches the macOS unified log. This exposure is accepted: the pair works only until the window's exchange spends the code, and never after the code's 2 minutes, and reading the log needs the owner's macOS account or an admin.
