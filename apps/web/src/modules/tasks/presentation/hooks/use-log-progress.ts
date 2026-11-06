@@ -58,10 +58,12 @@ export function useLogProgress() {
 					},
 				})
 			},
-			// A refetch landing while other logs are in flight would roll their progress back.
-			onSettled: async () => {
-				if (queryClient.isMutating({ mutationKey }) === 1)
-					await queryClient.invalidateQueries({ queryKey: listKey })
+			// A refetch landing while other logs are in flight would roll their progress back; the timeout runs once this log has left pending.
+			onSettled: () => {
+				setTimeout(() => {
+					if (!queryClient.isMutating({ mutationKey }))
+						void queryClient.invalidateQueries({ queryKey: listKey })
+				}, 0)
 			},
 		})
 	)
