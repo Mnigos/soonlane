@@ -14,6 +14,7 @@ export function AddTaskDialog({ onClose }: Readonly<AddTaskDialogProps>) {
 		<Dialog label="Add task" onClose={onClose}>
 			{today && (
 				<TaskComposer
+					autoFocus={false}
 					className="my-0 border-0"
 					defaultDueDate={today}
 					onCancel={onClose}
