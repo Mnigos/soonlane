@@ -1,4 +1,4 @@
-import { DESKTOP_SIGN_IN_PATH } from '@soonlane/auth'
+import { DESKTOP_SIGN_IN_PATH, FRESH_SIGN_IN_PARAM } from '@soonlane/auth'
 import {
 	type GoogleSignInRedirects,
 	signInWithGoogle as startGoogleSignIn,
@@ -11,21 +11,25 @@ import { GoogleIcon } from './google-icon'
 
 export const SIGN_IN_FAILED = 'Sign-in failed. Try again.'
 
-async function signInWithGoogle(redirects: GoogleSignInRedirects) {
-	const { error } = await startGoogleSignIn(redirects)
-
-	if (error) throw new Error(SIGN_IN_FAILED)
-}
-
 interface ContinueWithGoogleProps {
 	redirects: GoogleSignInRedirects
+	loginHint?: string
+	fresh?: boolean
 }
 
 export function ContinueWithGoogle({
 	redirects,
+	loginHint,
+	fresh = false,
 }: Readonly<ContinueWithGoogleProps>) {
 	const { mutate, isPending, isSuccess, isError } = useMutation(
-		mutationOptions({ mutationFn: signInWithGoogle })
+		mutationOptions({
+			mutationFn: async () => {
+				const { error } = await startGoogleSignIn(redirects, loginHint)
+
+				if (error) throw new Error(SIGN_IN_FAILED)
+			},
+		})
 	)
 	const [hasOpenedBrowser, setHasOpenedBrowser] = useState(false)
 	const isRedirecting = isPending || isSuccess
@@ -35,7 +39,7 @@ export function ContinueWithGoogle({
 			<Button
 				className="desktop:hidden"
 				disabled={isRedirecting}
-				onClick={() => mutate(redirects)}
+				onClick={() => mutate()}
 				size="lg"
 				variant="outline"
 			>
@@ -49,7 +53,11 @@ export function ContinueWithGoogle({
 					buttonVariants({ variant: 'outline', size: 'lg' }),
 					'hidden desktop:inline-flex'
 				)}
-				href={DESKTOP_SIGN_IN_PATH}
+				href={
+					fresh
+						? `${DESKTOP_SIGN_IN_PATH}?${FRESH_SIGN_IN_PARAM}=true`
+						: DESKTOP_SIGN_IN_PATH
+				}
 				onClick={() => setHasOpenedBrowser(true)}
 			>
 				<GoogleIcon />

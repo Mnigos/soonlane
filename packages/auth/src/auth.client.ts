@@ -8,8 +8,16 @@ export interface GoogleSignInRedirects {
 	errorCallbackURL: string
 }
 
-export async function signInWithGoogle(redirects: GoogleSignInRedirects) {
-	return await authClient.signIn.social({ provider: 'google', ...redirects })
+/** `loginHint` preselects that Google account, so a repeated sign-in does not switch users by accident. */
+export async function signInWithGoogle(
+	redirects: GoogleSignInRedirects,
+	loginHint?: string
+) {
+	return await authClient.signIn.social({
+		provider: 'google',
+		...redirects,
+		loginHint,
+	})
 }
 
 /** The signed-in browser's one-time code for the desktop app that sent this challenge. */

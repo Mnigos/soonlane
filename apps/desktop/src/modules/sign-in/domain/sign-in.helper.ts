@@ -5,6 +5,7 @@ import {
 	DESKTOP_SIGN_IN_LINK_HOST,
 	DESKTOP_SIGN_IN_PATH,
 	DESKTOP_URL_SCHEME,
+	FRESH_SIGN_IN_PARAM,
 	SIGN_IN_CODE_PARAM,
 } from '@soonlane/auth'
 
@@ -25,10 +26,17 @@ export function readSignInCode(href: string) {
 		: undefined
 }
 
-export function getBrowserSignInUrl(appUrl: URL, challenge: string) {
+/** The browser's sign-in page for this challenge; a fresh sign-in the window asked for (account deletion) carries over. */
+export function getBrowserSignInUrl(
+	appUrl: URL,
+	challenge: string,
+	requestedHref: string
+) {
 	const url = new URL(DESKTOP_SIGN_IN_PATH, appUrl)
+	const fresh = URL.parse(requestedHref)?.searchParams.get(FRESH_SIGN_IN_PARAM)
 
 	url.searchParams.set(CODE_CHALLENGE_PARAM, challenge)
+	if (fresh) url.searchParams.set(FRESH_SIGN_IN_PARAM, fresh)
 
 	return url
 }
