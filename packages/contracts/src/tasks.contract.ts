@@ -3,6 +3,8 @@ import {
 	REPEAT_INTERVAL_MAX,
 	REPEAT_UNITS,
 	SINGLE_INTERVAL_REPEAT_UNITS,
+	GOAL_TARGET_MAX,
+	GOAL_UNIT_MAX_LENGTH,
 	TASK_DESCRIPTION_MAX_LENGTH,
 	TASK_PRIORITIES,
 	TASK_TITLE_MAX_LENGTH,
@@ -36,6 +38,13 @@ export const taskSchema = z.object({
 	completedAt: z.date().optional(),
 	repeat: repeatSchema.extend({ anchor: storedCalendarDateSchema }).optional(),
 	labels: z.array(labelSchema),
+	goal: z
+		.object({
+			target: z.int(),
+			unit: z.string().optional(),
+			progress: z.int(),
+		})
+		.optional(),
 })
 
 export type Task = z.infer<typeof taskSchema>
@@ -91,16 +100,25 @@ export const createTaskInputSchema = z.object({
 			message: 'Each label can be added once.',
 		})
 		.optional(),
+	goal: z
+		.object({
+			target: z.int().min(1).max(GOAL_TARGET_MAX),
+			unit: z.string().trim().min(1).max(GOAL_UNIT_MAX_LENGTH).optional(),
+		})
+		.optional(),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 // Replaces every field (an absent description or time clears it) but the repeat rule: null clears it, absent keeps it for clients from before repeating tasks.
-export const updateTaskInputSchema = createTaskInputSchema.extend({
-	id: taskIdSchema,
-	priority: prioritySchema,
-	repeat: repeatInputSchema.nullable().optional(),
-})
+// Editing a goal comes later (SOON-57), so an edit leaves the goal and its progress alone.
+export const updateTaskInputSchema = createTaskInputSchema
+	.omit({ goal: true })
+	.extend({
+		id: taskIdSchema,
+		priority: prioritySchema,
+		repeat: repeatInputSchema.nullable().optional(),
+	})
 
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
 
@@ -132,6 +150,25 @@ export const taskLabelInputSchema = z.object({
 })
 
 export type TaskLabelInput = z.infer<typeof taskLabelInputSchema>
+
+export const logProgressInputSchema = z.object({
+	id: taskIdSchema,
+	amount: z
+		.int()
+		.min(-GOAL_TARGET_MAX)
+		.max(GOAL_TARGET_MAX)
+		.refine(amount => amount !== 0, 'Log a non-zero amount.'),
+})
+
+export type LogProgressInput = z.infer<typeof logProgressInputSchema>
+
+/** `logged` is the amount the server applied after clamping, so Undo reverses exactly that. */
+export const logProgressOutputSchema = z.object({
+	task: taskSchema,
+	logged: z.int(),
+})
+
+export type LogProgressOutput = z.infer<typeof logProgressOutputSchema>
 
 const taskErrors = {
 	...authErrors,
@@ -175,4 +212,8 @@ export const tasksContract = {
 		.errors(taskErrors)
 		.input(taskLabelInputSchema)
 		.output(z.object({ task: taskSchema })),
+	logProgress: oc
+		.errors(taskErrors)
+		.input(logProgressInputSchema)
+		.output(logProgressOutputSchema),
 }
