@@ -45,7 +45,7 @@ export const BetterAuthLive = Layer.effect(
 			baseUrl: config.baseUrl,
 			trustedOrigins: config.trustedOrigins,
 			secret: settings.secret,
-			ownerEmail: config.ownerEmail,
+			allowedEmails: config.allowedEmails,
 			google: googleConfigured
 				? {
 						clientId: config.googleClientId,

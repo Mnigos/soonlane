@@ -7,7 +7,7 @@ interface DesktopSignInScreenProps {
 	challenge?: string
 	user: SessionUser | null
 	configured: boolean
-	hasOAuthError: boolean
+	oauthError?: string
 }
 
 /** The system browser's page for a sign-in the desktop app started: Google first when signed out, then the hand-off. */
@@ -15,7 +15,7 @@ export function DesktopSignInScreen({
 	challenge,
 	user,
 	configured,
-	hasOAuthError,
+	oauthError,
 }: Readonly<DesktopSignInScreenProps>) {
 	if (!challenge)
 		return (
@@ -37,7 +37,7 @@ export function DesktopSignInScreen({
 	return (
 		<SignInScreen
 			configured={configured}
-			hasOAuthError={hasOAuthError}
+			oauthError={oauthError}
 			redirects={{ callbackURL: returnUrl, errorCallbackURL: returnUrl }}
 		/>
 	)

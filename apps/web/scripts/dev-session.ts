@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
-// Local QA only: a synthetic signed-in owner for screenshots, never a login route in the app.
+// Local QA only: a synthetic signed-in user for screenshots, never a login route in the app.
 const SAMPLE_USER = {
 	name: 'Sample User',
 	email: 'sample@soonlane.test',
@@ -56,12 +56,14 @@ try {
 	const database = drizzle({ client: pool })
 
 	if (shouldDelete) {
-		// Sessions and accounts go with the user (onDelete: cascade).
+		// Sessions, accounts and tasks go with the user (onDelete: cascade).
 		const deleted = await database
 			.delete(user)
 			.where(eq(user.email, SAMPLE_USER.email))
 			.returning({ id: user.id })
-		console.log(`Deleted ${deleted.length} sample user(s) and their sessions.`)
+		console.log(
+			`Deleted ${deleted.length} sample user(s) with their sessions and tasks.`
+		)
 	} else {
 		const [sample] = await database
 			.insert(user)
@@ -85,7 +87,7 @@ try {
 			.digest('base64')
 
 		console.log(
-			`Start the dev server with OWNER_EMAIL=${SAMPLE_USER.email}, then send this cookie to http://localhost:3000:`
+			`Send this cookie to the dev server (with ALLOWED_EMAILS set, it must include ${SAMPLE_USER.email}):`
 		)
 		console.log(`name: ${SESSION_COOKIE}`)
 		console.log(`value: ${encodeURIComponent(`${token}.${signature}`)}`)
