@@ -1,8 +1,20 @@
+import type { Task } from '@soonlist/contracts'
 import { cn } from '@soonlist/ui/cn'
 import { ChevronDown } from 'lucide-react'
 import { useState } from 'react'
+import { TaskList } from './task-list'
 
-export function OverdueSection() {
+interface OverdueSectionProps {
+	tasks: Task[]
+	isLoading: boolean
+	onComplete: (task: Task) => void
+}
+
+export function OverdueSection({
+	tasks,
+	isLoading,
+	onComplete,
+}: Readonly<OverdueSectionProps>) {
 	const [isOpen, setIsOpen] = useState(true)
 
 	return (
@@ -37,9 +49,19 @@ export function OverdueSection() {
 			</div>
 
 			{isOpen && (
-				<p className="py-3 text-sm text-faint-foreground" id="overdue-tasks">
-					Nothing overdue.
-				</p>
+				<div id="overdue-tasks">
+					{!isLoading && tasks.length === 0 ? (
+						<p className="py-3 text-sm text-faint-foreground">
+							Nothing overdue.
+						</p>
+					) : (
+						<TaskList
+							isLoading={isLoading}
+							onComplete={onComplete}
+							tasks={tasks}
+						/>
+					)}
+				</div>
 			)}
 		</section>
 	)

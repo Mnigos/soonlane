@@ -17,12 +17,14 @@ import { RailNavLink } from './rail-nav-link'
 interface ShellRailProps {
 	className?: string
 	user: SessionUser
+	onAddTask: () => void
 	onExpand: () => void
 }
 
 export function ShellRail({
 	className,
 	user,
+	onAddTask,
 	onExpand,
 }: Readonly<ShellRailProps>) {
 	return (
@@ -56,6 +58,7 @@ export function ShellRail({
 					sidebarRailItemVariants(),
 					'text-danger hover:text-danger'
 				)}
+				onClick={onAddTask}
 				title="Add task"
 				type="button"
 			>
