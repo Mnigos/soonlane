@@ -8,7 +8,7 @@ import type {
 } from './owner-review.types'
 
 export const OWNER_ID = 56_691_628
-export const REPOSITORY = 'mnigos/soonlist'
+export const REPOSITORY = 'mnigos/soonlane'
 export const BOT_LOGIN = 'github-actions[bot]'
 export const MARKER_PREFIX = '<!-- owner-review-command:'
 export const DISMISS_MESSAGE = 'New commits require a fresh /approve.'

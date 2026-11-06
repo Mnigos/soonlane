@@ -9,13 +9,13 @@ Written by the release workflow from conventional commits; never edit this file 
 """
 body = """
 {% if version %}\
-## [{{ version | trim_start_matches(pat="v") }}](https://github.com/Mnigos/soonlist/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+## [{{ version | trim_start_matches(pat="v") }}](https://github.com/Mnigos/soonlane/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
 {% for group, commits in commits | group_by(attribute="group") %}
 {% for scope, scoped in commits | group_by(attribute="scope") %}
 ### {{ group | striptags | trim }} › {{ scope }}
 
 {% for commit in scoped -%}
-- {{ commit.message | split(pat="\n") | first | upper_first | trim }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/Mnigos/soonlist/commit/{{ commit.id }}))
+- {{ commit.message | split(pat="\n") | first | upper_first | trim }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/Mnigos/soonlane/commit/{{ commit.id }}))
 {% endfor %}
 {% endfor %}\
 {% endfor %}\
@@ -25,7 +25,7 @@ footer = ""
 trim = true
 postprocessors = [
 	{ pattern = '\n{3,}', replace = "\n\n" },
-	{ pattern = '\(#([0-9]+)\)', replace = "([#${1}](https://github.com/Mnigos/soonlist/pull/${1}))" },
+	{ pattern = '\(#([0-9]+)\)', replace = "([#${1}](https://github.com/Mnigos/soonlane/pull/${1}))" },
 ]
 
 [git]
