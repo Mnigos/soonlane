@@ -2,7 +2,11 @@ import type { ListTasksOutput } from '@soonlist/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
-import { withoutTask } from '../helpers/task-list.helper'
+import {
+	findTaskPlacement,
+	withoutTask,
+	withTask,
+} from '../helpers/task-list.helper'
 
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask() {
@@ -24,20 +28,28 @@ export function useCompleteTask() {
 		orpcQuery.tasks.complete.mutationOptions({
 			onMutate: async ({ id }) => {
 				await queryClient.cancelQueries({ queryKey: listKey })
-				const previous = queryClient.getQueriesData<ListTasksOutput>({
-					queryKey: listKey,
-				})
+				const removed = queryClient
+					.getQueriesData<ListTasksOutput>({ queryKey: listKey })
+					.flatMap(([key, list]) => {
+						const placement = list && findTaskPlacement(list, id)
+
+						return placement ? [{ key, placement }] : []
+					})
 
 				queryClient.setQueriesData<ListTasksOutput>(
 					{ queryKey: listKey },
 					list => list && withoutTask(list, id)
 				)
 
-				return { previous }
+				return { removed }
 			},
+			// Puts back only this task, so a concurrent completion's removal survives.
 			onError: (_error, _input, context) => {
-				for (const [key, list] of context?.previous ?? [])
-					queryClient.setQueryData(key, list)
+				for (const { key, placement } of context?.removed ?? [])
+					queryClient.setQueryData<ListTasksOutput>(
+						key,
+						list => list && withTask(list, placement)
+					)
 				toast('Could not complete the task. Try again.')
 			},
 			onSuccess: ({ task }) => {
