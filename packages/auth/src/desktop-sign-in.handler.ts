@@ -20,7 +20,8 @@ const INVALID_CODE_MESSAGE =
 const storedCodeSchema = z.object({
 	userId: z.string(),
 	challenge: z.string(),
-	sessionCreatedAt: z.coerce.date(),
+	// Codes from before the age was stored still sign in, but never as a fresh session.
+	sessionCreatedAt: z.coerce.date().catch(() => new Date(0)),
 })
 
 async function toCodeIdentifier(code: string) {
