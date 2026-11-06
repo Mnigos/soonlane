@@ -14,7 +14,7 @@ export function GetStartedButton({
 	compact = false,
 }: Readonly<GetStartedButtonProps>) {
 	const navigate = useNavigate()
-	const { mutate, isPending, isSuccess } = useMutation(
+	const { mutate, reset, isPending, isSuccess } = useMutation(
 		mutationOptions({
 			mutationFn: async () => {
 				const { error } = await signInWithGoogle(SIGN_UP_REDIRECTS)
@@ -42,7 +42,17 @@ export function GetStartedButton({
 
 				event.preventDefault()
 
-				if (!isRedirecting) mutate()
+				if (isRedirecting) return
+
+				// Back from Google restores this page from the bfcache with the mutation still redirecting.
+				window.addEventListener(
+					'pageshow',
+					pageShow => {
+						if (pageShow.persisted) reset()
+					},
+					{ once: true }
+				)
+				mutate()
 			}}
 			to="/login"
 		>
