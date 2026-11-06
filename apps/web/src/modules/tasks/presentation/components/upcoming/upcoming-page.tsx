@@ -1,5 +1,9 @@
 import type { CalendarDate } from '@soonlist/domain'
-import { getUpcomingView } from '../../../domain/upcoming-view.helper'
+import {
+	getUpcomingDays,
+	getWeekStrip,
+} from '../../../domain/upcoming-view.helper'
+import { useActiveDay } from '../../hooks/use-active-day'
 import { DaySection } from '../list/day-section'
 import { OverdueSection } from '../list/overdue-section'
 import { WeekControls } from './week-controls'
@@ -7,41 +11,54 @@ import { WeekStrip } from './week-strip'
 
 interface UpcomingPageProps {
 	today: CalendarDate
-	week?: CalendarDate
 }
 
-export function UpcomingPage({ today, week }: Readonly<UpcomingPageProps>) {
-	const view = getUpcomingView(today, week)
+export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
+	const days = getUpcomingDays(today)
+	const { activeDay, headerRef, sectionRef, scrollToDay } = useActiveDay(today)
+	const strip = getWeekStrip(today, activeDay)
+	const activeIndex = days.indexOf(activeDay)
+	const previousDay = days[activeIndex - 1]
+	const nextDay = days[activeIndex + 1]
 
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
-			<header className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4">
-				<div className="grid grid-cols-[1fr_auto_1fr] items-center gap-3">
+			<header
+				className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4"
+				ref={headerRef}
+			>
+				<div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 sm:gap-3">
 					<span aria-hidden />
 
 					<div className="flex flex-col items-center text-center">
 						<h1 className="text-xl font-bold">Upcoming</h1>
 
 						<p className="text-label text-muted-foreground">
-							{view.monthLabel}
+							{strip.monthLabel}
 						</p>
 					</div>
 
 					<div className="flex justify-end">
 						<WeekControls
-							nextWeek={view.nextWeek}
-							previousWeek={view.isCurrentWeek ? undefined : view.previousWeek}
+							onNext={nextDay && (() => scrollToDay(nextDay))}
+							onPrevious={previousDay && (() => scrollToDay(previousDay))}
+							onToday={() => scrollToDay(today)}
 						/>
 					</div>
 				</div>
 
-				<WeekStrip days={view.weekDays} />
+				<WeekStrip days={strip.days} onSelect={scrollToDay} />
 			</header>
 
-			{view.showsOverdue && <OverdueSection />}
+			<OverdueSection />
 
-			{view.days.map(date => (
-				<DaySection date={date} key={date} today={today} />
+			{days.map(date => (
+				<DaySection
+					date={date}
+					key={date}
+					ref={sectionRef(date)}
+					today={today}
+				/>
 			))}
 		</main>
 	)
