@@ -81,6 +81,12 @@ export const createTaskInputSchema = z.object({
 	dueTime: dueTimeSchema.optional(),
 	priority: prioritySchema.optional(),
 	repeat: repeatInputSchema.optional(),
+	labelIds: z
+		.array(z.uuid())
+		.refine(ids => new Set(ids).size === ids.length, {
+			message: 'Each label can be added once.',
+		})
+		.optional(),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
