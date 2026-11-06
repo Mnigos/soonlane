@@ -2,7 +2,7 @@ import { account, rateLimit, session, user, verification } from '@soonlane/db'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
-import { APIError, createAuthMiddleware } from 'better-auth/api'
+import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api'
 import { oAuthProxy } from 'better-auth/plugins/oauth-proxy'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
@@ -51,10 +51,10 @@ const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
 
 /**
  * Better Auth for anyone with a verified Google address (optionally only the
- * allowed ones): uuid ids, rate limits kept in the database, the signed-in
- * hint cookie, the OAuth proxy that lets Vercel previews sign in through the
- * production callback, and the hand-off of a browser sign-in to the desktop
- * app.
+ * allowed ones): uuid ids, account deletion, rate limits kept in the
+ * database, the signed-in hint cookie, the OAuth proxy that lets Vercel
+ * previews sign in through the production callback, and the hand-off of a
+ * browser sign-in to the desktop app.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
@@ -94,6 +94,7 @@ export function createAuth(options: CreateAuthOptions) {
 			},
 		},
 		socialProviders: options.google ? { google: options.google } : {},
+		user: { deleteUser: { enabled: true } },
 		hooks: {
 			after: createAuthMiddleware(async ctx => {
 				const attributes = {
@@ -101,8 +102,11 @@ export function createAuth(options: CreateAuthOptions) {
 					httpOnly: false,
 				}
 
-				// Checked first: the session lookup before a sign-out can refresh the session.
-				if (ctx.path === '/sign-out')
+				// Checked first: the session lookup before a sign-out or deletion can refresh the session.
+				if (
+					ctx.path === '/sign-out' ||
+					(ctx.path === '/delete-user' && !isAPIError(ctx.context.returned))
+				)
 					ctx.setCookie(SIGNED_IN_HINT_COOKIE, '', { ...attributes, maxAge: 0 })
 				else if (ctx.context.newSession)
 					ctx.setCookie(SIGNED_IN_HINT_COOKIE, '1', {

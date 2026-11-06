@@ -8,12 +8,14 @@ const LOGIN_REDIRECTS = { callbackURL: '/app', errorCallbackURL: '/login' }
 interface SignInScreenProps {
 	configured: boolean
 	oauthError?: string
+	isAccountDeleted?: boolean
 	redirects?: GoogleSignInRedirects
 }
 
 export function SignInScreen({
 	configured,
 	oauthError,
+	isAccountDeleted = false,
 	redirects = LOGIN_REDIRECTS,
 }: Readonly<SignInScreenProps>) {
 	return (
@@ -21,6 +23,12 @@ export function SignInScreen({
 			description="Continue with your Google account. New to Soonlane? This creates your account."
 			heading="Log in or sign up"
 		>
+			{isAccountDeleted && (
+				<output className="text-sm font-medium">
+					Your account was deleted.
+				</output>
+			)}
+
 			{configured ? (
 				<ContinueWithGoogle redirects={redirects} />
 			) : (
