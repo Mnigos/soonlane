@@ -22,6 +22,8 @@ interface TaskComposerProps {
 	today: CalendarDate
 	onCancel: () => void
 	onCreated?: () => void
+	/** Off in a dialog, which focuses the title itself and remembers its opener. */
+	autoFocus?: boolean
 	className?: string
 }
 
@@ -37,6 +39,7 @@ export function TaskComposer({
 	today,
 	onCancel,
 	onCreated,
+	autoFocus = true,
 	className,
 }: Readonly<TaskComposerProps>) {
 	const [title, setTitle] = useState('')
@@ -44,10 +47,13 @@ export function TaskComposer({
 	const [priority, setPriority] = useState<TaskPriority>(DEFAULT_TASK_PRIORITY)
 	const titleRef = useRef<HTMLInputElement>(null)
 	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
-	const attachTitle = useCallback((input: HTMLInputElement | null) => {
-		titleRef.current = input
-		input?.focus()
-	}, [])
+	const attachTitle = useCallback(
+		(input: HTMLInputElement | null) => {
+			titleRef.current = input
+			if (autoFocus) input?.focus()
+		},
+		[autoFocus]
+	)
 	const { mutate, isPending, isError } = useCreateTaskMutation()
 	const canSubmit = title.trim() !== '' && !isPending
 
