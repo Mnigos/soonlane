@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 
 export function useCreateTaskMutation() {
@@ -6,10 +7,7 @@ export function useCreateTaskMutation() {
 
 	return useMutation(
 		orpcQuery.tasks.create.mutationOptions({
-			onSuccess: async () =>
-				await queryClient.invalidateQueries({
-					queryKey: orpcQuery.tasks.list.key(),
-				}),
+			onSuccess: async () => await refreshTaskAndLabelLists(queryClient),
 		})
 	)
 }

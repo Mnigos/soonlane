@@ -1,5 +1,5 @@
-import { label } from '@soonlane/db'
-import { and, eq } from 'drizzle-orm'
+import { label, task, taskLabel } from '@soonlane/db'
+import { and, count, eq, isNull } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
 import { Db } from '@/platform/db/db.layer'
 import { LabelRepository } from '../application/label-repository.port'
@@ -14,12 +14,25 @@ export const DrizzleLabelRepositoryLive = Layer.effect(
 			list: ownerId =>
 				db.run('LabelRepository.list', async database => {
 					const rows = await database
-						.select()
+						.select({ label, openTaskCount: count(task.id) })
 						.from(label)
+						.leftJoin(taskLabel, eq(taskLabel.labelId, label.id))
+						.leftJoin(
+							task,
+							and(
+								eq(task.id, taskLabel.taskId),
+								eq(task.ownerId, ownerId),
+								isNull(task.completedAt)
+							)
+						)
 						.where(eq(label.ownerId, ownerId))
+						.groupBy(label.id)
 						.orderBy(...labelOrder)
 
-					return rows.map(toLabel)
+					return rows.map(row => ({
+						...toLabel(row.label),
+						openTaskCount: row.openTaskCount,
+					}))
 				}),
 			create: ({ ownerId, name, color }) =>
 				db.run('LabelRepository.create', async database => {

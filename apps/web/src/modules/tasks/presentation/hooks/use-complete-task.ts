@@ -2,6 +2,7 @@ import type { ListTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	findTaskPlacement,
@@ -15,7 +16,7 @@ export function useCompleteTask(today: CalendarDate) {
 	const listKey = orpcQuery.tasks.list.key()
 
 	async function refreshLists() {
-		await queryClient.invalidateQueries({ queryKey: listKey })
+		await refreshTaskAndLabelLists(queryClient)
 	}
 
 	const uncomplete = useMutation(
