@@ -7,7 +7,8 @@
     "dev": "bunx --bun vite dev --port 3000 --strictPort",
     "build": "bunx --bun vite build",
     "typecheck": "bun scripts/generate-content-collections.ts && tsc --noEmit",
-    "dev:session": "bun --env-file=.env.local scripts/dev-session.ts"
+    "dev:session": "bun --env-file=.env.local scripts/dev-session.ts",
+    "postinstall": "bun scripts/generate-content-collections.ts"
   },
   "dependencies": {
     "@content-collections/core": "0.15.3",
