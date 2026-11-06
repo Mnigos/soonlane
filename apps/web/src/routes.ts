@@ -21,6 +21,10 @@ export const routes = rootRoute('routes/__root.tsx', [
 				'modules/labels/presentation/routes/label.route.tsx'
 			),
 		]),
+		route(
+			'/app/quick-add',
+			'modules/tasks/presentation/routes/quick-add.route.tsx'
+		),
 		route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
 		route(
 			'/desktop/sign-in',

@@ -3,6 +3,7 @@ import {
 	formatDayMonth,
 	formatWeekday,
 } from '../../domain/calendar-date.helper'
+import { getTodayListInput } from '../helpers/dock-badge.helper'
 import { useCompleteTask } from '../hooks/use-complete-task'
 import { useTasksQuery } from '../hooks/use-tasks-query'
 import { DaySection } from './list/day-section'
@@ -14,11 +15,9 @@ interface TodayPageProps {
 }
 
 export function TodayPage({ today }: Readonly<TodayPageProps>) {
-	const { data, isPending, isError, refetch } = useTasksQuery({
-		from: today,
-		to: today,
-		today,
-	})
+	const { data, isPending, isError, refetch } = useTasksQuery(
+		getTodayListInput(today)
+	)
 	const { completeTask } = useCompleteTask(today)
 
 	return (

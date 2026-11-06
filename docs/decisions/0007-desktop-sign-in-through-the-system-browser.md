@@ -38,4 +38,5 @@ What the installed tools offer (read from `node_modules/better-auth` 1.7.18 and 
 
 - `packages/auth/src/desktop-sign-in.handler.ts`, `apps/desktop/src/modules/sign-in`, `apps/web/src/modules/identity/presentation/routes/desktop-*.route.tsx`
 - [ADR 0003](0003-better-auth-in-a-package-behind-an-effect-layer.md), [ADR 0004](0004-desktop-shell-with-electrobun.md), [ADR 0005](0005-desktop-app-layout.md)
+- [ADR 0010](0010-desktop-quick-add-and-dock-badge.md): the page now sends two messages to the main process (Quick Add done, Dock badge count) through `host-message`; the sign-in contract stays in `@soonlane/auth`
 - `ARCHITECTURE.md`: Sign-in, Desktop app

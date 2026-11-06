@@ -24,6 +24,7 @@ import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from '
 import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './modules/blog/presentation/routes/rss.route'
 import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
+import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
@@ -120,6 +121,12 @@ const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
     path: '/',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
+const modulesTasksPresentationRoutesQuickAddDotrouteRoute =
+  modulesTasksPresentationRoutesQuickAddDotrouteRouteImport.update({
+    id: '/app/quick-add',
+    path: '/app/quick-add',
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
+  } as any)
 const modulesTasksPresentationRoutesTodayDotrouteRoute =
   modulesTasksPresentationRoutesTodayDotrouteRouteImport.update({
     id: '/today',
@@ -177,6 +184,7 @@ export interface FileRoutesByFullPath {
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
@@ -198,6 +206,7 @@ export interface FileRoutesByTo {
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
@@ -223,6 +232,7 @@ export interface FileRoutesById {
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/_session/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
@@ -247,6 +257,7 @@ export interface FileRouteTypes {
     | '/blog/rss.xml'
     | '/ingest/$'
     | '/app/'
+    | '/app/quick-add'
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
@@ -268,6 +279,7 @@ export interface FileRouteTypes {
     | '/blog/rss.xml'
     | '/ingest/$'
     | '/app'
+    | '/app/quick-add'
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
@@ -292,6 +304,7 @@ export interface FileRouteTypes {
     | '/blog/rss.xml'
     | '/ingest/$'
     | '/_session/app/'
+    | '/_session/app/quick-add'
     | '/_session/app/today'
     | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
@@ -420,6 +433,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
+    '/_session/app/quick-add': {
+      id: '/_session/app/quick-add'
+      path: '/app/quick-add'
+      fullPath: '/app/quick-add'
+      preLoaderRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
+    }
     '/_session/app/today': {
       id: '/_session/app/today'
       path: '/today'
@@ -496,6 +516,7 @@ const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =
 interface modulesIdentityPresentationRoutesSessionDotrouteRouteChildren {
   modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  modulesTasksPresentationRoutesQuickAddDotrouteRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
 }
@@ -506,6 +527,8 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteChildren: modulesIden
       modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
     modulesIdentityPresentationRoutesLoginDotrouteRoute:
       modulesIdentityPresentationRoutesLoginDotrouteRoute,
+    modulesTasksPresentationRoutesQuickAddDotrouteRoute:
+      modulesTasksPresentationRoutesQuickAddDotrouteRoute,
     modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute:
       modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute,
     modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute:

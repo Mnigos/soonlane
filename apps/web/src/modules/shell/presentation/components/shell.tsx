@@ -7,6 +7,7 @@ import { type PropsWithChildren, useState } from 'react'
 import type { ClientEvents } from '@/modules/analytics/domain/analytics-event.types'
 import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { AddTaskDialog } from '@/modules/tasks/presentation/components/task/add-task-dialog'
+import { useDockBadgeQuery } from '@/modules/tasks/presentation/hooks/use-dock-badge-query'
 import {
 	isWideViewport,
 	saveSidebarPreference,
@@ -41,6 +42,8 @@ export function Shell({
 	const [preference, setPreference] = useState(initialSidebarPreference)
 	const [isOverlayOpen, setIsOverlayOpen] = useState(false)
 	const [isAddingTask, setIsAddingTask] = useState(false)
+
+	useDockBadgeQuery()
 
 	function openAddTask() {
 		setIsOverlayOpen(false)
