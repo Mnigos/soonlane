@@ -38,5 +38,6 @@ What Electrobun 2.0.6 provides (read from `docs.electrobun.dev` and the SDK that
 ## Related
 
 - [ADR 0005](0005-desktop-app-layout.md): the modules and Effect runtime inside `apps/desktop/src`
+- [ADR 0007](0007-desktop-sign-in-through-the-system-browser.md): the desktop sign-in that replaced the note, through a `soonlane://` link
 - `apps/desktop/src/modules/window`, `apps/desktop/src/modules/navigation`, `tooling/tailwind-config/theme.css` (`desktop:` variant, `app-drag`)
 - Electrobun docs: https://docs.electrobun.dev/electrobun/apis/browser-window/, https://docs.electrobun.dev/electrobun/apis/browser-view/
