@@ -39,9 +39,9 @@ export function LabelsChip({
 	return (
 		<>
 			<Popover
-				onOpenChange={open => {
+				onOpenChange={() => {
 					// Resetting a pending create would drop its success callback.
-					if (!open && createLabel.isError) createLabel.reset()
+					if (createLabel.isError) createLabel.reset()
 				}}
 			>
 				<PopoverTrigger
