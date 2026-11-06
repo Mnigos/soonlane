@@ -46,6 +46,12 @@
         "displayName": "Overdue Coral",
         "canonical": "#ff7066",
         "usage": "Active sidebar text, Reschedule, overdue dates, errors."
+      },
+      "today": {
+        "role": "semantic",
+        "displayName": "Today Purple",
+        "canonical": "#a970ff",
+        "usage": "Today's label and dot in the week strip only."
       }
     },
     "typographyMeta": {
