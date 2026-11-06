@@ -40,6 +40,7 @@ export function SignInScreen({
 
 			{configured ? (
 				<Button
+					className="desktop:hidden"
 					disabled={isRedirecting}
 					onClick={() => mutate()}
 					size="lg"
@@ -55,6 +56,18 @@ export function SignInScreen({
 					<p className="text-muted-foreground">
 						Google is not configured on this server. Set the environment
 						variables and restart the app.
+					</p>
+				</div>
+			)}
+
+			{/* Google refuses sign-in inside an embedded webview; the desktop app gets its own flow next. */}
+			{configured && (
+				<div className="hidden flex-col gap-1 text-sm desktop:flex" role="note">
+					<p className="font-semibold">Desktop sign-in is coming</p>
+
+					<p className="text-muted-foreground">
+						Signing in from the desktop app arrives in the next update. Until
+						then, use Soonlist in your browser.
 					</p>
 				</div>
 			)}
