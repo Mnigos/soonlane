@@ -1,3 +1,4 @@
+import { Dialog as BaseDialog } from '@base-ui/react/dialog'
 import type { PropsWithChildren } from 'react'
 import { cn } from '../utils/cn.util'
 
@@ -7,11 +8,7 @@ interface DialogProps extends PropsWithChildren {
 	className?: string
 }
 
-function openAsModal(dialog: HTMLDialogElement | null) {
-	if (dialog && !dialog.open) dialog.showModal()
-}
-
-/** A native modal dialog that opens when mounted; Escape or `close()` call `onClose`. Render it only while open. */
+/** A modal dialog that is open while mounted; Escape or a click on the backdrop call `onClose`. Render it only while open. */
 export function Dialog({
 	label,
 	onClose,
@@ -19,16 +16,25 @@ export function Dialog({
 	children,
 }: Readonly<DialogProps>) {
 	return (
-		<dialog
-			aria-label={label}
-			className={cn(
-				'm-auto w-[calc(100%-2rem)] max-w-xl rounded-lg border bg-background p-0 text-foreground backdrop:bg-black/60',
-				className
-			)}
-			onClose={onClose}
-			ref={openAsModal}
+		<BaseDialog.Root
+			onOpenChange={isOpen => {
+				if (!isOpen) onClose()
+			}}
+			open
 		>
-			{children}
-		</dialog>
+			<BaseDialog.Portal>
+				<BaseDialog.Backdrop className="fixed inset-0 z-50 bg-black/60" />
+
+				<BaseDialog.Popup
+					aria-label={label}
+					className={cn(
+						'fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-1/2 rounded-lg border bg-background text-foreground outline-none',
+						className
+					)}
+				>
+					{children}
+				</BaseDialog.Popup>
+			</BaseDialog.Portal>
+		</BaseDialog.Root>
 	)
 }
