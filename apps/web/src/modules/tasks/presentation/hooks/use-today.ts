@@ -25,12 +25,12 @@ function subscribe(onChange: () => void) {
 	}
 }
 
-const getSnapshot = () => getToday(new Date())
+const readLocalToday = () => getToday(new Date())
 
-// The server cannot know the user's time zone, so SSR renders without a date and the browser fills it in after hydration.
-const getServerSnapshot = () => undefined
+// The user's time zone is unknown during SSR, so SSR and hydration render without a date and the local clock fills it in afterwards.
+const getUnknownToday = () => undefined
 
 /** Today in the browser's time zone; undefined during SSR and hydration. */
 export function useToday(): CalendarDate | undefined {
-	return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
+	return useSyncExternalStore(subscribe, readLocalToday, getUnknownToday)
 }
