@@ -125,6 +125,7 @@ export function TaskComposer({
 					<Button
 						aria-label="Cancel"
 						onClick={onCancel}
+						onKeyDown={cancelOnEscape}
 						size="icon"
 						variant="ghost"
 					>
@@ -134,6 +135,7 @@ export function TaskComposer({
 					<Button
 						aria-label="Add task"
 						disabled={!canSubmit}
+						onKeyDown={cancelOnEscape}
 						size="icon"
 						type="submit"
 					>
