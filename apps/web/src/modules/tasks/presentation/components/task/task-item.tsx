@@ -2,8 +2,9 @@ import type { Task } from '@soonlane/contracts'
 import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
-import { Calendar, Check, PencilLine } from 'lucide-react'
+import { Calendar, Check, PencilLine, Tag } from 'lucide-react'
 import { useState } from 'react'
+import { getLabelColor } from '@/modules/labels/presentation/helpers/label-color.helper'
 import { getDueLabel } from '../../../domain/due-label.helper'
 import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
@@ -101,28 +102,43 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 					</p>
 				)}
 
-				{(due || repeatText) && (
-					<p
-						className={cn(
-							'flex items-center gap-1 text-caption',
-							due ? DUE_TONE_CLASSES[due.tone] : 'text-muted-foreground'
-						)}
-					>
-						{due && (
-							<>
-								<Calendar aria-hidden className="size-3" />
+				{(due || repeatText || task.labels.length > 0) && (
+					<p className="flex flex-wrap items-center gap-x-2 text-caption">
+						{(due || repeatText) && (
+							<span
+								className={cn(
+									'flex items-center gap-1',
+									due ? DUE_TONE_CLASSES[due.tone] : 'text-muted-foreground'
+								)}
+							>
+								{due && (
+									<>
+										<Calendar aria-hidden className="size-3" />
 
-								{due.text}
-							</>
+										{due.text}
+									</>
+								)}
+
+								{repeatText && (
+									<>
+										<RepeatIcon className="size-3" />
+
+										<span className="sr-only">Repeats: {repeatText}</span>
+									</>
+								)}
+							</span>
 						)}
 
-						{repeatText && (
-							<>
-								<RepeatIcon className="size-3" />
-
-								<span className="sr-only">Repeats: {repeatText}</span>
-							</>
-						)}
+						{task.labels.map(label => (
+							<span
+								className="flex items-center gap-0.5"
+								key={label.id}
+								style={{ color: getLabelColor(label.color) }}
+							>
+								<Tag aria-hidden className="size-3" />
+								{label.name}
+							</span>
+						))}
 					</p>
 				)}
 			</div>
