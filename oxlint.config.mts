@@ -114,6 +114,11 @@ export default defineConfig({
 						package: '@tanstack/router-core',
 						name: 'Redirect',
 					},
+					{
+						from: 'package',
+						package: '@tanstack/router-core',
+						name: 'NotFoundError',
+					},
 				],
 			},
 		],

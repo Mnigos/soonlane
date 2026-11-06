@@ -1,8 +1,22 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
+import {
+	BLOG_TITLE,
+	RSS_PATH,
+} from '@/modules/blog/presentation/blog.constants'
 import { SiteFooter } from '../components/site-footer'
 import { SiteHeader } from '../components/site-header'
 
 export const Route = createFileRoute('/_site')({
+	head: () => ({
+		links: [
+			{
+				rel: 'alternate',
+				type: 'application/rss+xml',
+				title: BLOG_TITLE,
+				href: RSS_PATH,
+			},
+		],
+	}),
 	component: SiteLayout,
 })
 
