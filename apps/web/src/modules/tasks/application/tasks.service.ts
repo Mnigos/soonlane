@@ -1,6 +1,7 @@
 import type {
 	CreateTaskInput,
 	Label,
+	ListTasksByLabelInput,
 	ListTasksInput,
 	ListTasksOutput,
 	RescheduleTasksInput,
@@ -12,6 +13,7 @@ import {
 	type LabelId,
 	type TaskId,
 	toCalendarDate,
+	toLabelId,
 	toTaskId,
 	type UserId,
 } from '@soonlane/domain'
@@ -34,6 +36,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: ListTasksInput
 		) => Effect.Effect<ListTasksOutput, DbError>
+		readonly listByLabel: (
+			ownerId: UserId,
+			input: ListTasksByLabelInput
+		) => Effect.Effect<ListTasksOutput, LabelNotFound | DbError>
 		readonly create: (
 			ownerId: UserId,
 			input: CreateTaskInput
@@ -107,6 +113,21 @@ export const TasksServiceLive = Layer.effect(
 			)
 
 			return { overdue, scheduled }
+		})
+
+		const listByLabel = Effect.fn('TasksService.listByLabel')(function* (
+			ownerId: UserId,
+			{ labelId, today }: ListTasksByLabelInput
+		) {
+			const label = { ownerId, labelId: toLabelId(labelId) }
+
+			yield* requireLabel(yield* repository.findLabel(label))
+			const tasks = yield* repository.listOpenWithLabel(label)
+
+			return {
+				overdue: tasks.filter(({ dueDate }) => dueDate < today),
+				scheduled: tasks.filter(({ dueDate }) => dueDate >= today),
+			}
 		})
 
 		const create = Effect.fn('TasksService.create')(function* (
@@ -237,6 +258,7 @@ export const TasksServiceLive = Layer.effect(
 
 		return TasksService.of({
 			list,
+			listByLabel,
 			create,
 			update,
 			complete,

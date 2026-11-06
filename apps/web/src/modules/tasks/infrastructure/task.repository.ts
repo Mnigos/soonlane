@@ -164,6 +164,28 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 
 					return await withLabels(database, ownerId, rows)
 				}),
+			listOpenWithLabel: ({ ownerId, labelId }) =>
+				db.run('TaskRepository.listOpenWithLabel', async database => {
+					const rows = await database
+						.select()
+						.from(task)
+						.where(
+							and(
+								eq(task.ownerId, ownerId),
+								isNull(task.completedAt),
+								inArray(
+									task.id,
+									database
+										.select({ id: taskLabel.taskId })
+										.from(taskLabel)
+										.where(eq(taskLabel.labelId, labelId))
+								)
+							)
+						)
+						.orderBy(...DAY_ORDER)
+
+					return await withLabels(database, ownerId, rows)
+				}),
 			find: ({ ownerId, id }) =>
 				db.run(
 					'TaskRepository.find',

@@ -9,6 +9,14 @@ export const tasksRouter = {
 
 		return yield* tasksService.list(context.owner.id, input)
 	}),
+	listByLabel: os.tasks.listByLabel.use(requireOwner).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return yield* tasksService.listByLabel(context.owner.id, input)
+	}),
 	create: os.tasks.create.use(requireOwner).effect(function* ({
 		context,
 		input,

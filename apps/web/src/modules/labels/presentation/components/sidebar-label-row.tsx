@@ -11,6 +11,7 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { Ellipsis, Pencil, Tag, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
+import { isLabelNamed } from '../helpers/label-name.helper'
 import { useUpdateLabelMutation } from '../hooks/use-update-label-mutation'
 import { DeleteLabelDialog } from './delete-label-dialog'
 import { LabelNameField } from './label-name-field'
@@ -33,7 +34,7 @@ export function SidebarLabelRow({
 	const [isDeleting, setIsDeleting] = useState(false)
 	const updateLabel = useUpdateLabelMutation()
 	const navigate = useNavigate()
-	const isViewOpen = activeLabelName?.toLowerCase() === label.name.toLowerCase()
+	const isViewOpen = isLabelNamed(label, activeLabelName)
 
 	function stopRenaming() {
 		setIsRenaming(false)

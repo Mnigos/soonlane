@@ -31,6 +31,8 @@ import { PriorityChip } from './priority-chip'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate
+	/** Picked again after each task, like the label of an open label view. */
+	defaultLabels?: Label[]
 	today: CalendarDate
 	onCancel: () => void
 	onCreated?: () => void
@@ -52,6 +54,7 @@ const FIELD_CLASS =
  */
 export function TaskComposer({
 	defaultDueDate,
+	defaultLabels,
 	today,
 	onCancel,
 	onCreated,
@@ -70,8 +73,8 @@ export function TaskComposer({
 	const [repeat, setRepeat] = useState<RepeatInput | undefined>(
 		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
 	)
-	const [labels, setLabels] = useState<Label[]>([])
-	const pickedLabels = usePickedLabels(labels)
+	const { pickedLabels, setLabels, resetLabels } =
+		usePickedLabels(defaultLabels)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
@@ -139,7 +142,7 @@ export function TaskComposer({
 					setDueTime(undefined)
 					setPriority(DEFAULT_TASK_PRIORITY)
 					setRepeat(undefined)
-					setLabels([])
+					resetLabels()
 					titleRef.current?.focus()
 					onCreated?.()
 				},

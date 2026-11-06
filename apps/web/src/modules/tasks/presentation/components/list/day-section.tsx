@@ -13,6 +13,8 @@ interface DaySectionProps {
 	tasks: Task[]
 	isLoading: boolean
 	onComplete: (task: Task) => void
+	/** Off in a label view, which has one Add task row at its bottom. */
+	hasAddTask?: boolean
 	ref?: Ref<HTMLElement>
 }
 
@@ -22,6 +24,7 @@ export function DaySection({
 	tasks,
 	isLoading,
 	onComplete,
+	hasAddTask = true,
 	ref,
 }: Readonly<DaySectionProps>) {
 	const [isAdding, setIsAdding] = useState(false)
@@ -57,18 +60,19 @@ export function DaySection({
 				today={today}
 			/>
 
-			{isAdding ? (
-				<TaskComposer
-					defaultDueDate={date}
-					onCancel={closeComposer}
-					today={today}
-				/>
-			) : (
-				<AddTaskRow
-					autoFocus={shouldFocusAddTask}
-					onClick={() => setIsAdding(true)}
-				/>
-			)}
+			{hasAddTask &&
+				(isAdding ? (
+					<TaskComposer
+						defaultDueDate={date}
+						onCancel={closeComposer}
+						today={today}
+					/>
+				) : (
+					<AddTaskRow
+						autoFocus={shouldFocusAddTask}
+						onClick={() => setIsAdding(true)}
+					/>
+				))}
 		</section>
 	)
 }
