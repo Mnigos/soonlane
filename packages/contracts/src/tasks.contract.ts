@@ -11,7 +11,7 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import { labelSchema } from './labels.contract'
+import { labelNotFound, labelSchema } from './labels.contract'
 
 const calendarDateSchema = z.iso
 	.date()
@@ -55,6 +55,13 @@ export const listTasksInputSchema = z
 	})
 
 export type ListTasksInput = z.infer<typeof listTasksInputSchema>
+
+export const listTasksByLabelInputSchema = z.object({
+	labelId: z.uuid(),
+	today: calendarDateSchema,
+})
+
+export type ListTasksByLabelInput = z.infer<typeof listTasksByLabelInputSchema>
 
 export const listTasksOutputSchema = z.object({
 	overdue: z.array(taskSchema),
@@ -138,6 +145,10 @@ export const tasksContract = {
 	list: oc
 		.errors(authErrors)
 		.input(listTasksInputSchema)
+		.output(listTasksOutputSchema),
+	listByLabel: oc
+		.errors({ ...authErrors, NOT_FOUND: labelNotFound })
+		.input(listTasksByLabelInputSchema)
 		.output(listTasksOutputSchema),
 	create: oc
 		.errors(authErrors)

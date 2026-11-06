@@ -13,7 +13,8 @@ import {
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const listKey = orpcQuery.tasks.list.key()
+	// Every task list (Upcoming ranges, Today, label views) has the ListTasksOutput shape.
+	const listKey = orpcQuery.tasks.key({ type: 'query' })
 
 	async function refreshLists() {
 		await refreshTaskAndLabelLists(queryClient)

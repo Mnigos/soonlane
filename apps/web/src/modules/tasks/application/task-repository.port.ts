@@ -70,6 +70,9 @@ export class TaskRepository extends Context.Service<
 		readonly listOpenBefore: (
 			params: OpenTasksBefore
 		) => Effect.Effect<Task[], DbError>
+		readonly listOpenWithLabel: (
+			label: Omit<TaskLabel, 'id'>
+		) => Effect.Effect<Task[], DbError>
 		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
 		readonly update: (
