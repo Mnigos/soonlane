@@ -13,6 +13,8 @@ import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from 
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
+import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
+import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
 import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport } from './modules/identity/presentation/routes/api.auth.$.route'
 import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
 
@@ -39,6 +41,18 @@ const modulesTasksPresentationRoutesTodayDotrouteRoute =
     path: '/today',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
+const modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute =
+  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport.update({
+    id: '/desktop/callback',
+    path: '/desktop/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute =
+  modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport.update({
+    id: '/desktop/sign-in',
+    path: '/desktop/sign-in',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute =
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport.update({
     id: '/api/auth/$',
@@ -56,6 +70,8 @@ export interface FileRoutesByFullPath {
   '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
+  '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
@@ -63,6 +79,8 @@ export interface FileRoutesByTo {
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
+  '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
@@ -72,20 +90,38 @@ export interface FileRoutesById {
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/_shell/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_shell/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
+  '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/today' | '/api/auth/$' | '/api/rpc/$'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/today'
+    | '/desktop/callback'
+    | '/desktop/sign-in'
+    | '/api/auth/$'
+    | '/api/rpc/$'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/today' | '/api/auth/$' | '/api/rpc/$'
+  to:
+    | '/login'
+    | '/'
+    | '/today'
+    | '/desktop/callback'
+    | '/desktop/sign-in'
+    | '/api/auth/$'
+    | '/api/rpc/$'
   id:
     | '__root__'
     | '/_shell'
     | '/login'
     | '/_shell/'
     | '/_shell/today'
+    | '/desktop/callback'
+    | '/desktop/sign-in'
     | '/api/auth/$'
     | '/api/rpc/$'
   fileRoutesById: FileRoutesById
@@ -93,6 +129,8 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
+  modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
@@ -126,6 +164,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/today'
       preLoaderRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
+    }
+    '/desktop/callback': {
+      id: '/desktop/callback'
+      path: '/desktop/callback'
+      fullPath: '/desktop/callback'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/desktop/sign-in': {
+      id: '/desktop/sign-in'
+      path: '/desktop/sign-in'
+      fullPath: '/desktop/sign-in'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -167,6 +219,10 @@ const rootRouteChildren: RootRouteChildren = {
     modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
   modulesIdentityPresentationRoutesLoginDotrouteRoute:
     modulesIdentityPresentationRoutesLoginDotrouteRoute,
+  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute:
+    modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute,
+  modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute:
+    modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute,
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:
     modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute,
   routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,

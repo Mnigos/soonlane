@@ -16,7 +16,8 @@
     "@soonlane/db": "workspace:*",
     "@soonlane/domain": "workspace:*",
     "better-auth": "catalog:",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@soonlane/typescript-config": "workspace:*",

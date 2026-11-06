@@ -7,6 +7,14 @@ export const routes = rootRoute('routes/__root.tsx', [
 	]),
 	route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
 	route(
+		'/desktop/sign-in',
+		'modules/identity/presentation/routes/desktop-sign-in.route.tsx'
+	),
+	route(
+		'/desktop/callback',
+		'modules/identity/presentation/routes/desktop-callback.route.tsx'
+	),
+	route(
 		'/api/auth/$',
 		'modules/identity/presentation/routes/api.auth.$.route.ts'
 	),
