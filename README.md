@@ -51,6 +51,10 @@ Run with `bun run <script>` from the root.
 
 Conventional commits. `bun install` sets up husky: `pre-commit` runs `lint-staged` (Ultracite on staged files), `commit-msg` runs `commitlint`; CI runs `commitlint` on every pull request.
 
+## Reviews
+
+On your own open pull request, comment `/approve` or `/request-changes` on a line of its own (in the Conversation tab or as a Comment review); the Owner Review Commands workflow submits that review for the current head, and new commits dismiss its approval.
+
 ## Deploy
 
 Vercel, Root Directory `apps/web`, Node 22 function in `fra1`, previews enabled. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).

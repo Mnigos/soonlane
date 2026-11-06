@@ -129,6 +129,15 @@ export default defineConfig({
 			rules: { 'typescript/no-unsafe-type-assertion': 'off' },
 		},
 		{
+			// gh api responses and the Actions event payload are trusted GitHub JSON; the workflow runs without bun install, so there is no Zod to parse them with.
+			files: ['.github/scripts/**'],
+			rules: {
+				'typescript/no-unsafe-assignment': 'off',
+				'typescript/no-unsafe-return': 'off',
+				'typescript/strict-void-return': 'off',
+			},
+		},
+		{
 			files: ['apps/web/scripts/**', 'packages/db/scripts/**'],
 			rules: { 'no-console': 'off' },
 		},
