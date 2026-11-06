@@ -7,6 +7,7 @@ A Turborepo + Bun monorepo. One TanStack Start app serves the UI, SSR, Better Au
 | Path                        | What it is                                                                                                      |
 | --------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Bun 1.4, `fra1`).                                          |
+| `apps/desktop`              | Electrobun macOS shell (Bun main process, WKWebView) that loads `SOONLIST_URL`; no UI of its own.               |
 | `packages/domain`           | `@soonlist/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                      |
 | `packages/db`               | `@soonlist/db`: Drizzle schema, migrations and the migrator. Server-only.                                       |
 | `packages/auth`             | `@soonlist/auth`: `createAuth` (`/server`), the browser client (`/client`), the owner policy (root). No Effect. |
@@ -74,6 +75,8 @@ A day is a `CalendarDate` (`YYYY-MM-DD`). The server cannot know the user's time
 
 From `md` an icon rail is docked and the content keeps a rail-wide gutter; the content column is centered in the rest, so opening or collapsing the sidebar never moves it. From `xl` the owner's choice (full sidebar or rail) is docked and kept in the `soonlist-sidebar` cookie, read during SSR. Below `xl` the full sidebar opens over the content; phones use a drawer.
 
+Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns on the `desktop:` variant: the rail, the sidebar and the phone bar leave 32px for the traffic lights and carry an `app-drag` strip that moves the window.
+
 ## Decision records
 
 | ADR                                                                            | Decision                                                                            |
@@ -81,5 +84,6 @@ From `md` an icon rail is docked and the content keeps a rail-wide gutter; the c
 | [0001](docs/decisions/0001-naming-and-layering-conventions.md)                 | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.     |
 | [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs. |
 | [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.      |
+| [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                            |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md).
