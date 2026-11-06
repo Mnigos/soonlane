@@ -17,14 +17,17 @@ import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport }
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
+import { Route as modulesBlogPresentationRoutesBlogDotrouteRouteImport } from './modules/blog/presentation/routes/blog.route'
 import { Route as modulesChangelogPresentationRoutesChangelogDotrouteRouteImport } from './modules/changelog/presentation/routes/changelog.route'
 import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
 import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
+import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './modules/blog/presentation/routes/rss.route'
 import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
+import { Route as modulesBlogPresentationRoutesPostDotrouteRouteImport } from './modules/blog/presentation/routes/post.route'
 import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport } from './modules/identity/presentation/routes/api.auth.$.route'
 import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
@@ -75,6 +78,12 @@ const modulesSitePresentationRoutesHomeDotrouteRoute =
     path: '/',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
+const modulesBlogPresentationRoutesBlogDotrouteRoute =
+  modulesBlogPresentationRoutesBlogDotrouteRouteImport.update({
+    id: '/blog',
+    path: '/blog',
+    getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
+  } as any)
 const modulesChangelogPresentationRoutesChangelogDotrouteRoute =
   modulesChangelogPresentationRoutesChangelogDotrouteRouteImport.update({
     id: '/changelog',
@@ -92,6 +101,12 @@ const modulesSitePresentationRoutesTermsDotrouteRoute =
     id: '/terms',
     path: '/terms',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
+  } as any)
+const modulesBlogPresentationRoutesRssDotrouteRoute =
+  modulesBlogPresentationRoutesRssDotrouteRouteImport.update({
+    id: '/blog/rss.xml',
+    path: '/blog/rss.xml',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport.update({
@@ -123,6 +138,12 @@ const modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute =
     path: '/desktop/sign-in',
     getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
+const modulesBlogPresentationRoutesPostDotrouteRoute =
+  modulesBlogPresentationRoutesPostDotrouteRouteImport.update({
+    id: '/blog/$slug',
+    path: '/blog/$slug',
+    getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
+  } as any)
 const modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute =
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport.update({
     id: '/api/auth/$',
@@ -149,14 +170,17 @@ export interface FileRoutesByFullPath {
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -167,14 +191,17 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -189,14 +216,17 @@ export interface FileRoutesById {
   '/_site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/_session/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  '/_site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/_site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/_site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/_session/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -210,14 +240,17 @@ export interface FileRouteTypes {
     | '/today'
     | '/app'
     | '/login'
+    | '/blog'
     | '/changelog'
     | '/privacy'
     | '/terms'
+    | '/blog/rss.xml'
     | '/ingest/$'
     | '/app/'
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
+    | '/blog/$slug'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/app/labels/$name'
@@ -228,14 +261,17 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/today'
     | '/login'
+    | '/blog'
     | '/changelog'
     | '/privacy'
     | '/terms'
+    | '/blog/rss.xml'
     | '/ingest/$'
     | '/app'
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
+    | '/blog/$slug'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/app/labels/$name'
@@ -249,14 +285,17 @@ export interface FileRouteTypes {
     | '/_site/'
     | '/_session/app'
     | '/_session/login'
+    | '/_site/blog'
     | '/_site/changelog'
     | '/_site/privacy'
     | '/_site/terms'
+    | '/blog/rss.xml'
     | '/ingest/$'
     | '/_session/app/'
     | '/_session/app/today'
     | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
+    | '/_site/blog/$slug'
     | '/api/auth/$'
     | '/api/rpc/$'
     | '/_session/app/labels/$name'
@@ -268,6 +307,7 @@ export interface RootRouteChildren {
   modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
@@ -331,6 +371,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesSitePresentationRoutesHomeDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
+    '/_site/blog': {
+      id: '/_site/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof modulesBlogPresentationRoutesBlogDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
     '/_site/changelog': {
       id: '/_site/changelog'
       path: '/changelog'
@@ -351,6 +398,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/terms'
       preLoaderRoute: typeof modulesSitePresentationRoutesTermsDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/blog/rss.xml': {
+      id: '/blog/rss.xml'
+      path: '/blog/rss.xml'
+      fullPath: '/blog/rss.xml'
+      preLoaderRoute: typeof modulesBlogPresentationRoutesRssDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/ingest/$': {
       id: '/ingest/$'
@@ -386,6 +440,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/desktop/sign-in'
       preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
+    }
+    '/_site/blog/$slug': {
+      id: '/_site/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof modulesBlogPresentationRoutesPostDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
     '/api/auth/$': {
       id: '/api/auth/$'
@@ -458,21 +519,27 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren =
 
 interface modulesSitePresentationRoutesSiteDotrouteRouteChildren {
   modulesSitePresentationRoutesHomeDotrouteRoute: typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  modulesBlogPresentationRoutesBlogDotrouteRoute: typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   modulesChangelogPresentationRoutesChangelogDotrouteRoute: typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   modulesSitePresentationRoutesPrivacyDotrouteRoute: typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   modulesSitePresentationRoutesTermsDotrouteRoute: typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  modulesBlogPresentationRoutesPostDotrouteRoute: typeof modulesBlogPresentationRoutesPostDotrouteRoute
 }
 
 const modulesSitePresentationRoutesSiteDotrouteRouteChildren: modulesSitePresentationRoutesSiteDotrouteRouteChildren =
   {
     modulesSitePresentationRoutesHomeDotrouteRoute:
       modulesSitePresentationRoutesHomeDotrouteRoute,
+    modulesBlogPresentationRoutesBlogDotrouteRoute:
+      modulesBlogPresentationRoutesBlogDotrouteRoute,
     modulesChangelogPresentationRoutesChangelogDotrouteRoute:
       modulesChangelogPresentationRoutesChangelogDotrouteRoute,
     modulesSitePresentationRoutesPrivacyDotrouteRoute:
       modulesSitePresentationRoutesPrivacyDotrouteRoute,
     modulesSitePresentationRoutesTermsDotrouteRoute:
       modulesSitePresentationRoutesTermsDotrouteRoute,
+    modulesBlogPresentationRoutesPostDotrouteRoute:
+      modulesBlogPresentationRoutesPostDotrouteRoute,
   }
 
 const modulesSitePresentationRoutesSiteDotrouteRouteWithChildren =
@@ -491,6 +558,8 @@ const rootRouteChildren: RootRouteChildren = {
     modulesSitePresentationRoutesSitemapDotrouteRoute,
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute:
     modulesShellPresentationRoutesLegacyTodayDotrouteRoute,
+  modulesBlogPresentationRoutesRssDotrouteRoute:
+    modulesBlogPresentationRoutesRssDotrouteRoute,
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:
     modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute,
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:

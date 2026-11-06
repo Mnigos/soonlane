@@ -66,6 +66,10 @@ On your own open pull request, comment `/approve` or `/request-changes` on a lin
 
 Versions, the changelog and GitHub Releases come from the release workflow; see [docs/release.md](docs/release.md).
 
+## Blog
+
+Posts are MDX files published by merging to `main`; see [docs/blog.md](docs/blog.md).
+
 ## Deploy
 
 Vercel, Root Directory `apps/web`, Bun 1.4 function in `fra1`, previews enabled. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
