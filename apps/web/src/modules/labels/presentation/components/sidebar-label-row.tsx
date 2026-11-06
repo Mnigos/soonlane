@@ -31,7 +31,9 @@ export function SidebarLabelRow({
 	const [isDeleting, setIsDeleting] = useState(false)
 	const updateLabel = useUpdateLabelMutation()
 	const navigate = useNavigate()
-	const isViewOpen = useParams({ strict: false }).name === label.name
+	const isViewOpen =
+		useParams({ strict: false }).name?.toLowerCase() ===
+		label.name.toLowerCase()
 
 	function stopRenaming() {
 		setIsRenaming(false)
@@ -92,7 +94,7 @@ export function SidebarLabelRow({
 				<span className="truncate">{label.name}</span>
 
 				{label.openTaskCount > 0 && (
-					<span className="ml-auto text-caption text-muted-foreground group-focus-within/label:invisible group-hover/label:invisible group-has-data-popup-open/label:invisible pointer-coarse:visible">
+					<span className="ml-auto text-caption text-muted-foreground pointer-fine:group-focus-within/label:invisible pointer-fine:group-hover/label:invisible pointer-fine:group-has-data-popup-open/label:invisible">
 						{label.openTaskCount}
 					</span>
 				)}
