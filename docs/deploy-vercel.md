@@ -61,7 +61,7 @@ bun run dev
 
 The file is git-ignored. Never print it. Local sign-in uses the localhost redirect URI directly.
 
-Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server (if `ALLOWED_EMAILS` is set locally, it must include `sample@soonlane.test`). `dev:session --delete` removes the user with its sessions and tasks; the script refuses production envs, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host, set in Vercel's development environment) is set and absent from the database URLs.
+Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server. `dev:session --delete` removes the user with its sessions and tasks; the script refuses production envs, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host, set in Vercel's development environment) is set and absent from the database URLs.
 
 ## Checks after a deployment
 
