@@ -5,7 +5,7 @@ import {
 } from '@soonlane/auth/client'
 import { cn } from '@soonlane/ui/cn'
 import { Button, buttonVariants } from '@soonlane/ui/components/button'
-import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
 import { GoogleIcon } from './google-icon'
 
@@ -22,15 +22,13 @@ export function ContinueWithGoogle({
 	loginHint,
 	fresh = false,
 }: Readonly<ContinueWithGoogleProps>) {
-	const { mutate, isPending, isSuccess, isError } = useMutation(
-		mutationOptions({
-			mutationFn: async () => {
-				const { error } = await startGoogleSignIn(redirects, loginHint)
+	const { mutate, isPending, isSuccess, isError } = useMutation({
+		mutationFn: async () => {
+			const { error } = await startGoogleSignIn(redirects, loginHint)
 
-				if (error) throw new Error(SIGN_IN_FAILED)
-			},
-		})
-	)
+			if (error) throw new Error(SIGN_IN_FAILED)
+		},
+	})
 	const [hasOpenedBrowser, setHasOpenedBrowser] = useState(false)
 	const isRedirecting = isPending || isSuccess
 

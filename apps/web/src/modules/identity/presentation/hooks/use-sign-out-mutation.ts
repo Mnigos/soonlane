@@ -1,9 +1,5 @@
 import { authClient } from '@soonlane/auth/client'
-import {
-	mutationOptions,
-	useMutation,
-	useQueryClient,
-} from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 async function signOut() {
@@ -16,14 +12,12 @@ export function useSignOutMutation() {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
 
-	return useMutation(
-		mutationOptions({
-			mutationFn: signOut,
-			// The cached identity would keep the user signed in until it goes stale.
-			onSuccess: async () => {
-				queryClient.clear()
-				await navigate({ to: '/login' })
-			},
-		})
-	)
+	return useMutation({
+		mutationFn: signOut,
+		// The cached identity would keep the user signed in until it goes stale.
+		onSuccess: async () => {
+			queryClient.clear()
+			await navigate({ to: '/login' })
+		},
+	})
 }
