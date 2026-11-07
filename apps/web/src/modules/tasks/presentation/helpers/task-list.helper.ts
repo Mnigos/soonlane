@@ -21,7 +21,7 @@ export function groupTasksByDay(tasks: Task[]) {
 // Sorts after every HH:MM due time, so untimed tasks come last like on the server.
 const UNTIMED = '24:00'
 
-// The server order: by day, timed tasks first by time, then by priority (P1 first), then oldest first.
+// Keep in sync with DAY_ORDER in task.repository.ts.
 function compareTasks(a: Task, b: Task) {
 	return (
 		a.dueDate.localeCompare(b.dueDate) ||

@@ -52,7 +52,6 @@ function toDate(year: number, month: number, day: number) {
 	return addDays(monthStart, day - 1)
 }
 
-// "nov", "novem" and "november" all name November; at least three letters.
 function findByPrefix(names: string[], word: string) {
 	const index = names.findIndex(name => name.startsWith(word))
 

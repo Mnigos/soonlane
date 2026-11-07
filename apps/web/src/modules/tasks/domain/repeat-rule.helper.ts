@@ -37,7 +37,6 @@ function formatOrdinal(value: number) {
 	return `${value}${ORDINAL_SUFFIXES[ordinalRules.select(value)] ?? 'th'}`
 }
 
-// The anchor's day in the month starting at monthStart, or that month's last day when it is shorter.
 function onAnchorDay(monthStart: CalendarDate, anchor: CalendarDate) {
 	const day = Math.min(getDayOfMonth(anchor), getDaysInMonth(monthStart))
 
@@ -121,13 +120,12 @@ export function getNextDueDate(
 	rule: RepeatRule,
 	today?: CalendarDate
 ) {
-	let next = getNextOccurrence(dueDate, rule)
-
-	if (!today) return next
-
-	while (isBefore(next, today)) next = getNextOccurrence(next, rule)
-
-	return next
+	for (
+		let next = getNextOccurrence(dueDate, rule);
+		;
+		next = getNextOccurrence(next, rule)
+	)
+		if (!(today && isBefore(next, today))) return next
 }
 
 /** Todoist's label; `long` spells out the weekday range for screen readers. */

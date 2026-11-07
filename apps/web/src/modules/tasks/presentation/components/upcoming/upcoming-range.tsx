@@ -19,7 +19,7 @@ interface UpcomingRangeProps {
 	onLoadMore?: () => void
 }
 
-// Starts the next load once the end of the list is within about one screen below the viewport. Pixels, since browsers differ on what a percentage margin refers to.
+// Pixels, since browsers differ on what a percentage margin refers to.
 const LOAD_MORE_MARGIN = '0px 0px 1000px 0px'
 
 /**
@@ -65,7 +65,6 @@ export const UpcomingRange = memo(function UpcomingRange({
 				/>
 			))}
 
-			{/* A failed range stops the loading until Try again succeeds. */}
 			{onLoadMore && !isError && (
 				<div
 					aria-hidden

@@ -1,13 +1,39 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { useMemo, useSyncExternalStore } from 'react'
 
-// A section counts as reached when its top is within this distance below the sticky header.
 const REACHED_TOLERANCE_PX = 4
 // Without scrollend, a requested scroll settles once no scroll event came for this long.
 const SCROLL_SETTLE_FALLBACK_MS = 1000
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 type SectionRef = (element: HTMLElement | null) => () => void
+type SortedSection = [CalendarDate, HTMLElement]
+
+interface TrackerState {
+	sortedSections?: SortedSection[]
+	header?: HTMLElement | null
+	activeDay: CalendarDate
+	requestedDay?: CalendarDate
+	frame: number
+	settleTimer?: ReturnType<typeof setTimeout>
+}
+
+/** The index of the last section whose top has reached the line, or -1; the sections must be in date order in the DOM. */
+function findLastReached(
+	sortedSections: readonly SortedSection[],
+	line: number,
+	low: number,
+	high: number
+): number {
+	if (low > high) return high
+
+	const middle = Math.floor((low + high) / 2)
+	const top = sortedSections[middle]?.[1].getBoundingClientRect().top
+
+	return top === undefined || top > line
+		? findLastReached(sortedSections, line, low, middle - 1)
+		: findLastReached(sortedSections, line, middle + 1, high)
+}
 
 /**
  * Tracks which day section sits at the top of the list, just under the sticky
@@ -18,47 +44,31 @@ type SectionRef = (element: HTMLElement | null) => () => void
 function createActiveDayTracker(firstDay: CalendarDate) {
 	const sections = new Map<CalendarDate, HTMLElement>()
 	const listeners = new Set<() => void>()
-	let sortedSections: [CalendarDate, HTMLElement][] | undefined
-	let header: HTMLElement | null = null
-	let activeDay = firstDay
-	let requestedDay: CalendarDate | undefined
-	let frame = 0
-	let settleTimer: ReturnType<typeof setTimeout> | undefined
+	const state: TrackerState = { activeDay: firstDay, frame: 0 }
 
 	function getHeaderBottom() {
-		return header?.getBoundingClientRect().bottom ?? 0
+		return state.header?.getBoundingClientRect().bottom ?? 0
 	}
 
-	// Sections sit in date order on the page, so a binary search finds the top one in a long list.
 	function readTopDay() {
+		state.sortedSections ??= [...sections].toSorted(([a], [b]) =>
+			a.localeCompare(b)
+		)
 		const line = getHeaderBottom() + REACHED_TOLERANCE_PX
-		sortedSections ??= [...sections].toSorted(([a], [b]) => a.localeCompare(b))
-		let topDay = firstDay
-		let low = 0
-		let high = sortedSections.length - 1
+		const index = findLastReached(
+			state.sortedSections,
+			line,
+			0,
+			state.sortedSections.length - 1
+		)
 
-		while (low <= high) {
-			const middle = Math.floor((low + high) / 2)
-			const section = sortedSections[middle]
-
-			if (!section) break
-
-			const [date, element] = section
-
-			if (element.getBoundingClientRect().top > line) high = middle - 1
-			else {
-				topDay = date
-				low = middle + 1
-			}
-		}
-
-		return topDay
+		return state.sortedSections[index]?.[0] ?? firstDay
 	}
 
 	function setActiveDay(date: CalendarDate) {
-		if (date === activeDay) return
+		if (date === state.activeDay) return
 
-		activeDay = date
+		state.activeDay = date
 		for (const listener of listeners) listener()
 	}
 
@@ -72,8 +82,8 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	}
 
 	function update() {
-		if (requestedDay) {
-			if (hasReached(requestedDay)) settle()
+		if (state.requestedDay) {
+			if (hasReached(state.requestedDay)) settle()
 			return
 		}
 
@@ -81,28 +91,28 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	}
 
 	function scheduleUpdate() {
-		if (frame) return
+		if (state.frame) return
 
-		frame = requestAnimationFrame(() => {
-			frame = 0
+		state.frame = requestAnimationFrame(() => {
+			state.frame = 0
 			update()
 		})
 	}
 
 	function settle() {
-		clearTimeout(settleTimer)
-		requestedDay = undefined
+		clearTimeout(state.settleTimer)
+		state.requestedDay = undefined
 		setActiveDay(readTopDay())
 	}
 
 	function armSettleTimer() {
-		clearTimeout(settleTimer)
-		settleTimer = setTimeout(settle, SCROLL_SETTLE_FALLBACK_MS)
+		clearTimeout(state.settleTimer)
+		state.settleTimer = setTimeout(settle, SCROLL_SETTLE_FALLBACK_MS)
 	}
 
 	function handleScroll() {
 		// A slow smooth scroll keeps re-arming the timer, so it never settles mid-way.
-		if (requestedDay) armSettleTimer()
+		if (state.requestedDay) armSettleTimer()
 		scheduleUpdate()
 	}
 
@@ -121,26 +131,26 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 				window.removeEventListener('scroll', handleScroll)
 				window.removeEventListener('resize', scheduleUpdate)
 				window.removeEventListener('scrollend', settle)
-				cancelAnimationFrame(frame)
+				cancelAnimationFrame(state.frame)
 				// StrictMode resubscribes before the frame runs; a stale id would block every later update.
-				frame = 0
-				clearTimeout(settleTimer)
+				state.frame = 0
+				clearTimeout(state.settleTimer)
 			}
 		},
-		getSnapshot: () => activeDay,
+		getSnapshot: () => state.activeDay,
 		headerRef(element: HTMLElement | null) {
-			header = element
+			state.header = element
 		},
 		sectionRef(date: CalendarDate): SectionRef {
 			return element => {
 				if (element) sections.set(date, element)
-				sortedSections = undefined
+				state.sortedSections = undefined
 
 				return () => {
 					if (sections.get(date) !== element) return
 
 					sections.delete(date)
-					sortedSections = undefined
+					state.sortedSections = undefined
 				}
 			}
 		},
@@ -150,11 +160,11 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 			if (!section) return
 
 			const reduceMotion = window.matchMedia(REDUCED_MOTION_QUERY).matches
-			const headerHeight = header?.getBoundingClientRect().height ?? 0
+			const headerHeight = state.header?.getBoundingClientRect().height ?? 0
 			const top =
 				section.getBoundingClientRect().top + window.scrollY - headerHeight
 
-			requestedDay = date
+			state.requestedDay = date
 			setActiveDay(date)
 			window.scrollTo({
 				top: Math.max(0, top),
@@ -168,7 +178,6 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 
 /** The day at the top of the Upcoming list and a way to scroll to any rendered day. */
 export function useActiveDay(firstDay: CalendarDate) {
-	// One tracker per list; the page remounts when today changes.
 	const tracker = useMemo(() => createActiveDayTracker(firstDay), [firstDay])
 	const activeDay = useSyncExternalStore(
 		tracker.subscribe,

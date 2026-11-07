@@ -1,7 +1,5 @@
 import { Option, Schema } from 'effect'
 
-// Electrobun types event payloads as unknown; these schemas read the fields the shell needs.
-
 const newWindowOpenEventSchema = Schema.Struct({
 	data: Schema.Struct({
 		// A JSON object from the page's bridge, or the bare URL when Electrobun could not parse it.

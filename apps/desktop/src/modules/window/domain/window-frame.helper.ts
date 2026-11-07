@@ -17,7 +17,6 @@ function overlap(
 	)
 }
 
-// A frame saved on a display that is gone would open the window off screen.
 function isOnSomeDisplay(frame: WindowFrame, workAreas: readonly ScreenArea[]) {
 	return workAreas.some(
 		area =>

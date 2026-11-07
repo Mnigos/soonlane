@@ -24,7 +24,7 @@ export const FileFrameStoreLive = Layer.sync(FrameStore, () => {
 		}).pipe(Effect.flatMap(decodeStoredFrame), Effect.option),
 		save: Effect.fn('FrameStore.save')(function* (frame) {
 			yield* Effect.try({
-				// Writing a separate file and renaming it over the old one never leaves a half-written state file.
+				// Renaming over the old file never leaves a half-written state file.
 				try: () => {
 					mkdirSync(directory, { recursive: true })
 					writeFileSync(partialFile, JSON.stringify(frame))

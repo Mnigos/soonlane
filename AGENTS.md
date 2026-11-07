@@ -24,9 +24,15 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 - File names: `<kebab-name>.<role>.ts` with a role from `base, client, config, constants, context, contract, errors, handler, helper, layer, layers, middleware, parser, port, repository, router, runtime, schema, schemas, service, types, util` (optional `.server` modifier). Components are bare kebab-case `.tsx`, hooks `use-*.ts`, routes `*.route.ts(x)`. (lint-enforced)
 - No barrel files, except one root `index.ts` per package (`packages/ui` has none; import through its export map).
+- Module names: plural for a collection of entities (`tasks`, `labels`), singular for a concept (`identity`, `shell`, `analytics`). The module name is reused as is for the service, router, contract, oRPC procedure namespace and URL segment (`TasksService`, `tasks.router.ts`, `tasks.list`, `/app/labels/$name`). Anything about one entity is singular: type (`Task`), DB table (`task`), repository port and file (`TaskRepository`, `task.repository.ts`), errors (`task.errors.ts`), ids (`TaskId`), analytics events (`task_created`). (lint-enforced for services, routers and contracts)
 - No `useEffect`, no `useSuspenseQuery` and no bare TanStack `mutationOptions`; pass options straight to `useQuery`/`useMutation`, or use `orpcQuery`'s `queryOptions()`/`mutationOptions()` for procedures. (lint-enforced)
 - Runtime only in the file suffix (`.server.ts`), never in identifiers.
+- No `let` inside functions: use `const` and move the use into the block that assigns the value, return early, or extract a function. Module-level state and loop heads may use `let`. (lint-enforced)
 - Implementation files stay under 400 lines.
+- JSDoc (`/** … */`) on a declaration (exported or module-level function, component, hook, type, constant) is welcome when it says what the thing is for, its contract, or a non-obvious why. Keep it short; don't restate the name.
+- `//` comments inside function bodies are the exception: only for a quirk or constraint the reader would otherwise "fix" wrongly. Prefer moving that why into the declaration's JSDoc.
+- No comment narrates history ("previously", "now") or explains React, TanStack or Effect basics.
+- Consecutive single-line module-level `const` declarations stay together without blank lines. (lint-enforced)
 - Never edit generated migrations; change `packages/db/schema` and run `bun run db:generate`.
 - Run `bun run check:fix`; the `soonlane/*` rules in `tooling/oxlint-plugins` enforce the remaining style.
 

@@ -13,7 +13,7 @@ function toHttpsUrl(host: string) {
 	return `https://${host}`
 }
 
-// AUTH_URL wins; previews have no AUTH_URL and fall back to Vercel's stable branch host, then the per-deployment host.
+// Previews have no AUTH_URL and fall back to Vercel's stable branch host, then the per-deployment host.
 export function resolveBaseUrl({
 	authUrl,
 	vercelBranchUrl,

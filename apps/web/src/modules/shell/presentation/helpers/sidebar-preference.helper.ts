@@ -5,7 +5,7 @@ const SIDEBAR_COOKIE = 'soonlane-sidebar'
 // Set before the rename to Soonlane; read until the owner saves the preference again.
 const LEGACY_SIDEBAR_COOKIE = 'soonlist-sidebar'
 const COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
-// Tailwind's xl breakpoint: from here the full sidebar fits beside the centered column without covering it.
+// Tailwind's xl breakpoint.
 const WIDE_VIEWPORT_QUERY = '(min-width: 80rem)'
 
 function toSidebarPreference(value?: string): SidebarPreference {

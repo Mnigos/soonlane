@@ -29,7 +29,7 @@ const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 		)
 	})
 
-	// Each event updates the frame inside its callback, in arrival order; only the file write waits.
+	// Updated inside each callback; only the file write is debounced.
 	const frameChanges = Stream.callback<WindowFrame>(queue => {
 		const track = (event: unknown) => {
 			Queue.offerUnsafe(

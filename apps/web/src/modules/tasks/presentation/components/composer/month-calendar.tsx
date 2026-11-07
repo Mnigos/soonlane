@@ -32,7 +32,6 @@ const KEY_STEPS: Record<string, number> = {
 	ArrowUp: -7,
 	ArrowDown: 7,
 }
-// The list grows by a year once fewer months than this are left below the one on screen.
 const MONTHS_AHEAD = 3
 const NAV_BUTTON_CLASS =
 	'flex size-7 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-30 [&_svg]:size-4'
@@ -69,7 +68,7 @@ export function MonthCalendar({
 	const [focused, setFocused] = useState(initial)
 	const [isKeyboardFocus, setIsKeyboardFocus] = useState(false)
 	const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
-	// Stable, so a re-render does not scroll back; it opens on the chosen day's month, as Todoist does.
+	// Stable, so a re-render does not scroll back.
 	const attachScroller = useCallback(
 		(container: HTMLDivElement | null) => {
 			setScroller(container)

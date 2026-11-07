@@ -7,10 +7,10 @@ import {
 
 // Re-reads the date at local midnight and when the tab returns, since timers stall while a laptop sleeps.
 function subscribe(onChange: () => void) {
-	let timer: ReturnType<typeof setTimeout>
+	const midnight: { timer?: ReturnType<typeof setTimeout> } = {}
 
 	function scheduleMidnight() {
-		timer = setTimeout(() => {
+		midnight.timer = setTimeout(() => {
 			onChange()
 			scheduleMidnight()
 		}, getMillisecondsUntilTomorrow(new Date()))
@@ -20,7 +20,7 @@ function subscribe(onChange: () => void) {
 	document.addEventListener('visibilitychange', onChange)
 
 	return () => {
-		clearTimeout(timer)
+		clearTimeout(midnight.timer)
 		document.removeEventListener('visibilitychange', onChange)
 	}
 }
