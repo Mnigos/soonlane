@@ -39,7 +39,6 @@ export const LabelsServiceLive = Layer.effect(
 			return yield* repository.list(ownerId)
 		})
 
-		// The unique index on the owner and the lower-cased name rejects a taken name.
 		const create = Effect.fn('LabelsService.create')(function* (
 			ownerId: UserId,
 			input: CreateLabelInput
