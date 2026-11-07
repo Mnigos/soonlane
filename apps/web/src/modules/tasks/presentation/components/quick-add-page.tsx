@@ -4,14 +4,12 @@ import { useDockBadgeQuery } from '../hooks/use-dock-badge-query'
 import { useToday } from '../hooks/use-today'
 import { TaskComposer } from './composer/task-composer'
 
-/** The desktop app's Quick Add window: the task composer on its own, due today like the global Add task. */
 export function QuickAddPage() {
 	const today = useToday()
 	const navigate = useNavigate()
 
 	useDockBadgeQuery()
 
-	// The desktop app closes the window; a browser goes on to the task list.
 	function finish() {
 		if (!sendToDesktopHost({ type: 'quick-add-done' }))
 			void navigate({ to: '/app' })

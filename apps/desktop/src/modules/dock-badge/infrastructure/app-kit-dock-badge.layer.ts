@@ -26,7 +26,6 @@ function createString(text: string) {
 	)
 }
 
-/** Sets `NSApp.dockTile.badgeLabel`; a nil label hides the badge. */
 export const AppKitDockBadgeLive = Layer.succeed(
 	DockBadge,
 	DockBadge.of({
@@ -62,7 +61,7 @@ export const AppKitDockBadgeLive = Layer.succeed(
 					setArgument(label, 2)
 					setArgument(keyPath, 3)
 					send(invocation, getSelector('retainArguments'))
-					// Electrobun runs this code in a Bun worker, but NSApp and its Dock tile belong to the main thread, so KVC resolves both there.
+					// Bun code runs in a worker, but NSApp's Dock tile must be set on the main thread.
 					sendOnMainThread(
 						invocation,
 						getSelector(

@@ -7,12 +7,11 @@ import {
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getToday } from '../../domain/calendar-date.helper'
 
-/** The Today list's input: overdue tasks and the ones due today. */
 export function getTodayListInput(today: CalendarDate) {
 	return { from: today, to: today, today }
 }
 
-/** Reports the Today list's count to the Dock badge on every data change; cache listeners run synchronously, before the change's callbacks. */
+// Cache listeners run synchronously, so the count is sent before onCreated closes the Quick Add window.
 export function syncDockBadge(queryClient: QueryClient) {
 	if (!isDesktopShell()) return
 
@@ -28,7 +27,6 @@ export function syncDockBadge(queryClient: QueryClient) {
 				? queryClient.getQueryData(todayKey)
 				: undefined
 
-		// Sign-out clears the cache, which removes the list.
 		if (event.type === 'removed')
 			sendToDesktopHost({ type: 'dock-badge', count: 0 })
 		if (list)
