@@ -33,6 +33,7 @@ function normalizeEmail(email: string) {
 	return email.trim().toLowerCase()
 }
 
+/** A comma-separated `ALLOWED_EMAILS`; an empty list means anyone can sign up. */
 export function parseAllowedEmails(value: string): string[] {
 	return value.split(',').map(normalizeEmail).filter(Boolean)
 }

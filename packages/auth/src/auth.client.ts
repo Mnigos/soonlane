@@ -8,7 +8,7 @@ export interface GoogleSignInRedirects {
 	errorCallbackURL: string
 }
 
-/** `loginHint` keeps a repeated sign-in on the same Google account. */
+/** `loginHint` preselects that Google account, so a repeated sign-in does not switch users by accident. */
 export async function signInWithGoogle(
 	redirects: GoogleSignInRedirects,
 	loginHint?: string
