@@ -17,9 +17,9 @@ import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } fr
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
-import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
 import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport } from './modules/identity/presentation/routes/api.auth.$.route'
 import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
+import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
 
 const modulesShellPresentationRoutesRootRedirectDotrouteRoute =
   modulesShellPresentationRoutesRootRedirectDotrouteRouteImport.update({
@@ -69,12 +69,6 @@ const modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute =
     path: '/desktop/sign-in',
     getParentRoute: () => rootRouteImport,
   } as any)
-const modulesLabelsPresentationRoutesLabelDotrouteRoute =
-  modulesLabelsPresentationRoutesLabelDotrouteRouteImport.update({
-    id: '/labels/$name',
-    path: '/labels/$name',
-    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
-  } as any)
 const modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute =
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport.update({
     id: '/api/auth/$',
@@ -87,6 +81,12 @@ const routesApiDotrpcDotDotrouteRoute =
     path: '/api/rpc/$',
     getParentRoute: () => rootRouteImport,
   } as any)
+const modulesLabelsPresentationRoutesLabelDotrouteRoute =
+  modulesLabelsPresentationRoutesLabelDotrouteRouteImport.update({
+    id: '/labels/$name',
+    path: '/labels/$name',
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof modulesShellPresentationRoutesRootRedirectDotrouteRoute
@@ -97,9 +97,9 @@ export interface FileRoutesByFullPath {
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
-  '/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
+  '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof modulesShellPresentationRoutesRootRedirectDotrouteRoute
@@ -109,9 +109,9 @@ export interface FileRoutesByTo {
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
-  '/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
+  '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -123,9 +123,9 @@ export interface FileRoutesById {
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
-  '/_shell/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
+  '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,9 +138,9 @@ export interface FileRouteTypes {
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
-    | '/labels/$name'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/app/labels/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -150,9 +150,9 @@ export interface FileRouteTypes {
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
-    | '/labels/$name'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/app/labels/$name'
   id:
     | '__root__'
     | '/'
@@ -163,9 +163,9 @@ export interface FileRouteTypes {
     | '/app/today'
     | '/desktop/callback'
     | '/desktop/sign-in'
-    | '/_shell/labels/$name'
     | '/api/auth/$'
     | '/api/rpc/$'
+    | '/app/labels/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,13 +237,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_shell/labels/$name': {
-      id: '/_shell/labels/$name'
-      path: '/labels/$name'
-      fullPath: '/labels/$name'
-      preLoaderRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRouteImport
-      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
-    }
     '/api/auth/$': {
       id: '/api/auth/$'
       path: '/api/auth/$'
@@ -257,6 +250,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/rpc/$'
       preLoaderRoute: typeof routesApiDotrpcDotDotrouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/app/labels/$name': {
+      id: '/app/labels/$name'
+      path: '/labels/$name'
+      fullPath: '/app/labels/$name'
+      preLoaderRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRouteImport
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
   }
 }

@@ -1,6 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_shell/labels/$name')({
+export const Route = createFileRoute('/app/labels/$name')({
 	head: ({ params }) => ({ meta: [{ title: `${params.name} · Soonlane` }] }),
 	component: LabelRoute,
 })
