@@ -14,5 +14,6 @@ export const CONSENT_COPY = {
 	analyticsLabel: 'Analytics',
 	analyticsDescription:
 		'Usage analytics linked to your account and session replays with your tasks, inputs, name and email hidden. When off, we count pages, actions and errors anonymously, without cookies.',
+	policyLink: 'Privacy policy',
 	save: 'Save',
 } as const

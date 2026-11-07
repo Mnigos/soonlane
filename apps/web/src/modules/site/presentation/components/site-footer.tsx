@@ -1,4 +1,6 @@
+import { cn } from '@soonlane/ui/cn'
 import { Link } from '@tanstack/react-router'
+import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
 import {
 	CONTACT_EMAIL,
 	GITHUB_URL,
@@ -54,6 +56,10 @@ export function SiteFooter() {
 							<Link className={FOOTER_LINK_CLASS} to="/privacy">
 								Privacy
 							</Link>
+
+							<PrivacyChoicesButton
+								className={cn(FOOTER_LINK_CLASS, 'cursor-pointer text-left')}
+							/>
 
 							<Link className={FOOTER_LINK_CLASS} to="/terms">
 								Terms
