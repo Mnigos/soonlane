@@ -7,11 +7,6 @@ interface WeekStripProps {
 	onSelect: (date: CalendarDate) => void
 }
 
-/**
- * Today is bold with its number on the red badge, wherever the list is.
- * The active day (at the top of the list) gets a light segment of the
- * header's bottom rule, which slides between days unless motion is reduced.
- */
 export function WeekStrip({ days, onSelect }: Readonly<WeekStripProps>) {
 	const activeIndex = days.findIndex(day => day.isActive)
 

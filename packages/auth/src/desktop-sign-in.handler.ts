@@ -29,12 +29,7 @@ async function toCodeIdentifier(code: string) {
 	return `${CODE_IDENTIFIER_PREFIX}${await toCodeChallenge(code)}`
 }
 
-/**
- * Hands a browser sign-in to the desktop app (PKCE S256). The signed-in
- * browser trades the app's challenge for a short-lived code, which travels
- * through the `soonlane://` link; only the app holds the verifier that turns
- * the code into a session of its own.
- */
+/** PKCE S256: only the desktop app holds the verifier that turns the code into a session. */
 export function desktopSignIn() {
 	return {
 		id: 'desktop-sign-in',

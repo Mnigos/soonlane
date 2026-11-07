@@ -11,7 +11,6 @@ type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> &
 		'align' | 'side' | 'sideOffset'
 	>
 
-/** The floating panel of a popover, portaled to the body and kept inside the viewport. */
 export function PopoverContent({
 	align = 'start',
 	side = 'bottom',

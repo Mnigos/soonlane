@@ -19,7 +19,6 @@ interface PriorityChipProps {
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
-/** "Priority" until one is picked, then "P1" to "P3" with the colored flag, like Todoist. */
 export function PriorityChip({
 	value,
 	onChange,

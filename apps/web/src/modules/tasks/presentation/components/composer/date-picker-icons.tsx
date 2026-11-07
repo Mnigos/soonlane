@@ -13,7 +13,6 @@ const ICON_PROPS = {
 	width: 24,
 } as const satisfies SVGProps<SVGSVGElement>
 
-/** Todoist's "Tomorrow" sun: eight rays set between the compass points. */
 export function TomorrowIcon(props: IconProps) {
 	return (
 		<svg {...ICON_PROPS} {...props}>
@@ -24,7 +23,6 @@ export function TomorrowIcon(props: IconProps) {
 	)
 }
 
-/** Todoist's "Next week": a calendar page with an arrow pointing right. */
 export function NextWeekIcon(props: IconProps) {
 	return (
 		<svg {...ICON_PROPS} {...props}>
@@ -35,7 +33,6 @@ export function NextWeekIcon(props: IconProps) {
 	)
 }
 
-/** Todoist's weekend couch: a back, two arms and short legs. */
 export function WeekendIcon(props: IconProps) {
 	return (
 		<svg {...ICON_PROPS} {...props}>
@@ -44,7 +41,6 @@ export function WeekendIcon(props: IconProps) {
 	)
 }
 
-/** Todoist's "Repeat": two arrows chasing each other round a loop. */
 export function RepeatIcon(props: IconProps) {
 	return (
 		<svg {...ICON_PROPS} {...props}>

@@ -24,7 +24,6 @@ export function Sidebar({
 	)
 }
 
-/** The collapsed sidebar: a column of icon buttons and links, each with its own label. */
 export function SidebarRail({
 	className,
 	...props
@@ -101,7 +100,7 @@ const SIDEBAR_ITEM_STATES = {
 	inactive: 'text-foreground hover:bg-hover',
 } as const satisfies Record<string, string>
 
-/** Row style for sidebar links; apply `state: 'active'` through the router's active props so colors never conflict. */
+/** Apply `state: 'active'` through the router's active props so colors never conflict. */
 export const sidebarItemVariants = cva(
 	'flex h-8 items-center gap-2 rounded-md px-2 text-sm transition-colors [&_svg]:size-4.5 [&_svg]:shrink-0',
 	{
@@ -110,7 +109,6 @@ export const sidebarItemVariants = cva(
 	}
 )
 
-/** Square icon style for rail links and buttons, with the same active and inactive colors as `sidebarItemVariants`. */
 export const sidebarRailItemVariants = cva(
 	'flex size-9 cursor-pointer items-center justify-center rounded-md transition-colors [&_svg]:size-4.5 [&_svg]:shrink-0',
 	{

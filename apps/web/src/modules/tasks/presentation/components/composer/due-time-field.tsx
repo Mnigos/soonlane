@@ -12,7 +12,6 @@ function focusElement(input: HTMLInputElement | null) {
 	input?.focus()
 }
 
-/** Todoist's "Time" button; it turns into the browser's time field with a clear button. */
 export function DueTimeField({ value, onChange }: Readonly<DueTimeFieldProps>) {
 	const [isOpen, setIsOpen] = useState(value !== undefined)
 	const [shouldFocus, setShouldFocus] = useState(false)

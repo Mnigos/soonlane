@@ -13,7 +13,6 @@ function isExpected(cause: Cause.Cause<unknown>) {
 	return Cause.hasInterruptsOnly(cause) || isBoundaryError(Cause.squash(cause))
 }
 
-// The single place where tagged domain and database errors become contract errors.
 const mapDomainErrors = base.middleware(
 	middlewareGen(function* mapDomainErrors({ next, context }) {
 		const analytics = yield* Analytics

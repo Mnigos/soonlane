@@ -6,7 +6,6 @@ const menuClickEventSchema = Schema.Struct({
 
 const decodeMenuClick = Schema.decodeUnknownOption(menuClickEventSchema)
 
-/** The `action` of the menu item an application-menu-clicked event reports. */
 export function readMenuAction(event: unknown) {
 	return decodeMenuClick(event).pipe(
 		Option.map(({ data }) => data.action),
