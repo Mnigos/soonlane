@@ -84,9 +84,7 @@ try {
 			.update(token)
 			.digest('base64')
 
-		console.log(
-			`Send this cookie to the dev server (with ALLOWED_EMAILS set, it must include ${SAMPLE_USER.email}):`
-		)
+		console.log('Send this cookie to the dev server:')
 		console.log(`name: ${SESSION_COOKIE}`)
 		console.log(`value: ${encodeURIComponent(`${token}.${signature}`)}`)
 	}

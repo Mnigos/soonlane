@@ -1,10 +1,19 @@
 import { parseAllowedEmails } from '@soonlane/auth'
-import { Config, Context, Layer, Option, Redacted } from 'effect'
+import { Config, Context, Layer, Option, Redacted, Schema } from 'effect'
 import {
 	resolveBaseUrl,
 	resolveTrustedOrigins,
 	usesOAuthProxy,
 } from './app-url.helper'
+
+const allowedEmailsSchema = Schema.String.check(
+	Schema.makeFilter(
+		value =>
+			value === '' ||
+			parseAllowedEmails(value).length > 0 ||
+			'ALLOWED_EMAILS must list at least one address, or be unset'
+	)
+)
 
 export class AppConfig extends Context.Service<
 	AppConfig,
@@ -38,7 +47,7 @@ export const AppConfigLive = Layer.effect(
 		authSecret: Config.redacted('AUTH_SECRET').pipe(
 			Config.withDefault(Redacted.make(''))
 		),
-		allowedEmails: Config.string('ALLOWED_EMAILS').pipe(
+		allowedEmails: Config.schema(allowedEmailsSchema, 'ALLOWED_EMAILS').pipe(
 			Config.withDefault(''),
 			Config.map(parseAllowedEmails)
 		),
