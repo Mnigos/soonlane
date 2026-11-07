@@ -118,13 +118,12 @@ export function getNextDueDate(
 	rule: RepeatRule,
 	today?: CalendarDate
 ) {
-	let next = getNextOccurrence(dueDate, rule)
-
-	if (!today) return next
-
-	while (isBefore(next, today)) next = getNextOccurrence(next, rule)
-
-	return next
+	for (
+		let next = getNextOccurrence(dueDate, rule);
+		;
+		next = getNextOccurrence(next, rule)
+	)
+		if (!(today && isBefore(next, today))) return next
 }
 
 // `long` spells out the weekday range for screen readers.

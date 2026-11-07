@@ -29,22 +29,20 @@ export async function proxyToPostHog(request: Request) {
 	const host = ASSET_PATH.test(path) ? ASSETS_HOST : API_HOST
 	const body =
 		request.method === 'POST' ? await request.arrayBuffer() : undefined
-	let upstream: Response
-
 	try {
-		upstream = await fetch(`${host}${path}${search}`, {
+		const upstream = await fetch(`${host}${path}${search}`, {
 			method: request.method,
 			headers: pickHeaders(request.headers, REQUEST_HEADERS),
 			body,
 			redirect: 'manual',
 			signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),
 		})
+
+		return new Response(upstream.body, {
+			status: upstream.status,
+			headers: pickHeaders(upstream.headers, RESPONSE_HEADERS),
+		})
 	} catch {
 		return new Response('Gateway Timeout', { status: 504 })
 	}
-
-	return new Response(upstream.body, {
-		status: upstream.status,
-		headers: pickHeaders(upstream.headers, RESPONSE_HEADERS),
-	})
 }
