@@ -6,7 +6,7 @@ import { GITHUB_URL, SITE_NAME, SITE_PAGE_LINKS } from '../site.constants'
 import { GetStartedButton } from './get-started-button'
 import { GithubIcon } from './github-icon'
 
-// Cookies have no change event; a sign-in or sign-out in another tab shows when this tab is visible again.
+// Cookies have no change event; another tab's sign-in shows once this tab is visible again.
 function subscribe(onChange: () => void) {
 	document.addEventListener('visibilitychange', onChange)
 
@@ -18,7 +18,6 @@ function hasSignedInHint() {
 }
 
 export function SiteHeader() {
-	// The prerendered HTML is signed out; after hydration the browser reads the hint cookie.
 	const isSignedIn = useSyncExternalStore(
 		subscribe,
 		hasSignedInHint,

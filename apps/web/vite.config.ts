@@ -47,7 +47,7 @@ const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/platform/rpc/rpc-serializer.constants.ts',
 ]
 
-// Prerendering runs the server bundle at build time without env vars, so it must stay off routes that read the session.
+// The prerender runs without env vars, so it must stay off routes that read the session.
 const NON_PUBLIC_PATHS = [
 	'/app',
 	'/login',
@@ -104,7 +104,7 @@ export default defineConfig({
 			preset: 'vercel',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
-			// Prerendering serves the function through this command: the preset's 'npx srvx' runs from the package root and misses it, and under Bun srvx makes the request's runtime field read-only.
+			// The preset's 'npx srvx' runs from the package root and, under Bun, makes request.runtime read-only.
 			commands: { preview: 'bun ./functions/__server.func/index.mjs' },
 			vercel: {
 				// Nitro's default 'bun1.x' is Bun 1.3; 'bun1.4.x' matches bunVersion in vercel.json. fra1 sits next to the Neon database in eu-central-1.
@@ -120,6 +120,6 @@ export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
-	// Prerendering fetches from the preview server, which Nitro pins to port 3000; with 'localhost' a dev server on [::1]:3000 answered instead.
+	// The prerender fetches from this server on port 3000; via 'localhost' a dev server on [::1]:3000 answered.
 	preview: { host: '127.0.0.1' },
 })
