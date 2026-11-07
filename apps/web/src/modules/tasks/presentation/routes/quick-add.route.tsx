@@ -3,7 +3,7 @@ import { sendToDesktopHost } from '@/modules/shell/presentation/helpers/desktop-
 import { QuickAddPage } from '../components/quick-add-page'
 
 export const Route = createFileRoute('/_session/app/quick-add')({
-	// The guard runs in the browser, so a signed-out Quick Add window closes instead of showing the login page.
+	// Client-only so the signed-out guard can tell the desktop app to close the window.
 	ssr: false,
 	beforeLoad: ({ context }) => {
 		if (context.me.user) return

@@ -1,6 +1,6 @@
 import { dlopen, FFIType } from 'bun:ffi'
 
-// Electrobun 2.0.6 exposes no Dock badge or Accessibility API, so the shell talks to AppKit through the Objective-C runtime.
+// Electrobun 2.0.6 has no Dock badge or Accessibility API, so AppKit is called through the Objective-C runtime.
 
 const LIBOBJC = '/usr/lib/libobjc.A.dylib'
 
@@ -16,12 +16,11 @@ const {
 	sel_registerName: { args: [FFIType.cstring], returns: FFIType.ptr },
 }).symbols
 
-/** A NUL-terminated UTF-8 copy of the text, for C string arguments. */
 export function utf8(text: string) {
 	return Buffer.from(`${text}\0`)
 }
 
-/** Releases what the body autoreleases; the Bun worker thread never drains a pool of its own. */
+// The Bun worker thread never drains an autorelease pool of its own.
 export function withAutoreleasePool<T>(body: () => T) {
 	const pool = objc_autoreleasePoolPush()
 	try {
@@ -39,7 +38,6 @@ export function getSelector(name: string) {
 	return sel_registerName(utf8(name))
 }
 
-/** `objc_msgSend` with the receiver, the selector and then these arguments; each method shape needs its own C signature. */
 export function messageSender<
 	const TArgs extends readonly FFIType[],
 	TReturns extends FFIType,

@@ -10,7 +10,6 @@ import {
 	readNewWindowUrl,
 } from '../domain/navigation-event.helper'
 
-/** Applies the navigation rules' follow-ups to a window's webview until the enclosing scope closes. */
 export const followNavigation = Effect.fn('Navigation.follow')(function* (
 	webviewEvents: (name: WebviewEventName) => Stream.Stream<unknown>
 ) {

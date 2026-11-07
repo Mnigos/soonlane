@@ -10,7 +10,6 @@ export const DockBadgeEventsLive = Layer.effectDiscard(
 	Effect.gen(function* () {
 		const dockBadge = yield* DockBadge
 
-		// Every window's page reports the count whenever today's tasks change, so the last report wins.
 		yield* handleEvents(electrobunEvents('host-message'), event => {
 			const count = readBadgeCount(event)
 
