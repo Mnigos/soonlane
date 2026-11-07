@@ -13,7 +13,10 @@ import {
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const listKey = orpcQuery.tasks.key({ type: 'query' })
+	const listKeys = [
+		orpcQuery.tasks.list.key(),
+		orpcQuery.tasks.listByLabel.key(),
+	]
 
 	async function refreshLists() {
 		await refreshTaskAndLabelLists(queryClient)
@@ -29,19 +32,26 @@ export function useCompleteTask(today: CalendarDate) {
 	const complete = useMutation(
 		orpcQuery.tasks.complete.mutationOptions({
 			onMutate: async ({ id }) => {
-				await queryClient.cancelQueries({ queryKey: listKey })
-				const removed = queryClient
-					.getQueriesData<ListTasksOutput>({ queryKey: listKey })
+				await Promise.all(
+					listKeys.map(
+						async queryKey => await queryClient.cancelQueries({ queryKey })
+					)
+				)
+				const removed = listKeys
+					.flatMap(queryKey =>
+						queryClient.getQueriesData<ListTasksOutput>({ queryKey })
+					)
 					.flatMap(([key, list]) => {
 						const placement = list && findTaskPlacement(list, id)
 
 						return placement ? [{ key, placement }] : []
 					})
 
-				queryClient.setQueriesData<ListTasksOutput>(
-					{ queryKey: listKey },
-					list => list && withoutTask(list, id)
-				)
+				for (const queryKey of listKeys)
+					queryClient.setQueriesData<ListTasksOutput>(
+						{ queryKey },
+						list => list && withoutTask(list, id)
+					)
 
 				return { removed }
 			},

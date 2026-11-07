@@ -62,7 +62,12 @@ export function useRescheduleTasks() {
 				toast('Could not reschedule the tasks. Try again.')
 			},
 			onSettled: async () =>
-				await queryClient.invalidateQueries({ queryKey: listKey }),
+				await Promise.all([
+					queryClient.invalidateQueries({ queryKey: listKey }),
+					queryClient.invalidateQueries({
+						queryKey: orpcQuery.tasks.listByLabel.key(),
+					}),
+				]),
 		})
 	)
 
