@@ -22,7 +22,11 @@ export async function signInWithGoogle(
 ) {
 	return await authClient.signIn.social({
 		provider: 'google',
-		...redirects,
+		callbackURL: new URL(redirects.callbackURL, window.location.origin).href,
+		errorCallbackURL: new URL(
+			redirects.errorCallbackURL,
+			window.location.origin
+		).href,
 		loginHint,
 		additionalParams: fresh ? FORCED_GOOGLE_LOGIN_PARAMS : undefined,
 	})
