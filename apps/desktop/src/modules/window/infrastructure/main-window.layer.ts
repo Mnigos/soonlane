@@ -1,17 +1,16 @@
 import { Effect, Layer, Option, Queue, Ref, Stream } from 'effect'
-import { BrowserWindow, Screen } from 'electrobun'
+import { type BrowserWindow, Screen } from 'electrobun'
 import { DesktopConfig } from '../../../platform/config/desktop.config'
 import {
 	electrobunEvents,
 	listen,
 } from '../../../platform/electrobun/electrobun-events.helper'
-import { getNavigationRules } from '../../navigation/domain/navigation.helper'
 import { FrameStore } from '../application/frame-store.port'
 import { MainWindow } from '../application/main-window.port'
 import { applyFrameEvent, restoreFrame } from '../domain/window-frame.helper'
 import type { WindowFrame } from '../domain/window-frame.schemas'
 import { FRAME_SAVE_DELAY, WINDOW_TITLE } from '../domain/window.constants'
-import { SHELL_PRELOAD } from './shell-preload.constants'
+import { openAppWindow } from './app-window.helper'
 
 /** Saves the frame once resizes and moves pause, and right away when the window closes. */
 const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
@@ -63,8 +62,8 @@ export const MainWindowLive = Layer.effect(
 	Effect.gen(function* () {
 		const { appUrl } = yield* DesktopConfig
 		const saved = yield* (yield* FrameStore).load
-		const window = yield* Effect.sync(() => {
-			const created = new BrowserWindow({
+		const window = yield* Effect.sync(() =>
+			openAppWindow(appUrl, {
 				title: WINDOW_TITLE,
 				url: new URL('/app', appUrl).href,
 				frame: restoreFrame(
@@ -72,15 +71,8 @@ export const MainWindowLive = Layer.effect(
 					Screen.getAllDisplays().map(({ workArea }) => workArea)
 				),
 				titleBarStyle: 'hiddenInset',
-				preload: SHELL_PRELOAD,
-				renderer: 'native',
 			})
-
-			// Electrobun 2.0.6 ignores the navigationRules window option for the main view, so the rules are set on the view.
-			created.webview.setNavigationRules(getNavigationRules(appUrl))
-
-			return created
-		})
+		)
 		const { webview } = window
 
 		yield* persistFrame(window)
