@@ -1,16 +1,16 @@
-/** Todoist's palette keys in Todoist's order. */
+/** Todoist's palette colors in Todoist's order, as kebab-case keys. */
 export const LABEL_COLORS = [
-	'berry_red',
+	'berry-red',
 	'red',
 	'orange',
 	'yellow',
-	'olive_green',
-	'lime_green',
+	'olive-green',
+	'lime-green',
 	'green',
-	'mint_green',
+	'mint-green',
 	'teal',
-	'sky_blue',
-	'light_blue',
+	'sky-blue',
+	'light-blue',
 	'blue',
 	'grape',
 	'violet',
