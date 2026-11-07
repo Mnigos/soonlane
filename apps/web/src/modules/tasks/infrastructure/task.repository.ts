@@ -32,7 +32,7 @@ const DUE_TIME_LENGTH = 5
 
 type Queries = Pick<Database, 'insert' | 'select'>
 
-// Timed tasks first by time, then by priority (P1 first), then oldest first.
+// Keep in sync with compareTasks in task-list.helper.ts.
 const DAY_ORDER = [
 	asc(task.dueDate),
 	sql`${task.dueTime} asc nulls last`,

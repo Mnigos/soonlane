@@ -1,7 +1,6 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { useMemo, useSyncExternalStore } from 'react'
 
-// A section counts as reached when its top is within this distance below the sticky header.
 const REACHED_TOLERANCE_PX = 4
 // Without scrollend, a requested scroll settles once no scroll event came for this long.
 const SCROLL_SETTLE_FALLBACK_MS = 1000
@@ -9,12 +8,7 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 type SectionRef = (element: HTMLElement | null) => () => void
 
-/**
- * Tracks which day section sits at the top of the list, just under the sticky
- * header, and scrolls to a day. While a requested scroll is in flight the
- * requested day stays active, so the week strip does not flicker through the
- * days it passes.
- */
+// While a requested scroll is in flight the requested day stays active, so the week strip does not flicker through the days it passes.
 function createActiveDayTracker(firstDay: CalendarDate) {
 	const sections = new Map<CalendarDate, HTMLElement>()
 	const listeners = new Set<() => void>()
@@ -29,7 +23,7 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		return header?.getBoundingClientRect().bottom ?? 0
 	}
 
-	// Sections sit in date order on the page, so a binary search finds the top one in a long list.
+	// The binary search needs the day sections in date order in the DOM.
 	function readTopDay() {
 		const line = getHeaderBottom() + REACHED_TOLERANCE_PX
 		sortedSections ??= [...sections].toSorted(([a], [b]) => a.localeCompare(b))
@@ -166,9 +160,7 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	}
 }
 
-/** The day at the top of the Upcoming list and a way to scroll to any rendered day. */
 export function useActiveDay(firstDay: CalendarDate) {
-	// One tracker per list; the page remounts when today changes.
 	const tracker = useMemo(() => createActiveDayTracker(firstDay), [firstDay])
 	const activeDay = useSyncExternalStore(
 		tracker.subscribe,

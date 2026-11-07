@@ -12,14 +12,12 @@ export const NavigationEventsLive = Layer.effectDiscard(
 		const mainWindow = yield* MainWindow
 		const navigation = yield* Navigation
 
-		// target=_blank, window.open and Cmd+click: other sites go to the system browser, the app stays in this window.
 		yield* handleEvents(mainWindow.webviewEvents('new-window-open'), event => {
 			const href = readNewWindowUrl(event)
 
 			return href ? navigation.openLink(href) : Effect.void
 		})
 
-		// The rules cancel top-level navigations to other origins (links, redirects, location changes); they open in the browser.
 		yield* handleEvents(mainWindow.webviewEvents('will-navigate'), event => {
 			const href = readBlockedNavigationUrl(event)
 

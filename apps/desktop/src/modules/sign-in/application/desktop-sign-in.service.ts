@@ -13,7 +13,6 @@ export class DesktopSignIn extends Context.Service<
 	DesktopSignIn,
 	{
 		readonly start: (requestedHref: string) => Effect.Effect<void>
-		/** A `soonlane://` link: its code and the pending verifier go to the window, which trades them for a session. */
 		readonly complete: (href: string) => Effect.Effect<void>
 	}
 >()('soonlane/DesktopSignIn') {}

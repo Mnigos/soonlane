@@ -8,7 +8,6 @@ interface AvatarProps {
 	className?: string
 }
 
-/** A round picture, or the first letter of the name on the primary color when there is no picture. */
 export function Avatar({ name, src, className }: Readonly<AvatarProps>) {
 	if (src)
 		return (

@@ -52,14 +52,12 @@ function toDate(year: number, month: number, day: number) {
 	return addDays(monthStart, day - 1)
 }
 
-// "nov", "novem" and "november" all name November; at least three letters.
 function findByPrefix(names: string[], word: string) {
 	const index = names.findIndex(name => name.startsWith(word))
 
 	return index === -1 ? undefined : index
 }
 
-/** A day and month without a year means the next one on or after today. */
 function fromDayMonth(
 	day: number,
 	monthName: string,
@@ -88,11 +86,6 @@ function fromWeekday(word: string, today: CalendarDate) {
 	return addDays(today, offset)
 }
 
-/**
- * Reads what the owner types in the date picker: "today", "tom", "next
- * week", "fri", "14 Nov", "Nov 14 2027" or "2026-11-14". Returns `undefined`
- * when the text is not a date.
- */
 export function parseDueDateText(
 	text: string,
 	today: CalendarDate

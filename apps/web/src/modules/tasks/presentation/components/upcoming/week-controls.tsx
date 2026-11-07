@@ -10,10 +10,6 @@ interface WeekControlsProps {
 const STEP_CLASS =
 	'flex h-8 shrink-0 cursor-pointer items-center justify-center px-1.5 text-muted-foreground transition-colors hover:bg-hover hover:text-foreground disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent sm:px-2'
 
-/**
- * Day navigation: the arrows step to the previous or next day, the middle button
- * names the active day and returns to today's section.
- */
 export function WeekControls({
 	activeDayLabel,
 	onPrevious,

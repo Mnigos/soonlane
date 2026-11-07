@@ -77,7 +77,7 @@ export class TasksService extends Context.Service<
 	}
 >()('soonlane/TasksService') {}
 
-/** The client's today and the due date it showed; both absent from older clients. */
+// Both absent from clients older than repeating tasks.
 interface CompletionDates {
 	today?: CalendarDate
 	dueDate?: CalendarDate

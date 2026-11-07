@@ -32,12 +32,10 @@ const KEY_STEPS: Record<string, number> = {
 	ArrowUp: -7,
 	ArrowDown: 7,
 }
-// The list grows by a year once fewer months than this are left below the one on screen.
 const MONTHS_AHEAD = 3
 const NAV_BUTTON_CLASS =
 	'flex size-7 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary disabled:pointer-events-none disabled:opacity-30 [&_svg]:size-4'
 
-/** Where each month's first week sits in the scroller, just below its "Dec" heading. */
 function getMonthTops(container: HTMLElement) {
 	return [...container.querySelectorAll<HTMLElement>('[data-month]')].map(
 		section =>
@@ -46,13 +44,6 @@ function getMonthTops(container: HTMLElement) {
 	)
 }
 
-/**
- * Todoist's scrolling calendar: months from today's week, under a header that
- * names the month at the top, growing by a year as you near the end, up to ten
- * years ahead. Today is red, the chosen day sits on a red circle and past days
- * are dimmed. Arrow keys move by day and week, Page Up and Page Down by month;
- * only one day is in the tab order, in the month on screen.
- */
 export function MonthCalendar({
 	selected,
 	today,
@@ -69,7 +60,7 @@ export function MonthCalendar({
 	const [focused, setFocused] = useState(initial)
 	const [isKeyboardFocus, setIsKeyboardFocus] = useState(false)
 	const [scroller, setScroller] = useState<HTMLDivElement | null>(null)
-	// Stable, so a re-render does not scroll back; it opens on the chosen day's month, as Todoist does.
+	// Stable, so a re-render does not scroll back.
 	const attachScroller = useCallback(
 		(container: HTMLDivElement | null) => {
 			setScroller(container)
@@ -79,7 +70,6 @@ export function MonthCalendar({
 		[initialIndex]
 	)
 
-	/** The day Tab lands on in a month: the chosen day, today or the 1st. */
 	function getTabStop(month: CalendarDate) {
 		if (getMonthStart(initial) === month) return initial
 

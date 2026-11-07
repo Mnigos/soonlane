@@ -1,4 +1,4 @@
-/* Todoist-like dark palette. DESIGN.md names every token; change both together. */
+/* DESIGN.md names every token; change both together. */
 :root {
 	--background: #1e1e1e;
 	--foreground: #e8e8e8;
@@ -8,7 +8,6 @@
 	--border: #333333;
 	--border-strong: #656565;
 
-	/* Todoist's composer: the card, popovers and menus, the grey square button and tooltips. */
 	--card: #242424;
 	--popover: #222222;
 	--control: #434343;
@@ -25,18 +24,15 @@
 
 	--danger: #ff7066;
 
-	/* Todoist priority colors: P1 red, P2 orange, P3 blue, P4 grey. */
 	--priority-1: #d1453b;
 	--priority-2: #eb8909;
 	--priority-3: #246fe0;
 	--priority-4: #8a8a8a;
 
-	/* Todoist due colors: today green, tomorrow orange, the next 2 to 7 days violet. Overdue uses danger. */
 	--due-today: #1ab04d;
 	--due-tomorrow: #ff9a14;
 	--due-week: #a970ff;
 
-	/* Todoist's quick date icons in the date picker: orange sun, purple arrow, blue couch. */
 	--quick-tomorrow: #eb8600;
 	--quick-week: #9147ff;
 	--quick-weekend: #377eff;

@@ -10,7 +10,6 @@ import { z } from 'zod'
 import { Shell } from '../components/shell'
 import { readSidebarPreference } from '../helpers/sidebar-preference.helper'
 
-// SSR reads the request's cookie header, so the first paint already has the owner's sidebar; the browser reads document.cookie.
 const getSidebarPreference = createIsomorphicFn()
 	.server(() => readSidebarPreference(getRequestHeader('cookie') ?? ''))
 	.client(() => readSidebarPreference(document.cookie))

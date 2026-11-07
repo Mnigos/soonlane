@@ -11,7 +11,6 @@ const decodeStoredFrame = Schema.decodeUnknownEffect(
 	Schema.fromJsonString(windowFrameSchema)
 )
 
-/** Keeps the frame in `window-state.json` in the app's data folder. */
 export const FileFrameStoreLive = Layer.sync(FrameStore, () => {
 	const directory = Utils.paths.userData
 	const stateFile = join(directory, STATE_FILE_NAME)
@@ -24,7 +23,7 @@ export const FileFrameStoreLive = Layer.sync(FrameStore, () => {
 		}).pipe(Effect.flatMap(decodeStoredFrame), Effect.option),
 		save: Effect.fn('FrameStore.save')(function* (frame) {
 			yield* Effect.try({
-				// Writing a separate file and renaming it over the old one never leaves a half-written state file.
+				// Renaming over the old file never leaves a half-written state file.
 				try: () => {
 					mkdirSync(directory, { recursive: true })
 					writeFileSync(partialFile, JSON.stringify(frame))

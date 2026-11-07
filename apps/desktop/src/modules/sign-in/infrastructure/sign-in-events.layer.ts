@@ -16,7 +16,6 @@ export const SignInEventsLive = Layer.effectDiscard(
 		const mainWindow = yield* MainWindow
 		const signIn = yield* DesktopSignIn
 
-		// The navigation rules stop the window from loading the sign-in page; the sign-in starts in the browser instead.
 		yield* handleEvents(mainWindow.webviewEvents('will-navigate'), event => {
 			const href = readBlockedNavigationUrl(event)
 

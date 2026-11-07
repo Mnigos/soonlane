@@ -11,22 +11,16 @@ interface UpcomingRangeProps {
 	from: CalendarDate
 	to: CalendarDate
 	today: CalendarDate
-	/** The first range's error is shown above Overdue instead. */
 	showsError: boolean
 	onComplete: (task: Task) => void
 	sectionRef: (date: CalendarDate) => RefCallback<HTMLElement>
-	/** Given to the last range only: appends more days when its end comes near. */
 	onLoadMore?: () => void
 }
 
-// Starts the next load once the end of the list is within about one screen below the viewport. Pixels, since browsers differ on what a percentage margin refers to.
+// Pixels, since browsers differ on what a percentage margin refers to.
 const LOAD_MORE_MARGIN = '0px 0px 1000px 0px'
 
-/**
- * One loaded stretch of the Upcoming list with its own tasks query, so a range
- * that loads or fails never hides the tasks of the others. Memoized, so
- * scrolling (which changes the active day) does not re-render every day.
- */
+// Memoized, so scrolling (which changes the active day) does not re-render every day.
 export const UpcomingRange = memo(function UpcomingRange({
 	from,
 	to,
@@ -65,7 +59,6 @@ export const UpcomingRange = memo(function UpcomingRange({
 				/>
 			))}
 
-			{/* A failed range stops the loading until Try again succeeds. */}
 			{onLoadMore && !isError && (
 				<div
 					aria-hidden

@@ -33,7 +33,6 @@ interface DueDatePickerProps extends PropsWithChildren {
 	inputRef: Ref<HTMLInputElement>
 }
 
-/** A text field, quick dates, a month calendar and an optional fixed footer (children). */
 export function DueDatePicker({
 	dueDate,
 	today,

@@ -12,7 +12,6 @@ import {
 	withTask,
 } from '../helpers/task-list.helper'
 
-/** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
 	const listKeys = [

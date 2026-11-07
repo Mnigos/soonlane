@@ -29,7 +29,7 @@ function focusElement(input: HTMLInputElement | null) {
 	input?.focus()
 }
 
-/** "Every [N] [days|weeks|months]"; not a <form>, since it renders inside the composer's. */
+// Not a <form>, since it renders inside the composer's.
 export function RepeatCustomForm({
 	initial,
 	onSave,

@@ -19,7 +19,6 @@ export class DesktopConfig extends Context.Service<
 	}
 >()('soonlane/DesktopConfig') {}
 
-/** The hosted web app the window loads; `bun run dev` points `SOONLANE_URL` at the local dev server. */
 export const DesktopConfigLive = Layer.effect(
 	DesktopConfig,
 	Config.schema(appUrlSchema, 'SOONLANE_URL').pipe(
