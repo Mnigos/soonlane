@@ -1,5 +1,5 @@
 import { defineRule, type ESTree, type Fixer } from '@oxlint/plugins'
-import { isSingleLineConstant } from './declaration-group-spacing.rule.mts'
+import { isSingleLineConst } from './declaration-group-spacing.rule.mts'
 import {
 	getInferredAliases,
 	type ProgramStatement,
@@ -54,7 +54,7 @@ const isOwnLineCommentAfter = (
  * Every report carries the same atomic fix for the whole file, so one pass
  * moves each misplaced alias, with the comments directly above it and on its
  * line, under its source after the aliases already there, in original order.
- * A blank line follows a multi-line source, single-line CONSTANTS around a
+ * A blank line follows a multi-line source, single-line consts around a
  * vacated position stay together unless an own-line comment separates them,
  * and the file's newline style is kept. The fix is withheld when a moved alias
  * carries a file directive or header comment, starts the file under a
@@ -195,8 +195,8 @@ export const inferredTypePlacementRule = defineRule({
 					const keepsConstGroup =
 						previousStatement &&
 						nextStatement &&
-						isSingleLineConstant(previousStatement) &&
-						isSingleLineConstant(nextStatement) &&
+						isSingleLineConst(previousStatement) &&
+						isSingleLineConst(nextStatement) &&
 						![previous, next].some(neighbour =>
 							isOwnLineCommentAfter(neighbour, previousStatement)
 						)

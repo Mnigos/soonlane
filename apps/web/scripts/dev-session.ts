@@ -13,7 +13,6 @@ const SAMPLE_USER = {
 const SESSION_COOKIE = 'better-auth.session_token'
 const SESSION_TTL_MS = 86_400_000
 const TOKEN_BYTES = 24
-
 const shouldDelete = process.argv.includes('--delete')
 const databaseUrl = process.env.DATABASE_URL
 const secret = process.env.AUTH_SECRET
