@@ -62,7 +62,10 @@ export const tasksRouter = {
 			task: yield* tasksService.uncomplete(
 				context.user.id,
 				toTaskId(input.id),
-				input.dueDate ? toCalendarDate(input.dueDate) : undefined
+				{
+					dueDate: input.dueDate ? toCalendarDate(input.dueDate) : undefined,
+					progress: input.progress,
+				}
 			),
 		}
 	}),
@@ -111,7 +114,11 @@ export const tasksRouter = {
 		return yield* tasksService.logProgress(
 			context.user.id,
 			toTaskId(input.id),
-			input.amount
+			input.amount,
+			{
+				today: input.today ? toCalendarDate(input.today) : undefined,
+				dueDate: input.dueDate ? toCalendarDate(input.dueDate) : undefined,
+			}
 		)
 	}),
 }

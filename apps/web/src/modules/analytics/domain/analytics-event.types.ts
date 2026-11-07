@@ -41,7 +41,7 @@ export interface ClientEvents {
 	}
 	task_completed: TaskEventProperties & {
 		was_overdue: boolean
-		completed_via: 'circle'
+		completed_via: 'circle' | 'goal'
 	}
 	task_uncompleted: TaskEventProperties & {
 		was_overdue: boolean

@@ -133,9 +133,10 @@ export const completeTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
 })
 
-// Undo of a repeating task sends the due date it had before completing.
+// Undo of a repeating task sends the due date and the goal progress it had before completing.
 export const uncompleteTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
+	progress: z.int().min(0).max(GOAL_TARGET_MAX).optional(),
 })
 
 const RESCHEDULE_MAX_TASKS = 1000
@@ -154,8 +155,7 @@ export const taskLabelInputSchema = z.object({
 
 export type TaskLabelInput = z.infer<typeof taskLabelInputSchema>
 
-export const logProgressInputSchema = z.object({
-	id: z.uuid(),
+export const logProgressInputSchema = completeTaskInputSchema.extend({
 	amount: z
 		.int()
 		.min(-GOAL_TARGET_MAX)
@@ -165,10 +165,11 @@ export const logProgressInputSchema = z.object({
 
 export type LogProgressInput = z.infer<typeof logProgressInputSchema>
 
-/** `logged` is the amount the server applied after clamping, so Undo reverses exactly that. */
+/** `logged` is the amount the server applied after clamping; `completed` is set when this log completed the task, with the due date and progress Undo restores. */
 export const logProgressOutputSchema = z.object({
 	task: taskSchema,
 	logged: z.int(),
+	completed: z.object({ dueDate: z.iso.date(), progress: z.int() }).optional(),
 })
 
 export type LogProgressOutput = z.infer<typeof logProgressOutputSchema>

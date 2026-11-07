@@ -1,5 +1,5 @@
 import type { Task } from '@soonlane/contracts'
-import { GOAL_TARGET_MAX } from '@soonlane/domain'
+import { type CalendarDate, GOAL_TARGET_MAX } from '@soonlane/domain'
 import { Button, buttonVariants } from '@soonlane/ui/components/button'
 import {
 	Popover,
@@ -13,6 +13,7 @@ import { GoalField } from './goal-field'
 
 interface LogProgressControlsProps {
 	task: Task
+	today: CalendarDate
 }
 
 interface LogAmountFieldProps {
@@ -54,8 +55,9 @@ function LogAmountField({ onLog, inputRef }: Readonly<LogAmountFieldProps>) {
 /** "+1" and "Log amount" on the right of a goal's row: on hover or focus, always without hover. */
 export function LogProgressControls({
 	task,
+	today,
 }: Readonly<LogProgressControlsProps>) {
-	const { logProgress } = useLogProgress()
+	const { logProgress } = useLogProgress(today)
 	const [isOpen, setIsOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
 
@@ -64,7 +66,7 @@ export function LogProgressControls({
 			<Button
 				aria-label={`Add 1 to ${task.title}`}
 				className="h-7 px-2"
-				onClick={() => logProgress({ id: task.id, amount: 1 })}
+				onClick={() => logProgress(task, 1)}
 				size="sm"
 				variant="ghost"
 			>
@@ -92,7 +94,7 @@ export function LogProgressControls({
 					<LogAmountField
 						inputRef={inputRef}
 						onLog={amount => {
-							logProgress({ id: task.id, amount })
+							logProgress(task, amount)
 							setIsOpen(false)
 						}}
 					/>

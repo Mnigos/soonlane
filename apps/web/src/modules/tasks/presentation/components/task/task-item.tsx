@@ -157,7 +157,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				)}
 			</div>
 
-			{task.goal && <LogProgressControls task={task} />}
+			{task.goal && <LogProgressControls task={task} today={today} />}
 
 			{/* Shown on hover or focus, always on touch screens; the negative margin keeps the row height. */}
 			<Tooltip label="Edit task">
