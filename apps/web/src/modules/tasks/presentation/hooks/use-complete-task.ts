@@ -9,7 +9,10 @@ import { toast } from 'sonner'
 import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
-import { getTaskEventProperties } from '../helpers/task-event.helper'
+import {
+	announceCompletion,
+	getUndoCallbacks,
+} from '../helpers/task-completion.helper'
 import {
 	findTaskPlacement,
 	withoutTask,
@@ -29,22 +32,9 @@ export function useCompleteTask(today: CalendarDate) {
 	}
 
 	const uncomplete = useMutation(
-		orpcQuery.tasks.uncomplete.mutationOptions({
-			onError: (_error, { id }) => {
-				capture('task_completion_failed', { task_id: id, action: 'uncomplete' })
-				toast('Could not restore the task. Try again.')
-			},
-			onSuccess: ({ task }) => {
-				const properties = getTaskEventProperties(task, today)
-
-				capture('task_uncompleted', {
-					...properties,
-					was_overdue: properties.due_in_days < 0,
-					completed_via: 'undo',
-				})
-			},
-			onSettled: refreshLists,
-		})
+		orpcQuery.tasks.uncomplete.mutationOptions(
+			getUndoCallbacks(queryClient, today)
+		)
 	)
 
 	const complete = useMutation(
@@ -83,28 +73,20 @@ export function useCompleteTask(today: CalendarDate) {
 				capture('task_completion_failed', { task_id: id, action: 'complete' })
 				toast('Could not complete the task. Try again.')
 			},
-			onSuccess: ({ task }, input) => {
+			onSuccess: ({ task }, input, context) => {
 				const { dueDate: seenDueDate } = completeTaskInputSchema.parse(input)
-				// A repeating task moved on; Undo puts back the due date it had before.
-				const dueDate = task.repeat ? seenDueDate : undefined
-				const properties = getTaskEventProperties(
-					{ ...task, dueDate: seenDueDate ?? task.dueDate },
-					today
-				)
+				// A repeating task moved on; Undo puts back the due date and goal progress it had before.
+				const restored = task.repeat && {
+					dueDate: seenDueDate,
+					progress: context?.removed[0]?.placement.task.goal?.progress,
+				}
 
-				capture('task_completed', {
-					...properties,
-					was_overdue: properties.due_in_days < 0,
-					completed_via: 'circle',
-				})
-				toast('Task completed', {
-					// A newer completion of this task replaces the toast, so an older Undo cannot revert it.
-					id: task.id,
-					action: {
-						label: 'Undo',
-						onClick: () => uncomplete.mutate({ id: task.id, dueDate }),
-					},
-				})
+				announceCompletion(
+					{ ...task, dueDate: seenDueDate ?? task.dueDate },
+					today,
+					'circle',
+					() => uncomplete.mutate({ id: task.id, ...restored })
+				)
 			},
 			onSettled: refreshLists,
 		})

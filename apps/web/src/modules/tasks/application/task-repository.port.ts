@@ -37,6 +37,7 @@ export interface TaskCompletion {
 	id: TaskId
 	completedAt?: Date
 	dueDate?: CalendarDate
+	progress?: number
 }
 
 export interface TaskKey {
@@ -62,11 +63,11 @@ export interface TaskLabel {
 	labelId: LabelId
 }
 
-export interface ProgressLog {
-	ownerId: UserId
-	id: TaskId
+/** `advance` is a repeating task's next occurrence, taken only when the log reaches the target. */
+export interface ProgressLog extends TaskKey {
 	amount: number
 	loggedAt: Date
+	advance?: Omit<DueDateAdvance, keyof TaskKey>
 }
 
 export class TaskRepository extends Context.Service<

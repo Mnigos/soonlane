@@ -51,11 +51,10 @@ export const tasksRouter = {
 		const tasksService = yield* TasksService
 
 		return {
-			task: yield* tasksService.uncomplete(
-				context.user.id,
-				input.id,
-				input.dueDate
-			),
+			task: yield* tasksService.uncomplete(context.user.id, input.id, {
+				dueDate: input.dueDate,
+				progress: input.progress,
+			}),
 		}
 	}),
 	reschedule: os.tasks.reschedule.use(requireUser).effect(function* ({
@@ -102,8 +101,9 @@ export const tasksRouter = {
 
 		return yield* tasksService.logProgress(
 			context.user.id,
-			toTaskId(input.id),
-			input.amount
+			input.id,
+			input.amount,
+			input
 		)
 	}),
 }
