@@ -30,7 +30,6 @@ import { TaskRepository } from '../application/task-repository.port'
 // Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM.
 const DUE_TIME_LENGTH = 5
 
-// The queries a task read or write needs, so they also run inside a transaction.
 type Queries = Pick<Database, 'insert' | 'select'>
 
 // Timed tasks first by time, then by priority (P1 first), then oldest first.
