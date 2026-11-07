@@ -1,5 +1,6 @@
 import { isDefinedError } from '@orpc/client'
 import type { Label } from '@soonlane/contracts'
+import { cn } from '@soonlane/ui/cn'
 import {
 	Combobox,
 	ComboboxInput,
@@ -9,7 +10,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { Check, Plus, Tag } from 'lucide-react'
 import { type Dispatch, type Ref, type SetStateAction, useState } from 'react'
-import { getLabelColor } from '@/modules/labels/presentation/helpers/label-color.helper'
+import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import type { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
@@ -120,9 +121,11 @@ export function LabelPicker({
 						<ComboboxItem className={ROW_CLASS} key={label.id} value={label}>
 							<Tag
 								aria-hidden
-								className="size-4 shrink-0"
+								className={cn(
+									'size-4 shrink-0',
+									LABEL_COLOR_CLASSES[label.color ?? 'charcoal']
+								)}
 								strokeWidth={CHIP_ICON_STROKE}
-								style={{ color: getLabelColor(label.color) }}
 							/>
 
 							<span className="truncate">{label.name}</span>
