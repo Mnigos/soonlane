@@ -2,14 +2,12 @@ import { defineRule, type ESTree, type Fixer } from '@oxlint/plugins'
 
 type ProgramStatement = ESTree.Program['body'][number]
 
-const CONSTANT_NAME_PATTERN = /^[A-Z][A-Z0-9]*(?:_[A-Z0-9]+)*$/
-
 /**
  * Tells whether a module-level statement is a `const` declaration, exported or
- * not, written on a single line, whose every binding is a simple
- * UPPER_SNAKE_CASE identifier: the CONSTANTS this rule keeps together.
+ * not, written on a single line, whose every binding is a plain identifier of
+ * any case: the declarations this rule keeps together.
  */
-export function isSingleLineConstant(statement: ProgramStatement) {
+export function isSingleLineConst(statement: ProgramStatement) {
 	const declaration =
 		statement.type === 'ExportNamedDeclaration'
 			? statement.declaration
@@ -19,32 +17,28 @@ export function isSingleLineConstant(statement: ProgramStatement) {
 		declaration?.type === 'VariableDeclaration' &&
 		declaration.kind === 'const' &&
 		statement.loc.start.line === statement.loc.end.line &&
-		declaration.declarations.every(
-			({ id }) =>
-				id.type === 'Identifier' && CONSTANT_NAME_PATTERN.test(id.name)
-		)
+		declaration.declarations.every(({ id }) => id.type === 'Identifier')
 	)
 }
 
 /**
- * Keeps consecutive single-line module-level CONSTANTS together: a blank line
- * between two sibling `const` declarations (exported or not) whose every
- * binding is UPPER_SNAKE_CASE is removed. camelCase or PascalCase bindings and
- * destructuring never join a group, a multi-line statement on either side ends
- * the group, an own-line comment in the gap is a deliberate separator, and
- * `let`, `var`, types and nested scopes are not checked.
+ * Keeps consecutive single-line module-level `const` declarations together: a
+ * blank line between two of them (exported or not, any binding case) is
+ * removed. Destructuring never joins a group, a multi-line statement on either
+ * side ends the group, an own-line comment in the gap is a deliberate
+ * separator, and `let`, `var`, types and nested scopes are not checked.
  */
 export const declarationGroupSpacingRule = defineRule({
 	meta: {
 		type: 'layout',
 		docs: {
 			description:
-				'Consecutive single-line module-level UPPER_SNAKE_CASE CONSTANTS stay together without blank lines.',
+				'Consecutive single-line module-level const declarations stay together without blank lines.',
 		},
 		fixable: 'whitespace',
 		messages: {
 			blankLineInDeclarationGroup:
-				'Consecutive single-line module-level UPPER_SNAKE_CASE CONSTANTS stay together; remove the blank line (AGENTS.md).',
+				'Consecutive single-line module-level const declarations stay together; remove the blank line (AGENTS.md).',
 		},
 	},
 	create(context) {
@@ -83,8 +77,7 @@ export const declarationGroupSpacingRule = defineRule({
 		}
 
 		function checkPair(previous: ProgramStatement, next: ProgramStatement) {
-			if (!(isSingleLineConstant(previous) && isSingleLineConstant(next)))
-				return
+			if (!(isSingleLineConst(previous) && isSingleLineConst(next))) return
 
 			const gap = getGap(previous, next)
 			const blankRuns = getBlankRuns(gap)
