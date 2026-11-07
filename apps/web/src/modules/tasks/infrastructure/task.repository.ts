@@ -15,7 +15,6 @@ import {
 	isNotNull,
 	isNull,
 	lt,
-	or,
 	sql,
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
@@ -108,8 +107,8 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 		const db = yield* Db
 
 		return TaskRepository.of({
-			listOpen: ({ ownerId, before, from, to }) =>
-				db.run('TaskRepository.listOpen', async database => {
+			listOpenBetween: ({ ownerId, from, to }) =>
+				db.run('TaskRepository.listOpenBetween', async database => {
 					const rows = await database
 						.select()
 						.from(task)
@@ -117,7 +116,23 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							and(
 								eq(task.ownerId, ownerId),
 								isNull(task.completedAt),
-								or(lt(task.dueDate, before), between(task.dueDate, from, to))
+								between(task.dueDate, from, to)
+							)
+						)
+						.orderBy(...DAY_ORDER)
+
+					return await withLabels(database, ownerId, rows)
+				}),
+			listOpenBefore: ({ ownerId, before }) =>
+				db.run('TaskRepository.listOpenBefore', async database => {
+					const rows = await database
+						.select()
+						.from(task)
+						.where(
+							and(
+								eq(task.ownerId, ownerId),
+								isNull(task.completedAt),
+								lt(task.dueDate, before)
 							)
 						)
 						.orderBy(...DAY_ORDER)
