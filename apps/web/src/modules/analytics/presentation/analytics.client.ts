@@ -65,11 +65,14 @@ async function withPostHog(run: (posthog: PostHog) => void) {
 	if (posthog) run(posthog)
 }
 
-function registerContext(posthog: PostHog) {
+function registerContext(
+	posthog: PostHog,
+	properties: SuperProperties = getSuperProperties()
+) {
 	const context = trackedRouter?.state.matches.at(-1)?.context
 	const user = context && 'me' in context ? context.me.user : undefined
 
-	posthog.register(getSuperProperties())
+	posthog.register(properties)
 	if (
 		user &&
 		posthog.has_opted_in_capturing() &&
@@ -90,11 +93,13 @@ function trackLocation(router: RegisteredRouter, consent: ConsentState) {
 	}
 
 	const isFirstPage = trackedPath === undefined
+	// Read now: pages rendered while posthog-js still loads are captured later, after the router has moved on.
+	const properties = getSuperProperties()
 
 	trackedPath = pathname
 	void withPostHog(posthog => {
 		if (!isFirstPage) posthog.capture('$pageleave')
-		registerContext(posthog)
+		registerContext(posthog, properties)
 		posthog.capture('$pageview')
 		if (isFirstPage && isDesktopShell())
 			posthog.capture('desktop_shell_opened', {})
