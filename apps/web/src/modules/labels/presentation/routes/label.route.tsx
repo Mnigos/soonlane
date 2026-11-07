@@ -1,3 +1,4 @@
+import { safe } from '@orpc/client'
 import { createFileRoute } from '@tanstack/react-router'
 import { LabelPage } from '@/modules/tasks/presentation/components/label/label-page'
 import { TaskListSkeleton } from '@/modules/tasks/presentation/components/list/task-list.skeleton'
@@ -6,13 +7,11 @@ import { isLabelNamed } from '../helpers/label-name.helper'
 
 export const Route = createFileRoute('/app/labels/$name')({
 	loader: async ({ context }) => {
-		try {
-			return await context.queryClient.query(
-				context.orpc.labels.list.queryOptions()
-			)
-		} catch {
-			return undefined
-		}
+		const { data } = await safe(
+			context.queryClient.query(context.orpc.labels.list.queryOptions())
+		)
+
+		return data
 	},
 	head: ({ loaderData, params }) => {
 		const label = loaderData?.labels.find(item =>
