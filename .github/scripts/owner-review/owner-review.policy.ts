@@ -52,24 +52,24 @@ export function skip(run: CommandRun, reason: string) {
 /** Returns the single standalone owner command in a review or comment body, ignoring fenced code. */
 export function parseCommand(body: string | null | undefined) {
 	const commands = new Set<OwnerCommand>()
-	let openFence: string | undefined
+	const fence: { open?: string } = {}
 
 	for (const line of (body ?? '').split(/\r?\n/u)) {
 		const fenceMatch = FENCE_PATTERN.exec(line)
 
-		if (openFence) {
-			const [, fence, rest] = fenceMatch ?? []
+		if (fence.open) {
+			const [, marker, rest] = fenceMatch ?? []
 			const closesFence =
-				fence?.startsWith(openFence.charAt(0)) &&
-				fence.length >= openFence.length &&
+				marker?.startsWith(fence.open.charAt(0)) &&
+				marker.length >= fence.open.length &&
 				rest?.trim() === ''
 
-			if (closesFence) openFence = undefined
+			if (closesFence) fence.open = undefined
 			continue
 		}
 
 		if (fenceMatch) {
-			;[, openFence] = fenceMatch
+			;[, fence.open] = fenceMatch
 			continue
 		}
 

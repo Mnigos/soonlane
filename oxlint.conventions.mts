@@ -143,6 +143,7 @@ export const CONVENTION_RULES = {
 	'max-lines': ['error', { max: 400 }],
 	'soonlane/declaration-group-spacing': 'error',
 	'soonlane/inferred-type-placement': 'error',
+	'soonlane/no-let': 'error',
 	'soonlane/type-param-prefix': 'error',
 	'typescript/no-non-null-assertion': 'error',
 } satisfies OxlintOverride['rules']

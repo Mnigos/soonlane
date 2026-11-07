@@ -51,6 +51,7 @@ const DISABLED_RULES = {
 // tooling/oxlint-plugins is copied verbatim from vinyl-wishlist (originally rigtch.fm), which still defers these rules; fix them upstream before removing an entry.
 const VENDORED_PLUGIN_DEFERRED_RULES = [
 	'require-unicode-regexp',
+	'soonlane/no-let',
 	'typescript/consistent-return',
 	'typescript/no-unnecessary-type-assertion',
 	'typescript/strict-void-return',

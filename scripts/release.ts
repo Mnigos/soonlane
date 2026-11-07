@@ -53,22 +53,21 @@ function bumpVersion(version: Version, bump: Bump): Version {
 }
 
 /** Conventional-commit bump: before 1.0 a breaking change or feat bumps the minor, fix and perf the patch. */
-function getBump(messages: readonly string[], current: Version) {
-	let bump: Bump | undefined
+function getBump(
+	messages: readonly string[],
+	current: Version
+): Bump | undefined {
+	const headers = messages.map(message => message.split('\n', 1)[0] ?? '')
 
-	for (const message of messages) {
-		const header = message.split('\n', 1)[0] ?? ''
+	if (
+		headers.some(header => BREAKING_HEADER_PATTERN.test(header)) ||
+		messages.some(message => /^BREAKING[ -]CHANGE:/mu.test(message))
+	)
+		return current.major === 0 ? 'minor' : 'major'
+	if (headers.some(header => /^feat(\(|:)/u.test(header))) return 'minor'
+	if (headers.some(header => /^(fix|perf)(\(|:)/u.test(header))) return 'patch'
 
-		if (
-			BREAKING_HEADER_PATTERN.test(header) ||
-			/^BREAKING[ -]CHANGE:/mu.test(message)
-		)
-			return current.major === 0 ? 'minor' : 'major'
-		if (/^feat(\(|:)/u.test(header)) bump = 'minor'
-		else if (/^(fix|perf)(\(|:)/u.test(header) && !bump) bump = 'patch'
-	}
-
-	return bump
+	return undefined
 }
 
 async function readCommitMessages(range: string) {

@@ -45,21 +45,20 @@ export function getUpcomingRanges(
 	today: CalendarDate,
 	weekCount: number
 ): DayRange[] {
-	const ranges: DayRange[] = []
-	let from = today
+	const lastDays: CalendarDate[] = []
 
 	for (
 		let weeks = UPCOMING_WEEK_COUNT;
 		weeks <= weekCount;
 		weeks += UPCOMING_WEEKS_PER_LOAD
-	) {
-		const to = getUpcomingLastDay(today, weeks)
+	)
+		lastDays.push(getUpcomingLastDay(today, weeks))
 
-		ranges.push({ from, to })
-		from = addDays(to, 1)
-	}
+	return lastDays.map((to, index) => {
+		const previous = lastDays[index - 1]
 
-	return ranges
+		return { from: previous ? addDays(previous, 1) : today, to }
+	})
 }
 
 export function getDaysThrough(
