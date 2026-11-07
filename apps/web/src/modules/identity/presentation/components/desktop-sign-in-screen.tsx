@@ -15,6 +15,12 @@ interface DesktopSignInScreenProps {
 	oauthError?: string
 }
 
+/**
+ * The system browser's page for a sign-in the desktop app started: Google
+ * first when signed out or asked for a fresh sign-in, then the hand-off. A
+ * failed fresh sign-in returns here still asking for a fresh one, so it never
+ * falls back to handing off the older session.
+ */
 export function DesktopSignInScreen({
 	challenge,
 	user,
@@ -37,7 +43,6 @@ export function DesktopSignInScreen({
 	if (user && !fresh)
 		return <DesktopHandOffScreen challenge={challenge} user={user} />
 
-	// A failed fresh sign-in must not fall back to handing off the older session.
 	const returnUrl = `${DESKTOP_SIGN_IN_PATH}?${new URLSearchParams({ [CODE_CHALLENGE_PARAM]: challenge })}`
 
 	return (
