@@ -14,7 +14,6 @@ export function useSignOutMutation() {
 
 	return useMutation({
 		mutationFn: signOut,
-		// The cached identity would keep the user signed in until it goes stale.
 		onSuccess: async () => {
 			queryClient.clear()
 			await navigate({ to: '/login' })

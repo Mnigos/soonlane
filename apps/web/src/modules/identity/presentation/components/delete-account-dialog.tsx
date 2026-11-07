@@ -34,7 +34,6 @@ export function DeleteAccountDialog({
 							For your safety, sign in again to delete your account.
 						</p>
 
-						{/* Google returns here, or to the desktop app through a fresh browser sign-in; the new session passes the check. */}
 						<ContinueWithGoogle
 							fresh
 							loginHint={email}

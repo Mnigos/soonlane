@@ -20,7 +20,7 @@ const INVALID_CODE_MESSAGE =
 const storedCodeSchema = z.object({
 	userId: z.string(),
 	challenge: z.string(),
-	// Codes from before the age was stored still sign in, but never as a fresh session.
+	// A code stored without an age never counts as a fresh session.
 	sessionCreatedAt: z.coerce.date().catch(() => new Date(0)),
 })
 
@@ -92,7 +92,7 @@ export function desktopSignIn() {
 					if (!(pending && user))
 						throw new APIError('BAD_REQUEST', { message: INVALID_CODE_MESSAGE })
 
-					// Keeps the browser session's age, so a hand-off never passes a fresh-session check (account deletion) the browser would fail.
+					// Keep the browser session's age, so a hand-off never yields a fresher session.
 					const session = await ctx.context.internalAdapter.createSession(
 						user.id,
 						false,
