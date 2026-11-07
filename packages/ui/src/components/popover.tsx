@@ -3,7 +3,6 @@ import type { ComponentProps } from 'react'
 import { cn } from '../utils/cn.util'
 
 export const Popover = BasePopover.Root
-
 export const PopoverTrigger = BasePopover.Trigger
 
 type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> &
