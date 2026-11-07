@@ -8,6 +8,7 @@ import {
 	MenuTrigger,
 } from '@soonlane/ui/components/menu'
 import type { KeyboardEvent } from 'react'
+import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'
 import { PRIORITY_FLAG_CLASSES } from '../../helpers/task-priority.constants'
 import { PriorityFlagIcon } from './priority-flag-icon'
@@ -43,7 +44,10 @@ export function PriorityChip({
 
 			<MenuContent>
 				<MenuRadioGroup
-					onValueChange={(priority: TaskPriority) => onChange(priority)}
+					onValueChange={(priority: TaskPriority) => {
+						if (priority !== value) capture('priority_set', { priority })
+						onChange(priority)
+					}}
 					value={value}
 				>
 					{TASK_PRIORITIES.map(priority => (

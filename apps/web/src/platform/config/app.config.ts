@@ -27,6 +27,7 @@ export class AppConfig extends Context.Service<
 		readonly googleClientSecret: string
 		readonly oauthProxy: boolean
 		readonly oauthProxySecret?: Redacted.Redacted
+		readonly posthogKey?: string
 	}
 >()('soonlane/AppConfig') {}
 
@@ -60,6 +61,8 @@ export const AppConfigLive = Layer.effect(
 		oauthProxySecret: optionalString('OAUTH_PROXY_SECRET').pipe(
 			Config.map(secret => (secret ? Redacted.make(secret) : undefined))
 		),
+		// Public by design: the browser bundle reads the same variable at build time.
+		posthogKey: optionalString('VITE_POSTHOG_KEY'),
 	}).pipe(
 		Config.map(
 			({ authUrl, vercelBranchUrl, vercelUrl, vercelEnv, ...settings }) => {

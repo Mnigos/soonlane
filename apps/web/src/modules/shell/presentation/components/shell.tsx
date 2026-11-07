@@ -4,6 +4,8 @@ import { Button } from '@soonlane/ui/components/button'
 import { Toaster } from '@soonlane/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
+import type { ClientEvents } from '@/modules/analytics/domain/analytics-event.types'
+import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { AddTaskDialog } from '@/modules/tasks/presentation/components/task/add-task-dialog'
 import {
 	isWideViewport,
@@ -39,6 +41,7 @@ export function Shell({
 	function openAddTask() {
 		setIsOverlayOpen(false)
 		setIsAddingTask(true)
+		capture('composer_opened', { source: 'sidebar_dialog' })
 	}
 
 	function changePreference(next: SidebarPreference) {
@@ -46,14 +49,12 @@ export function Shell({
 		void saveSidebarPreference(next)
 	}
 
-	function expand() {
-		if (isWideViewport()) changePreference('full')
-		else setIsOverlayOpen(true)
-	}
+	function toggleSidebar(state: ClientEvents['sidebar_toggled']['state']) {
+		const isDocked = isWideViewport()
 
-	function collapse() {
-		if (isWideViewport()) changePreference('rail')
-		else setIsOverlayOpen(false)
+		capture('sidebar_toggled', { state, mode: isDocked ? 'docked' : 'overlay' })
+		if (isDocked) changePreference(state === 'expanded' ? 'full' : 'rail')
+		else setIsOverlayOpen(state === 'expanded')
 	}
 
 	return (
@@ -61,7 +62,7 @@ export function Shell({
 			<ShellRail
 				className={cn('hidden md:flex', preference === 'full' && 'xl:hidden')}
 				onAddTask={openAddTask}
-				onExpand={expand}
+				onExpand={() => toggleSidebar('expanded')}
 				user={user}
 			/>
 
@@ -69,7 +70,7 @@ export function Shell({
 				<button
 					aria-label="Close sidebar"
 					className="fixed inset-0 z-30 cursor-default bg-black/60 xl:hidden"
-					onClick={() => setIsOverlayOpen(false)}
+					onClick={() => toggleSidebar('collapsed')}
 					type="button"
 				/>
 			)}
@@ -81,7 +82,7 @@ export function Shell({
 					preference === 'full' ? 'xl:flex' : 'xl:hidden'
 				)}
 				onAddTask={openAddTask}
-				onCollapse={collapse}
+				onCollapse={() => toggleSidebar('collapsed')}
 				onNavigate={() => setIsOverlayOpen(false)}
 				user={user}
 			/>
@@ -91,7 +92,7 @@ export function Shell({
 
 				<Button
 					aria-label="Open sidebar"
-					onClick={() => setIsOverlayOpen(true)}
+					onClick={() => toggleSidebar('expanded')}
 					size="icon"
 					variant="ghost"
 				>

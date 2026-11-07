@@ -1,4 +1,5 @@
 import type { PropsWithChildren } from 'react'
+import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
 
 interface SignInLayoutProps extends PropsWithChildren {
 	heading?: string
@@ -19,6 +20,8 @@ export function SignInLayout({
 			</div>
 
 			{children}
+
+			<PrivacyChoicesButton className="cursor-pointer self-start rounded-sm text-caption text-faint-foreground transition-colors hover:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary" />
 		</main>
 	)
 }

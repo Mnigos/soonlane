@@ -1,0 +1,10 @@
+import type { SuperProperties } from './analytics-event.types'
+
+export const BUILD_PROPERTIES = {
+	app_version: import.meta.env.APP_VERSION,
+	commit: import.meta.env.APP_COMMIT,
+	environment: import.meta.env.APP_ENVIRONMENT,
+} satisfies Partial<SuperProperties>
+
+// Build time in both bundles: without a key there is no consent banner or choice to make.
+export const IS_ANALYTICS_ENABLED = Boolean(import.meta.env.VITE_POSTHOG_KEY)

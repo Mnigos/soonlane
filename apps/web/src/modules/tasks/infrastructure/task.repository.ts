@@ -17,6 +17,7 @@ import {
 	isNotNull,
 	isNull,
 	lt,
+	ne,
 	sql,
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
@@ -262,6 +263,16 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 					const [updated] = await withLabels(database, ownerId, rows)
 
 					return updated
+				}),
+			hasOtherTasks: ({ ownerId, id }) =>
+				db.run('TaskRepository.hasOtherTasks', async database => {
+					const [row] = await database
+						.select({ id: task.id })
+						.from(task)
+						.where(and(eq(task.ownerId, ownerId), ne(task.id, id)))
+						.limit(1)
+
+					return row !== undefined
 				}),
 			setCompletion: ({ ownerId, id, completedAt, dueDate }) =>
 				db.run('TaskRepository.setCompletion', async database => {

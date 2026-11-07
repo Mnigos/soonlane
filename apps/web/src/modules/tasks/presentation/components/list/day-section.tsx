@@ -1,7 +1,8 @@
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { type Ref, useState } from 'react'
+import { type Ref, useRef, useState } from 'react'
+import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { getDayHeading } from '../../../domain/day-label.helper'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from './add-task-row'
@@ -28,9 +29,19 @@ export function DaySection({
 }: Readonly<DaySectionProps>) {
 	const [isAdding, setIsAdding] = useState(false)
 	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
+	// The composer stays open after a create; closing it then is not a cancel.
+	const hasCreatedRef = useRef(false)
 	const headingId = `day-${date}-heading`
 
+	function openComposer() {
+		hasCreatedRef.current = false
+		setIsAdding(true)
+		capture('composer_opened', { source: 'day_row' })
+	}
+
 	function closeComposer() {
+		if (!hasCreatedRef.current)
+			capture('composer_cancelled', { source: 'day_row' })
 		setIsAdding(false)
 		setShouldFocusAddTask(true)
 	}
@@ -64,13 +75,14 @@ export function DaySection({
 					<TaskComposer
 						defaultDueDate={date}
 						onCancel={closeComposer}
+						onCreated={() => {
+							hasCreatedRef.current = true
+						}}
+						source="day_row"
 						today={today}
 					/>
 				) : (
-					<AddTaskRow
-						autoFocus={shouldFocusAddTask}
-						onClick={() => setIsAdding(true)}
-					/>
+					<AddTaskRow autoFocus={shouldFocusAddTask} onClick={openComposer} />
 				))}
 		</section>
 	)

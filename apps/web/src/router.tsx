@@ -3,6 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { NotFound } from './components/not-found'
+import {
+	captureException,
+	trackRouter,
+} from './modules/analytics/presentation/analytics.client'
 import { orpcQuery } from './platform/rpc/rpc-query.client'
 import { serializer } from './platform/rpc/rpc-serializer.constants'
 import { routeTree } from './routeTree.gen'
@@ -42,12 +46,14 @@ export function getRouter() {
 		defaultPreloadStaleTime: 0,
 		context: { queryClient, orpc: orpcQuery },
 		defaultNotFoundComponent: NotFound,
+		defaultOnCatch: captureException,
 		Wrap: ({ children }) => (
 			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 		),
 	})
 
 	setupRouterSsrQueryIntegration({ router, queryClient })
+	trackRouter(router)
 
 	return router
 }

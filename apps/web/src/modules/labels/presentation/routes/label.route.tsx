@@ -5,7 +5,7 @@ import { TaskListSkeleton } from '@/modules/tasks/presentation/components/list/t
 import { useToday } from '@/modules/tasks/presentation/hooks/use-today'
 import { isLabelNamed } from '../helpers/label-name.helper'
 
-export const Route = createFileRoute('/app/labels/$name')({
+export const Route = createFileRoute('/_session/app/labels/$name')({
 	loader: async ({ context }) => {
 		const { data } = await safe(
 			context.queryClient.query(context.orpc.labels.list.queryOptions())

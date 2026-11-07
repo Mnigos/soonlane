@@ -7,7 +7,8 @@ import { oAuthProxy } from 'better-auth/plugins/oauth-proxy'
 import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { canSignUp } from './auth-policy.helper'
-import { desktopSignIn } from './desktop-sign-in.handler'
+import { DESKTOP_EXCHANGE_PATH, desktopSignIn } from './desktop-sign-in.handler'
+import type { SignInMethod } from './sign-in-method.types'
 import { SIGNED_IN_HINT_COOKIE } from './signed-in-hint.constants'
 
 export const AUTH_BASE_PATH = '/api/auth'
@@ -30,6 +31,19 @@ export interface OAuthProxyOptions {
 	secret?: string
 }
 
+/** `headers` are the request's, when it came over HTTP. */
+export interface AuthEvents {
+	userCreated: (
+		user: { id: string; createdAt: Date },
+		headers?: Headers
+	) => Promise<void>
+	sessionCreated: (
+		userId: string,
+		method: SignInMethod,
+		headers?: Headers
+	) => Promise<void>
+}
+
 export interface CreateAuthOptions {
 	database: NodePgDatabase
 	baseUrl: string
@@ -39,6 +53,7 @@ export interface CreateAuthOptions {
 	google?: GoogleProviderOptions
 	oauthProxy?: OAuthProxyOptions
 	log: AuthLogger
+	events: AuthEvents
 }
 
 // Drizzle query errors embed SQL parameters, which include session tokens.
@@ -123,6 +138,18 @@ export function createAuth(options: CreateAuthOptions) {
 
 						return { data: candidate }
 					},
+					after: async (created, context) =>
+						await options.events.userCreated(created, context?.headers),
+				},
+			},
+			session: {
+				create: {
+					after: async ({ userId }, context) =>
+						await options.events.sessionCreated(
+							userId,
+							context?.path === DESKTOP_EXCHANGE_PATH ? 'desktop' : 'google',
+							context?.headers
+						),
 				},
 			},
 		},

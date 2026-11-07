@@ -8,6 +8,8 @@ import {
 	useId,
 	useState,
 } from 'react'
+import type { DatePickerChoice } from '@/modules/analytics/domain/analytics-event.types'
+import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { formatWeekdayDayMonth } from '../../../domain/calendar-date.helper'
 import { parseDueDateText } from '../../../domain/due-date-text.helper'
 import {
@@ -20,6 +22,7 @@ import {
 	PICKER_FIELD_ROW_CLASS,
 	PICKER_NOTE_CLASS,
 } from '../../helpers/composer-chip.constants'
+import { DUE_DATE_SHORTCUT_CHOICES } from '../../helpers/due-date-shortcut.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { DueDateShortcuts } from './due-date-shortcuts'
 import { MonthCalendar } from './month-calendar'
@@ -46,11 +49,16 @@ export function DueDatePicker({
 	const parsed = isEdited ? parseDueDateText(text, today) : undefined
 	const match = parsed && isInCalendar(parsed, today) ? parsed : undefined
 
+	function choose(date: CalendarDate, choice: DatePickerChoice) {
+		capture('date_picker_used', { choice, has_time: dueTime !== undefined })
+		onDateChange(date)
+	}
+
 	function applyOnEnter(event: KeyboardEvent<HTMLInputElement>) {
 		if (event.key !== 'Enter') return
 
 		event.preventDefault()
-		if (match) onDateChange(match)
+		if (match) choose(match, 'typed')
 	}
 
 	return (
@@ -75,7 +83,7 @@ export function DueDatePicker({
 					{match ? (
 						<button
 							className="flex h-8 w-full cursor-pointer items-center gap-2.5 px-3 text-sm text-foreground transition-colors outline-none hover:bg-hover focus-visible:bg-hover"
-							onClick={() => onDateChange(match)}
+							onClick={() => choose(match, 'typed')}
 							type="button"
 						>
 							<CalendarDays
@@ -98,13 +106,13 @@ export function DueDatePicker({
 			{/* Only the dates scroll on a short screen, so the text field and footer stay in view. */}
 			<div className="min-h-0 overflow-y-auto overscroll-contain">
 				<DueDateShortcuts
-					onSelect={onDateChange}
+					onSelect={(date, id) => choose(date, DUE_DATE_SHORTCUT_CHOICES[id])}
 					selected={dueDate}
 					today={today}
 				/>
 
 				<MonthCalendar
-					onSelect={onDateChange}
+					onSelect={date => choose(date, 'calendar')}
 					selected={dueDate}
 					today={today}
 				/>

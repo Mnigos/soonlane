@@ -19,6 +19,7 @@ import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } fr
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
 import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
 import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
+import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
@@ -85,6 +86,12 @@ const modulesSitePresentationRoutesTermsDotrouteRoute =
     path: '/terms',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
+const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
+  modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport.update({
+    id: '/ingest/$',
+    path: '/ingest/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
   modulesTasksPresentationRoutesUpcomingDotrouteRouteImport.update({
     id: '/',
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -173,13 +182,14 @@ export interface FileRoutesById {
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
-  '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/_session/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy'
     | '/terms'
+    | '/ingest/$'
     | '/app/'
     | '/app/today'
     | '/desktop/callback'
@@ -208,6 +219,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/privacy'
     | '/terms'
+    | '/ingest/$'
     | '/app'
     | '/app/today'
     | '/desktop/callback'
@@ -227,13 +239,14 @@ export interface FileRouteTypes {
     | '/_session/login'
     | '/_site/privacy'
     | '/_site/terms'
+    | '/ingest/$'
     | '/_session/app/'
     | '/_session/app/today'
     | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
     | '/api/auth/$'
     | '/api/rpc/$'
-    | '/app/labels/$name'
+    | '/_session/app/labels/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -242,6 +255,7 @@ export interface RootRouteChildren {
   modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
@@ -318,6 +332,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesSitePresentationRoutesTermsDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
+    '/ingest/$': {
+      id: '/ingest/$'
+      path: '/ingest/$'
+      fullPath: '/ingest/$'
+      preLoaderRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_session/app/': {
       id: '/_session/app/'
       path: '/'
@@ -360,8 +381,8 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof routesApiDotrpcDotDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/app/labels/$name': {
-      id: '/app/labels/$name'
+    '/_session/app/labels/$name': {
+      id: '/_session/app/labels/$name'
       path: '/labels/$name'
       fullPath: '/app/labels/$name'
       preLoaderRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRouteImport
@@ -447,6 +468,8 @@ const rootRouteChildren: RootRouteChildren = {
     modulesSitePresentationRoutesSitemapDotrouteRoute,
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute:
     modulesShellPresentationRoutesLegacyTodayDotrouteRoute,
+  modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:
+    modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute,
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:
     modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute,
   routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,

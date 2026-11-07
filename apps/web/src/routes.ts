@@ -33,4 +33,5 @@ export const routes = rootRoute('routes/__root.tsx', [
 		'modules/identity/presentation/routes/api.auth.$.route.ts'
 	),
 	route('/api/rpc/$', 'routes/api.rpc.$.route.ts'),
+	route('/ingest/$', 'modules/analytics/presentation/routes/ingest.$.route.ts'),
 ])

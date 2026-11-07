@@ -13,6 +13,7 @@ import {
 	useRef,
 	useState,
 } from 'react'
+import type { ComposerSource } from '@/modules/analytics/domain/analytics-event.types'
 import { usePickedLabels } from '@/modules/labels/presentation/hooks/use-picked-labels'
 import {
 	getEditedDueDate,
@@ -33,6 +34,7 @@ interface TaskComposerProps {
 	defaultDueDate: CalendarDate
 	defaultLabels?: Label[]
 	today: CalendarDate
+	source: ComposerSource
 	onCancel: () => void
 	onCreated?: () => void
 	/** Edits this task in place instead of adding a new one. */
@@ -55,6 +57,7 @@ export function TaskComposer({
 	defaultDueDate,
 	defaultLabels,
 	today,
+	source,
 	onCancel,
 	onCreated,
 	task,
@@ -91,7 +94,7 @@ export function TaskComposer({
 	)
 	// isPending lags a render, so a quick second Enter would send the task twice.
 	const isSubmittingRef = useRef(false)
-	const { mutate, isPending, isError } = useCreateTaskMutation()
+	const { mutate, isPending, isError } = useCreateTaskMutation(source, today)
 	const { updateTask } = useUpdateTask()
 	const canSubmit = title.trim() !== '' && !isPending
 
