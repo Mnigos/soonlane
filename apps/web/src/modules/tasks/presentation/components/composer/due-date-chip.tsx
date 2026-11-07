@@ -7,6 +7,7 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { type KeyboardEvent, useRef, useState } from 'react'
+import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { getDueChipLabel } from '../../../domain/due-label.helper'
 import {
 	formatRepeatRule,
@@ -78,7 +79,11 @@ export function DueDateChip({
 				<DueDatePicker
 					dueDate={dueDate}
 					inputRef={inputRef}
-					onDateChange={date => {
+					onDateChange={(date, choice) => {
+						capture('date_picker_used', {
+							choice,
+							has_time: dueTime !== undefined,
+						})
 						onDateChange(date)
 						setIsOpen(false)
 					}}
