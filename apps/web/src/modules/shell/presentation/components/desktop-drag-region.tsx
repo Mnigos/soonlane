@@ -4,7 +4,6 @@ interface DesktopDragRegionProps {
 	className?: string
 }
 
-/** The strip under the macOS traffic lights; it renders only in the desktop shell and moves the window. */
 export function DesktopDragRegion({
 	className,
 }: Readonly<DesktopDragRegionProps>) {

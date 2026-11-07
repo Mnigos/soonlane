@@ -18,9 +18,7 @@ interface MonthGridProps {
 	month: CalendarDate
 	selected?: CalendarDate
 	today: CalendarDate
-	/** The one day in the tab order. */
 	tabbable: CalendarDate
-	/** Focus the tabbable day, after the owner moved with the keyboard. */
 	shouldFocus: boolean
 	onSelect: (date: CalendarDate) => void
 	onDayKeyDown: (
@@ -41,10 +39,7 @@ function getDayTone(date: CalendarDate, today: CalendarDate) {
 	return 'text-foreground'
 }
 
-/**
- * One month of the date picker, headed by its short name after the first
- * month. The last month is tall enough to scroll its first week to the top.
- */
+// The last month is tall enough to scroll its first week to the top.
 export function MonthGrid({
 	month,
 	selected,

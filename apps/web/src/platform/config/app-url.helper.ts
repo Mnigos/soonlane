@@ -13,7 +13,7 @@ function toHttpsUrl(host: string) {
 	return `https://${host}`
 }
 
-// AUTH_URL wins; previews have no AUTH_URL and fall back to Vercel's stable branch host, then the per-deployment host.
+// Previews have no AUTH_URL and fall back to Vercel's stable branch host, then the per-deployment host.
 export function resolveBaseUrl({
 	authUrl,
 	vercelBranchUrl,
@@ -39,7 +39,7 @@ export function resolveTrustedOrigins(urls: DeploymentUrls): string[] {
 	]
 }
 
-/** Production must run the proxy too: it receives the Google callback for previews and forwards it. Local dev uses its own redirect URI. */
+// Production must run the proxy too: it receives the Google callback for previews and forwards it.
 export function usesOAuthProxy(vercelEnv: string | undefined) {
 	return vercelEnv !== undefined && PROXIED_ENVIRONMENTS.has(vercelEnv)
 }

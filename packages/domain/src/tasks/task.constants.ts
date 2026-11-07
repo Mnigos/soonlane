@@ -1,4 +1,4 @@
-/** P1 is the most urgent, P4 the default; the UI colors them red, orange, blue and grey. */
+/** P1 is the most urgent, P4 the default. */
 export const TASK_PRIORITIES = [1, 2, 3, 4] as const
 
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]

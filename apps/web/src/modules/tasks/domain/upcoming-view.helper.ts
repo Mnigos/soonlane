@@ -28,7 +28,6 @@ export interface WeekStrip {
 	days: WeekStripDay[]
 }
 
-/** The Sunday that closes the `weekCount`-th week after the current one. */
 export function getUpcomingLastDay(
 	today: CalendarDate,
 	weekCount: number
@@ -41,11 +40,7 @@ export interface DayRange {
 	to: CalendarDate
 }
 
-/**
- * The ranges the Upcoming list loads for `weekCount` weeks after the current
- * one: today to the end of the eighth week, then four weeks at a time. They
- * touch without overlapping, so every day is in exactly one.
- */
+// The ranges touch without overlapping, so every day is in exactly one.
 export function getUpcomingRanges(
 	today: CalendarDate,
 	weekCount: number
@@ -67,7 +62,6 @@ export function getUpcomingRanges(
 	return ranges
 }
 
-/** Every day from `from` through `to`. */
 export function getDaysThrough(
 	from: CalendarDate,
 	to: CalendarDate
@@ -79,7 +73,6 @@ export function getDaysThrough(
 	return days
 }
 
-/** The week around the active day (the one at the top of the list), with today marked separately. */
 export function getWeekStrip(
 	today: CalendarDate,
 	activeDay: CalendarDate

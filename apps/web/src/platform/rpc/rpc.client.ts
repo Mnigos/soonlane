@@ -12,7 +12,6 @@ function createHttpRpcClient(): RpcClient {
 	return createORPCClient(new RPCLink({ url: RPC_PREFIX }))
 }
 
-// SSR calls procedures in process with the incoming request's cookies, the browser over HTTP; the client build drops the in-process branch and its import.
 const getRpcClient = createIsomorphicFn()
 	.server(createInProcessRpcClient)
 	.client(createHttpRpcClient)

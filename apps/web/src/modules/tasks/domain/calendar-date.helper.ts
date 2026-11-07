@@ -23,7 +23,6 @@ function formatUtc(date: CalendarDate, options: Intl.DateTimeFormatOptions) {
 	}).format(toUtcDate(date))
 }
 
-/** Today's date as seen in `timeZone`, or in the runtime's own zone when omitted (the browser's for the user). */
 export function getToday(now: Date, timeZone?: string): CalendarDate {
 	const parts = new Intl.DateTimeFormat('en-US', {
 		timeZone,
@@ -96,7 +95,6 @@ export function formatDayMonthYear(date: CalendarDate) {
 	return formatUtc(date, { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
-/** "Mon 9 Nov", the hint next to a date shortcut. */
 export function formatWeekdayDayMonth(date: CalendarDate) {
 	return `${formatWeekday(date, 'short')} ${formatDayMonth(date)}`
 }
@@ -109,7 +107,7 @@ export function formatMonthShortYear(date: CalendarDate) {
 	return formatUtc(date, { month: 'short', year: 'numeric' })
 }
 
-/** The weekday as a column of a Monday-first week, 0 for Monday to 6 for Sunday. */
+// Monday is 0, Sunday 6.
 export function getWeekdayIndex(date: CalendarDate) {
 	return (
 		(toUtcDate(date).getUTCDay() - WEEK_STARTS_ON + DAYS_PER_WEEK) %
@@ -119,7 +117,6 @@ export function getWeekdayIndex(date: CalendarDate) {
 
 const SATURDAY_INDEX = 5
 
-/** Saturday or Sunday, which Todoist's calendar shows in grey. */
 export function isWeekend(date: CalendarDate) {
 	return getWeekdayIndex(date) >= SATURDAY_INDEX
 }
@@ -139,7 +136,6 @@ export function getDaysInMonth(monthStart: CalendarDate) {
 	return getDayOfMonth(addDays(addMonths(monthStart, 1), -1))
 }
 
-/** "Friday 6 November 2026", the accessible name of a calendar day. */
 export function formatLongDate(date: CalendarDate) {
 	return formatUtc(date, {
 		weekday: 'long',
@@ -149,7 +145,6 @@ export function formatLongDate(date: CalendarDate) {
 	})
 }
 
-/** The same day of another month, or that month's last day when it is shorter. */
 export function shiftMonths(date: CalendarDate, months: number) {
 	const monthStart = addMonths(getMonthStart(date), months)
 	const day = Math.min(getDayOfMonth(date), getDaysInMonth(monthStart))
@@ -157,7 +152,6 @@ export function shiftMonths(date: CalendarDate, months: number) {
 	return addDays(monthStart, day - 1)
 }
 
-/** "6 November", the day of a yearly repeat. */
 export function formatDayLongMonth(date: CalendarDate) {
 	return formatUtc(date, { day: 'numeric', month: 'long' })
 }

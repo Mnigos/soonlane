@@ -153,7 +153,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				)}
 			</div>
 
-			{/* Shown on hover or focus, always on touch screens; the negative margin keeps the row height. */}
+			{/* The negative margin keeps the row height. */}
 			<Tooltip label="Edit task">
 				<button
 					aria-label="Edit task"

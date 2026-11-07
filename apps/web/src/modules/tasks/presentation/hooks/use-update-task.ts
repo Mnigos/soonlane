@@ -18,7 +18,6 @@ import {
 // oRPC query keys are [path, { input, type }]; the input tells where a list holds a task.
 const listKeyOptionsSchema = z.object({ input: listTasksInputSchema })
 
-/** Saves an edited task at once (optimistically), moving it to wherever its new date belongs. */
 export function useUpdateTask() {
 	const queryClient = useQueryClient()
 	const listKey = orpcQuery.tasks.list.key()

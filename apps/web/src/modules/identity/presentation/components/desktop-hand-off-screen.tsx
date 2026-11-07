@@ -28,7 +28,6 @@ interface DesktopHandOffScreenProps {
 	user: SessionUser
 }
 
-/** The browser half of the desktop sign-in: an explicit click sends a one-time code to the app that asked for it. */
 export function DesktopHandOffScreen({
 	challenge,
 	user,

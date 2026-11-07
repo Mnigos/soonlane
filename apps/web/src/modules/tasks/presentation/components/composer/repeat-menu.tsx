@@ -34,7 +34,6 @@ const PRESET_UNITS = [
 ] as const satisfies readonly RepeatUnit[]
 const CUSTOM = 'custom'
 
-/** Todoist's Repeat button: presets labelled from the due date, Custom, and a clear button once a rule is set. */
 export function RepeatMenu({
 	dueDate,
 	value,
