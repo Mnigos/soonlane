@@ -82,8 +82,10 @@ export function useCompleteTask(today: CalendarDate) {
 			onSuccess: ({ task }, input) => {
 				// A repeating task moved on; Undo puts back the due date it had before.
 				const dueDate = task.repeat ? input.dueDate : undefined
-
-				const properties = getTaskEventProperties(task, today)
+				const properties = getTaskEventProperties(
+					{ ...task, dueDate: input.dueDate ?? task.dueDate },
+					today
+				)
 
 				capture('task_completed', {
 					...properties,
