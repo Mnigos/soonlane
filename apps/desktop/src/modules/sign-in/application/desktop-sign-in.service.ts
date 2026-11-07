@@ -12,7 +12,6 @@ import {
 export class DesktopSignIn extends Context.Service<
 	DesktopSignIn,
 	{
-		/** Opens the sign-in the window asked for in the system browser, with the challenge of the pending verifier or a new one. */
 		readonly start: (requestedHref: string) => Effect.Effect<void>
 		/** A `soonlane://` link: its code and the pending verifier go to the window, which trades them for a session. */
 		readonly complete: (href: string) => Effect.Effect<void>

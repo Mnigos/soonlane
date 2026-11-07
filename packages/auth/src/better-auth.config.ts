@@ -49,13 +49,6 @@ function redactLogArgument(argument: unknown) {
 const RATE_LIMIT_WINDOW_S = 60
 const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
 
-/**
- * Better Auth for anyone with a verified Google address (optionally only the
- * allowed ones): uuid ids, account deletion, rate limits kept in the
- * database, the signed-in hint cookie, the OAuth proxy that lets Vercel
- * previews sign in through the production callback, and the hand-off of a
- * browser sign-in to the desktop app.
- */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
 		appName: 'Soonlane',
@@ -77,10 +70,10 @@ export function createAuth(options: CreateAuthOptions) {
 		}),
 		advanced: {
 			database: { generateId: 'uuid' },
-			// Vercel overwrites x-forwarded-for with the client's address, so a client cannot spoof it.
+			// Vercel overwrites x-forwarded-for, so clients cannot spoof it.
 			ipAddress: { ipAddressHeaders: ['x-forwarded-for'] },
 		},
-		// Each Vercel function instance has its own memory, so the counters live in Postgres.
+		// Vercel instances share no memory, so counters live in Postgres.
 		rateLimit: {
 			enabled: true,
 			storage: 'database',
@@ -93,7 +86,7 @@ export function createAuth(options: CreateAuthOptions) {
 				'/delete-user': { window: 3600, max: 5 },
 			},
 		},
-		// Redirect sign-in only: a client-held Google ID token would turn a stale session into a fresh one.
+		// A client-held Google ID token would turn a stale session into a fresh one.
 		socialProviders: options.google
 			? { google: { ...options.google, disableIdTokenSignIn: true } }
 			: {},
@@ -105,7 +98,7 @@ export function createAuth(options: CreateAuthOptions) {
 					httpOnly: false,
 				}
 
-				// Checked first: the session lookup before a sign-out or deletion can refresh the session.
+				// Checked first: a sign-out or deletion can also refresh the session.
 				if (
 					ctx.path === '/sign-out' ||
 					(ctx.path === '/delete-user' && !isAPIError(ctx.context.returned))

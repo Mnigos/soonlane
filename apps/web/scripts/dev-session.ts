@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
-// Local QA only: a synthetic signed-in user for screenshots, never a login route in the app.
+// Local QA only: the app itself has no test login.
 const SAMPLE_USER = {
 	name: 'Sample User',
 	email: 'sample@soonlane.test',
@@ -56,7 +56,6 @@ try {
 	const database = drizzle({ client: pool })
 
 	if (shouldDelete) {
-		// Sessions, accounts and tasks go with the user (onDelete: cascade).
 		const deleted = await database
 			.delete(user)
 			.where(eq(user.email, SAMPLE_USER.email))

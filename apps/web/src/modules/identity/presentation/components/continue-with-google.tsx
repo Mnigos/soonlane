@@ -45,7 +45,7 @@ export function ContinueWithGoogle({
 				{isRedirecting ? 'Redirecting…' : 'Continue with Google'}
 			</Button>
 
-			{/* Google refuses embedded webviews: the desktop app stops this navigation and opens the sign-in in the system browser. */}
+			{/* Google refuses embedded webviews, so the desktop app opens this link in the system browser. */}
 			<a
 				className={cn(
 					buttonVariants({ variant: 'outline', size: 'lg' }),

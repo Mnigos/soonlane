@@ -2,12 +2,12 @@
 export const DESKTOP_URL_SCHEME = 'soonlane'
 export const DESKTOP_SIGN_IN_LINK_HOST = 'sign-in'
 
-/** The browser page that signs the user in for the desktop app; the app's window never loads it. */
+/** Opened in the system browser, never in the app's window. */
 export const DESKTOP_SIGN_IN_PATH = '/desktop/sign-in'
 /** The page the app's window loads to trade the code and its verifier for a session. */
 export const DESKTOP_CALLBACK_PATH = '/desktop/callback'
 export const CODE_CHALLENGE_PARAM = 'challenge'
-/** Asks `/desktop/sign-in` to go through Google even when the browser is signed in, so the app gets a fresh session. */
+/** Forces Google even when the browser is signed in, so the app gets a fresh session. */
 export const FRESH_SIGN_IN_PARAM = 'fresh'
 export const SIGN_IN_CODE_PARAM = 'code'
 export const CODE_VERIFIER_PARAM = 'verifier'

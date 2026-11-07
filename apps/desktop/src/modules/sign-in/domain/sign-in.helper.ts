@@ -26,7 +26,6 @@ export function readSignInCode(href: string) {
 		: undefined
 }
 
-/** The browser's sign-in page for this challenge; a fresh sign-in the window asked for (account deletion) carries over. */
 export function getBrowserSignInUrl(
 	appUrl: URL,
 	challenge: string,
