@@ -13,6 +13,7 @@ import type { WindowFrame } from '../domain/window-frame.schemas'
 import { FRAME_SAVE_DELAY, WINDOW_TITLE } from '../domain/window.constants'
 import { SHELL_PRELOAD } from './shell-preload.constants'
 
+/** Saves the frame once resizes and moves pause, and right away when the window closes. */
 const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 	window: BrowserWindow
 ) {

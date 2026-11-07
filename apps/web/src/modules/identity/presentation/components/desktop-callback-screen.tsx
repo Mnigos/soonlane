@@ -7,6 +7,7 @@ interface DesktopCallbackScreenProps {
 	failed: boolean
 }
 
+/** The desktop window while it trades a sign-in code for a session, and when that fails. */
 export function DesktopCallbackScreen({
 	failed,
 }: Readonly<DesktopCallbackScreenProps>) {

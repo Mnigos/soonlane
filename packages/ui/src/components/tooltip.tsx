@@ -3,10 +3,12 @@ import type { ComponentProps, ReactElement, ReactNode } from 'react'
 
 interface TooltipProps {
 	label: ReactNode
+	/** The trigger; it gets the hover and focus handlers. */
 	children: ReactElement
 	side?: ComponentProps<typeof BaseTooltip.Positioner>['side']
 }
 
+/** A short dark hint above its trigger on hover or keyboard focus, like Todoist's. */
 export function Tooltip({
 	label,
 	children,

@@ -8,7 +8,7 @@ interface DialogProps extends PropsWithChildren {
 	className?: string
 }
 
-/** Open while mounted, so render it only while open. */
+/** A modal dialog that is open while mounted; Escape or a click on the backdrop call `onClose`. Render it only while open. */
 export function Dialog({
 	label,
 	onClose,

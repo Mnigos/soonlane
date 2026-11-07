@@ -19,10 +19,12 @@ export function readSidebarPreference(cookieHeader: string) {
 	)
 }
 
+/** Remembers the choice for the next SSR render. */
 export async function saveSidebarPreference(preference: SidebarPreference) {
 	await saveCookie(SIDEBAR_COOKIE, preference, COOKIE_MAX_AGE_MS)
 }
 
+/** Wide screens keep a docked sidebar; narrower ones show the full sidebar as a temporary overlay. */
 export function isWideViewport() {
 	return window.matchMedia(WIDE_VIEWPORT_QUERY).matches
 }

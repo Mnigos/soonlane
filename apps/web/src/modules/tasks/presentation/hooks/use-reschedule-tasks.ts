@@ -12,6 +12,7 @@ import {
 // oRPC query keys are [path, { input, type }].
 const listKeyOptionsSchema = z.object({ input: listTasksInputSchema })
 
+/** Moves tasks to another day at once (optimistically), keeping their due times. */
 export function useRescheduleTasks() {
 	const queryClient = useQueryClient()
 	const listKey = orpcQuery.tasks.list.key()
