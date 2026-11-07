@@ -19,6 +19,7 @@ import { ShellSidebar } from './shell-sidebar'
 interface ShellProps extends PropsWithChildren {
 	activeLabelName?: string
 	initialSidebarPreference: SidebarPreference
+	isDeletingAccount: boolean
 	user: SessionUser
 }
 
@@ -32,6 +33,7 @@ export function Shell({
 	activeLabelName,
 	children,
 	initialSidebarPreference,
+	isDeletingAccount,
 	user,
 }: Readonly<ShellProps>) {
 	const [preference, setPreference] = useState(initialSidebarPreference)
@@ -81,6 +83,7 @@ export function Shell({
 					isOverlayOpen ? 'flex' : 'hidden',
 					preference === 'full' ? 'xl:flex' : 'xl:hidden'
 				)}
+				isDeletingAccount={isDeletingAccount}
 				onAddTask={openAddTask}
 				onCollapse={() => toggleSidebar('collapsed')}
 				onNavigate={() => setIsOverlayOpen(false)}

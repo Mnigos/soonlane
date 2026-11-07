@@ -1,7 +1,7 @@
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
-import { useNavigate, useSearch } from '@tanstack/react-router'
+import { useNavigate } from '@tanstack/react-router'
 import { ChevronDown, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
@@ -13,16 +13,23 @@ const MENU_ITEM_CLASS =
 	'flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm transition-colors hover:bg-hover disabled:opacity-50'
 
 interface UserMenuProps {
+	isDeletingAccount: boolean
 	user: SessionUser
 }
 
-export function UserMenu({ user }: Readonly<UserMenuProps>) {
+export function UserMenu({ isDeletingAccount, user }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
-	// The fresh sign-in's callback URL carries the flag, so the return from Google reopens the dialog.
-	const { deleteAccount } = useSearch({ from: '/_session/app' })
-	const [isDeleting, setIsDeleting] = useState(deleteAccount === true)
 	const navigate = useNavigate()
 	const { mutate: signOut, isPending, isError } = useSignOutMutation()
+
+	function setDeleting(deleteAccount: boolean) {
+		void navigate({
+			to: '.',
+			search: prev => ({ ...prev, deleteAccount: deleteAccount || undefined }),
+			replace: true,
+			resetScroll: false,
+		})
+	}
 
 	return (
 		<div className="flex min-w-0 flex-col">
@@ -70,7 +77,7 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 
 					<button
 						className="flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-danger transition-colors hover:bg-hover"
-						onClick={() => setIsDeleting(true)}
+						onClick={() => setDeleting(true)}
 						type="button"
 					>
 						<Trash2 aria-hidden className="size-4" />
@@ -85,20 +92,10 @@ export function UserMenu({ user }: Readonly<UserMenuProps>) {
 				</div>
 			)}
 
-			{isDeleting && (
+			{isDeletingAccount && (
 				<DeleteAccountDialog
 					email={user.email}
-					onClose={() => {
-						setIsDeleting(false)
-
-						if (deleteAccount)
-							void navigate({
-								to: '.',
-								search: {},
-								replace: true,
-								resetScroll: false,
-							})
-					}}
+					onClose={() => setDeleting(false)}
 				/>
 			)}
 		</div>
