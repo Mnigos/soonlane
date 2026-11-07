@@ -1,9 +1,10 @@
 import { type AnyORPCError, isDefinedError } from '@orpc/client'
 import { LABEL_NAME_MAX_LENGTH, type LabelColor } from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { Tag } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { getLabelColor } from '../helpers/label-color.helper'
+import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
 
 interface LabelNameFieldProps {
 	label: string
@@ -51,8 +52,10 @@ export function LabelNameField({
 			<div className="flex h-8 items-center gap-2 rounded-md border border-border-strong bg-background px-2">
 				<Tag
 					aria-hidden
-					className="size-4 shrink-0"
-					style={{ color: getLabelColor(color) }}
+					className={cn(
+						'size-4 shrink-0',
+						LABEL_COLOR_CLASSES[color ?? 'charcoal']
+					)}
 				/>
 
 				<input

@@ -10,7 +10,7 @@ import { sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Ellipsis, Pencil, Tag, Trash2 } from 'lucide-react'
 import { useState } from 'react'
-import { getLabelColor } from '../helpers/label-color.helper'
+import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
 import { useUpdateLabelMutation } from '../hooks/use-update-label-mutation'
 import { DeleteLabelDialog } from './delete-label-dialog'
 import { LabelNameField } from './label-name-field'
@@ -91,7 +91,10 @@ export function SidebarLabelRow({
 				params={{ name: label.name }}
 				to="/app/labels/$name"
 			>
-				<Tag aria-hidden style={{ color: getLabelColor(label.color) }} />
+				<Tag
+					aria-hidden
+					className={LABEL_COLOR_CLASSES[label.color ?? 'charcoal']}
+				/>
 
 				<span className="truncate">{label.name}</span>
 
