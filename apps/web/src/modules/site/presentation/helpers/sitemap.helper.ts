@@ -6,7 +6,6 @@ interface SitemapEntry {
 	lastmod?: string
 }
 
-// Every prerendered public page; robots.txt points crawlers here.
 const SITEMAP_ENTRIES: SitemapEntry[] = [
 	{ path: '/' },
 	{ path: '/privacy', lastmod: getLegalDocument('privacy').updated },

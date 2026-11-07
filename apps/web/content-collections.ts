@@ -13,7 +13,7 @@ const legal = defineCollection({
 		updated: z.iso.date(),
 		content: z.string(),
 	}),
-	// Only the compiled MDX ships; the raw text would double the page's bundle.
+	// The raw MDX would otherwise ship next to the compiled code.
 	transform: async (document, context) => {
 		const { content: _content, ...frontmatter } = document
 

@@ -1,6 +1,6 @@
 import type { LinkProps } from '@tanstack/react-router'
 
-// The canonical origin is fixed, so previews and other hosts never compete with soonlane.com.
+// Fixed, so previews and other hosts never compete with soonlane.com.
 export const SITE_URL = 'https://soonlane.com'
 export const SITE_NAME = 'Soonlane'
 export const SITE_DESCRIPTION =
@@ -15,5 +15,4 @@ interface SitePageLink {
 	to: LinkProps['to']
 }
 
-// The header nav and the footer's Product column; Blog and Changelog join once their routes exist.
 export const SITE_PAGE_LINKS: readonly SitePageLink[] = []

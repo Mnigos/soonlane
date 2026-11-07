@@ -20,7 +20,6 @@ export function GetStartedButton({
 
 			if (error) throw new Error(error.message)
 		},
-		// /login explains a failed or disabled sign-in.
 		onError: async () => await navigate({ to: '/login' }),
 	})
 	const isRedirecting = isPending || isSuccess
@@ -42,7 +41,7 @@ export function GetStartedButton({
 
 				if (isRedirecting) return
 
-				// Back from Google restores this page from the bfcache with the mutation still redirecting.
+				// A bfcache restore after Google keeps the mutation redirecting.
 				const restore = new AbortController()
 				window.addEventListener(
 					'pageshow',
