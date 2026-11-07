@@ -7,7 +7,6 @@ import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { getTaskEventProperties } from './task-event.helper'
 
-/** Reports the completed occurrence and offers Undo in the "Task completed" toast. */
 export function announceCompletion(
 	completed: Task,
 	today: CalendarDate,
@@ -28,7 +27,6 @@ export function announceCompletion(
 	})
 }
 
-/** Callbacks for the mutation behind Undo, whichever procedure restores the task. */
 export function getUndoCallbacks(
 	queryClient: QueryClient,
 	today: CalendarDate

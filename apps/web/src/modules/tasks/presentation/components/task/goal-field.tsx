@@ -5,7 +5,6 @@ interface GoalFieldProps extends ComponentProps<'input'> {
 	label: string
 }
 
-/** A labelled field in the goal and log amount popovers; number fields drop the browser's spinners. */
 export function GoalField({
 	label,
 	className,

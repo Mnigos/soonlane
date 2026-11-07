@@ -162,7 +162,7 @@ export const logProgressInputSchema = completeTaskInputSchema.extend({
 
 export type LogProgressInput = z.infer<typeof logProgressInputSchema>
 
-/** `logged` is the amount the server applied after clamping; `completed` is set when this log completed the task, with the due date and progress Undo restores. */
+// `logged` is the amount applied after clamping to the goal's range, so Undo reverts exactly that.
 export const logProgressOutputSchema = z.object({
 	task: taskSchema,
 	logged: z.int(),

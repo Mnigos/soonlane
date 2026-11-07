@@ -14,7 +14,6 @@ import {
 	withUpdatedTask,
 } from '../helpers/task-list.helper'
 
-/** Logs goal progress at once (optimistically); reaching the target completes the task with Undo. */
 export function useLogProgress(today: CalendarDate) {
 	const queryClient = useQueryClient()
 	const listKeys = [
@@ -58,7 +57,6 @@ export function useLogProgress(today: CalendarDate) {
 			},
 			// No snapshot to restore: it would drop newer logs; the refetch below brings the server's progress.
 			onError: () => toast('Could not log progress. Try again.'),
-			// The server decides completion, so racing logs and other devices stay right.
 			onSuccess: ({ task, logged, completed }) => {
 				if (!completed) return
 

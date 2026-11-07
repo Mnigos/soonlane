@@ -4,7 +4,6 @@ interface GoalProgressProps {
 	goal: NonNullable<Task['goal']>
 }
 
-/** "20/50 push-ups" over a 2px bar in neutral greys. */
 export function GoalProgress({ goal }: Readonly<GoalProgressProps>) {
 	return (
 		<div className="flex flex-col gap-1">
