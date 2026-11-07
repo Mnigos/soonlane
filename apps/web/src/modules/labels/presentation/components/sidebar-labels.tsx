@@ -9,13 +9,16 @@ import { LabelNameField } from './label-name-field'
 import { SidebarLabelRow } from './sidebar-label-row'
 
 interface SidebarLabelsProps {
+	activeLabelName?: string
 	onNavigate: () => void
 }
 
 const NOTE_CLASS = 'px-2 py-1.5 text-label text-faint-foreground'
 
-/** The sidebar's Labels section; the shell keeps it mounted, so its open state survives the switch to the rail. */
-export function SidebarLabels({ onNavigate }: Readonly<SidebarLabelsProps>) {
+export function SidebarLabels({
+	activeLabelName,
+	onNavigate,
+}: Readonly<SidebarLabelsProps>) {
 	const [isOpen, setIsOpen] = useState(true)
 	const [isAdding, setIsAdding] = useState(false)
 	const { data, isError } = useQuery(orpcQuery.labels.list.queryOptions())
@@ -54,6 +57,7 @@ export function SidebarLabels({ onNavigate }: Readonly<SidebarLabelsProps>) {
 				<ul className="flex flex-col gap-0.5">
 					{data.labels.map(label => (
 						<SidebarLabelRow
+							activeLabelName={activeLabelName}
 							key={label.id}
 							label={label}
 							onNavigate={onNavigate}

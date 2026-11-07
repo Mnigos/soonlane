@@ -7,7 +7,7 @@ import {
 	MenuTrigger,
 } from '@soonlane/ui/components/menu'
 import { sidebarItemVariants } from '@soonlane/ui/components/sidebar'
-import { Link, useNavigate, useParams } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { Ellipsis, Pencil, Tag, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { getLabelColor } from '../helpers/label-color.helper'
@@ -16,14 +16,16 @@ import { DeleteLabelDialog } from './delete-label-dialog'
 import { LabelNameField } from './label-name-field'
 
 interface SidebarLabelRowProps {
+	activeLabelName?: string
 	label: ListedLabel
 	onNavigate: () => void
 }
 
-// Leaves room on touch screens, where the "…" button is always shown beside the count.
+// Touch screens always show the "…" button beside the count.
 const LINK_CLASS = 'pr-2 [&_svg]:size-4 pointer-coarse:pr-9'
 
 export function SidebarLabelRow({
+	activeLabelName,
 	label,
 	onNavigate,
 }: Readonly<SidebarLabelRowProps>) {
@@ -31,9 +33,7 @@ export function SidebarLabelRow({
 	const [isDeleting, setIsDeleting] = useState(false)
 	const updateLabel = useUpdateLabelMutation()
 	const navigate = useNavigate()
-	const isViewOpen =
-		useParams({ strict: false }).name?.toLowerCase() ===
-		label.name.toLowerCase()
+	const isViewOpen = activeLabelName?.toLowerCase() === label.name.toLowerCase()
 
 	function stopRenaming() {
 		setIsRenaming(false)

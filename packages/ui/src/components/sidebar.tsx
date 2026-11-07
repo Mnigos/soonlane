@@ -48,7 +48,6 @@ interface SidebarSectionProps extends PropsWithChildren {
 	action?: ReactNode
 }
 
-/** A group whose heading collapses it, with an optional action (an icon button) at the right. */
 export function SidebarSection({
 	label,
 	isOpen,

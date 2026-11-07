@@ -1,4 +1,9 @@
-import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
+import {
+	createFileRoute,
+	Outlet,
+	redirect,
+	useMatch,
+} from '@tanstack/react-router'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 import { Shell } from '../components/shell'
@@ -22,9 +27,17 @@ export const Route = createFileRoute('/app')({
 function ShellRoute() {
 	const { user } = Route.useRouteContext()
 	const { sidebarPreference } = Route.useLoaderData()
+	const labelMatch = useMatch({
+		from: '/app/labels/$name',
+		shouldThrow: false,
+	})
 
 	return (
-		<Shell initialSidebarPreference={sidebarPreference} user={user}>
+		<Shell
+			activeLabelName={labelMatch?.params.name}
+			initialSidebarPreference={sidebarPreference}
+			user={user}
+		>
 			<Outlet />
 		</Shell>
 	)
