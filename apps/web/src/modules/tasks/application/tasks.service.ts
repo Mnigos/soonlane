@@ -146,12 +146,12 @@ export const TasksServiceLive = Layer.effect(
 				dueDate,
 				repeat: input.repeat && { ...input.repeat, anchor: dueDate },
 			})
-			// The task is saved: a failed check skips the event instead of failing the request.
-			const isFirst = !(yield* repository
-				.hasOtherTasks({ ownerId, id: toTaskId(task.id) })
-				.pipe(Effect.orElseSucceed(() => true)))
+			// The task is saved: a failed count skips the event instead of failing the request.
+			const count = yield* repository
+				.count(ownerId)
+				.pipe(Effect.orElseSucceed(() => 0))
 
-			if (isFirst)
+			if (count === 1)
 				yield* analytics.capture(ownerId, 'first_task_created', {
 					task_id: task.id,
 				})
