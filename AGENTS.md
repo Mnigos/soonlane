@@ -22,7 +22,7 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 - File names: `<kebab-name>.<role>.ts` with a role from `base, client, config, constants, context, contract, errors, handler, helper, layer, layers, middleware, parser, port, repository, router, runtime, schema, schemas, service, types, util` (optional `.server` modifier). Components are bare kebab-case `.tsx`, hooks `use-*.ts`, routes `*.route.ts(x)`. (lint-enforced)
 - No barrel files, except one root `index.ts` per package (`packages/ui` has none; import through its export map).
-- No `useEffect` and no `useSuspenseQuery`; use `useQuery`/`useMutation` with `queryOptions()`/`mutationOptions()` from `orpcQuery`. (lint-enforced)
+- No `useEffect` and no `useSuspenseQuery`; use `useQuery`/`useMutation`, with `orpcQuery`'s `queryOptions()`/`mutationOptions()` for procedures. (lint-enforced)
 - Runtime only in the file suffix (`.server.ts`), never in identifiers.
 - Implementation files stay under 400 lines.
 - Never edit generated migrations; change `packages/db/schema` and run `bun run db:generate`.

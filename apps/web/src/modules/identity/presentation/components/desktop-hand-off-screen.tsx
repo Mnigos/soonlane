@@ -6,7 +6,7 @@ import {
 import { createDesktopSignInCode } from '@soonlane/auth/client'
 import type { SessionUser } from '@soonlane/contracts'
 import { Button } from '@soonlane/ui/components/button'
-import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 
 const HAND_OFF_FAILED = 'Could not start the desktop sign-in. Try again.'
 
@@ -38,7 +38,7 @@ export function DesktopHandOffScreen({
 		data: link,
 		isPending,
 		isError,
-	} = useMutation(mutationOptions({ mutationFn: openDesktopApp }))
+	} = useMutation({ mutationFn: openDesktopApp })
 
 	return (
 		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 px-6 py-16">
