@@ -16,6 +16,7 @@ import { clearPostHogStorage, POSTHOG_CONFIG } from './posthog.config'
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY
 // The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there.
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
+const SITE_LAYOUT_ROUTE_ID = '/_site'
 
 let posthogReady: Promise<PostHog | undefined> | undefined
 let trackedRouter: RegisteredRouter | undefined
@@ -26,12 +27,16 @@ function isDesktopShell() {
 }
 
 function getSuperProperties(): SuperProperties {
+	const matches = trackedRouter?.state.matches ?? []
+
 	return {
 		...BUILD_PROPERTIES,
 		platform: isDesktopShell() ? 'desktop' : 'web',
-		surface: 'app',
+		surface: matches.some(({ routeId }) => routeId === SITE_LAYOUT_ROUTE_ID)
+			? 'landing'
+			: 'app',
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-		route: trackedRouter?.state.matches.at(-1)?.routeId,
+		route: matches.at(-1)?.routeId,
 	}
 }
 
@@ -153,7 +158,6 @@ export function applyConsent(choice: ConsentChoice, source: ConsentSource) {
 }
 
 export function resetAnalytics() {
-	capture('user_signed_out', {})
 	void withPostHog(posthog => {
 		if (!posthog.has_opted_in_capturing()) return
 

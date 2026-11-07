@@ -1,6 +1,7 @@
 import { authClient } from '@soonlane/auth/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
+import { resetAnalytics } from '@/modules/analytics/presentation/analytics.client'
 
 // Better Auth deletes only from a session younger than its freshAge (one day).
 async function deleteAccount() {
@@ -21,6 +22,7 @@ export function useDeleteAccountMutation() {
 		onSuccess: async ({ needsFreshSignIn }) => {
 			if (needsFreshSignIn) return
 
+			resetAnalytics()
 			queryClient.clear()
 			await navigate({
 				to: '/login',
