@@ -18,7 +18,7 @@ interface TrackerState {
 	settleTimer?: ReturnType<typeof setTimeout>
 }
 
-// The index of the last section whose top has reached the line, or -1.
+/** The index of the last section whose top has reached the line, or -1; the sections must be in date order in the DOM. */
 function findLastReached(
 	sortedSections: readonly SortedSection[],
 	line: number,
@@ -35,7 +35,12 @@ function findLastReached(
 		: findLastReached(sortedSections, line, middle + 1, high)
 }
 
-// While a requested scroll is in flight the requested day stays active, so the week strip does not flicker through the days it passes.
+/**
+ * Tracks which day section sits at the top of the list, just under the sticky
+ * header, and scrolls to a day. While a requested scroll is in flight the
+ * requested day stays active, so the week strip does not flicker through the
+ * days it passes.
+ */
 function createActiveDayTracker(firstDay: CalendarDate) {
 	const sections = new Map<CalendarDate, HTMLElement>()
 	const listeners = new Set<() => void>()
@@ -45,7 +50,6 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 		return state.header?.getBoundingClientRect().bottom ?? 0
 	}
 
-	// The binary search needs the day sections in date order in the DOM.
 	function readTopDay() {
 		state.sortedSections ??= [...sections].toSorted(([a], [b]) =>
 			a.localeCompare(b)
@@ -172,6 +176,7 @@ function createActiveDayTracker(firstDay: CalendarDate) {
 	}
 }
 
+/** The day at the top of the Upcoming list and a way to scroll to any rendered day. */
 export function useActiveDay(firstDay: CalendarDate) {
 	const tracker = useMemo(() => createActiveDayTracker(firstDay), [firstDay])
 	const activeDay = useSyncExternalStore(

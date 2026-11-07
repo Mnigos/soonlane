@@ -1,5 +1,6 @@
 import type { SVGProps } from 'react'
 
+/** Todoist's date chip icon: a calendar page with a filled header and a dot for the day. */
 export function DueCalendarIcon(props: Readonly<SVGProps<SVGSVGElement>>) {
 	return (
 		<svg

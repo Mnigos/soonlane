@@ -24,6 +24,12 @@ interface ShellProps extends PropsWithChildren {
 	user: SessionUser
 }
 
+/**
+ * Phones: the sidebar is a drawer. From md: an icon rail is always docked
+ * and the content keeps a fixed rail-wide gutter, so expanding never moves
+ * the centered column. From xl: the owner's choice (full or rail) is docked
+ * and remembered; below xl the full sidebar opens over the content.
+ */
 export function Shell({
 	activeLabelName,
 	children,

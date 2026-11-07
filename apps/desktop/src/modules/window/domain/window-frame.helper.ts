@@ -25,6 +25,7 @@ function isOnSomeDisplay(frame: WindowFrame, workAreas: readonly ScreenArea[]) {
 	)
 }
 
+/** The saved frame when it is still visible on a display, otherwise the default size. */
 export function restoreFrame(
 	saved: WindowFrame | undefined,
 	workAreas: readonly ScreenArea[]
@@ -34,6 +35,7 @@ export function restoreFrame(
 		: DEFAULT_WINDOW_SIZE
 }
 
+/** The frame after a resize or move event; anything the event does not carry keeps its value. */
 export function applyFrameEvent(
 	frame: WindowFrame,
 	event: unknown

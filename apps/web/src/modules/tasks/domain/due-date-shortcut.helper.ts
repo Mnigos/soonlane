@@ -25,7 +25,11 @@ export interface DueDateShortcut {
 const SATURDAY_INDEX = 5
 const FRIDAY_INDEX = 4
 
-// Like Todoist, This weekend is offered only from Monday to Thursday.
+/**
+ * Todoist's quick dates: Today, Tomorrow, This weekend (Monday to Thursday,
+ * when Saturday is not tomorrow), Next week (next Monday) and Next weekend
+ * (Saturday of next week).
+ */
 export function getDueDateShortcuts(today: CalendarDate): DueDateShortcut[] {
 	const tomorrow = addDays(today, 1)
 	const nextMonday = addDays(getWeekStart(today), DAYS_PER_WEEK)

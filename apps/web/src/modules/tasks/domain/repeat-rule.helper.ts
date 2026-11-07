@@ -18,6 +18,7 @@ import {
 } from './calendar-date.helper'
 import { DATE_LOCALE, DAYS_PER_WEEK } from './calendar.constants'
 
+/** The anchor is the due date the rule was set on; it keeps the weekday and day of month. */
 export interface RepeatRule {
 	unit: RepeatUnit
 	interval: number
@@ -68,7 +69,7 @@ function getNextOccurrence(
 	)
 }
 
-// Like Todoist, every weekday starts on the next Monday when the chosen day is a weekend.
+/** Every weekday starts on the next Monday when the chosen day is a weekend, as in Todoist. */
 export function getFirstOccurrence(
 	dueDate: CalendarDate,
 	unit: RepeatUnit | undefined
@@ -78,7 +79,7 @@ export function getFirstOccurrence(
 		: dueDate
 }
 
-// Snaps like a new task unless the edit keeps the stored due date and unit, e.g. a weekday task rescheduled to a Saturday.
+/** Snaps like a new task unless the edit keeps the stored due date and unit, e.g. a weekday task rescheduled to a Saturday. */
 export function getEditedDueDate(
 	task: { dueDate: string; repeat?: { unit: RepeatUnit } } | undefined,
 	dueDate: CalendarDate,
@@ -89,7 +90,7 @@ export function getEditedDueDate(
 		: getFirstOccurrence(dueDate, unit)
 }
 
-// An edit keeps the stored anchor unless it changes the due date or the rule's unit or interval.
+/** An edit keeps the stored anchor unless it changes the due date or the rule's unit or interval. */
 export function getEditedRule(
 	task: {
 		dueDate: string
@@ -113,6 +114,7 @@ export function getEditedRule(
 	}
 }
 
+/** The due date after completing: one step past the due date, then on until it is not before today when known. */
 export function getNextDueDate(
 	dueDate: CalendarDate,
 	rule: RepeatRule,
@@ -126,7 +128,7 @@ export function getNextDueDate(
 		if (!(today && isBefore(next, today))) return next
 }
 
-// `long` spells out the weekday range for screen readers.
+/** Todoist's label; `long` spells out the weekday range for screen readers. */
 export function formatRepeatRule(
 	{ unit, interval, anchor }: RepeatRule,
 	width: 'long' | 'short' = 'short'

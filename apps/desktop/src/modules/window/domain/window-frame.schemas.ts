@@ -3,6 +3,7 @@ import { Schema } from 'effect'
 const coordinateSchema = Schema.Finite
 const lengthSchema = Schema.Finite.check(Schema.isGreaterThan(0))
 
+/** A window's position and size in screen points, as kept in the state file. */
 export const windowFrameSchema = Schema.Struct({
 	x: coordinateSchema,
 	y: coordinateSchema,
@@ -11,7 +12,7 @@ export const windowFrameSchema = Schema.Struct({
 })
 export type WindowFrame = typeof windowFrameSchema.Type
 
-// `resize` events carry the whole frame, `move` events only `x` and `y`.
+/** `resize` events carry the whole frame, `move` events only `x` and `y`. */
 export const frameEventSchema = Schema.Struct({
 	data: Schema.Struct({
 		x: Schema.optionalKey(coordinateSchema),

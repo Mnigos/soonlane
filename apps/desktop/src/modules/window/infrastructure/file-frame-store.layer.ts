@@ -11,6 +11,7 @@ const decodeStoredFrame = Schema.decodeUnknownEffect(
 	Schema.fromJsonString(windowFrameSchema)
 )
 
+/** Keeps the frame in `window-state.json` in the app's data folder. */
 export const FileFrameStoreLive = Layer.sync(FrameStore, () => {
 	const directory = Utils.paths.userData
 	const stateFile = join(directory, STATE_FILE_NAME)

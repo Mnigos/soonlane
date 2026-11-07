@@ -29,7 +29,9 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 - Runtime only in the file suffix (`.server.ts`), never in identifiers.
 - No `let` inside functions: use `const` and move the use into the block that assigns the value, return early, or extract a function. Module-level state and loop heads may use `let`. (lint-enforced)
 - Implementation files stay under 400 lines.
-- Comment only a non-obvious why that the code and names can't carry: a workaround, a browser or library quirk, a security or data constraint. No comments that restate the code, narrate history ("previously", "now") or explain React, TanStack or Effect basics. JSDoc only on exported package APIs whose name isn't enough.
+- JSDoc (`/** … */`) on a declaration (exported or module-level function, component, hook, type, constant) is welcome when it says what the thing is for, its contract, or a non-obvious why. Keep it short; don't restate the name.
+- `//` comments inside function bodies are the exception: only for a quirk or constraint the reader would otherwise "fix" wrongly. Prefer moving that why into the declaration's JSDoc.
+- No comment narrates history ("previously", "now") or explains React, TanStack or Effect basics.
 - Consecutive single-line module-level `const` declarations stay together without blank lines. (lint-enforced)
 - Never edit generated migrations; change `packages/db/schema` and run `bun run db:generate`.
 - Run `bun run check:fix`; the `soonlane/*` rules in `tooling/oxlint-plugins` enforce the remaining style.

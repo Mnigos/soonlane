@@ -39,7 +39,7 @@ export function resolveTrustedOrigins(urls: DeploymentUrls): string[] {
 	]
 }
 
-// Production must run the proxy too: it receives the Google callback for previews and forwards it.
+/** Production must run the proxy too: it receives the Google callback for previews and forwards it. Local dev uses its own redirect URI. */
 export function usesOAuthProxy(vercelEnv: string | undefined) {
 	return vercelEnv !== undefined && PROXIED_ENVIRONMENTS.has(vercelEnv)
 }

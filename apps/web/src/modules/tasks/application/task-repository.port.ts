@@ -43,7 +43,7 @@ export interface TaskKey {
 	id: TaskId
 }
 
-// Moves the due date only while it is still `from`, so concurrent completions advance it once.
+/** Moves the due date only while it is still `from`, so concurrent completions advance it once. */
 export interface DueDateAdvance extends TaskKey {
 	from: CalendarDate
 	to: CalendarDate

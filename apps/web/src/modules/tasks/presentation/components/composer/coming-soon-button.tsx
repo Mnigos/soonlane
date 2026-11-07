@@ -9,6 +9,7 @@ interface ComingSoonButtonProps extends PropsWithChildren {
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
+/** A Todoist control Soonlane does not have yet: it keeps the layout, does nothing and says "Coming soon". */
 export function ComingSoonButton({
 	label,
 	className,

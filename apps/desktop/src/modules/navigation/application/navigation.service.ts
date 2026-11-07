@@ -7,7 +7,9 @@ import { SystemBrowser } from './system-browser.port'
 export class Navigation extends Context.Service<
 	Navigation,
 	{
+		/** A new-window request: the app's own pages load in the window, other links go to the system browser. */
 		readonly openLink: (href: string) => Effect.Effect<void>
+		/** A navigation the rules blocked: it can only leave the app, so it goes to the system browser or nowhere. */
 		readonly leaveApp: (href: string) => Effect.Effect<void>
 	}
 >()('soonlane/Navigation') {}

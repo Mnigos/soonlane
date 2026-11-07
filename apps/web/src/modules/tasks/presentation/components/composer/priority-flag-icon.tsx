@@ -4,6 +4,7 @@ interface PriorityFlagIconProps extends SVGProps<SVGSVGElement> {
 	isFilled?: boolean
 }
 
+/** Todoist's priority flag: a short pole and a waving cloth, filled for P1 to P3. */
 export function PriorityFlagIcon({
 	isFilled = false,
 	...props

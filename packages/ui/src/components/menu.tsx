@@ -10,6 +10,7 @@ export const MenuRadioGroup = BaseMenu.RadioGroup
 type MenuContentProps = ComponentProps<typeof BaseMenu.Popup> &
 	Pick<ComponentProps<typeof BaseMenu.Positioner>, 'align' | 'side'>
 
+/** The floating list of a menu, centered under its trigger like Todoist's, portaled and kept inside the viewport. */
 export function MenuContent({
 	align = 'center',
 	side = 'bottom',
@@ -54,6 +55,7 @@ export function MenuItem({
 	)
 }
 
+/** A radio item that closes the menu when picked and shows a red check while selected. */
 export function MenuRadioItem({
 	className,
 	children,

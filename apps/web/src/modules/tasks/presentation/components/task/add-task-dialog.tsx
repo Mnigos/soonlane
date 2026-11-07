@@ -8,6 +8,7 @@ interface AddTaskDialogProps {
 	onClose: () => void
 }
 
+/** The global Add task: the task composer in a dialog, due today by default. */
 export function AddTaskDialog({ onClose }: Readonly<AddTaskDialogProps>) {
 	const today = useToday()
 	// Escape in the composer reaches both the composer and the dialog.
