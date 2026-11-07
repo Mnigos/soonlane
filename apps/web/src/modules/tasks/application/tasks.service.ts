@@ -82,7 +82,6 @@ interface CompletionDates {
 	dueDate?: CalendarDate
 }
 
-/** What Undo puts back on a repeating task: its previous due date and goal progress. */
 interface RestoredOccurrence {
 	dueDate?: CalendarDate
 	progress?: number

@@ -63,7 +63,6 @@ export interface TaskLabel {
 	labelId: LabelId
 }
 
-/** `advance` is a repeating task's next occurrence, taken only when the log reaches the target. */
 export interface ProgressLog extends TaskKey {
 	amount: number
 	loggedAt: Date

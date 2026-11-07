@@ -22,7 +22,6 @@ interface GoalChipProps {
 	value: Goal
 	onChange: (goal: Goal) => void
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
-	/** Shows the goal without changing it, until editing a goal lands (SOON-57). */
 	isReadOnly?: boolean
 }
 
@@ -86,7 +85,6 @@ function GoalFields({ value, onApply, targetRef }: Readonly<GoalFieldsProps>) {
 	)
 }
 
-/** "Goal" until one is set, then its target and unit, like "50 push-ups". */
 export function GoalChip({
 	value,
 	onChange,
