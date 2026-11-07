@@ -62,6 +62,11 @@ const FRONTEND_QUERY_IMPORTS = {
 			message:
 				'Use useQuery with explicit loading, error, empty and success states (AGENTS.md: do not use useSuspenseQuery).',
 		},
+	],
+} as const satisfies ImportRestriction
+
+const TANSTACK_MUTATION_OPTIONS_IMPORT = {
+	paths: [
 		{
 			name: '@tanstack/react-query',
 			importNames: ['mutationOptions'],
@@ -129,7 +134,8 @@ export const CONVENTION_OVERRIDES = [
 		files: [`${workspace}/**`],
 		rules: {
 			'no-restricted-imports': restrictImports(
-				getCrossWorkspaceImports(workspace)
+				getCrossWorkspaceImports(workspace),
+				TANSTACK_MUTATION_OPTIONS_IMPORT
 			),
 		},
 	})),
@@ -140,7 +146,8 @@ export const CONVENTION_OVERRIDES = [
 				'no-restricted-imports': restrictImports(
 					getCrossWorkspaceImports(app),
 					FRONTEND_QUERY_IMPORTS,
-					FRONTEND_EFFECT_IMPORTS
+					FRONTEND_EFFECT_IMPORTS,
+					TANSTACK_MUTATION_OPTIONS_IMPORT
 				),
 				'no-restricted-properties': [
 					'error',
@@ -157,7 +164,8 @@ export const CONVENTION_OVERRIDES = [
 			rules: {
 				'no-restricted-imports': restrictImports(
 					getCrossWorkspaceImports(app),
-					FRONTEND_QUERY_IMPORTS
+					FRONTEND_QUERY_IMPORTS,
+					TANSTACK_MUTATION_OPTIONS_IMPORT
 				),
 				'no-restricted-properties': 'off',
 			},
