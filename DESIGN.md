@@ -30,6 +30,26 @@ colors:
   quick-tomorrow: '#eb8600'
   quick-week: '#9147ff'
   quick-weekend: '#377eff'
+  label-berry-red: '#b8255f'
+  label-red: '#db4035'
+  label-orange: '#ff9933'
+  label-yellow: '#fad000'
+  label-olive-green: '#afb83b'
+  label-lime-green: '#7ecc49'
+  label-green: '#299438'
+  label-mint-green: '#6accbc'
+  label-teal: '#158fad'
+  label-sky-blue: '#14aaf5'
+  label-light-blue: '#96c3eb'
+  label-blue: '#4073ff'
+  label-grape: '#884dff'
+  label-violet: '#af38eb'
+  label-lavender: '#eb96eb'
+  label-magenta: '#e05194'
+  label-salmon: '#ff8d85'
+  label-charcoal: '#808080'
+  label-grey: '#b8b8b8'
+  label-taupe: '#ccac93'
 typography:
   page-title:
     fontFamily: '-apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, sans-serif'
@@ -140,7 +160,7 @@ The date picker's quick date icons use Todoist's own icon colors: the green cale
 
 ### Labels
 
-A label's color is one of Todoist's 20 palette colors (`LABEL_COLOR_VALUES`, Todoist's hex values), drawn only on its tag icon and, in a task row, its name. A label without a color is Todoist's charcoal #808080.
+A label's color is one of Todoist's 20 palette colors, the `label-<key>` tokens with Todoist's hex values (`label-berry-red` #b8255f to `label-taupe` #ccac93, in Todoist's order), drawn only on its tag icon and, in a task row, its name. A label without a color is `label-charcoal` #808080.
 
 ### Neutral
 

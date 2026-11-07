@@ -1,4 +1,5 @@
 import type { Label } from '@soonlane/contracts'
+import { cn } from '@soonlane/ui/cn'
 import {
 	Popover,
 	PopoverContent,
@@ -11,7 +12,7 @@ import {
 	type SetStateAction,
 	useRef,
 } from 'react'
-import { getLabelColor } from '@/modules/labels/presentation/helpers/label-color.helper'
+import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import {
 	CHIP_ICON_STROKE,
@@ -75,9 +76,11 @@ export function LabelsChip({
 				>
 					<Tag
 						aria-hidden
-						className="size-4 shrink-0"
+						className={cn(
+							'size-4 shrink-0',
+							LABEL_COLOR_CLASSES[label.color ?? 'charcoal']
+						)}
 						strokeWidth={CHIP_ICON_STROKE}
-						style={{ color: getLabelColor(label.color) }}
 					/>
 					{label.name}
 

@@ -4,7 +4,7 @@ import { cn } from '@soonlane/ui/cn'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Calendar, Check, PencilLine, Tag } from 'lucide-react'
 import { useState } from 'react'
-import { getLabelColor } from '@/modules/labels/presentation/helpers/label-color.helper'
+import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import { getDueLabel } from '../../../domain/due-label.helper'
 import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
@@ -131,9 +131,11 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 
 						{task.labels.map(label => (
 							<span
-								className="flex items-center gap-0.5"
+								className={cn(
+									'flex items-center gap-0.5',
+									LABEL_COLOR_CLASSES[label.color ?? 'charcoal']
+								)}
 								key={label.id}
-								style={{ color: getLabelColor(label.color) }}
 							>
 								<Tag aria-hidden className="size-3" />
 								{label.name}

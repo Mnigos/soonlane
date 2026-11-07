@@ -41,6 +41,28 @@
 	--quick-week: #9147ff;
 	--quick-weekend: #377eff;
 
+	/* Todoist's label palette; the keys match LABEL_COLORS in @soonlane/domain. */
+	--label-berry-red: #b8255f;
+	--label-red: #db4035;
+	--label-orange: #ff9933;
+	--label-yellow: #fad000;
+	--label-olive-green: #afb83b;
+	--label-lime-green: #7ecc49;
+	--label-green: #299438;
+	--label-mint-green: #6accbc;
+	--label-teal: #158fad;
+	--label-sky-blue: #14aaf5;
+	--label-light-blue: #96c3eb;
+	--label-blue: #4073ff;
+	--label-grape: #884dff;
+	--label-violet: #af38eb;
+	--label-lavender: #eb96eb;
+	--label-magenta: #e05194;
+	--label-salmon: #ff8d85;
+	--label-charcoal: #808080;
+	--label-grey: #b8b8b8;
+	--label-taupe: #ccac93;
+
 	--radius: 0.375rem;
 }
 
@@ -81,6 +103,27 @@
 	--color-quick-tomorrow: var(--quick-tomorrow);
 	--color-quick-week: var(--quick-week);
 	--color-quick-weekend: var(--quick-weekend);
+
+	--color-label-berry-red: var(--label-berry-red);
+	--color-label-red: var(--label-red);
+	--color-label-orange: var(--label-orange);
+	--color-label-yellow: var(--label-yellow);
+	--color-label-olive-green: var(--label-olive-green);
+	--color-label-lime-green: var(--label-lime-green);
+	--color-label-green: var(--label-green);
+	--color-label-mint-green: var(--label-mint-green);
+	--color-label-teal: var(--label-teal);
+	--color-label-sky-blue: var(--label-sky-blue);
+	--color-label-light-blue: var(--label-light-blue);
+	--color-label-blue: var(--label-blue);
+	--color-label-grape: var(--label-grape);
+	--color-label-violet: var(--label-violet);
+	--color-label-lavender: var(--label-lavender);
+	--color-label-magenta: var(--label-magenta);
+	--color-label-salmon: var(--label-salmon);
+	--color-label-charcoal: var(--label-charcoal);
+	--color-label-grey: var(--label-grey);
+	--color-label-taupe: var(--label-taupe);
 
 	--radius-md: var(--radius);
 
