@@ -4,7 +4,7 @@ import { cn } from '../utils/cn.util'
 
 type SwitchProps = ComponentProps<typeof BaseSwitch.Root>
 
-/** An on/off switch, red when on like Todoist's; name it with `aria-labelledby` or a wrapping label. */
+/** Name it with `aria-labelledby` or a wrapping label. */
 export function Switch({ className, ...props }: Readonly<SwitchProps>) {
 	return (
 		<BaseSwitch.Root

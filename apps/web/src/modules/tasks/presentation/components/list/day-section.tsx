@@ -29,7 +29,6 @@ export function DaySection({
 }: Readonly<DaySectionProps>) {
 	const [isAdding, setIsAdding] = useState(false)
 	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
-	// The composer stays open after a create; closing it then is not a cancel.
 	const hasCreatedRef = useRef(false)
 	const headingId = `day-${date}-heading`
 

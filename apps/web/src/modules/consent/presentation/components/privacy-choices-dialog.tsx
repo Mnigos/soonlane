@@ -12,7 +12,6 @@ interface PrivacyChoicesDialogProps {
 	onClose: () => void
 }
 
-/** Essential is always on; Analytics is the one switch, applied on Save. */
 export function PrivacyChoicesDialog({
 	onClose,
 }: Readonly<PrivacyChoicesDialogProps>) {

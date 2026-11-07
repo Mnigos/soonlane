@@ -53,7 +53,6 @@ export function addDays(date: CalendarDate, days: number): CalendarDate {
 	)
 }
 
-/** Days from one date to another, negative when `to` comes first. */
 export function getDaysBetween(from: CalendarDate, to: CalendarDate) {
 	return (
 		(toUtcDate(to).getTime() - toUtcDate(from).getTime()) / MILLISECONDS_PER_DAY

@@ -7,7 +7,7 @@ import { defineConfig } from 'vite'
 import versionFile from '../../version.json' with { type: 'json' }
 import { routes } from './src/routes'
 
-// The product version comes from version.json (written by the release workflow); the commit and environment from Vercel, 'dev' and 'development' locally.
+// The product version comes from version.json (written by the release workflow); the commit from Vercel, 'dev' locally.
 const SHORT_SHA_LENGTH = 7
 const APP_COMMIT =
 	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'

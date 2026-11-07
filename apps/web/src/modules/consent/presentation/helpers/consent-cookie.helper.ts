@@ -8,7 +8,6 @@ import {
 } from '../../domain/consent.helper'
 import type { ConsentChoice } from '../../domain/consent.types'
 
-// SSR reads the request, so the banner is in the first HTML or absent; the browser reads its own cookie and signal.
 export const getConsent = createIsomorphicFn()
 	.server(() =>
 		readConsent(

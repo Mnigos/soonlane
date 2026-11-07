@@ -6,7 +6,6 @@ import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
 
-/** Tracks the create here, not in mutate's callbacks, which are skipped once the composer closes. */
 export function useCreateTaskMutation(
 	source: ComposerSource,
 	today: CalendarDate

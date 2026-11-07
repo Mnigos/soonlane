@@ -2,7 +2,6 @@ const PROXY_PREFIX = '/ingest'
 const API_HOST = 'https://eu.i.posthog.com'
 const ASSETS_HOST = 'https://eu-assets.i.posthog.com'
 const ASSET_PATH = /^\/(?:static|array)\//u
-// Well under the function's 60 s limit, so a PostHog outage fails fast.
 const UPSTREAM_TIMEOUT_MS = 10_000
 // No cookies or Authorization: the app's session must never reach PostHog.
 const REQUEST_HEADERS = [
@@ -24,7 +23,6 @@ function pickHeaders(headers: Headers, names: readonly string[]) {
 	)
 }
 
-/** Forwards the browser SDK's `/ingest/*` requests to PostHog's EU hosts; the host never comes from the request. */
 export async function proxyToPostHog(request: Request) {
 	const { pathname, search } = new URL(request.url)
 	const path = pathname.slice(PROXY_PREFIX.length)
