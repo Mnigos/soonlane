@@ -6,6 +6,7 @@ interface SignInLayoutProps extends PropsWithChildren {
 	description?: string
 }
 
+/** The signed-out frame: a heading and a line over the sign-in controls. */
 export function SignInLayout({
 	heading = 'Soonlane',
 	description = 'Your tasks, from today onwards.',

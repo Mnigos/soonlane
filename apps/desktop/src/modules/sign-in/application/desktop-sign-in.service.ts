@@ -12,8 +12,9 @@ import {
 export class DesktopSignIn extends Context.Service<
 	DesktopSignIn,
 	{
+		/** Opens the sign-in the window asked for in the system browser, with the challenge of the pending verifier or a new one; reusing it lets every browser tab a repeated click opened finish. */
 		readonly start: (requestedHref: string) => Effect.Effect<void>
-		/** A `soonlane://` link: its code and the pending verifier go to the window, which trades them for a session. */
+		/** A `soonlane://` link: its code and the pending verifier go to the window, which trades them for a session. Logs leave the link out: it carries the code. */
 		readonly complete: (href: string) => Effect.Effect<void>
 	}
 >()('soonlane/DesktopSignIn') {}
@@ -29,7 +30,6 @@ export const DesktopSignInLive = Layer.effect(
 
 		return DesktopSignIn.of({
 			start: Effect.fn('DesktopSignIn.start')(function* (requestedHref) {
-				// Reusing a pending verifier lets every browser tab a repeated click opened finish.
 				const verifier = Option.getOrElse(
 					yield* Ref.get(pendingVerifier),
 					createCodeVerifier
@@ -49,7 +49,6 @@ export const DesktopSignInLive = Layer.effect(
 						'The system browser did not open the sign-in'
 					)
 			}),
-			// Logs leave the link out: it carries the code.
 			complete: Effect.fn('DesktopSignIn.complete')(function* (href) {
 				const code = readSignInCode(href)
 				const verifier = code
