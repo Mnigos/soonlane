@@ -20,7 +20,7 @@ import {
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
 import {
-	LABEL_ORDER,
+	labelOrder,
 	toLabel,
 } from '@/modules/labels/infrastructure/label-row.helper'
 import { Db, type Database } from '@/platform/db/db.layer'
@@ -79,7 +79,7 @@ async function withLabels(
 				)
 			)
 		)
-		.orderBy(...LABEL_ORDER)
+		.orderBy(...labelOrder)
 	const labelsByTask = new Map<TaskId, Label[]>()
 
 	for (const { taskId, label: labelRow } of assigned) {

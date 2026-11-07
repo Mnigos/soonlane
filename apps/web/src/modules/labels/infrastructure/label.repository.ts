@@ -4,7 +4,7 @@ import { alias } from 'drizzle-orm/pg-core'
 import { Effect, Layer } from 'effect'
 import { Db } from '@/platform/db/db.layer'
 import { LabelRepository } from '../application/label-repository.port'
-import { LABEL_ORDER, toLabel } from './label-row.helper'
+import { labelOrder, toLabel } from './label-row.helper'
 
 export const DrizzleLabelRepositoryLive = Layer.effect(
 	LabelRepository,
@@ -18,7 +18,7 @@ export const DrizzleLabelRepositoryLive = Layer.effect(
 						.select()
 						.from(label)
 						.where(eq(label.ownerId, ownerId))
-						.orderBy(...LABEL_ORDER)
+						.orderBy(...labelOrder)
 
 					return rows.map(toLabel)
 				}),
