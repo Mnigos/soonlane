@@ -62,6 +62,11 @@ const FRONTEND_QUERY_IMPORTS = {
 			message:
 				'Use useQuery with explicit loading, error, empty and success states (AGENTS.md: do not use useSuspenseQuery).',
 		},
+		{
+			name: '@tanstack/react-query',
+			importNames: ['mutationOptions'],
+			message: 'Pass options straight to useMutation.',
+		},
 	],
 } as const satisfies ImportRestriction
 
