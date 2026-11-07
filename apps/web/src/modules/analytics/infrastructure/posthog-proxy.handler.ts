@@ -29,6 +29,7 @@ export async function proxyToPostHog(request: Request) {
 	const host = ASSET_PATH.test(path) ? ASSETS_HOST : API_HOST
 	const body =
 		request.method === 'POST' ? await request.arrayBuffer() : undefined
+
 	try {
 		const upstream = await fetch(`${host}${path}${search}`, {
 			method: request.method,
@@ -42,7 +43,10 @@ export async function proxyToPostHog(request: Request) {
 			status: upstream.status,
 			headers: pickHeaders(upstream.headers, RESPONSE_HEADERS),
 		})
-	} catch {
-		return new Response('Gateway Timeout', { status: 504 })
+	} catch (error) {
+		if (error instanceof DOMException && error.name === 'TimeoutError')
+			return new Response('Gateway Timeout', { status: 504 })
+
+		return new Response('Bad Gateway', { status: 502 })
 	}
 }

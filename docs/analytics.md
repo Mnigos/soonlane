@@ -149,7 +149,7 @@ New UI that shows task content (goal units included), label names, or a user's n
 
 ## Proxy and opt-out
 
-The browser sends to `/ingest`, a first-party proxy (`api_host: '/ingest'`, `ui_host: 'https://eu.posthog.com'`). `/ingest/static/*` and `/ingest/array/*` go to `https://eu-assets.i.posthog.com`, everything else to `https://eu.i.posthog.com`. The hosts are constants; only the path and query after `/ingest` are forwarded, with `GET` and `POST` only, a fixed allowlist of request headers (no cookies, no `Authorization`) and no followed redirects. An upstream that does not answer within 10 seconds, or fails, gets a 504.
+The browser sends to `/ingest`, a first-party proxy (`api_host: '/ingest'`, `ui_host: 'https://eu.posthog.com'`). `/ingest/static/*` and `/ingest/array/*` go to `https://eu-assets.i.posthog.com`, everything else to `https://eu.i.posthog.com`. The hosts are constants; only the path and query after `/ingest` are forwarded, with `GET` and `POST` only, a fixed allowlist of request headers (no cookies, no `Authorization`) and no followed redirects. An upstream that does not answer within 10 seconds gets a 504, and one that cannot be reached (DNS, refused connection) a 502.
 
 Without `VITE_POSTHOG_KEY`:
 
