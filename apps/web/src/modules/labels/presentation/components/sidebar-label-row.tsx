@@ -54,7 +54,7 @@ export function SidebarLabelRow({
 					stopRenaming()
 					if (isViewOpen)
 						void navigate({
-							to: '/labels/$name',
+							to: '/app/labels/$name',
 							params: { name },
 							replace: true,
 						})
@@ -89,7 +89,7 @@ export function SidebarLabelRow({
 				}}
 				onClick={onNavigate}
 				params={{ name: label.name }}
-				to="/labels/$name"
+				to="/app/labels/$name"
 			>
 				<Tag aria-hidden style={{ color: getLabelColor(label.color) }} />
 
