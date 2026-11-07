@@ -17,6 +17,7 @@ const getSidebarPreference = createIsomorphicFn()
 
 const shellSearchSchema = z.object({
 	deleteAccount: z.boolean().optional().catch(undefined),
+	error: z.string().optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/_session/app')({
@@ -33,7 +34,7 @@ export const Route = createFileRoute('/_session/app')({
 function ShellRoute() {
 	const { user } = Route.useRouteContext()
 	const { sidebarPreference } = Route.useLoaderData()
-	const { deleteAccount } = Route.useSearch()
+	const { deleteAccount, error } = Route.useSearch()
 	const labelMatch = useMatch({
 		from: '/_session/app/labels/$name',
 		shouldThrow: false,
@@ -44,6 +45,7 @@ function ShellRoute() {
 			activeLabelName={labelMatch?.params.name}
 			initialSidebarPreference={sidebarPreference}
 			isDeletingAccount={deleteAccount === true}
+			reauthError={error}
 			user={user}
 		>
 			<Outlet />

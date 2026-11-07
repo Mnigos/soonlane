@@ -2,16 +2,18 @@ import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { useRouter } from '@tanstack/react-router'
 import { useDeleteAccountMutation } from '../hooks/use-delete-account-mutation'
-import { ContinueWithGoogle } from './continue-with-google'
+import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 
 interface DeleteAccountDialogProps {
 	email: string
 	onClose: () => void
+	reauthError?: string
 }
 
 export function DeleteAccountDialog({
 	email,
 	onClose,
+	reauthError,
 }: Readonly<DeleteAccountDialogProps>) {
 	const router = useRouter()
 	const { mutate, data, isPending, isError } = useDeleteAccountMutation()
@@ -19,6 +21,7 @@ export function DeleteAccountDialog({
 		to: '.',
 		search: { deleteAccount: true },
 	}).href
+	const needsFreshSignIn = Boolean(reauthError) || data?.needsFreshSignIn
 
 	return (
 		<Dialog className="max-w-md" label="Delete account" onClose={onClose}>
@@ -32,7 +35,7 @@ export function DeleteAccountDialog({
 					</p>
 				</div>
 
-				{data?.needsFreshSignIn && (
+				{needsFreshSignIn && (
 					<div className="flex flex-col gap-3">
 						<p className="text-sm font-medium" role="alert">
 							For your safety, sign in again to delete your account.
@@ -49,6 +52,12 @@ export function DeleteAccountDialog({
 					</div>
 				)}
 
+				{reauthError && (
+					<p className="text-sm font-medium text-danger" role="alert">
+						{SIGN_IN_FAILED}
+					</p>
+				)}
+
 				{isError && (
 					<p className="text-sm font-medium text-danger" role="alert">
 						Could not delete the account. Try again.
@@ -60,7 +69,7 @@ export function DeleteAccountDialog({
 						Cancel
 					</Button>
 
-					{!data?.needsFreshSignIn && (
+					{!needsFreshSignIn && (
 						<Button disabled={isPending} onClick={() => mutate()}>
 							{isPending ? 'Deleting…' : 'Delete account'}
 						</Button>

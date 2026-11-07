@@ -17,6 +17,7 @@ interface ShellSidebarProps {
 	className?: string
 	activeLabelName?: string
 	isDeletingAccount: boolean
+	reauthError?: string
 	user: SessionUser
 	onAddTask: () => void
 	onCollapse: () => void
@@ -27,6 +28,7 @@ export function ShellSidebar({
 	className,
 	activeLabelName,
 	isDeletingAccount,
+	reauthError,
 	user,
 	onAddTask,
 	onCollapse,
@@ -40,7 +42,11 @@ export function ShellSidebar({
 			<DesktopDragRegion />
 
 			<div className="flex items-start justify-between gap-2 pt-0.5">
-				<UserMenu isDeletingAccount={isDeletingAccount} user={user} />
+				<UserMenu
+					isDeletingAccount={isDeletingAccount}
+					reauthError={reauthError}
+					user={user}
+				/>
 
 				<Button
 					aria-label="Collapse sidebar"
