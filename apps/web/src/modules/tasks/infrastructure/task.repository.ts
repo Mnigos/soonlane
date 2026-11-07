@@ -26,9 +26,8 @@ import {
 } from '@/modules/labels/infrastructure/label-row.helper'
 import { Db, type Database } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
-
-// Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM.
-const DUE_TIME_LENGTH = 5
+import { updateProgress } from './task-progress.helper'
+import { toTask } from './task-row.helper'
 
 type Queries = Pick<Database, 'insert' | 'select'>
 
@@ -39,27 +38,6 @@ const DAY_ORDER = [
 	asc(task.priority),
 	asc(task.createdAt),
 ]
-
-function toTask(row: TaskRow, labels: Label[]): Task {
-	const {
-		repeatUnit: unit,
-		repeatInterval: interval,
-		repeatAnchor: anchor,
-	} = row
-
-	return {
-		id: row.id,
-		title: row.title,
-		description: row.description ?? undefined,
-		dueDate: row.dueDate,
-		dueTime: row.dueTime?.slice(0, DUE_TIME_LENGTH),
-		priority: row.priority,
-		createdAt: row.createdAt,
-		completedAt: row.completedAt ?? undefined,
-		repeat: unit && interval && anchor ? { unit, interval, anchor } : undefined,
-		labels,
-	}
-}
 
 async function withLabels(
 	database: Queries,
@@ -200,6 +178,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				priority,
 				repeat,
 				labelIds = [],
+				goal,
 			}) =>
 				db.run(
 					'TaskRepository.create',
@@ -217,6 +196,8 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 									repeatUnit: repeat?.unit ?? null,
 									repeatInterval: repeat?.interval ?? null,
 									repeatAnchor: repeat?.anchor ?? null,
+									goalTarget: goal?.target ?? null,
+									goalUnit: goal?.unit ?? null,
 								})
 								.returning()
 
@@ -269,11 +250,19 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 					async database =>
 						await database.$count(task, eq(task.ownerId, ownerId))
 				),
-			setCompletion: ({ ownerId, id, completedAt, dueDate }) =>
+			setCompletion: ({ ownerId, id, completedAt, dueDate, progress }) =>
 				db.run('TaskRepository.setCompletion', async database => {
 					const rows = await database
 						.update(task)
-						.set({ completedAt: completedAt ?? null, dueDate })
+						.set({
+							completedAt: completedAt ?? null,
+							dueDate,
+							// A task without a goal keeps 0, which its check requires.
+							goalProgress:
+								progress === undefined
+									? undefined
+									: sql`least(${progress}, coalesce(${task.goalTarget}, 0))`,
+						})
 						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
 						.returning()
 					const [updated] = await withLabels(database, ownerId, rows)
@@ -284,7 +273,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				db.run('TaskRepository.advanceDueDate', async database => {
 					const rows = await database
 						.update(task)
-						.set({ dueDate: to })
+						.set({ dueDate: to, goalProgress: 0 })
 						.where(
 							and(
 								eq(task.ownerId, ownerId),
@@ -345,6 +334,19 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 					)
 
 					return await findTask(database, ownerId, id)
+				}),
+			logProgress: log =>
+				db.run('TaskRepository.logProgress', async database => {
+					const row = await updateProgress(database, log)
+
+					if (!row) return undefined
+
+					const [logged] = await withLabels(database, log.ownerId, [row])
+					const completed = row.completed
+						? { dueDate: row.previousDueDate, progress: row.previousProgress }
+						: undefined
+
+					return logged && { task: logged, logged: row.logged, completed }
 				}),
 		})
 	})

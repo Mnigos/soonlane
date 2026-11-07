@@ -12,6 +12,8 @@ import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
+import { GoalProgress } from './goal-progress'
+import { LogProgressControls } from './log-progress-controls'
 
 interface TaskItemProps {
 	task: Task
@@ -99,7 +101,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				/>
 			</button>
 
-			<div className="flex min-w-0 flex-col gap-0.5">
+			<div className="flex min-w-0 flex-1 flex-col gap-0.5">
 				<p className="ph-mask text-sm text-foreground" id={titleId}>
 					{task.title}
 				</p>
@@ -109,6 +111,8 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 						{task.description}
 					</p>
 				)}
+
+				{task.goal && <GoalProgress goal={task.goal} />}
 
 				{(due || repeatText || task.labels.length > 0) && (
 					<p className="flex flex-wrap items-center gap-x-2 text-caption">
@@ -152,6 +156,10 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 					</p>
 				)}
 			</div>
+
+			{task.goal && (
+				<LogProgressControls task={task} titleId={titleId} today={today} />
+			)}
 
 			{/* Shown on hover or focus, always on touch screens; the negative margin keeps the row height. */}
 			<Tooltip label="Edit task">

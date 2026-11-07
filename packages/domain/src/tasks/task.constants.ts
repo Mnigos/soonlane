@@ -6,3 +6,5 @@ export type TaskPriority = (typeof TASK_PRIORITIES)[number]
 export const DEFAULT_TASK_PRIORITY = 4 satisfies TaskPriority
 export const TASK_TITLE_MAX_LENGTH = 500
 export const TASK_DESCRIPTION_MAX_LENGTH = 4000
+export const GOAL_TARGET_MAX = 10_000
+export const GOAL_UNIT_MAX_LENGTH = 24
