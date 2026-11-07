@@ -169,7 +169,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				repeat,
 			}) =>
 				db.run('TaskRepository.update', async database => {
-					const [row] = await database
+					const rows = await database
 						.update(task)
 						.set({
 							title,
@@ -183,8 +183,9 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 						})
 						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
 						.returning()
+					const [updated] = await withLabels(database, ownerId, rows)
 
-					return row && toTask(row)
+					return updated
 				}),
 			setCompletion: ({ ownerId, id, completedAt, dueDate }) =>
 				db.run('TaskRepository.setCompletion', async database => {
