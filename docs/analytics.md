@@ -99,7 +99,7 @@ A browser that sends Global Privacy Control (`navigator.globalPrivacyControl`, t
 
 ### Changing the answer
 
-Privacy choices, in the user menu and below the sign-in screens (`/login`, `/desktop/callback` and the desktop sign-in page's Google step), opens a dialog with Essential (always on) and the Analytics switch. Save applies it without a reload:
+Privacy choices, in the user menu, in the public site's footer and below the sign-in screens (`/login`, `/desktop/callback` and the desktop sign-in page's Google step), opens a dialog with Essential (always on) and the Analytics switch. Save applies it without a reload:
 
 - **Grant**: `opt_in_capturing()` leaves the cookieless mode, starts the persistent id and replay, then `identify` when signed in.
 - **Withdraw**: `opt_out_capturing()` stops and discards replay, resets the identity to the cookieless sentinel (the SDK's own reset), and then every `ph_*` and `__ph_*` key and `_postHogToolbarParams` in localStorage and sessionStorage is removed, as are `ph_*` cookies an older build left (host-only and for the host's domain). Events continue cookieless.
@@ -121,9 +121,9 @@ Privacy choices dialog:
 > Cookies that keep you signed in and remember your sidebar and these choices. Error reports without your content are always sent, so we can fix problems.
 > **Analytics** · switch
 > Usage analytics linked to your account and session replays with your tasks, inputs, name and email hidden. When off, we count pages, actions and errors anonymously, without cookies.
-> [Save]
+> Privacy policy · [Save]
 
-There is no privacy policy yet (SOON-40), so neither links to one.
+The dialog's Privacy policy link opens `/privacy` and closes the dialog. The banner does not link to it, so Reject and Accept stay its only actions besides Privacy choices.
 
 ## Privacy
 
