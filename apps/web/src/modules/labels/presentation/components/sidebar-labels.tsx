@@ -15,6 +15,7 @@ interface SidebarLabelsProps {
 
 const NOTE_CLASS = 'px-2 py-1.5 text-label text-faint-foreground'
 
+/** The sidebar's Labels section; the shell keeps it mounted, so its open state survives the switch to the rail. */
 export function SidebarLabels({
 	activeLabelName,
 	onNavigate,
