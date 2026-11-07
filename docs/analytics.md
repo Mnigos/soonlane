@@ -138,13 +138,13 @@ There is no privacy policy yet (SOON-40), so neither links to one.
 Replay runs only with analytics granted. Everything is visible except:
 
 - every input's value (`maskAllInputs`), which covers the composer's title, description and typed date;
-- text inside an element with the `ph-mask` class: task titles and descriptions in the list, the user's name and email in the user menu, and the email on the desktop hand-off screen;
+- text inside an element with the `ph-mask` class: task titles and descriptions in the list, goal text ("20/50 push-ups" in the list, the composer's Goal chip), the user's name and email in the user menu, and the email on the desktop hand-off screen;
 - the subtree with the `ph-no-capture` class: the hand-off's "open it from here" link, whose `soonlane://` address carries a one-time code;
 - the user's avatar (`ph-no-capture`).
 
-Masking covers text, not attributes, so sensitive text never goes into `aria-label`, `title` or `alt`. The task's complete button takes its name from the title element through `aria-labelledby`.
+Masking covers text, not attributes, so sensitive text never goes into `aria-label`, `title` or `alt`. The task's complete button and its goal controls (+1, log amount) take their name from the title element through `aria-labelledby`, and the Goal chip from its masked label the same way.
 
-New UI that shows task content, label names, or a user's name or email: add `ph-mask` to the element that renders it, keep that text out of attributes, and block (`ph-no-capture`) anything that holds a code or token.
+New UI that shows task content (goal units included), label names, or a user's name or email: add `ph-mask` to the element that renders it, keep that text out of attributes, and block (`ph-no-capture`) anything that holds a code or token.
 
 ## Proxy and opt-out
 

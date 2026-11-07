@@ -7,7 +7,7 @@ interface GoalProgressProps {
 export function GoalProgress({ goal }: Readonly<GoalProgressProps>) {
 	return (
 		<div className="flex flex-col gap-1">
-			<p className="text-caption text-muted-foreground">
+			<p className="ph-mask text-caption text-muted-foreground">
 				{goal.progress}/{goal.target}
 				{goal.unit && ` ${goal.unit}`}
 			</p>

@@ -152,7 +152,9 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				)}
 			</div>
 
-			{task.goal && <LogProgressControls task={task} today={today} />}
+			{task.goal && (
+				<LogProgressControls task={task} titleId={titleId} today={today} />
+			)}
 
 			{/* The negative margin keeps the row height. */}
 			<Tooltip label="Edit task">

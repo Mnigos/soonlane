@@ -7,13 +7,14 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { Diff } from 'lucide-react'
-import { type KeyboardEvent, type Ref, useRef, useState } from 'react'
+import { type KeyboardEvent, type Ref, useId, useRef, useState } from 'react'
 import { useLogProgress } from '../../hooks/use-log-progress'
 import { GoalField } from './goal-field'
 
 interface LogProgressControlsProps {
 	task: Task
 	today: CalendarDate
+	titleId: string
 }
 
 interface LogAmountFieldProps {
@@ -55,16 +56,21 @@ function LogAmountField({ onLog, inputRef }: Readonly<LogAmountFieldProps>) {
 export function LogProgressControls({
 	task,
 	today,
+	titleId,
 }: Readonly<LogProgressControlsProps>) {
 	const { logProgress } = useLogProgress(today)
 	const [isOpen, setIsOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
+	const addId = useId()
+	const logId = useId()
 
 	return (
-		<div className="-my-1 flex shrink-0 items-start gap-0.5 opacity-0 transition-opacity group-focus-within/task:opacity-100 group-hover/task:opacity-100 has-data-popup-open:opacity-100 [@media(hover:none)]:opacity-100">
+		<div className="-my-1 flex shrink-0 items-start gap-0.5 opacity-0 transition-opacity group-focus-within/task:opacity-100 group-hover/task:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100">
 			<Button
-				aria-label={`Add 1 to ${task.title}`}
+				aria-label="Add 1 to"
+				aria-labelledby={`${addId} ${titleId}`}
 				className="h-7 px-2"
+				id={addId}
 				onClick={() => logProgress(task, 1)}
 				size="sm"
 				variant="ghost"
@@ -74,12 +80,14 @@ export function LogProgressControls({
 
 			<Popover onOpenChange={setIsOpen} open={isOpen}>
 				<PopoverTrigger
-					aria-label={`Log amount for ${task.title}`}
+					aria-label="Log amount for"
+					aria-labelledby={`${logId} ${titleId}`}
 					className={buttonVariants({
 						variant: 'ghost',
 						size: 'icon',
 						className: 'size-7 data-popup-open:bg-hover',
 					})}
+					id={logId}
 				>
 					<Diff aria-hidden strokeWidth={1.5} />
 				</PopoverTrigger>

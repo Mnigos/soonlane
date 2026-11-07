@@ -60,14 +60,18 @@ export function useLogProgress(today: CalendarDate) {
 			onSuccess: ({ task, logged, completed }) => {
 				if (!completed) return
 
+				// Nothing to unlog when an open task already at its target completes, so Undo just reopens it.
+				const undo = () => {
+					if (task.repeat) uncomplete.mutate({ id: task.id, ...completed })
+					else if (logged === 0) uncomplete.mutate({ id: task.id })
+					else unlog.mutate({ id: task.id, amount: -logged, today })
+				}
+
 				announceCompletion(
 					{ ...task, dueDate: completed.dueDate },
 					today,
 					'goal',
-					() =>
-						task.repeat
-							? uncomplete.mutate({ id: task.id, ...completed })
-							: unlog.mutate({ id: task.id, amount: -logged, today })
+					undo
 				)
 			},
 			// A refetch landing while other logs are in flight would roll their progress back; the timeout runs once this log has left pending.
