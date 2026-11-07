@@ -26,6 +26,7 @@ interface LabelsChipProps {
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
+/** "Labels" opens the label picker; each chosen label follows as a chip with a remove button. */
 export function LabelsChip({
 	value,
 	onChange,
