@@ -27,7 +27,7 @@ import {
 const APPLICATION_SERVICES =
 	'/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices'
 
-// Electrobun's global NSEvent monitor sees keys in other apps only with Accessibility access.
+/** Electrobun's NSEvent monitor sees keys in other apps only with Accessibility access; when missing, macOS asks for it. */
 function requestAccessibility() {
 	const { AXIsProcessTrustedWithOptions } = dlopen(APPLICATION_SERVICES, {
 		AXIsProcessTrustedWithOptions: {
@@ -53,6 +53,7 @@ function requestAccessibility() {
 	)
 }
 
+/** Presses of the Quick Add shortcut; when another app holds it, a warning and no presses. */
 const shortcutPresses = Stream.callback<undefined>(queue =>
 	Effect.gen(function* () {
 		const registered = yield* Effect.acquireRelease(

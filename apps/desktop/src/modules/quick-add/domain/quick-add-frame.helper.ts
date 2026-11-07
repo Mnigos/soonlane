@@ -18,6 +18,10 @@ function contains(area: ScreenArea, point: Pick<ScreenArea, 'x' | 'y'>) {
 	)
 }
 
+/**
+ * Like Todoist: centered on the display under the cursor, in the upper part
+ * of its work area. Without displays the system centers the window.
+ */
 export function placeQuickAdd(
 	displays: readonly Display[],
 	cursor: Pick<ScreenArea, 'x' | 'y'>
