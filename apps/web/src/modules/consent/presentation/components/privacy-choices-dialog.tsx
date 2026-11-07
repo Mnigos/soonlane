@@ -1,6 +1,7 @@
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { Switch } from '@soonlane/ui/components/switch'
+import { Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { CONSENT_COPY } from '../consent-copy.constants'
 import { useConsent } from '../hooks/use-consent'
@@ -66,7 +67,15 @@ export function PrivacyChoicesDialog({
 				</div>
 			</div>
 
-			<div className="mt-2 flex justify-end">
+			<div className="mt-2 flex items-center justify-between gap-4">
+				<Link
+					className="rounded-sm text-label text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+					onClick={onClose}
+					to="/privacy"
+				>
+					{CONSENT_COPY.policyLink}
+				</Link>
+
 				<Button
 					onClick={() => choose(isGranted ? 'granted' : 'denied', 'settings')}
 				>
