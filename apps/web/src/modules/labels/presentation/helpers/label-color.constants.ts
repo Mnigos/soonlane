@@ -2,17 +2,17 @@ import type { LabelColor } from '@soonlane/domain'
 
 /** Todoist's palette, the color each key stands for. */
 export const LABEL_COLOR_VALUES = {
-	berry_red: '#b8255f',
+	'berry-red': '#b8255f',
 	red: '#db4035',
 	orange: '#ff9933',
 	yellow: '#fad000',
-	olive_green: '#afb83b',
-	lime_green: '#7ecc49',
+	'olive-green': '#afb83b',
+	'lime-green': '#7ecc49',
 	green: '#299438',
-	mint_green: '#6accbc',
+	'mint-green': '#6accbc',
 	teal: '#158fad',
-	sky_blue: '#14aaf5',
-	light_blue: '#96c3eb',
+	'sky-blue': '#14aaf5',
+	'light-blue': '#96c3eb',
 	blue: '#4073ff',
 	grape: '#884dff',
 	violet: '#af38eb',
