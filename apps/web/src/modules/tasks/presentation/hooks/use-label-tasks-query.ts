@@ -13,7 +13,7 @@ export function useLabelTasksQuery(input: ListTasksByLabelInput) {
 			try {
 				return await options.queryFn(context)
 			} catch (error) {
-				// The label was deleted elsewhere: dropping it from the labels list lets the page show not-found while this query is still pending.
+				// The label was deleted elsewhere: refreshing the labels list lets the page show not-found.
 				if (error instanceof ORPCError && error.code === 'NOT_FOUND')
 					await queryClient.invalidateQueries({
 						queryKey: orpcQuery.labels.list.key(),

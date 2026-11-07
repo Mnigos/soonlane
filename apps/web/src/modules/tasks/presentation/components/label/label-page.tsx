@@ -49,6 +49,5 @@ export function LabelPage({ name, today }: Readonly<LabelPageProps>) {
 			</main>
 		)
 
-	// Another label remounts the list, so an open composer never keeps the previous label.
 	return <LabelTasks key={label.id} label={label} today={today} />
 }

@@ -5,11 +5,15 @@ import { useToday } from '@/modules/tasks/presentation/hooks/use-today'
 import { isLabelNamed } from '../helpers/label-name.helper'
 
 export const Route = createFileRoute('/app/labels/$name')({
-	// Loaded for the tab title; a failed load reaches the page, which offers Try again.
-	loader: async ({ context }) =>
-		await context.queryClient
-			.query(context.orpc.labels.list.queryOptions())
-			.catch(() => undefined),
+	loader: async ({ context }) => {
+		try {
+			return await context.queryClient.query(
+				context.orpc.labels.list.queryOptions()
+			)
+		} catch {
+			return undefined
+		}
+	},
 	head: ({ loaderData, params }) => {
 		const label = loaderData?.labels.find(item =>
 			isLabelNamed(item, params.name)
@@ -27,6 +31,5 @@ function LabelRoute() {
 
 	if (!today) return <TaskListSkeleton />
 
-	// A new day remounts the page, so the list and an open composer start from the new today.
 	return <LabelPage key={today} name={name} today={today} />
 }

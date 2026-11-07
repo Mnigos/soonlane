@@ -31,7 +31,6 @@ import { PriorityChip } from './priority-chip'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate
-	/** Picked again after each task, like the label of an open label view. */
 	defaultLabels?: Label[]
 	today: CalendarDate
 	onCancel: () => void
