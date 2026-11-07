@@ -8,6 +8,8 @@ type ContextBuilder = (request: Request) => Promise<RpcContext>
 
 type TrustedOriginsProvider = () => Promise<readonly string[]>
 
+type ErrorReporter = (error: unknown) => Promise<void>
+
 // Behind a TLS-terminating proxy request.url can be http://, so the configured app origins are trusted too.
 async function isTrustedOrigin(
 	origin: string,
@@ -24,7 +26,8 @@ async function isTrustedOrigin(
 
 export function createRpcHandler(
 	buildContext: ContextBuilder,
-	getTrustedOrigins?: TrustedOriginsProvider
+	getTrustedOrigins?: TrustedOriginsProvider,
+	reportError?: ErrorReporter
 ) {
 	const handler = new RPCHandler(router)
 
@@ -52,6 +55,11 @@ export function createRpcHandler(
 					error instanceof Error ? error.name : typeof error
 				)
 			)
+			try {
+				await reportError?.(error)
+			} catch {
+				// Reporting must not replace the 503, e.g. when the runtime itself failed to build.
+			}
 
 			return Response.json(
 				{ message: 'The service is temporarily unavailable.' },

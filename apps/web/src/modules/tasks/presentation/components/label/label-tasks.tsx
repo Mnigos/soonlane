@@ -76,6 +76,7 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 						defaultDueDate={today}
 						defaultLabels={[label]}
 						onCancel={closeComposer}
+						source="label_view"
 						today={today}
 					/>
 				) : (

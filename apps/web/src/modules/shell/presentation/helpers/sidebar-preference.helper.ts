@@ -1,7 +1,8 @@
+import { readCookie, saveCookie } from '@/utils/cookie.util'
 import type { SidebarPreference } from '../sidebar-preference.types'
 
-export const SIDEBAR_COOKIE = 'soonlane-sidebar'
-// Set before the rename to Soonlane; read until the owner saves the preference again.
+const SIDEBAR_COOKIE = 'soonlane-sidebar'
+// Set before the rename to Soonlane; read until the preference is saved again.
 const LEGACY_SIDEBAR_COOKIE = 'soonlist-sidebar'
 const COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
 // Tailwind's xl breakpoint: from here the full sidebar fits beside the centered column without covering it.
@@ -11,32 +12,16 @@ function toSidebarPreference(value?: string): SidebarPreference {
 	return value === 'rail' ? 'rail' : 'full'
 }
 
-function findCookie(cookies: string[], name: string) {
-	return cookies
-		.find(part => part.startsWith(`${name}=`))
-		?.slice(name.length + 1)
-}
-
 export function readSidebarPreference(cookieHeader: string) {
-	const cookies = cookieHeader.split(';').map(part => part.trim())
-
 	return toSidebarPreference(
-		findCookie(cookies, SIDEBAR_COOKIE) ??
-			findCookie(cookies, LEGACY_SIDEBAR_COOKIE)
+		readCookie(cookieHeader, SIDEBAR_COOKIE) ??
+			readCookie(cookieHeader, LEGACY_SIDEBAR_COOKIE)
 	)
 }
 
-/** Remembers the choice for the next SSR render; browsers without the Cookie Store API keep the default. */
+/** Remembers the choice for the next SSR render. */
 export async function saveSidebarPreference(preference: SidebarPreference) {
-	if (!('cookieStore' in window)) return
-
-	await window.cookieStore.set({
-		name: SIDEBAR_COOKIE,
-		value: preference,
-		path: '/',
-		expires: Date.now() + COOKIE_MAX_AGE_MS,
-		sameSite: 'lax',
-	})
+	await saveCookie(SIDEBAR_COOKIE, preference, COOKIE_MAX_AGE_MS)
 }
 
 /** Wide screens keep a docked sidebar; narrower ones show the full sidebar as a temporary overlay. */

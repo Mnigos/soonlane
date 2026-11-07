@@ -61,6 +61,11 @@ export interface TaskLabel {
 	labelId: LabelId
 }
 
+export interface TaskOfOwner {
+	ownerId: UserId
+	id: TaskId
+}
+
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
@@ -78,6 +83,9 @@ export class TaskRepository extends Context.Service<
 		readonly update: (
 			update: TaskUpdate
 		) => Effect.Effect<Task | undefined, DbError>
+		readonly hasOtherTasks: (
+			task: TaskOfOwner
+		) => Effect.Effect<boolean, DbError>
 		readonly setCompletion: (
 			completion: TaskCompletion
 		) => Effect.Effect<Task | undefined, DbError>

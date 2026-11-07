@@ -1,12 +1,15 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { getDueDateShortcuts } from '../../../domain/due-date-shortcut.helper'
+import {
+	type DueDateShortcutId,
+	getDueDateShortcuts,
+} from '../../../domain/due-date-shortcut.helper'
 import { DUE_DATE_SHORTCUT_ICONS } from '../../helpers/due-date-shortcut.constants'
 
 interface DueDateShortcutsProps {
 	selected?: CalendarDate
 	today: CalendarDate
-	onSelect: (date: CalendarDate) => void
+	onSelect: (date: CalendarDate, id: DueDateShortcutId) => void
 }
 
 /** Today, Tomorrow, the weekend and next week with their weekday hints; the chosen day is left out. */
@@ -28,7 +31,7 @@ export function DueDateShortcuts({
 					<li key={id}>
 						<button
 							className="flex h-8 w-full cursor-pointer items-center gap-3 pr-4 pl-3 text-label font-medium text-foreground transition-colors outline-none hover:bg-hover focus-visible:bg-hover"
-							onClick={() => onSelect(date)}
+							onClick={() => onSelect(date, id)}
 							type="button"
 						>
 							<Icon

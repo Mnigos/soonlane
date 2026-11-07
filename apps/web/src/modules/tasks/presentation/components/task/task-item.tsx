@@ -3,7 +3,7 @@ import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Calendar, Check, PencilLine, Tag } from 'lucide-react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import { getDueLabel } from '../../../domain/due-label.helper'
 import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
@@ -56,6 +56,8 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 			{ ...task.repeat, anchor: toCalendarDate(task.repeat.anchor) },
 			'long'
 		)
+	const buttonId = useId()
+	const titleId = useId()
 
 	function closeComposer() {
 		setIsEditing(false)
@@ -69,20 +71,24 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 					defaultDueDate={toCalendarDate(task.dueDate)}
 					onCancel={closeComposer}
 					onSaved={closeComposer}
+					source="task_row"
 					task={task}
 					today={today}
 				/>
 			</li>
 		)
 
+	// "Complete <title>" without the title in an attribute, which replay masking would not hide.
 	return (
 		<li className="group/task flex gap-2.5 border-b py-2.5">
 			<button
-				aria-label={`Complete ${task.title}`}
+				aria-label="Complete"
+				aria-labelledby={`${buttonId} ${titleId}`}
 				className={cn(
 					'group mt-0.5 flex size-4.5 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-colors',
 					PRIORITY_CIRCLE_CLASSES[task.priority]
 				)}
+				id={buttonId}
 				onClick={() => onComplete(task)}
 				type="button"
 			>
@@ -94,10 +100,12 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 			</button>
 
 			<div className="flex min-w-0 flex-col gap-0.5">
-				<p className="text-sm text-foreground">{task.title}</p>
+				<p className="ph-mask text-sm text-foreground" id={titleId}>
+					{task.title}
+				</p>
 
 				{task.description && (
-					<p className="truncate text-label text-muted-foreground">
+					<p className="ph-mask truncate text-label text-muted-foreground">
 						{task.description}
 					</p>
 				)}

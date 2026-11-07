@@ -14,7 +14,7 @@ Preview builds are not skipped: previews and local development use their own Neo
 - **Root Directory**: `apps/web`, with **Include files outside of the Root Directory in the Build Step** enabled (the build reads `packages/*` and `bun.lock` from the root).
 - **Framework Preset**: Other. The install and build commands come from `vercel.json`; do not override them in the dashboard.
 - **Node.js Version**: leave the default. Only Vercel's own build tooling runs on it; `bunVersion` selects the Bun runtime for the function, and the install and build commands call `bun`.
-- Leave **Automatically expose System Environment Variables** enabled: `VERCEL_GIT_COMMIT_SHA` is the version `system.health` reports, `VERCEL_ENV` turns on the OAuth proxy, and `VERCEL_URL` / `VERCEL_BRANCH_URL` give previews their base URL and trusted origins.
+- Leave **Automatically expose System Environment Variables** enabled: `VERCEL_GIT_COMMIT_SHA` is the version `system.health` reports, `VERCEL_ENV` turns on the OAuth proxy and names the analytics `environment`, and `VERCEL_URL` / `VERCEL_BRANCH_URL` give previews their base URL and trusted origins.
 
 ## Environment variables
 
@@ -27,6 +27,9 @@ Preview builds are not skipped: previews and local development use their own Neo
 | `ALLOWED_EMAILS`        | unset                         | unset                       | unset                   |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | same               | same                    |
 | `OAUTH_PROXY_SECRET`    | optional, random              | same value as Production    | not needed              |
+| `VITE_POSTHOG_KEY`      | optional, the PostHog project key (`phc_…`) | same        | optional                |
+
+`VITE_POSTHOG_KEY` is public: Vite puts it in the browser bundle at build time and the server reads the same variable at runtime, so a change needs a new deployment. Without it nothing goes to PostHog ([docs/analytics.md](analytics.md)).
 
 `ALLOWED_EMAILS` is optional: a comma-separated list of addresses (case-insensitive) that may create an account. Leave it unset so anyone can sign up. Set it only to close sign-ups, for example while abuse is going on or on a self-hosted copy; existing accounts keep signing in. To open sign-ups again, delete the variable in the Vercel project settings and redeploy.
 

@@ -1,7 +1,16 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
-import { addDays, isBefore } from '../../../domain/calendar-date.helper'
+import type {
+	RangeLoadTrigger,
+	UpcomingNavigation,
+} from '@/modules/analytics/domain/analytics-event.types'
+import { capture } from '@/modules/analytics/presentation/analytics.client'
+import {
+	addDays,
+	getDaysBetween,
+	isBefore,
+} from '../../../domain/calendar-date.helper'
 import {
 	UPCOMING_WEEK_COUNT,
 	UPCOMING_WEEKS_PER_LOAD,
@@ -43,14 +52,29 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 	})
 	const { completeTask } = useCompleteTask(today)
 	const loadMore = useCallback(
-		() => setWeekCount(count => count + UPCOMING_WEEKS_PER_LOAD),
-		[]
+		(trigger: RangeLoadTrigger) => {
+			capture('upcoming_range_loaded', {
+				weeks_loaded: weekCount + UPCOMING_WEEKS_PER_LOAD,
+				trigger,
+			})
+			setWeekCount(count => count + UPCOMING_WEEKS_PER_LOAD)
+		},
+		[weekCount]
 	)
+	const loadMoreOnScroll = useCallback(() => loadMore('scroll'), [loadMore])
+
+	function goTo(day: CalendarDate, direction: UpcomingNavigation) {
+		capture('upcoming_day_navigated', {
+			direction,
+			distance_days: Math.abs(getDaysBetween(activeDay, day)),
+		})
+		scrollToDay(day)
+	}
 
 	function goToNextDay() {
 		// Past the last rendered day, append the next weeks first, so the day exists to scroll to.
-		if (isBefore(lastDay, nextDay)) flushSync(loadMore)
-		scrollToDay(nextDay)
+		if (isBefore(lastDay, nextDay)) flushSync(() => loadMore('navigation'))
+		goTo(nextDay, 'next')
 	}
 
 	// Room below the last day so it can scroll up under the sticky header (at least 6rem tall) while the next weeks load.
@@ -75,13 +99,13 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 						<WeekControls
 							activeDayLabel={getActiveDayLabel(activeDay, today)}
 							onNext={goToNextDay}
-							onPrevious={previousDay && (() => scrollToDay(previousDay))}
-							onToday={() => scrollToDay(today)}
+							onPrevious={previousDay && (() => goTo(previousDay, 'previous'))}
+							onToday={() => goTo(today, 'today')}
 						/>
 					</div>
 				</div>
 
-				<WeekStrip days={strip.days} onSelect={scrollToDay} />
+				<WeekStrip days={strip.days} onSelect={day => goTo(day, 'strip')} />
 			</header>
 
 			{isError && <TaskListError onRetry={() => void refetch()} />}
@@ -98,7 +122,9 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 					from={from}
 					key={from}
 					onComplete={completeTask}
-					onLoadMore={index === ranges.length - 1 ? loadMore : undefined}
+					onLoadMore={
+						index === ranges.length - 1 ? loadMoreOnScroll : undefined
+					}
 					sectionRef={sectionRef}
 					showsError={index > 0}
 					to={to}

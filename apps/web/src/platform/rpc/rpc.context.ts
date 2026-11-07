@@ -1,5 +1,7 @@
 import type { WithEffectContext } from '@orpc/experimental-effect'
 import { Context } from 'effect'
+import { AnalyticsConsent } from '@/modules/analytics/application/analytics.port'
+import { hasAnalyticsConsent } from '@/modules/consent/domain/consent.helper'
 import {
 	Auth,
 	type AuthSession,
@@ -16,5 +18,12 @@ export async function createRpcContext(
 ): Promise<RpcContext> {
 	const session = await Context.get(services, Auth).getSession(headers)
 
-	return { 'effect/context': services, session }
+	return {
+		'effect/context': Context.add(
+			services,
+			AnalyticsConsent,
+			hasAnalyticsConsent(headers)
+		),
+		session,
+	}
 }

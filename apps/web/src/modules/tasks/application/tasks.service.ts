@@ -18,6 +18,7 @@ import {
 	type UserId,
 } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
+import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import type { DbError } from '@/platform/db/db.errors'
 import {
@@ -94,6 +95,7 @@ export const TasksServiceLive = Layer.effect(
 	TasksService,
 	Effect.gen(function* () {
 		const repository = yield* TaskRepository
+		const analytics = yield* Analytics
 
 		// "Today" comes from the client: the server cannot know the owner's time zone.
 		const list = Effect.fn('TasksService.list')(function* (
@@ -138,13 +140,23 @@ export const TasksServiceLive = Layer.effect(
 				toCalendarDate(input.dueDate),
 				input.repeat?.unit
 			)
-
-			return yield* repository.create({
+			const task = yield* repository.create({
 				...input,
 				ownerId,
 				dueDate,
 				repeat: input.repeat && { ...input.repeat, anchor: dueDate },
 			})
+			// The task is saved: a failed check skips the event instead of failing the request.
+			const isFirst = !(yield* repository
+				.hasOtherTasks({ ownerId, id: toTaskId(task.id) })
+				.pipe(Effect.orElseSucceed(() => true)))
+
+			if (isFirst)
+				yield* analytics.capture(ownerId, 'first_task_created', {
+					task_id: task.id,
+				})
+
+			return task
 		})
 
 		const update = Effect.fn('TasksService.update')(function* (

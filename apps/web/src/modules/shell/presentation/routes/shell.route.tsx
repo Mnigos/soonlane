@@ -28,7 +28,7 @@ function ShellRoute() {
 	const { user } = Route.useRouteContext()
 	const { sidebarPreference } = Route.useLoaderData()
 	const labelMatch = useMatch({
-		from: '/app/labels/$name',
+		from: '/_session/app/labels/$name',
 		shouldThrow: false,
 	})
 

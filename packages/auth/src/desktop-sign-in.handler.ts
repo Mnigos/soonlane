@@ -14,6 +14,7 @@ const CODE_LENGTH = 32
 const CODE_PATTERN = new RegExp(String.raw`^[\w-]{${CODE_LENGTH}}$`, 'u')
 const CODE_TTL_MS = 2 * 60 * 1000
 const CODE_IDENTIFIER_PREFIX = 'desktop-sign-in:'
+export const DESKTOP_EXCHANGE_PATH = '/desktop-sign-in/exchange'
 const INVALID_CODE_MESSAGE =
 	'This sign-in link expired or was already used. Start again from the desktop app.'
 
@@ -65,7 +66,7 @@ export function desktopSignIn() {
 				}
 			),
 			exchangeDesktopSignInCode: createAuthEndpoint(
-				'/desktop-sign-in/exchange',
+				DESKTOP_EXCHANGE_PATH,
 				{
 					method: 'POST',
 					body: z.object({

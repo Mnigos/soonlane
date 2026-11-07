@@ -7,10 +7,11 @@ import { defineConfig } from 'vite'
 import versionFile from '../../version.json' with { type: 'json' }
 import { routes } from './src/routes'
 
-// The product version comes from version.json (written by the release workflow); the commit from Vercel, 'dev' locally.
+// The product version comes from version.json (written by the release workflow); the commit and environment from Vercel, 'dev' and 'development' locally.
 const SHORT_SHA_LENGTH = 7
 const APP_COMMIT =
 	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'
+const APP_ENVIRONMENT = process.env.VERCEL_ENV || 'development'
 
 // A custom list replaces TanStack Start's default client deny list, so it repeats '**/*.server.*'.
 const SERVER_ONLY_FILES = [
@@ -35,6 +36,7 @@ const SERVER_ONLY_SPECIFIERS = [
 	'@soonlane/db',
 	'@soonlane/db/migrator',
 	'pg',
+	'posthog-node',
 	/^drizzle-orm(\/|$)/u,
 ]
 
@@ -67,6 +69,7 @@ export default defineConfig({
 	define: {
 		'import.meta.env.APP_VERSION': JSON.stringify(versionFile.version),
 		'import.meta.env.APP_COMMIT': JSON.stringify(APP_COMMIT),
+		'import.meta.env.APP_ENVIRONMENT': JSON.stringify(APP_ENVIRONMENT),
 	},
 	plugins: [
 		contentCollections(),

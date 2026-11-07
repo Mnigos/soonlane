@@ -48,7 +48,7 @@ export function DesktopHandOffScreen({
 				</h1>
 
 				<p className="text-sm text-muted-foreground">
-					You are signed in as {user.email}.
+					You are signed in as <span className="ph-mask">{user.email}</span>.
 				</p>
 			</div>
 
@@ -57,7 +57,8 @@ export function DesktopHandOffScreen({
 			</Button>
 
 			{link && (
-				<output className="flex flex-col gap-1 text-sm">
+				// The link carries a one-time code: session replay records a placeholder.
+				<output className="ph-no-capture flex flex-col gap-1 text-sm">
 					<p className="font-semibold">You can close this tab</p>
 
 					<p className="text-muted-foreground">

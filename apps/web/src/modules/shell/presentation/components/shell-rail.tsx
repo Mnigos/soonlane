@@ -35,14 +35,16 @@ export function ShellRail({
 		>
 			<DesktopDragRegion />
 
+			{/* The name is text, not an attribute, so session replay can mask it. */}
 			<button
-				aria-label={`${user.name}, open the account menu`}
 				className={sidebarRailItemVariants()}
 				onClick={onExpand}
-				title={user.name}
 				type="button"
 			>
-				<Avatar name={user.name} src={user.image} />
+				<Avatar className="ph-no-capture" name={user.name} src={user.image} />
+				<span className="ph-mask sr-only">
+					{user.name}, open the account menu
+				</span>
 			</button>
 
 			<button

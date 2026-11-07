@@ -2,6 +2,11 @@ import { canValidateSessions, isAuthConfigured } from '@soonlane/auth'
 import { type AuthLogLevel, createAuth } from '@soonlane/auth/server'
 import { toUserId } from '@soonlane/domain'
 import { Effect, Layer, Redacted } from 'effect'
+import {
+	Analytics,
+	AnalyticsConsent,
+} from '@/modules/analytics/application/analytics.port'
+import { hasAnalyticsConsent } from '@/modules/consent/domain/consent.helper'
 import { PRODUCTION_APP_URL } from '@/platform/config/app-url.helper'
 import { AppConfig } from '@/platform/config/app.config'
 import { Db } from '@/platform/db/db.layer'
@@ -24,6 +29,13 @@ async function respondNotConfigured() {
 	)
 }
 
+function withRequestConsent(headers?: Headers) {
+	return Effect.provideService(
+		AnalyticsConsent,
+		headers ? hasAnalyticsConsent(headers) : false
+	)
+}
+
 const unconfiguredAuth = Auth.of({
 	configured: false,
 	handle: respondNotConfigured,
@@ -35,6 +47,7 @@ export const BetterAuthLive = Layer.effect(
 	Effect.gen(function* () {
 		const config = yield* AppConfig
 		const db = yield* Db
+		const analytics = yield* Analytics
 		const settings = { ...config, secret: Redacted.value(config.authSecret) }
 
 		if (!canValidateSessions(settings)) return unconfiguredAuth
@@ -62,6 +75,25 @@ export const BetterAuthLive = Layer.effect(
 				: undefined,
 			log: (level, ...message) =>
 				Effect.runSync(LOG_BY_LEVEL[level](...message)),
+			events: {
+				userCreated: async ({ id, createdAt }, headers) =>
+					await Effect.runPromise(
+						analytics
+							.capture(toUserId(id), 'user_signed_up', {
+								$set_once: {
+									created_at: createdAt.toISOString(),
+									signup_date: createdAt.toISOString().slice(0, 10),
+								},
+							})
+							.pipe(withRequestConsent(headers))
+					),
+				sessionCreated: async (userId, method, headers) =>
+					await Effect.runPromise(
+						analytics
+							.capture(toUserId(userId), 'user_signed_in', { method })
+							.pipe(withRequestConsent(headers))
+					),
+			},
 		})
 
 		return Auth.of({
