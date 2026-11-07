@@ -14,10 +14,12 @@ interface LabelNameFieldProps {
 		UseMutationResult<unknown, AnyORPCError | Error>,
 		'error' | 'isPending' | 'reset'
 	>
+	/** Starts the save; calls `onSettled` once it succeeds or fails, or right away when nothing is sent. */
 	onSave: (name: string, onSettled: () => void) => void
 	onCancel: () => void
 }
 
+/** The sidebar's inline name field for a new or renamed label: Enter saves, Escape or an empty name cancels. */
 export function LabelNameField({
 	label,
 	color,
