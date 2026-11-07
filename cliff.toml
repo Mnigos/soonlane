@@ -10,7 +10,7 @@ Written by the release workflow from conventional commits; never edit this file 
 body = """
 {% if version %}\
 ## [{{ version | trim_start_matches(pat="v") }}](https://github.com/Mnigos/soonlane/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
-{% for group, commits in commits | group_by(attribute="group") %}
+{% for group, commits in commits | group_by(attribute="group") %}{% if group != "Internal" %}
 {% for scope, scoped in commits | group_by(attribute="scope") %}
 ### {{ group | striptags | trim }} › {{ scope }}
 
@@ -18,7 +18,7 @@ body = """
 - {{ commit.message | split(pat="\n") | first | upper_first | trim }} ([{{ commit.id | truncate(length=7, end="") }}](https://github.com/Mnigos/soonlane/commit/{{ commit.id }}))
 {% endfor %}
 {% endfor %}\
-{% endfor %}\
+{% endif %}{% endfor %}\
 {% endif %}\
 """
 footer = ""
@@ -36,9 +36,10 @@ split_commits = false
 tag_pattern = "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
 topo_order = false
 sort_commits = "oldest"
+# Product scopes only (AGENTS.md); the rest is hidden, not skipped, since git-cliff drops a release whose commits are all skipped.
 commit_parsers = [
-	{ message = "^feat", group = "<!-- 0 -->Features", default_scope = "general" },
-	{ message = "^fix", group = "<!-- 1 -->Bug fixes", default_scope = "general" },
-	{ message = "^perf", group = "<!-- 2 -->Performance", default_scope = "general" },
-	{ message = ".*", skip = true },
+	{ message = "^feat\\((tasks|labels|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 0 -->Features" },
+	{ message = "^fix\\((tasks|labels|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 1 -->Bug fixes" },
+	{ message = "^perf\\((tasks|labels|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 2 -->Performance" },
+	{ message = ".*", group = "Internal" },
 ]
