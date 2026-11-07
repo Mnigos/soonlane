@@ -4,7 +4,7 @@ import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTodayListInput } from '../helpers/dock-badge.helper'
 import { useToday } from './use-today'
 
-// Keeps the Today list cached in every desktop window so syncDockBadge sees its changes.
+/** Keeps the Today list loaded and refetched in every desktop window, so `syncDockBadge` sees each change. */
 export function useDockBadgeQuery() {
 	const today = useToday()
 

@@ -26,6 +26,7 @@ function createString(text: string) {
 	)
 }
 
+/** Sets `NSApp.dockTile.badgeLabel`; a nil label hides the badge. */
 export const AppKitDockBadgeLive = Layer.succeed(
 	DockBadge,
 	DockBadge.of({
