@@ -1,5 +1,6 @@
 import type {
 	CreateTaskInput,
+	Label,
 	ListTasksInput,
 	ListTasksOutput,
 	RescheduleTasksInput,
@@ -79,8 +80,8 @@ function requireTask(task: Task | undefined) {
 	return task ? Effect.succeed(task) : Effect.fail(new TaskNotFound())
 }
 
-function requireLabel(exists: boolean) {
-	return exists ? Effect.void : Effect.fail(new LabelNotFound())
+function requireLabel(label: Label | undefined) {
+	return label ? Effect.succeed(label) : Effect.fail(new LabelNotFound())
 }
 
 export const TasksServiceLive = Layer.effect(
@@ -215,7 +216,7 @@ export const TasksServiceLive = Layer.effect(
 			id: TaskId,
 			labelId: LabelId
 		) {
-			yield* requireLabel(yield* repository.labelExists({ ownerId, labelId }))
+			yield* requireLabel(yield* repository.findLabel({ ownerId, labelId }))
 
 			return yield* requireTask(
 				yield* repository.assignLabel({ ownerId, id, labelId })
@@ -227,7 +228,7 @@ export const TasksServiceLive = Layer.effect(
 			id: TaskId,
 			labelId: LabelId
 		) {
-			yield* requireLabel(yield* repository.labelExists({ ownerId, labelId }))
+			yield* requireLabel(yield* repository.findLabel({ ownerId, labelId }))
 
 			return yield* requireTask(
 				yield* repository.unassignLabel({ ownerId, id, labelId })

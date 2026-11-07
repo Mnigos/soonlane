@@ -1,5 +1,6 @@
 import type {
 	CreateTaskInput,
+	Label,
 	Task,
 	UpdateTaskInput,
 } from '@soonlane/contracts'
@@ -74,9 +75,9 @@ export class TaskRepository extends Context.Service<
 		readonly rescheduleOpen: (
 			reschedule: TaskReschedule
 		) => Effect.Effect<Task[], DbError>
-		readonly labelExists: (
+		readonly findLabel: (
 			label: Omit<TaskLabel, 'id'>
-		) => Effect.Effect<boolean, DbError>
+		) => Effect.Effect<Label | undefined, DbError>
 		readonly assignLabel: (
 			taskLabel: TaskLabel
 		) => Effect.Effect<Task | undefined, DbError>

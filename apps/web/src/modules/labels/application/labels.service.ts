@@ -1,7 +1,8 @@
 import type { CreateLabelInput, Label } from '@soonlane/contracts'
+import { LABEL_OWNER_NAME_INDEX } from '@soonlane/db'
 import type { LabelId, UserId } from '@soonlane/domain'
 import { Context, Effect, Layer } from 'effect'
-import type { DbError } from '@/platform/db/db.errors'
+import { type DbError, isUniqueViolation } from '@/platform/db/db.errors'
 import { LabelNameTaken, LabelNotFound } from '../domain/label.errors'
 import { type LabelChanges, LabelRepository } from './label-repository.port'
 
@@ -38,14 +39,22 @@ export const LabelsServiceLive = Layer.effect(
 			return yield* repository.list(ownerId)
 		})
 
-		// The unique index on the lower-cased name turns a taken name into no row.
+		// The unique index on the owner and the lower-cased name rejects a taken name.
 		const create = Effect.fn('LabelsService.create')(function* (
 			ownerId: UserId,
 			input: CreateLabelInput
 		) {
-			const label = yield* repository.create({ ...input, ownerId })
-
-			return label ?? (yield* new LabelNameTaken())
+			return yield* repository
+				.create({ ...input, ownerId })
+				.pipe(
+					Effect.catchTag('DbError', error =>
+						Effect.fail(
+							isUniqueViolation(error, LABEL_OWNER_NAME_INDEX)
+								? new LabelNameTaken()
+								: error
+						)
+					)
+				)
 		})
 
 		const update = Effect.fn('LabelsService.update')(function* (
@@ -53,14 +62,18 @@ export const LabelsServiceLive = Layer.effect(
 			id: LabelId,
 			changes: LabelChanges
 		) {
-			if (
-				changes.name !== undefined &&
-				(yield* repository.isNameTaken({ ownerId, id, name: changes.name }))
-			)
-				return yield* new LabelNameTaken()
-
 			return yield* requireLabel(
-				yield* repository.update({ ...changes, ownerId, id })
+				yield* repository
+					.update({ ...changes, ownerId, id })
+					.pipe(
+						Effect.catchTag('DbError', error =>
+							Effect.fail(
+								isUniqueViolation(error, LABEL_OWNER_NAME_INDEX)
+									? new LabelNameTaken()
+									: error
+							)
+						)
+					)
 			)
 		})
 
