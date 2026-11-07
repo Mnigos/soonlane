@@ -32,7 +32,10 @@ interface DueDateChipProps {
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
-// A task always has a due date for now, so the chip has no clear button.
+/**
+ * The task's due date and time, colored like the due line; it opens the date
+ * picker. A task always has a due date, so the chip has no clear button.
+ */
 export function DueDateChip({
 	dueDate,
 	dueTime,

@@ -9,12 +9,14 @@ import {
 	SIGN_IN_CODE_PARAM,
 } from '@soonlane/auth'
 
+/** The window asked for the desktop sign-in page, which only the system browser may open. */
 export function isSignInStart(href: string, appUrl: URL) {
 	const url = URL.parse(href)
 
 	return url?.origin === appUrl.origin && url.pathname === DESKTOP_SIGN_IN_PATH
 }
 
+/** The code of a `soonlane://sign-in?code=…` link; anything else carries none. */
 export function readSignInCode(href: string) {
 	const url = URL.parse(href)
 
@@ -38,7 +40,11 @@ export function getBrowserSignInUrl(
 	return url
 }
 
-// The fragment keeps the code and the verifier out of requests and server logs.
+/**
+ * The fragment keeps the code and the verifier out of requests and server
+ * logs. Without a pending verifier (the app restarted, or the sign-in already
+ * finished) the page gets nothing to exchange and says the sign-in did not finish.
+ */
 export function getCallbackUrl(
 	appUrl: URL,
 	code: string,

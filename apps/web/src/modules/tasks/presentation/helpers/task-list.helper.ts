@@ -2,12 +2,13 @@ import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
 
 type TaskBucket = keyof ListTasksOutput
 
+/** Where a task sits in one cached list, so a failed change can put it back. */
 interface TaskPlacement {
 	bucket: TaskBucket
 	task: Task
 }
 
-// The server already orders tasks within a day.
+/** Scheduled tasks grouped by due date; the server already orders them within a day. */
 export function groupTasksByDay(tasks: Task[]) {
 	const days = new Map<string, Task[]>()
 
@@ -43,6 +44,7 @@ export function findTaskPlacement(
 	return undefined
 }
 
+/** The cached list without one task, for the optimistic update when it is completed. */
 export function withoutTask(
 	list: ListTasksOutput,
 	id: string
@@ -53,6 +55,7 @@ export function withoutTask(
 	}
 }
 
+/** The cached list with a task back in its place, keeping every other change to the list. */
 export function withTask(
 	list: ListTasksOutput,
 	{ bucket, task }: TaskPlacement
@@ -64,6 +67,7 @@ export function withTask(
 	return { ...list, [bucket]: [...tasks, task].toSorted(compareTasks) }
 }
 
+/** Where a task belongs in a list loaded for this range, as the server would place it. */
 export function placeTask(
 	task: Task,
 	{ from, to, today }: ListTasksInput
@@ -75,6 +79,7 @@ export function placeTask(
 	return undefined
 }
 
+/** The cached list with a task taken out and, given a placement, put there instead. */
 export function withMovedTask(
 	list: ListTasksOutput,
 	id: string,

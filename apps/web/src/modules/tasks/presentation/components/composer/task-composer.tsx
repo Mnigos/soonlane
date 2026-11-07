@@ -37,9 +37,10 @@ interface TaskComposerProps {
 	source: ComposerSource
 	onCancel: () => void
 	onCreated?: () => void
+	/** Edits this task in place instead of adding a new one. */
 	task?: Task
 	onSaved?: () => void
-	// Off in a dialog, which focuses the title itself and remembers its opener.
+	/** Off in a dialog, which focuses the title itself and remembers its opener. */
 	autoFocus?: boolean
 	className?: string
 }
@@ -47,6 +48,11 @@ interface TaskComposerProps {
 const FIELD_CLASS =
 	'bg-transparent text-foreground outline-none placeholder:text-faint-foreground'
 
+/**
+ * Todoist's task card: title, description and a row of chips. Enter submits,
+ * Escape cancels. Adding keeps the card open for the next task; saving an
+ * edit closes it.
+ */
 export function TaskComposer({
 	defaultDueDate,
 	defaultLabels,

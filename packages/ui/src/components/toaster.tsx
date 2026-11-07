@@ -1,6 +1,6 @@
 import { Toaster as SonnerToaster } from 'sonner'
 
-/** Show toasts with `toast()` from `sonner`. */
+/** Bottom-center toasts in the dark theme; show them with `toast()` from `sonner`. */
 export function Toaster() {
 	return (
 		<SonnerToaster

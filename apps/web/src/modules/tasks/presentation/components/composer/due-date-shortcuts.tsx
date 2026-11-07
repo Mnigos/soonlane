@@ -12,6 +12,7 @@ interface DueDateShortcutsProps {
 	onSelect: (date: CalendarDate, id: DueDateShortcutId) => void
 }
 
+/** Today, Tomorrow, the weekend and next week with their weekday hints; the chosen day is left out. */
 export function DueDateShortcuts({
 	selected,
 	today,

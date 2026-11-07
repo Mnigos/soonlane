@@ -8,6 +8,7 @@ import {
 } from '../components/composer/date-picker-icons'
 import { DueCalendarIcon } from '../components/composer/due-calendar-icon'
 
+/** Todoist's quick date icons: green calendar, orange sun, purple arrow, blue couch. */
 export const DUE_DATE_SHORTCUT_ICONS = {
 	today: { icon: DueCalendarIcon, className: 'text-due-today' },
 	tomorrow: { icon: TomorrowIcon, className: 'text-quick-tomorrow' },
