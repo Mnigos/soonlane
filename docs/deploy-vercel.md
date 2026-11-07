@@ -54,6 +54,8 @@ Requirements:
 - Production and Preview must share the encryption secret: set the same `OAUTH_PROXY_SECRET` in both, or keep the same `AUTH_SECRET` in both. A dedicated `OAUTH_PROXY_SECRET` is preferred, so preview and production session secrets can differ.
 - The consent screen asks only for `openid`, `email` and `profile`, so in Testing mode any Google account can sign in without being on the test-user list.
 
+The app sends Google absolute callback and error URLs on the page's own origin: on a Google error (for example a cancel), production's callback redirects to the error URL as given, so a relative URL would land on production instead of the preview.
+
 ## Local environment
 
 ```sh

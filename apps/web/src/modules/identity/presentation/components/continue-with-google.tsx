@@ -1,7 +1,7 @@
 import { DESKTOP_SIGN_IN_PATH, FRESH_SIGN_IN_PARAM } from '@soonlane/auth'
 import {
 	type GoogleSignInRedirects,
-	signInWithGoogle as startGoogleSignIn,
+	signInWithGoogle,
 } from '@soonlane/auth/client'
 import { cn } from '@soonlane/ui/cn'
 import { Button, buttonVariants } from '@soonlane/ui/components/button'
@@ -24,18 +24,7 @@ export function ContinueWithGoogle({
 }: Readonly<ContinueWithGoogleProps>) {
 	const { mutate, isPending, isSuccess, isError } = useMutation({
 		mutationFn: async () => {
-			// A preview's Google errors return through production's callback, which follows relative URLs to production.
-			const { error } = await startGoogleSignIn(
-				{
-					callbackURL: new URL(redirects.callbackURL, window.location.origin)
-						.href,
-					errorCallbackURL: new URL(
-						redirects.errorCallbackURL,
-						window.location.origin
-					).href,
-				},
-				{ loginHint, fresh }
-			)
+			const { error } = await signInWithGoogle(redirects, { loginHint, fresh })
 
 			if (error) throw new Error(SIGN_IN_FAILED)
 		},
