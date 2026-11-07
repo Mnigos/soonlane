@@ -26,7 +26,6 @@ interface LabelsChipProps {
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
-/** "Labels" opens the label picker; each chosen label follows as a chip with a remove button. */
 export function LabelsChip({
 	value,
 	onChange,
@@ -34,14 +33,12 @@ export function LabelsChip({
 }: Readonly<LabelsChipProps>) {
 	const inputRef = useRef<HTMLInputElement>(null)
 	const triggerRef = useRef<HTMLButtonElement>(null)
-	// Lives here, not in the picker, so a label created after the popover closes still gets ticked.
 	const createLabel = useCreateLabelMutation()
 
 	return (
 		<>
 			<Popover
 				onOpenChange={() => {
-					// Resetting a pending create would drop its success callback.
 					if (createLabel.isError) createLabel.reset()
 				}}
 			>

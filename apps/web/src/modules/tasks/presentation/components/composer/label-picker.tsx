@@ -33,7 +33,6 @@ const NEW_LABEL_ID = 'new'
 const ROW_CLASS =
 	'group flex h-8 cursor-pointer items-center gap-2.5 px-3 text-label text-foreground outline-none select-none data-disabled:opacity-50 data-highlighted:bg-hover'
 
-/** The Labels chip's popover: a search field over the owner's labels to tick, and a row creating a new one. */
 export function LabelPicker({
 	value,
 	onChange,
@@ -72,7 +71,7 @@ export function LabelPicker({
 					return
 				}
 
-				// Keeps the typed name in the field unless the label gets created.
+				// Keeps the placeholder row out of the value; the created label is added on success.
 				details.cancel()
 				createLabel.mutate(
 					{ name },
