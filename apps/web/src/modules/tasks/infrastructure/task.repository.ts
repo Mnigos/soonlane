@@ -57,7 +57,6 @@ function toTask(row: TaskRow, labels: Label[]): Task {
 	}
 }
 
-// One query loads the labels of every row, however many tasks there are.
 async function withLabels(
 	database: Database,
 	ownerId: UserId,
