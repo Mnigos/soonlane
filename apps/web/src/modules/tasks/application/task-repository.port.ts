@@ -9,11 +9,15 @@ import { Context, type Effect } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
 import type { RepeatRule } from '../domain/repeat-rule.helper'
 
-export interface OpenTasks {
+export interface OpenTasksBetween {
 	ownerId: UserId
-	before: CalendarDate
 	from: CalendarDate
 	to: CalendarDate
+}
+
+export interface OpenTasksBefore {
+	ownerId: UserId
+	before: CalendarDate
 }
 
 export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
@@ -60,7 +64,12 @@ export interface TaskLabel {
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
-		readonly listOpen: (params: OpenTasks) => Effect.Effect<Task[], DbError>
+		readonly listOpenBetween: (
+			params: OpenTasksBetween
+		) => Effect.Effect<Task[], DbError>
+		readonly listOpenBefore: (
+			params: OpenTasksBefore
+		) => Effect.Effect<Task[], DbError>
 		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
 		readonly update: (

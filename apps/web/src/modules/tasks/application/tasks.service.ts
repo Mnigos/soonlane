@@ -94,19 +94,19 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			{ from, to, today }: ListTasksInput
 		) {
-			const tasks = yield* repository.listOpen({
-				ownerId,
-				before: toCalendarDate(today),
-				from: toCalendarDate(from),
-				to: toCalendarDate(to),
-			})
+			const [overdue, scheduled] = yield* Effect.all(
+				[
+					repository.listOpenBefore({ ownerId, before: toCalendarDate(today) }),
+					repository.listOpenBetween({
+						ownerId,
+						from: toCalendarDate(from),
+						to: toCalendarDate(to),
+					}),
+				],
+				{ concurrency: 2 }
+			)
 
-			return {
-				overdue: tasks.filter(({ dueDate }) => dueDate < today),
-				scheduled: tasks.filter(
-					({ dueDate }) => dueDate >= from && dueDate <= to
-				),
-			}
+			return { overdue, scheduled }
 		})
 
 		const create = Effect.fn('TasksService.create')(function* (
