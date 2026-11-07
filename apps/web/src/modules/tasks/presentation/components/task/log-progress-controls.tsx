@@ -52,7 +52,6 @@ function LogAmountField({ onLog, inputRef }: Readonly<LogAmountFieldProps>) {
 	)
 }
 
-/** "+1" and "Log amount" on the right of a goal's row: on hover or focus, always without hover. */
 export function LogProgressControls({
 	task,
 	today,

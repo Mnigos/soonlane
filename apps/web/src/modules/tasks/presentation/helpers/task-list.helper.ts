@@ -55,7 +55,6 @@ export function withoutTask(
 	}
 }
 
-/** The cached list with a newer copy of a task wherever the task sits. */
 export function withUpdatedTask(
 	list: ListTasksOutput,
 	task: Task
