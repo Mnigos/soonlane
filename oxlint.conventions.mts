@@ -88,6 +88,35 @@ const FRONTEND_EFFECT_IMPORTS = {
 	],
 } as const satisfies ImportRestriction
 
+const FRONTEND_ROUTER_IMPORTS = {
+	paths: [
+		{
+			name: '@tanstack/react-router',
+			importNames: [
+				'useSearch',
+				'useParams',
+				'useLoaderData',
+				'useRouteContext',
+				'useMatch',
+				'useMatches',
+				'useMatchRoute',
+				'useLocation',
+				'useRouterState',
+				'getRouteApi',
+			],
+			message:
+				'Read router state in *.route.tsx with Route.useX() and pass it down as props (AGENTS.md).',
+		},
+	],
+	patterns: [
+		{
+			regex: String.raw`\.route(?:\.[jt]sx?)?$`,
+			message:
+				'Components do not import route files; the route passes its data as props.',
+		},
+	],
+} as const satisfies ImportRestriction
+
 function toRestrictionEntries<TEntry extends RestrictedImportEntry>(
 	entries: readonly TEntry[] = []
 ) {
@@ -147,7 +176,8 @@ export const CONVENTION_OVERRIDES = [
 					getCrossWorkspaceImports(app),
 					FRONTEND_QUERY_IMPORTS,
 					FRONTEND_EFFECT_IMPORTS,
-					TANSTACK_MUTATION_OPTIONS_IMPORT
+					TANSTACK_MUTATION_OPTIONS_IMPORT,
+					FRONTEND_ROUTER_IMPORTS
 				),
 				'no-restricted-properties': [
 					'error',
@@ -165,9 +195,21 @@ export const CONVENTION_OVERRIDES = [
 				'no-restricted-imports': restrictImports(
 					getCrossWorkspaceImports(app),
 					FRONTEND_QUERY_IMPORTS,
-					TANSTACK_MUTATION_OPTIONS_IMPORT
+					TANSTACK_MUTATION_OPTIONS_IMPORT,
+					FRONTEND_ROUTER_IMPORTS
 				),
 				'no-restricted-properties': 'off',
+			},
+		},
+		{
+			files: [`${app}/src/**/*.route.tsx`],
+			rules: {
+				'no-restricted-imports': restrictImports(
+					getCrossWorkspaceImports(app),
+					FRONTEND_QUERY_IMPORTS,
+					FRONTEND_EFFECT_IMPORTS,
+					TANSTACK_MUTATION_OPTIONS_IMPORT
+				),
 			},
 		},
 	]),
