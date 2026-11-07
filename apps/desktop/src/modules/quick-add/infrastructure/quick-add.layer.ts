@@ -27,7 +27,7 @@ import {
 const APPLICATION_SERVICES =
 	'/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices'
 
-/** Electrobun's NSEvent monitor sees keys in other apps only with Accessibility access; when missing, macOS asks for it. */
+// Electrobun's global NSEvent monitor sees keys in other apps only with Accessibility access.
 function requestAccessibility() {
 	const { AXIsProcessTrustedWithOptions } = dlopen(APPLICATION_SERVICES, {
 		AXIsProcessTrustedWithOptions: {
@@ -53,7 +53,6 @@ function requestAccessibility() {
 	)
 }
 
-/** Presses of the Quick Add shortcut; when another app holds it, a warning and no presses. */
 const shortcutPresses = Stream.callback<undefined>(queue =>
 	Effect.gen(function* () {
 		const registered = yield* Effect.acquireRelease(
@@ -83,7 +82,6 @@ export const QuickAddLive = Layer.effectDiscard(
 		const scope = yield* Effect.scope
 		const openWindowId = yield* Ref.make(Option.none<number>())
 
-		// The window's listeners live until it closes; Electrobun forgets a closed window, so the next press opens a new one.
 		const follow = Effect.fn('QuickAdd.follow')(function* (
 			window: BrowserWindow
 		) {
@@ -119,6 +117,7 @@ export const QuickAddLive = Layer.effectDiscard(
 			yield* Effect.forkIn(follow(window), scope)
 		})
 
+		// Electrobun forgets a closed window, so the next press opens a new one.
 		const open = Ref.get(openWindowId).pipe(
 			Effect.map(Option.flatMapNullishOr(BrowserWindow.getById)),
 			Effect.flatMap(
@@ -134,7 +133,6 @@ export const QuickAddLive = Layer.effectDiscard(
 			Stream.filter(event => readMenuAction(event) === QUICK_ADD_ACTION)
 		)
 
-		// Shortcut and menu presses are handled one at a time, so a quick double press still opens one window.
 		yield* handleEvents(Stream.merge(shortcutPresses, menuPresses), () => open)
 	})
 )

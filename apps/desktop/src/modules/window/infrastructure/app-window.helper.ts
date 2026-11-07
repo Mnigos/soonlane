@@ -2,7 +2,6 @@ import { BrowserWindow, type WindowOptionsType } from 'electrobun'
 import { getNavigationRules } from '../../navigation/domain/navigation.helper'
 import { SHELL_PRELOAD } from './shell-preload.constants'
 
-/** A window on the web app, with the shell's preload and the navigation rules that keep it on the app's origin. */
 export function openAppWindow(
 	appUrl: URL,
 	options: Pick<
