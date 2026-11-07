@@ -35,7 +35,6 @@ function getSuperProperties(): SuperProperties {
 	}
 }
 
-// Without a key the bundler drops the import, so posthog-js is never even downloaded.
 async function startPostHog(consent: Exclude<ConsentState, 'unanswered'>) {
 	if (!POSTHOG_KEY) return undefined
 
@@ -136,7 +135,6 @@ export function trackRouter(router: RegisteredRouter) {
 	})
 }
 
-/** Applies a new answer without a reload: full PostHog on a grant, cookieless with nothing stored on a denial. */
 export function applyConsent(choice: ConsentChoice, source: ConsentSource) {
 	if (!trackedRouter) return
 

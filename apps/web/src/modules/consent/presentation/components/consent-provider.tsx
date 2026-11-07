@@ -15,7 +15,6 @@ interface ConsentProviderProps extends PropsWithChildren {
 	initialConsent: ConsentState
 }
 
-/** The visitor's analytics answer for the whole app: the banner until there is one, and the dialog that changes it. */
 export function ConsentProvider({
 	initialConsent,
 	children,

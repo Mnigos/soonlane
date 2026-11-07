@@ -1,4 +1,4 @@
-/** Every word of the banner and the Privacy choices dialog; docs/analytics.md quotes them for the privacy policy. */
+// docs/analytics.md quotes this copy for the privacy policy.
 export const CONSENT_COPY = {
 	bannerTitle: 'Help improve Soonlane',
 	bannerBody:

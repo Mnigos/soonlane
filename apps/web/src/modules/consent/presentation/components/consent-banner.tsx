@@ -6,7 +6,6 @@ import { PrivacyChoicesButton } from './privacy-choices-button'
 const TITLE_ID = 'consent-banner-title'
 const BODY_ID = 'consent-banner-body'
 
-/** A labelled region, not a modal, Reject as heavy as Accept; sticky so the page gains its height, bottom right from sm clear of the sidebar. */
 export function ConsentBanner() {
 	const { choose } = useConsent()
 
