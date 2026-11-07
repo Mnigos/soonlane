@@ -18,6 +18,12 @@ interface LabelTasksProps {
 
 export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 	const [isAdding, setIsAdding] = useState(false)
+	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
+
+	function closeComposer() {
+		setIsAdding(false)
+		setShouldFocusAddTask(true)
+	}
 	const { data, isPending, isError, refetch } = useLabelTasksQuery({
 		labelId: label.id,
 		today,
@@ -69,11 +75,14 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 					<TaskComposer
 						defaultDueDate={today}
 						defaultLabels={[label]}
-						onCancel={() => setIsAdding(false)}
+						onCancel={closeComposer}
 						today={today}
 					/>
 				) : (
-					<AddTaskRow onClick={() => setIsAdding(true)} />
+					<AddTaskRow
+						autoFocus={shouldFocusAddTask}
+						onClick={() => setIsAdding(true)}
+					/>
 				)}
 			</div>
 		</main>
