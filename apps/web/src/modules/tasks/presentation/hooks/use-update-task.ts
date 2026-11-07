@@ -87,7 +87,12 @@ export function useUpdateTask() {
 						mutationKey: orpcQuery.tasks.update.mutationKey(),
 					}) === 1
 				)
-					await queryClient.invalidateQueries({ queryKey: listKey })
+					await Promise.all([
+						queryClient.invalidateQueries({ queryKey: listKey }),
+						queryClient.invalidateQueries({
+							queryKey: orpcQuery.tasks.listByLabel.key(),
+						}),
+					])
 			},
 		})
 	)
