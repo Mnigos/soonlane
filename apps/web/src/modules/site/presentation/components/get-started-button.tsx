@@ -1,6 +1,6 @@
 import { signInWithGoogle } from '@soonlane/auth/client'
 import { buttonVariants } from '@soonlane/ui/components/button'
-import { mutationOptions, useMutation } from '@tanstack/react-query'
+import { useMutation } from '@tanstack/react-query'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { TermsAgreement } from './terms-agreement'
 
@@ -14,17 +14,15 @@ export function GetStartedButton({
 	compact = false,
 }: Readonly<GetStartedButtonProps>) {
 	const navigate = useNavigate()
-	const { mutate, reset, isPending, isSuccess } = useMutation(
-		mutationOptions({
-			mutationFn: async () => {
-				const { error } = await signInWithGoogle(SIGN_UP_REDIRECTS)
+	const { mutate, reset, isPending, isSuccess } = useMutation({
+		mutationFn: async () => {
+			const { error } = await signInWithGoogle(SIGN_UP_REDIRECTS)
 
-				if (error) throw new Error(error.message)
-			},
-			// /login explains a failed or disabled sign-in.
-			onError: async () => await navigate({ to: '/login' }),
-		})
-	)
+			if (error) throw new Error(error.message)
+		},
+		// /login explains a failed or disabled sign-in.
+		onError: async () => await navigate({ to: '/login' }),
+	})
 	const isRedirecting = isPending || isSuccess
 
 	const button = (
