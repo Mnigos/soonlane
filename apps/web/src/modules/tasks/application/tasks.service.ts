@@ -51,7 +51,7 @@ export class TasksService extends Context.Service<
 		readonly uncomplete: (
 			ownerId: UserId,
 			id: TaskId,
-			dueDate?: CalendarDate
+			restored: RestoredOccurrence
 		) => Effect.Effect<Task, TaskNotFound | DbError>
 		readonly reschedule: (
 			ownerId: UserId,
@@ -70,7 +70,8 @@ export class TasksService extends Context.Service<
 		readonly logProgress: (
 			ownerId: UserId,
 			id: TaskId,
-			amount: number
+			amount: number,
+			seen: CompletionDates
 		) => Effect.Effect<LogProgressOutput, TaskNotFound | DbError>
 	}
 >()('soonlane/TasksService') {}
@@ -79,6 +80,23 @@ export class TasksService extends Context.Service<
 interface CompletionDates {
 	today?: CalendarDate
 	dueDate?: CalendarDate
+}
+
+/** What Undo puts back on a repeating task: its previous due date and goal progress. */
+interface RestoredOccurrence {
+	dueDate?: CalendarDate
+	progress?: number
+}
+
+// From the date the client saw, so a stale list cannot advance the task twice.
+function getAdvance(
+	storedDueDate: CalendarDate,
+	repeat: NonNullable<Task['repeat']>,
+	{ today, dueDate }: CompletionDates
+) {
+	const from = dueDate ?? storedDueDate
+
+	return { from, to: getNextDueDate(from, repeat, today) }
 }
 
 function requireTask<T>(task: T | undefined) {
@@ -191,13 +209,10 @@ export const TasksServiceLive = Layer.effect(
 				)
 			}
 
-			// From the date the client saw, so a stale list cannot advance the task twice.
-			const dueDate = seen.dueDate ?? task.dueDate
 			const advanced = yield* repository.advanceDueDate({
 				ownerId,
 				id,
-				from: dueDate,
-				to: getNextDueDate(dueDate, task.repeat, seen.today),
+				...getAdvance(task.dueDate, task.repeat, seen),
 			})
 
 			return (
@@ -209,10 +224,10 @@ export const TasksServiceLive = Layer.effect(
 		const uncomplete = Effect.fn('TasksService.uncomplete')(function* (
 			ownerId: UserId,
 			id: TaskId,
-			dueDate?: CalendarDate
+			restored: RestoredOccurrence
 		) {
 			return yield* requireTask(
-				yield* repository.setCompletion({ ownerId, id, dueDate })
+				yield* repository.setCompletion({ ownerId, id, ...restored })
 			)
 		})
 
@@ -250,12 +265,20 @@ export const TasksServiceLive = Layer.effect(
 		const logProgress = Effect.fn('TasksService.logProgress')(function* (
 			ownerId: UserId,
 			id: TaskId,
-			amount: number
+			amount: number,
+			seen: CompletionDates
 		) {
+			const task = yield* requireTask(yield* repository.find({ ownerId, id }))
 			const loggedAt = new Date(yield* Clock.currentTimeMillis)
 
 			return yield* requireTask(
-				yield* repository.logProgress({ ownerId, id, amount, loggedAt })
+				yield* repository.logProgress({
+					ownerId,
+					id,
+					amount,
+					loggedAt,
+					advance: task.repeat && getAdvance(task.dueDate, task.repeat, seen),
+				})
 			)
 		})
 

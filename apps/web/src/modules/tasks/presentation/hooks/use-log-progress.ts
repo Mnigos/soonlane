@@ -1,7 +1,13 @@
-import type { ListTasksOutput } from '@soonlane/contracts'
+import type { ListTasksOutput, Task } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
+import {
+	announceCompletion,
+	getUndoCallbacks,
+} from '../helpers/task-completion.helper'
 import {
 	findTaskPlacement,
 	withoutTask,
@@ -9,19 +15,32 @@ import {
 } from '../helpers/task-list.helper'
 
 /** Logs goal progress at once (optimistically); reaching the target completes the task with Undo. */
-export function useLogProgress() {
+export function useLogProgress(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const listKey = orpcQuery.tasks.list.key()
+	const listKeys = [
+		orpcQuery.tasks.list.key(),
+		orpcQuery.tasks.listByLabel.key(),
+	]
 	const mutationKey = orpcQuery.tasks.logProgress.mutationKey()
+	const undoCallbacks = getUndoCallbacks(queryClient, today)
+	const uncomplete = useMutation(
+		orpcQuery.tasks.uncomplete.mutationOptions(undoCallbacks)
+	)
+	const unlog = useMutation(
+		orpcQuery.tasks.logProgress.mutationOptions(undoCallbacks)
+	)
 
 	const { mutate } = useMutation(
 		orpcQuery.tasks.logProgress.mutationOptions({
 			onMutate: async ({ id, amount }) => {
-				await queryClient.cancelQueries({ queryKey: listKey })
+				await Promise.all(
+					listKeys.map(
+						async queryKey => await queryClient.cancelQueries({ queryKey })
+					)
+				)
 
-				queryClient.setQueriesData<ListTasksOutput>(
-					{ queryKey: listKey },
-					list => {
+				for (const queryKey of listKeys)
+					queryClient.setQueriesData<ListTasksOutput>({ queryKey }, list => {
 						const task = list && findTaskPlacement(list, id)?.task
 
 						if (!list || !task?.goal) return list
@@ -35,38 +54,41 @@ export function useLogProgress() {
 						return progress >= goal.target
 							? withoutTask(list, id)
 							: withUpdatedTask(list, { ...task, goal: { ...goal, progress } })
-					}
-				)
+					})
 			},
 			// No snapshot to restore: it would drop newer logs; the refetch below brings the server's progress.
 			onError: () => toast('Could not log progress. Try again.'),
-			// The server's applied amount, not the cache, decides completion, so racing logs and other devices stay right.
-			onSuccess: ({ task, logged }) => {
-				const { goal } = task
+			// The server decides completion, so racing logs and other devices stay right.
+			onSuccess: ({ task, logged, completed }) => {
+				if (!completed) return
 
-				if (
-					!goal ||
-					goal.progress < goal.target ||
-					goal.progress - logged >= goal.target
+				announceCompletion(
+					{ ...task, dueDate: completed.dueDate },
+					today,
+					'goal',
+					() =>
+						task.repeat
+							? uncomplete.mutate({ id: task.id, ...completed })
+							: unlog.mutate({ id: task.id, amount: -logged, today })
 				)
-					return
-
-				toast('Task completed', {
-					action: {
-						label: 'Undo',
-						onClick: () => mutate({ id: task.id, amount: -logged }),
-					},
-				})
 			},
 			// A refetch landing while other logs are in flight would roll their progress back; the timeout runs once this log has left pending.
 			onSettled: () => {
 				setTimeout(() => {
 					if (!queryClient.isMutating({ mutationKey }))
-						void queryClient.invalidateQueries({ queryKey: listKey })
+						void refreshTaskAndLabelLists(queryClient)
 				}, 0)
 			},
 		})
 	)
 
-	return { logProgress: mutate }
+	return {
+		logProgress: (task: Task, amount: number) =>
+			mutate({
+				id: task.id,
+				amount,
+				today,
+				dueDate: task.repeat ? task.dueDate : undefined,
+			}),
+	}
 }
