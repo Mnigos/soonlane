@@ -15,6 +15,7 @@ import { ShellRail } from './shell-rail'
 import { ShellSidebar } from './shell-sidebar'
 
 interface ShellProps extends PropsWithChildren {
+	activeLabelName?: string
 	initialSidebarPreference: SidebarPreference
 	user: SessionUser
 }
@@ -26,6 +27,7 @@ interface ShellProps extends PropsWithChildren {
  * and remembered; below xl the full sidebar opens over the content.
  */
 export function Shell({
+	activeLabelName,
 	children,
 	initialSidebarPreference,
 	user,
@@ -73,6 +75,7 @@ export function Shell({
 			)}
 
 			<ShellSidebar
+				activeLabelName={activeLabelName}
 				className={cn(
 					isOverlayOpen ? 'flex' : 'hidden',
 					preference === 'full' ? 'xl:flex' : 'xl:hidden'

@@ -11,6 +11,7 @@ import { SidebarNavLink } from './sidebar-nav-link'
 
 interface ShellSidebarProps {
 	className?: string
+	activeLabelName?: string
 	user: SessionUser
 	onAddTask: () => void
 	onCollapse: () => void
@@ -19,6 +20,7 @@ interface ShellSidebarProps {
 
 export function ShellSidebar({
 	className,
+	activeLabelName,
 	user,
 	onAddTask,
 	onCollapse,
@@ -72,7 +74,10 @@ export function ShellSidebar({
 				/>
 			</nav>
 
-			<SidebarLabels onNavigate={onNavigate} />
+			<SidebarLabels
+				activeLabelName={activeLabelName}
+				onNavigate={onNavigate}
+			/>
 
 			<a
 				className="mt-auto px-2 py-1 text-caption text-faint-foreground transition-colors hover:text-muted-foreground"

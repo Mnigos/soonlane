@@ -13,12 +13,10 @@ interface LabelNameFieldProps {
 		UseMutationResult<unknown, AnyORPCError | Error>,
 		'error' | 'isPending' | 'reset'
 	>
-	/** Starts the save; calls `onSettled` once it succeeds or fails, or right away when nothing is sent. */
 	onSave: (name: string, onSettled: () => void) => void
 	onCancel: () => void
 }
 
-/** The sidebar's inline name field for a new or renamed label: Enter saves, Escape or an empty name cancels. */
 export function LabelNameField({
 	label,
 	color,
@@ -28,7 +26,7 @@ export function LabelNameField({
 	onCancel,
 }: Readonly<LabelNameFieldProps>) {
 	const [value, setValue] = useState(defaultValue)
-	// isPending lags a render, so a quick second Enter would save the label twice.
+	// isPending lags a render, so a quick second Enter would save twice.
 	const isSavingRef = useRef(false)
 
 	return (
