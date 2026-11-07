@@ -24,6 +24,7 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 - File names: `<kebab-name>.<role>.ts` with a role from `base, client, config, constants, context, contract, errors, handler, helper, layer, layers, middleware, parser, port, repository, router, runtime, schema, schemas, service, types, util` (optional `.server` modifier). Components are bare kebab-case `.tsx`, hooks `use-*.ts`, routes `*.route.ts(x)`. (lint-enforced)
 - No barrel files, except one root `index.ts` per package (`packages/ui` has none; import through its export map).
+- Module names: plural for a collection of entities (`tasks`, `labels`), singular for a concept (`identity`, `shell`, `analytics`). The module name is reused as is for the service, router, contract, oRPC procedure namespace and URL segment (`TasksService`, `tasks.router.ts`, `tasks.list`, `/app/labels/$name`). Anything about one entity is singular: type (`Task`), DB table (`task`), repository port and file (`TaskRepository`, `task.repository.ts`), errors (`task.errors.ts`), ids (`TaskId`), analytics events (`task_created`). (lint-enforced for services, routers and contracts)
 - No `useEffect`, no `useSuspenseQuery` and no bare TanStack `mutationOptions`; pass options straight to `useQuery`/`useMutation`, or use `orpcQuery`'s `queryOptions()`/`mutationOptions()` for procedures. (lint-enforced)
 - Runtime only in the file suffix (`.server.ts`), never in identifiers.
 - Implementation files stay under 400 lines.

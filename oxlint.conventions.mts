@@ -226,6 +226,10 @@ export const CONVENTION_OVERRIDES = [
 		},
 	},
 	{
+		files: ['apps/web/src/modules/**', 'packages/contracts/src/*.contract.ts'],
+		rules: { 'soonlane/module-name': 'error' },
+	},
+	{
 		files: ['**/*.repository.ts'],
 		rules: { 'soonlane/no-repository-try-catch': 'error' },
 	},
