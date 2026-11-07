@@ -14,10 +14,15 @@ const MENU_ITEM_CLASS =
 
 interface UserMenuProps {
 	isDeletingAccount: boolean
+	reauthError?: string
 	user: SessionUser
 }
 
-export function UserMenu({ isDeletingAccount, user }: Readonly<UserMenuProps>) {
+export function UserMenu({
+	isDeletingAccount,
+	reauthError,
+	user,
+}: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const navigate = useNavigate()
 	const { mutate: signOut, isPending, isError } = useSignOutMutation()
@@ -25,7 +30,11 @@ export function UserMenu({ isDeletingAccount, user }: Readonly<UserMenuProps>) {
 	function setDeleting(deleteAccount: boolean) {
 		void navigate({
 			to: '.',
-			search: prev => ({ ...prev, deleteAccount: deleteAccount || undefined }),
+			search: prev => ({
+				...prev,
+				deleteAccount: deleteAccount || undefined,
+				error: undefined,
+			}),
 			replace: true,
 			resetScroll: false,
 		})
@@ -96,6 +105,7 @@ export function UserMenu({ isDeletingAccount, user }: Readonly<UserMenuProps>) {
 				<DeleteAccountDialog
 					email={user.email}
 					onClose={() => setDeleting(false)}
+					reauthError={reauthError}
 				/>
 			)}
 		</div>

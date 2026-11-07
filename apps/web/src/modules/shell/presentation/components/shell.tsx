@@ -20,6 +20,7 @@ interface ShellProps extends PropsWithChildren {
 	activeLabelName?: string
 	initialSidebarPreference: SidebarPreference
 	isDeletingAccount: boolean
+	reauthError?: string
 	user: SessionUser
 }
 
@@ -34,6 +35,7 @@ export function Shell({
 	children,
 	initialSidebarPreference,
 	isDeletingAccount,
+	reauthError,
 	user,
 }: Readonly<ShellProps>) {
 	const [preference, setPreference] = useState(initialSidebarPreference)
@@ -87,6 +89,7 @@ export function Shell({
 				onAddTask={openAddTask}
 				onCollapse={() => toggleSidebar('collapsed')}
 				onNavigate={() => setIsOverlayOpen(false)}
+				reauthError={reauthError}
 				user={user}
 			/>
 
