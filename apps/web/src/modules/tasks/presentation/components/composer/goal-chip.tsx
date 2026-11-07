@@ -7,7 +7,7 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { Target } from 'lucide-react'
-import { type KeyboardEvent, type Ref, useRef, useState } from 'react'
+import { type KeyboardEvent, type Ref, useId, useRef, useState } from 'react'
 import {
 	CHIP_ICON_STROKE,
 	COMPOSER_CHIP_CLASS,
@@ -93,13 +93,22 @@ export function GoalChip({
 }: Readonly<GoalChipProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const targetRef = useRef<HTMLInputElement>(null)
+	const triggerId = useId()
+	const labelId = useId()
 	const label = value?.unit ? `${value.target} ${value.unit}` : value?.target
-	const name = label ? `Goal ${label}` : 'Goal'
+	// The unit is user content: it stays in masked text, and the name points at it instead of copying it.
+	const labelledBy = label === undefined ? undefined : labelId
 	const chip = (
 		<>
 			<Target aria-hidden strokeWidth={CHIP_ICON_STROKE} />
 
-			{label ?? 'Goal'}
+			{label === undefined ? (
+				'Goal'
+			) : (
+				<span className="ph-mask" id={labelId}>
+					{label}
+				</span>
+			)}
 		</>
 	)
 
@@ -107,7 +116,8 @@ export function GoalChip({
 		return (
 			<ComingSoonButton
 				className={COMPOSER_CHIP_CLASS}
-				label={name}
+				label="Goal"
+				labelledBy={labelledBy}
 				onKeyDown={onKeyDown}
 			>
 				{chip}
@@ -117,8 +127,10 @@ export function GoalChip({
 	return (
 		<Popover onOpenChange={setIsOpen} open={isOpen}>
 			<PopoverTrigger
-				aria-label={name}
+				aria-label="Goal"
+				aria-labelledby={labelledBy && `${triggerId} ${labelledBy}`}
 				className={cn(COMPOSER_CHIP_CLASS, value && 'text-foreground')}
+				id={triggerId}
 				onKeyDown={onKeyDown}
 			>
 				{chip}
