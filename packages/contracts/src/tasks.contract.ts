@@ -121,6 +121,8 @@ export const taskLabelInputSchema = z.object({
 	labelId: z.uuid(),
 })
 
+export type TaskLabelInput = z.infer<typeof taskLabelInputSchema>
+
 const taskErrors = {
 	...authErrors,
 	NOT_FOUND: { message: 'This task no longer exists.' },

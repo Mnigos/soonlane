@@ -35,6 +35,8 @@ export type UpdateLabelInput = z.infer<typeof updateLabelInputSchema>
 
 export const labelIdInputSchema = z.object({ id: z.uuid() })
 
+export type LabelIdInput = z.infer<typeof labelIdInputSchema>
+
 const labelNotFound = { message: 'This label no longer exists.' }
 const labelNameTaken = { message: 'A label with this name already exists.' }
 
