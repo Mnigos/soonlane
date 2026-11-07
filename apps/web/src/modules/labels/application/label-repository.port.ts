@@ -20,20 +20,11 @@ export type LabelChanges = Omit<UpdateLabelInput, 'id'>
 
 export interface LabelChange extends OwnedLabel, LabelChanges {}
 
-export interface LabelRename extends OwnedLabel {
-	name: string
-}
-
 export class LabelRepository extends Context.Service<
 	LabelRepository,
 	{
 		readonly list: (ownerId: UserId) => Effect.Effect<Label[], DbError>
-		readonly isNameTaken: (
-			rename: LabelRename
-		) => Effect.Effect<boolean, DbError>
-		readonly create: (
-			label: NewLabel
-		) => Effect.Effect<Label | undefined, DbError>
+		readonly create: (label: NewLabel) => Effect.Effect<Label, DbError>
 		readonly update: (
 			change: LabelChange
 		) => Effect.Effect<Label | undefined, DbError>

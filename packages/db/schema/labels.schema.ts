@@ -12,6 +12,8 @@ import {
 import { user } from './auth.schema'
 import { task } from './tasks.schema'
 
+export const LABEL_OWNER_NAME_INDEX = 'label_owner_name_idx'
+
 export const label = pgTable(
 	'label',
 	{
@@ -27,7 +29,7 @@ export const label = pgTable(
 			.defaultNow(),
 	},
 	table => [
-		uniqueIndex('label_owner_name_idx').on(
+		uniqueIndex(LABEL_OWNER_NAME_INDEX).on(
 			table.ownerId,
 			sql`lower(${table.name})`
 		),

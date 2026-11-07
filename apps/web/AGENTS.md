@@ -8,3 +8,4 @@
 - Components take `Readonly<Props>` with the props interface right above them.
 - Read the session through `identity.me` (root `beforeLoad`, then `context.me`); the shell route redirects signed-out visitors to `/login`. Use `@soonlane/auth/client` only for sign-in and sign-out, and import `@soonlane/auth/server` only in `identity/infrastructure`.
 - Owner procedures use `requireOwner`; there is no test login or auth bypass.
+- Repository methods are verbs naming the query, never predicates. `find*` returns one row or `undefined`, `list*` an array, `count*` a number; `create`, `update`, `delete` and domain verbs (`assignLabel`, `setCompletion`) return the affected row or `undefined` when the owner has no such row. No `is*`, `has*` or `*Exists` methods: existence is what the service concludes from the returned row, and uniqueness comes from a constraint the service maps to a domain error (`isUniqueViolation` in `platform/db`).

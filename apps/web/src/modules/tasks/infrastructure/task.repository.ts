@@ -232,14 +232,14 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 
 					return await withLabels(database, ownerId, rows)
 				}),
-			labelExists: ({ ownerId, labelId }) =>
-				db.run('TaskRepository.labelExists', async database => {
+			findLabel: ({ ownerId, labelId }) =>
+				db.run('TaskRepository.findLabel', async database => {
 					const [row] = await database
-						.select({ id: label.id })
+						.select()
 						.from(label)
 						.where(and(eq(label.ownerId, ownerId), eq(label.id, labelId)))
 
-					return row !== undefined
+					return row && toLabel(row)
 				}),
 			// Inserts nothing unless both the task and the label belong to the owner.
 			assignLabel: ({ ownerId, id, labelId }) =>
