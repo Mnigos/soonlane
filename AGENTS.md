@@ -6,6 +6,8 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 - Never read `.env` files or print secrets.
 - Commit only when asked. Conventional commits (commitlint runs in the hook and CI); never `--no-verify`. No AI attribution anywhere: no `Co-Authored-By`, no "Generated with".
+- Product scopes (`tasks`, `labels`, `shell`, `desktop`, `identity`, `site`, `blog`, `changelog`, `consent`) on `feat`/`fix`/`perf` mark a change a user notices, and only those reach `CHANGELOG.md`; write the subject as a user-facing sentence, since it is the changelog entry.
+- Internal work in those areas uses `refactor`/`chore`/`build`/`ci`, or an infra scope (`auth`, `db`, `ui`, `web`, `release`, `analytics`, ...).
 - Never edit `CHANGELOG.md` or `version.json` in a PR; only the release workflow writes them (`docs/release.md`).
 - No unit tests and no test frameworks. The gates are `bun run check`, `bun run typecheck` and `bun run build`.
 - "Today" is the user's local day, read in the browser (`useToday`). Never derive it from the server clock.

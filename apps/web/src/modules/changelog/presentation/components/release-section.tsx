@@ -12,26 +12,16 @@ const RELEASE_KINDS = [
 	{ kind: 'performance', label: 'Faster' },
 ] as const satisfies { kind: ReleaseGroup['kind']; label: string }[]
 
-const SCOPE_LABELS: Record<string, string> = {
+const SCOPE_LABELS: Partial<Record<string, string>> = {
 	tasks: 'Tasks',
-	desktop: 'Mac app',
+	labels: 'Labels',
 	shell: 'Sidebar',
+	desktop: 'Mac app',
 	identity: 'Sign-in',
-	auth: 'Sign-in',
-	ui: 'Interface',
-}
-
-// cliff.toml's default scope for commits without one.
-function getScopeLabel(scope: string) {
-	if (scope === 'general') return undefined
-
-	return (
-		SCOPE_LABELS[scope] ??
-		scope
-			.split('-')
-			.map(word => word.charAt(0).toUpperCase() + word.slice(1))
-			.join(' ')
-	)
+	site: 'Website',
+	blog: 'Blog',
+	changelog: 'Changelog',
+	consent: 'Privacy',
 }
 
 interface ReleaseEntryRowProps {
@@ -40,7 +30,7 @@ interface ReleaseEntryRowProps {
 }
 
 function ReleaseEntryRow({ entry, scope }: Readonly<ReleaseEntryRowProps>) {
-	const scopeLabel = getScopeLabel(scope)
+	const scopeLabel = SCOPE_LABELS[scope]
 	const href = entry.pullRequestUrl ?? entry.commitUrl
 	const reference = href.split('/').at(-1)
 
@@ -90,6 +80,12 @@ export function ReleaseSection({ release }: Readonly<ReleaseSectionProps>) {
 					{formatDayMonthYear(release.date)}
 				</time>
 			</h2>
+
+			{release.groups.length === 0 && (
+				<p className="text-label text-muted-foreground">
+					Improvements under the hood.
+				</p>
+			)}
 
 			{RELEASE_KINDS.map(({ kind, label }) => {
 				const groups = release.groups.filter(group => group.kind === kind)
