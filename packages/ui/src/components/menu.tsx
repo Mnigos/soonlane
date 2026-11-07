@@ -4,9 +4,7 @@ import type { ComponentProps } from 'react'
 import { cn } from '../utils/cn.util'
 
 export const Menu = BaseMenu.Root
-
 export const MenuTrigger = BaseMenu.Trigger
-
 export const MenuRadioGroup = BaseMenu.RadioGroup
 
 type MenuContentProps = ComponentProps<typeof BaseMenu.Popup> &
