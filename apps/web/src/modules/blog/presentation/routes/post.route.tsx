@@ -37,7 +37,6 @@ export const Route = createFileRoute('/_site/blog/$slug')({
 			path,
 			image,
 			imageAlt: post.title,
-			// A custom frontmatter image has an unknown size.
 			imageSize: post.image ? undefined : OG_IMAGE_SIZE,
 			type: 'article',
 		})

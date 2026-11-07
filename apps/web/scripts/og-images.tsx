@@ -16,6 +16,8 @@ import {
 const PUBLIC_DIR = path.resolve(import.meta.dirname, '../public')
 const FONTS_DIR = path.resolve(import.meta.dirname, 'assets/fonts')
 const OUTPUT_DIR = path.join(PUBLIC_DIR, POST_OG_IMAGE_DIR)
+const LOGO_SIZE = 56
+const LOGO_RING_INSET = (LOGO_SIZE * 12) / 64
 
 const [regular, bold, logo] = await Promise.all([
 	readFile(path.join(FONTS_DIR, 'Inter-Regular.ttf')),
@@ -24,7 +26,7 @@ const [regular, bold, logo] = await Promise.all([
 ])
 const logoUrl = `data:image/svg+xml;base64,${logo.toString('base64')}`
 
-// Images of posts that left the data (drafts on production settings) must not linger from an earlier build.
+// Clear old images so a draft's image from an earlier build never ships in production.
 await rm(OUTPUT_DIR, { recursive: true, force: true })
 await mkdir(OUTPUT_DIR, { recursive: true })
 
@@ -45,13 +47,12 @@ await Promise.all(
 				}}
 			>
 				<div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-					{/* The ring starts 12/64 into the favicon tile; pull it back so it lines up with the title. */}
 					<img
 						alt=""
-						height={56}
+						height={LOGO_SIZE}
 						src={logoUrl}
-						style={{ marginLeft: -(56 * 12) / 64 }}
-						width={56}
+						style={{ marginLeft: -LOGO_RING_INSET }}
+						width={LOGO_SIZE}
 					/>
 
 					<span style={{ fontSize: 32, fontWeight: 700, color: '#e8e8e8' }}>
