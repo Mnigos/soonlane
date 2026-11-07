@@ -33,6 +33,7 @@ export const Route = createFileRoute('/_session/app')({
 function ShellRoute() {
 	const { user } = Route.useRouteContext()
 	const { sidebarPreference } = Route.useLoaderData()
+	const { deleteAccount } = Route.useSearch()
 	const labelMatch = useMatch({
 		from: '/_session/app/labels/$name',
 		shouldThrow: false,
@@ -42,6 +43,7 @@ function ShellRoute() {
 		<Shell
 			activeLabelName={labelMatch?.params.name}
 			initialSidebarPreference={sidebarPreference}
+			isDeletingAccount={deleteAccount === true}
 			user={user}
 		>
 			<Outlet />

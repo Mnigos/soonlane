@@ -16,6 +16,7 @@ import { SidebarNavLink } from './sidebar-nav-link'
 interface ShellSidebarProps {
 	className?: string
 	activeLabelName?: string
+	isDeletingAccount: boolean
 	user: SessionUser
 	onAddTask: () => void
 	onCollapse: () => void
@@ -25,6 +26,7 @@ interface ShellSidebarProps {
 export function ShellSidebar({
 	className,
 	activeLabelName,
+	isDeletingAccount,
 	user,
 	onAddTask,
 	onCollapse,
@@ -38,7 +40,7 @@ export function ShellSidebar({
 			<DesktopDragRegion />
 
 			<div className="flex items-start justify-between gap-2 pt-0.5">
-				<UserMenu user={user} />
+				<UserMenu isDeletingAccount={isDeletingAccount} user={user} />
 
 				<Button
 					aria-label="Collapse sidebar"
