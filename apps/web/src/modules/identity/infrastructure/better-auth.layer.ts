@@ -7,7 +7,6 @@ import {
 	AnalyticsConsent,
 } from '@/modules/analytics/application/analytics.port'
 import { hasAnalyticsConsent } from '@/modules/consent/domain/consent.helper'
-import { PRODUCTION_APP_URL } from '@/platform/config/app-url.helper'
 import { AppConfig } from '@/platform/config/app.config'
 import { Db } from '@/platform/db/db.layer'
 import { Auth } from '../application/auth.port'
@@ -67,7 +66,7 @@ export const BetterAuthLive = Layer.effect(
 				: undefined,
 			oauthProxy: config.oauthProxy
 				? {
-						productionUrl: PRODUCTION_APP_URL,
+						productionUrl: config.appUrl,
 						secret:
 							config.oauthProxySecret &&
 							Redacted.value(config.oauthProxySecret),
