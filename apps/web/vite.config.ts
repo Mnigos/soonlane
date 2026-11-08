@@ -128,6 +128,8 @@ export default defineConfig({
 			preset: 'vercel',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
+			// The SSR build inlines Base UI's CJS use-sync-external-store, whose require('react') stays a runtime call the trace cannot see; tracing React ships it in the function.
+			traceDeps: ['react', 'react-dom'],
 			// The preset's 'npx srvx' runs from the package root and, under Bun, makes request.runtime read-only.
 			commands: { preview: 'bun ./functions/__server.func/index.mjs' },
 			vercel: {
