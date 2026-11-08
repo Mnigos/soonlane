@@ -1,6 +1,6 @@
 export const LOCAL_APP_URL = 'http://localhost:3000'
 // Google accepts only fixed redirect URIs, so preview sign-ins return through production (Better Auth oAuthProxy).
-export const PRODUCTION_APP_URL = 'https://soonlist.vercel.app'
+export const PRODUCTION_APP_URL = 'https://soonlane.com'
 const PROXIED_ENVIRONMENTS = new Set(['production', 'preview'])
 
 export interface DeploymentUrls {

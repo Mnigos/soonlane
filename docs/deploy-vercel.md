@@ -1,6 +1,6 @@
 # Deploy on Vercel
 
-The app runs as the Vercel project `soonlane` (team `mnigos-projects`) connected to `Mnigos/soonlane`. Production is https://soonlist.vercel.app from branch `main` until the move to soonlane.com (below); every other branch gets a preview deployment. The database is Neon (project `soonlane`, `eu-central-1`, database `soonlist`). The build configuration is in `apps/web/vercel.json`:
+The app runs as the Vercel project `soonlane` (team `mnigos-projects`) connected to `Mnigos/soonlane`. Production is https://soonlane.com from branch `main`; every other branch gets a preview deployment. The database is Neon (project `soonlane`, `eu-central-1`, database `soonlist`). The build configuration is in `apps/web/vercel.json`:
 
 - `installCommand`: `bun install --frozen-lockfile`; Bun installs the whole workspace from `bun.lock` in the repository root, even when the command starts in `apps/web`;
 - `buildCommand`: `bun ../../packages/db/scripts/migrate.ts && bun run build`; Drizzle migrations run against `DATABASE_URL_UNPOOLED` (the direct Neon connection), or `DATABASE_URL` without it, of the environment being built. A failed migration stops the build and the previous deployment keeps running;
@@ -22,7 +22,7 @@ Preview builds are not skipped: previews and local development use their own Neo
 | ----------------------- | ----------------------------- | --------------------------- | ----------------------- |
 | `DATABASE_URL`          | Neon `main`, pooled           | Neon `preview`, pooled      | Neon `preview`, pooled  |
 | `DATABASE_URL_UNPOOLED` | Neon `main`, direct           | Neon `preview`, direct      | Neon `preview`, direct  |
-| `AUTH_URL`              | `https://soonlist.vercel.app` | unset (derived, see below)  | `http://localhost:3000` |
+| `AUTH_URL`              | `https://soonlane.com`        | unset (derived, see below)  | `http://localhost:3000` |
 | `AUTH_SECRET`           | random, at least 32 characters | random, at least 32 characters | random, at least 32 characters |
 | `ALLOWED_EMAILS`        | unset                         | unset                       | unset                   |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | same               | same                    |
@@ -39,8 +39,10 @@ Without `AUTH_URL` the base URL is `https://$VERCEL_BRANCH_URL`, then `https://$
 
 The OAuth client (type **Web application**) has:
 
-- Authorized JavaScript origins: `https://soonlist.vercel.app`, `http://localhost:3000`
-- Authorized redirect URIs: `https://soonlist.vercel.app/api/auth/callback/google`, `http://localhost:3000/api/auth/callback/google`
+- Authorized JavaScript origins: `https://soonlane.com`, `http://localhost:3000`
+- Authorized redirect URIs: `https://soonlane.com/api/auth/callback/google`, `http://localhost:3000/api/auth/callback/google`
+
+The `soonlist.vercel.app` origin and redirect URI stay in the client until step 6 of the move below.
 
 Preview URLs change per branch, so they cannot be registered. Better Auth's `oAuthProxy` plugin runs on every Vercel deployment (`VERCEL_ENV` `production` or `preview`, never locally):
 
@@ -71,15 +73,15 @@ Signed-in screenshots without Google: `bun run --cwd apps/web dev:session` upser
 ## Checks after a deployment
 
 ```sh
-curl -s -X POST -H 'content-type: application/json' -d '{"json":null}' https://soonlist.vercel.app/api/rpc/system/health
+curl -s -X POST -H 'content-type: application/json' -d '{"json":null}' https://soonlane.com/api/rpc/system/health
 # {"json":{"ok":true,"db":"ok","version":"<commit sha>"}}
-curl -s https://soonlist.vercel.app/api/auth/get-session
+curl -s https://soonlane.com/api/auth/get-session
 # null
 ```
 
 Then open the URL, sign in with Google and check the avatar and name in the sidebar. A second Google account signs up and starts with an empty Upcoming; neither account sees the other's tasks. With `ALLOWED_EMAILS` set, a Google account that is not on the list and has no account yet ends on `/login` with "Sign-ups are closed on this server."
 
-The public pages and the sitemap are static files; only soonlane.com may be crawled ([ADR 0008](decisions/0008-public-site-inside-the-web-app.md)). Until the move below, run these against `soonlist.vercel.app`, whose `robots.txt` answers `Disallow: /`; after it, against soonlane.com:
+The public pages and the sitemap are static files; only soonlane.com may be crawled ([ADR 0008](decisions/0008-public-site-inside-the-web-app.md)):
 
 ```sh
 curl -s https://soonlane.com/robots.txt
@@ -106,11 +108,11 @@ The `pg` driver logs a warning about `sslmode=require` being treated as `verify-
 
 ## Moving to soonlane.com
 
-Run these steps once soonlane.com resolves to Vercel, in this order. Until then production stays on https://soonlist.vercel.app.
+soonlane.com uses Cloudflare DNS with DNS-only records pointing at Vercel. Steps 1 to 4 are done; run 5 and 6 right after the production deployment that carries step 4.
 
-1. In the Vercel project, add `soonlane.com` and `www.soonlane.com`, and set `www.soonlane.com` to redirect (308) to `soonlane.com`. Keep `soonlist.vercel.app` assigned to production, so the old URL still serves the app.
-2. In the Google OAuth client, add the origin `https://soonlane.com` and the redirect URI `https://soonlane.com/api/auth/callback/google`. Keep the `soonlist.vercel.app` entries until step 6.
-3. Set `AUTH_URL` for Production to `https://soonlane.com`. It takes effect with the next production deployment.
-4. Change `PRODUCTION_APP_URL` in `apps/web/src/platform/config/app-url.helper.ts` (the `oAuthProxy` production URL) and in `apps/desktop/src/platform/config/desktop.config.ts` (the desktop app's default `SOONLANE_URL`) to `https://soonlane.com`, and update the URLs in this file and in `README.md`. Merging it to `main` deploys production with the new `AUTH_URL` and proxy URL together.
+1. Done: `soonlane.com` and `www.soonlane.com` are on the Vercel project, and `www.soonlane.com` redirects (308) to `soonlane.com`. `soonlist.vercel.app` stays assigned to production until step 5, so the old URL still serves the app.
+2. Done: the Google OAuth client has the origin `https://soonlane.com` and the redirect URI `https://soonlane.com/api/auth/callback/google`. The `soonlist.vercel.app` entries stay until step 6.
+3. Done: `AUTH_URL` for Production is `https://soonlane.com`. It takes effect with the next production deployment.
+4. Done: `PRODUCTION_APP_URL` in `apps/web/src/platform/config/app-url.helper.ts` (the `oAuthProxy` production URL) and in `apps/desktop/src/platform/config/desktop.config.ts` (the desktop app's default `SOONLANE_URL`) is `https://soonlane.com`, and this file and `README.md` use the new URL. Merging it to `main` deploys production with the new `AUTH_URL` and proxy URL together.
 5. Right after that deployment, set `soonlist.vercel.app` to redirect (308) to `soonlane.com`. Production trusts the `AUTH_URL` origin and its own deployment hosts (`VERCEL_URL`, `VERCEL_BRANCH_URL`), not `soonlist.vercel.app`, so requests that stay there would fail the origin check. Sessions are per host, so the owner signs in once more on soonlane.com, and the desktop app needs a build from step 4.
 6. Run the checks above against https://soonlane.com, sign in with Google on production and on a preview, and check that both `www.soonlane.com` and `soonlist.vercel.app` redirect to the apex. Then remove the `soonlist.vercel.app` origin and redirect URI from the Google client.

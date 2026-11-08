@@ -1,6 +1,6 @@
 import { Config, Context, Layer, Schema } from 'effect'
 
-const PRODUCTION_APP_URL = 'https://soonlist.vercel.app'
+const PRODUCTION_APP_URL = 'https://soonlane.com'
 
 // The app's origin decides what may load in the window, so it has to be a web origin; file: and custom schemes have none.
 const appUrlSchema = Schema.URLFromString.check(

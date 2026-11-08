@@ -2,7 +2,7 @@
 
 Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Upcoming, Today and Labels; no projects, Inbox, filters or reporting. See [PRODUCT.md](PRODUCT.md).
 
-Production: https://soonlist.vercel.app
+Production: https://soonlane.com
 
 ## Monorepo
 
