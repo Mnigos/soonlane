@@ -1,4 +1,8 @@
-import { type ListTasksOutput, listTasksInputSchema } from '@soonlane/contracts'
+import {
+	type ListTasksOutput,
+	listTasksInputSchema,
+	rescheduleTasksInputSchema,
+} from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { z } from 'zod'
@@ -19,7 +23,9 @@ export function useRescheduleTasks() {
 
 	const reschedule = useMutation(
 		orpcQuery.tasks.reschedule.mutationOptions({
-			onMutate: async ({ ids, dueDate }) => {
+			onMutate: async variables => {
+				const { ids, dueDate } = rescheduleTasksInputSchema.parse(variables)
+
 				await queryClient.cancelQueries({ queryKey: listKey })
 				const lists = queryClient
 					.getQueriesData<ListTasksOutput>({ queryKey: listKey })

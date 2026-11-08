@@ -81,7 +81,7 @@ export function getFirstOccurrence(
 
 /** Snaps like a new task unless the edit keeps the stored due date and unit, e.g. a weekday task rescheduled to a Saturday. */
 export function getEditedDueDate(
-	task: { dueDate: string; repeat?: { unit: RepeatUnit } } | undefined,
+	task: { dueDate: CalendarDate; repeat?: { unit: RepeatUnit } } | undefined,
 	dueDate: CalendarDate,
 	unit: RepeatUnit | undefined
 ) {
@@ -93,8 +93,8 @@ export function getEditedDueDate(
 /** An edit keeps the stored anchor unless it changes the due date or the rule's unit or interval. */
 export function getEditedRule(
 	task: {
-		dueDate: string
-		repeat?: Omit<RepeatRule, 'anchor'> & { anchor: string }
+		dueDate: CalendarDate
+		repeat?: RepeatRule
 	},
 	dueDate: CalendarDate,
 	repeat: Omit<RepeatRule, 'anchor'> | undefined
@@ -110,7 +110,7 @@ export function getEditedRule(
 
 	return {
 		...repeat,
-		anchor: isSameSchedule ? toCalendarDate(current.anchor) : dueDate,
+		anchor: isSameSchedule ? current.anchor : dueDate,
 	}
 }
 

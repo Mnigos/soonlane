@@ -1,4 +1,3 @@
-import { toLabelId } from '@soonlane/domain'
 import { requireUser } from '@/modules/identity/presentation/require-user.middleware'
 import { os } from '@/platform/rpc/rpc.base'
 import { LabelsService } from '../application/labels.service'
@@ -24,11 +23,7 @@ export const labelsRouter = {
 		const labelsService = yield* LabelsService
 
 		return {
-			label: yield* labelsService.update(
-				context.user.id,
-				toLabelId(id),
-				changes
-			),
+			label: yield* labelsService.update(context.user.id, id, changes),
 		}
 	}),
 	delete: os.labels.delete.use(requireUser).effect(function* ({
@@ -37,6 +32,6 @@ export const labelsRouter = {
 	}) {
 		const labelsService = yield* LabelsService
 
-		yield* labelsService.delete(context.user.id, toLabelId(input.id))
+		yield* labelsService.delete(context.user.id, input.id)
 	}),
 }

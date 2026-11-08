@@ -10,7 +10,7 @@ interface TaskPlacement {
 
 /** Scheduled tasks grouped by due date; the server already orders them within a day. */
 export function groupTasksByDay(tasks: Task[]) {
-	const days = new Map<string, Task[]>()
+	const days = new Map<Task['dueDate'], Task[]>()
 
 	for (const task of tasks)
 		days.set(task.dueDate, [...(days.get(task.dueDate) ?? []), task])

@@ -1,8 +1,9 @@
 import { oc } from '@orpc/contract'
 import { z } from 'zod'
+import { userIdSchema } from './ids.schemas'
 
 export const sessionUserSchema = z.object({
-	id: z.uuid(),
+	id: userIdSchema,
 	email: z.email(),
 	name: z.string(),
 	image: z.string().optional(),
