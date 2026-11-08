@@ -4,9 +4,9 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "SOONLANE_URL=http://localhost:3000 bunx --bun electrobun dev",
-    "dev:applications": "bunx --bun electrobun build --env=dev && rm -rf /Applications/Soonlane-dev.app && cp -R build/dev-macos-arm64/Soonlane-dev.app /Applications/ && SOONLANE_URL=http://localhost:3000 /Applications/Soonlane-dev.app/Contents/MacOS/launcher",
-    "package": "bunx --bun electrobun build --env=stable",
+    "dev": "APP_URL=http://localhost:3000 bunx --bun electrobun dev",
+    "dev:applications": "APP_URL=http://localhost:3000 bunx --bun electrobun build --env=dev && rm -rf /Applications/Soonlane-dev.app && cp -R build/dev-macos-arm64/Soonlane-dev.app /Applications/ && /Applications/Soonlane-dev.app/Contents/MacOS/launcher",
+    "package": ": \"${APP_URL:?set APP_URL to the web app URL the build should load}\" && bunx --bun electrobun build --env=stable",
     "sdk": "bunx --bun electrobun prepare",
     "typecheck": "bun run sdk && tsc --noEmit"
   },

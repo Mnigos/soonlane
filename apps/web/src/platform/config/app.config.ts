@@ -1,6 +1,15 @@
 import { parseAllowedEmails } from '@soonlane/auth'
-import { Config, Context, Layer, Option, Redacted, Schema } from 'effect'
 import {
+	Config,
+	Context,
+	Effect,
+	Layer,
+	Option,
+	Redacted,
+	Schema,
+} from 'effect'
+import {
+	LOCAL_APP_URL,
 	resolveBaseUrl,
 	resolveTrustedOrigins,
 	usesOAuthProxy,
@@ -19,6 +28,7 @@ export class AppConfig extends Context.Service<
 	AppConfig,
 	{
 		readonly databaseUrl: string
+		readonly appUrl: string
 		readonly baseUrl: string
 		readonly trustedOrigins: readonly string[]
 		readonly authSecret: Redacted.Redacted
@@ -37,44 +47,55 @@ function optionalString(name: string) {
 	)
 }
 
+/** `APP_URL` is production's URL on every Vercel deployment, so it is required there; a local run falls back to the dev server. */
+function appUrlConfig(vercelEnv: string | undefined) {
+	const appUrl = Config.url('APP_URL').pipe(Config.map(url => url.origin))
+
+	return usesOAuthProxy(vercelEnv)
+		? appUrl
+		: appUrl.pipe(Config.withDefault(LOCAL_APP_URL))
+}
+
+const settingsConfig = Config.all({
+	databaseUrl: Config.string('DATABASE_URL').pipe(Config.withDefault('')),
+	authSecret: Config.redacted('AUTH_SECRET').pipe(
+		Config.withDefault(Redacted.make(''))
+	),
+	allowedEmails: Config.schema(allowedEmailsSchema, 'ALLOWED_EMAILS').pipe(
+		Config.withDefault(''),
+		Config.map(parseAllowedEmails)
+	),
+	googleClientId: Config.string('GOOGLE_CLIENT_ID').pipe(
+		Config.withDefault('')
+	),
+	googleClientSecret: Config.string('GOOGLE_CLIENT_SECRET').pipe(
+		Config.withDefault('')
+	),
+	oauthProxySecret: optionalString('OAUTH_PROXY_SECRET').pipe(
+		Config.map(secret => (secret ? Redacted.make(secret) : undefined))
+	),
+	// Public by design: the browser bundle reads the same variable at build time.
+	posthogKey: optionalString('VITE_POSTHOG_KEY'),
+})
+
 export const AppConfigLive = Layer.effect(
 	AppConfig,
-	Config.all({
-		databaseUrl: Config.string('DATABASE_URL').pipe(Config.withDefault('')),
-		authUrl: optionalString('AUTH_URL'),
-		vercelBranchUrl: optionalString('VERCEL_BRANCH_URL'),
-		vercelUrl: optionalString('VERCEL_URL'),
-		vercelEnv: optionalString('VERCEL_ENV'),
-		authSecret: Config.redacted('AUTH_SECRET').pipe(
-			Config.withDefault(Redacted.make(''))
-		),
-		allowedEmails: Config.schema(allowedEmailsSchema, 'ALLOWED_EMAILS').pipe(
-			Config.withDefault(''),
-			Config.map(parseAllowedEmails)
-		),
-		googleClientId: Config.string('GOOGLE_CLIENT_ID').pipe(
-			Config.withDefault('')
-		),
-		googleClientSecret: Config.string('GOOGLE_CLIENT_SECRET').pipe(
-			Config.withDefault('')
-		),
-		oauthProxySecret: optionalString('OAUTH_PROXY_SECRET').pipe(
-			Config.map(secret => (secret ? Redacted.make(secret) : undefined))
-		),
-		// Public by design: the browser bundle reads the same variable at build time.
-		posthogKey: optionalString('VITE_POSTHOG_KEY'),
-	}).pipe(
-		Config.map(
-			({ authUrl, vercelBranchUrl, vercelUrl, vercelEnv, ...settings }) => {
-				const urls = { authUrl, vercelBranchUrl, vercelUrl }
+	Effect.gen(function* () {
+		const vercelEnv = yield* optionalString('VERCEL_ENV')
+		const urls = {
+			appUrl: yield* appUrlConfig(vercelEnv),
+			vercelEnv,
+			vercelBranchUrl: yield* optionalString('VERCEL_BRANCH_URL'),
+			vercelUrl: yield* optionalString('VERCEL_URL'),
+		}
+		const settings = yield* settingsConfig
 
-				return {
-					...settings,
-					baseUrl: resolveBaseUrl(urls),
-					trustedOrigins: resolveTrustedOrigins(urls),
-					oauthProxy: usesOAuthProxy(vercelEnv),
-				}
-			}
-		)
-	)
+		return {
+			...settings,
+			appUrl: urls.appUrl,
+			baseUrl: resolveBaseUrl(urls),
+			trustedOrigins: resolveTrustedOrigins(urls),
+			oauthProxy: usesOAuthProxy(vercelEnv),
+		}
+	})
 )
