@@ -16,14 +16,12 @@ export const followNavigation = Effect.fn('Navigation.follow')(function* (
 ) {
 	const navigation = yield* Navigation
 
-	// target=_blank, window.open and Cmd+click: other sites go to the system browser, the app stays in the main window.
 	yield* handleEvents(webviewEvents('new-window-open'), event => {
 		const href = readNewWindowUrl(event)
 
 		return href ? navigation.openLink(href) : Effect.void
 	})
 
-	// The rules cancel top-level navigations to other origins (links, redirects, location changes); they open in the browser.
 	yield* handleEvents(webviewEvents('will-navigate'), event => {
 		const href = readBlockedNavigationUrl(event)
 
