@@ -8,15 +8,7 @@ import type {
 	Task,
 	UpdateTaskInput,
 } from '@soonlane/contracts'
-import {
-	type CalendarDate,
-	type LabelId,
-	type TaskId,
-	toCalendarDate,
-	toLabelId,
-	toTaskId,
-	type UserId,
-} from '@soonlane/domain'
+import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { LabelNotFound } from '@/modules/labels/domain/label.errors'
@@ -104,12 +96,8 @@ export const TasksServiceLive = Layer.effect(
 		) {
 			const [overdue, scheduled] = yield* Effect.all(
 				[
-					repository.listOpenBefore({ ownerId, before: toCalendarDate(today) }),
-					repository.listOpenBetween({
-						ownerId,
-						from: toCalendarDate(from),
-						to: toCalendarDate(to),
-					}),
+					repository.listOpenBefore({ ownerId, before: today }),
+					repository.listOpenBetween({ ownerId, from, to }),
 				],
 				{ concurrency: 2 }
 			)
@@ -121,7 +109,7 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			{ labelId, today }: ListTasksByLabelInput
 		) {
-			const label = { ownerId, labelId: toLabelId(labelId) }
+			const label = { ownerId, labelId }
 
 			yield* requireLabel(yield* repository.findLabel(label))
 			const tasks = yield* repository.listOpenWithLabel(label)
@@ -136,10 +124,7 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			input: CreateTaskInput
 		) {
-			const dueDate = getFirstOccurrence(
-				toCalendarDate(input.dueDate),
-				input.repeat?.unit
-			)
+			const dueDate = getFirstOccurrence(input.dueDate, input.repeat?.unit)
 			const task = yield* repository.create({
 				...input,
 				ownerId,
@@ -171,11 +156,7 @@ export const TasksServiceLive = Layer.effect(
 				input.repeat === undefined
 					? current.repeat
 					: (input.repeat ?? undefined)
-			const dueDate = getEditedDueDate(
-				current,
-				toCalendarDate(input.dueDate),
-				repeat?.unit
-			)
+			const dueDate = getEditedDueDate(current, input.dueDate, repeat?.unit)
 
 			return yield* requireTask(
 				yield* repository.update({
@@ -205,16 +186,12 @@ export const TasksServiceLive = Layer.effect(
 			}
 
 			// From the date the client saw, so a stale list cannot advance the task twice.
-			const dueDate = seen.dueDate ?? toCalendarDate(task.dueDate)
-			const rule = {
-				...task.repeat,
-				anchor: toCalendarDate(task.repeat.anchor),
-			}
+			const dueDate = seen.dueDate ?? task.dueDate
 			const advanced = yield* repository.advanceDueDate({
 				ownerId,
 				id,
 				from: dueDate,
-				to: getNextDueDate(dueDate, rule, seen.today),
+				to: getNextDueDate(dueDate, task.repeat, seen.today),
 			})
 
 			return (
@@ -237,11 +214,7 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			{ ids, dueDate }: RescheduleTasksInput
 		) {
-			return yield* repository.rescheduleOpen({
-				ownerId,
-				ids: ids.map(toTaskId),
-				dueDate: toCalendarDate(dueDate),
-			})
+			return yield* repository.rescheduleOpen({ ownerId, ids, dueDate })
 		})
 
 		const assignLabel = Effect.fn('TasksService.assignLabel')(function* (

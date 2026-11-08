@@ -1,5 +1,5 @@
 import type { Task } from '@soonlane/contracts'
-import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import type { TaskEventProperties } from '@/modules/analytics/domain/analytics-event.types'
 import { getDaysBetween } from '../../domain/calendar-date.helper'
 
@@ -10,6 +10,6 @@ export function getTaskEventProperties(
 	return {
 		task_id: task.id,
 		priority: task.priority,
-		due_in_days: getDaysBetween(today, toCalendarDate(task.dueDate)),
+		due_in_days: getDaysBetween(today, task.dueDate),
 	}
 }

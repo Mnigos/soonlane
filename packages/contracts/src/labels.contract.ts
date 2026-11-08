@@ -2,12 +2,13 @@ import { oc } from '@orpc/contract'
 import { LABEL_COLORS, LABEL_NAME_MAX_LENGTH } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
+import { labelIdSchema } from './ids.schemas'
 
 const labelNameSchema = z.string().trim().min(1).max(LABEL_NAME_MAX_LENGTH)
 const labelColorSchema = z.enum(LABEL_COLORS)
 
 export const labelSchema = z.object({
-	id: z.uuid(),
+	id: labelIdSchema,
 	name: z.string(),
 	color: labelColorSchema.optional(),
 })
@@ -29,7 +30,7 @@ export type CreateLabelInput = z.infer<typeof createLabelInputSchema>
 
 export const updateLabelInputSchema = z
 	.object({
-		id: z.uuid(),
+		id: labelIdSchema,
 		name: labelNameSchema.optional(),
 		color: labelColorSchema.nullable().optional(),
 	})
@@ -39,7 +40,7 @@ export const updateLabelInputSchema = z
 
 export type UpdateLabelInput = z.infer<typeof updateLabelInputSchema>
 
-export const labelIdInputSchema = z.object({ id: z.uuid() })
+export const labelIdInputSchema = z.object({ id: labelIdSchema })
 
 export type LabelIdInput = z.infer<typeof labelIdInputSchema>
 

@@ -1,4 +1,3 @@
-import { toCalendarDate, toLabelId, toTaskId } from '@soonlane/domain'
 import { requireUser } from '@/modules/identity/presentation/require-user.middleware'
 import { os } from '@/platform/rpc/rpc.base'
 import { TasksService } from '../application/tasks.service'
@@ -32,11 +31,7 @@ export const tasksRouter = {
 		const tasksService = yield* TasksService
 
 		return {
-			task: yield* tasksService.update(
-				context.user.id,
-				toTaskId(input.id),
-				input
-			),
+			task: yield* tasksService.update(context.user.id, input.id, input),
 		}
 	}),
 	complete: os.tasks.complete.use(requireUser).effect(function* ({
@@ -46,10 +41,7 @@ export const tasksRouter = {
 		const tasksService = yield* TasksService
 
 		return {
-			task: yield* tasksService.complete(context.user.id, toTaskId(input.id), {
-				today: input.today ? toCalendarDate(input.today) : undefined,
-				dueDate: input.dueDate ? toCalendarDate(input.dueDate) : undefined,
-			}),
+			task: yield* tasksService.complete(context.user.id, input.id, input),
 		}
 	}),
 	uncomplete: os.tasks.uncomplete.use(requireUser).effect(function* ({
@@ -61,8 +53,8 @@ export const tasksRouter = {
 		return {
 			task: yield* tasksService.uncomplete(
 				context.user.id,
-				toTaskId(input.id),
-				input.dueDate ? toCalendarDate(input.dueDate) : undefined
+				input.id,
+				input.dueDate
 			),
 		}
 	}),
@@ -83,8 +75,8 @@ export const tasksRouter = {
 		return {
 			task: yield* tasksService.assignLabel(
 				context.user.id,
-				toTaskId(input.id),
-				toLabelId(input.labelId)
+				input.id,
+				input.labelId
 			),
 		}
 	}),
@@ -97,8 +89,8 @@ export const tasksRouter = {
 		return {
 			task: yield* tasksService.unassignLabel(
 				context.user.id,
-				toTaskId(input.id),
-				toLabelId(input.labelId)
+				input.id,
+				input.labelId
 			),
 		}
 	}),

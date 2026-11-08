@@ -1,4 +1,8 @@
-import type { ListTasksOutput, Task } from '@soonlane/contracts'
+import {
+	completeTaskInputSchema,
+	type ListTasksOutput,
+	type Task,
+} from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
@@ -80,10 +84,11 @@ export function useCompleteTask(today: CalendarDate) {
 				toast('Could not complete the task. Try again.')
 			},
 			onSuccess: ({ task }, input) => {
+				const { dueDate: seenDueDate } = completeTaskInputSchema.parse(input)
 				// A repeating task moved on; Undo puts back the due date it had before.
-				const dueDate = task.repeat ? input.dueDate : undefined
+				const dueDate = task.repeat ? seenDueDate : undefined
 				const properties = getTaskEventProperties(
-					{ ...task, dueDate: input.dueDate ?? task.dueDate },
+					{ ...task, dueDate: seenDueDate ?? task.dueDate },
 					today
 				)
 

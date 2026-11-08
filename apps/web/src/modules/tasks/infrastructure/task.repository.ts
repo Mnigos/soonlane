@@ -4,8 +4,6 @@ import {
 	DEFAULT_TASK_PRIORITY,
 	type LabelId,
 	type TaskId,
-	toCalendarDate,
-	toLabelId,
 	type UserId,
 } from '@soonlane/domain'
 import {
@@ -211,7 +209,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 									ownerId,
 									title,
 									description: description || null,
-									dueDate: toCalendarDate(dueDate),
+									dueDate,
 									dueTime: dueTime ?? null,
 									priority: priority ?? DEFAULT_TASK_PRIORITY,
 									repeatUnit: repeat?.unit ?? null,
@@ -223,12 +221,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							if (!row) throw new Error('Task insert returned no row')
 							if (labelIds.length === 0) return toTask(row, [])
 
-							await assignLabels(
-								transaction,
-								ownerId,
-								row.id,
-								labelIds.map(toLabelId)
-							)
+							await assignLabels(transaction, ownerId, row.id, labelIds)
 							const [created] = await withLabels(transaction, ownerId, [row])
 
 							return created ?? toTask(row, [])
@@ -250,7 +243,7 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 						.set({
 							title,
 							description: description || null,
-							dueDate: toCalendarDate(dueDate),
+							dueDate,
 							dueTime: dueTime ?? null,
 							priority,
 							repeatUnit: repeat?.unit ?? null,

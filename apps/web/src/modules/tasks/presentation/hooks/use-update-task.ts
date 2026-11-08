@@ -1,5 +1,8 @@
-import { type ListTasksOutput, listTasksInputSchema } from '@soonlane/contracts'
-import { toCalendarDate } from '@soonlane/domain'
+import {
+	type ListTasksOutput,
+	listTasksInputSchema,
+	updateTaskInputSchema,
+} from '@soonlane/contracts'
 import {
 	notifyManager,
 	useMutation,
@@ -25,7 +28,9 @@ export function useUpdateTask() {
 
 	const update = useMutation(
 		orpcQuery.tasks.update.mutationOptions({
-			onMutate: async ({ id, ...changes }) => {
+			onMutate: async variables => {
+				const { id, ...changes } = updateTaskInputSchema.parse(variables)
+
 				// An Undo from an earlier completion would overwrite this edit's date.
 				toast.dismiss(id)
 				await queryClient.cancelQueries({ queryKey: listKey })
@@ -48,7 +53,7 @@ export function useUpdateTask() {
 					...changes,
 					repeat: getEditedRule(
 						current,
-						toCalendarDate(changes.dueDate),
+						changes.dueDate,
 						changes.repeat === undefined
 							? current.repeat
 							: (changes.repeat ?? undefined)

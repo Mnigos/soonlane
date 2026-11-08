@@ -1,7 +1,5 @@
 import { type ErrorMap, oc } from '@orpc/contract'
 import {
-	CALENDAR_DATE_MAX,
-	CALENDAR_DATE_MIN,
 	REPEAT_INTERVAL_MAX,
 	REPEAT_UNITS,
 	SINGLE_INTERVAL_REPEAT_UNITS,
@@ -11,13 +9,13 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
+import {
+	calendarDateSchema,
+	storedCalendarDateSchema,
+} from './calendar-date.schemas'
+import { labelIdSchema, taskIdSchema } from './ids.schemas'
 import { labelNotFound, labelSchema } from './labels.contract'
 
-const calendarDateSchema = z.iso
-	.date()
-	.refine(date => date >= CALENDAR_DATE_MIN && date <= CALENDAR_DATE_MAX, {
-		message: `Dates must fall between ${CALENDAR_DATE_MIN} and ${CALENDAR_DATE_MAX}.`,
-	})
 const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
 const prioritySchema = z.union(
 	TASK_PRIORITIES.map(priority => z.literal(priority))
@@ -27,17 +25,16 @@ const repeatSchema = z.object({
 	interval: z.int().min(1).max(REPEAT_INTERVAL_MAX),
 })
 
-// Unbounded, so rows saved before the date bounds still list.
 export const taskSchema = z.object({
-	id: z.uuid(),
+	id: taskIdSchema,
 	title: z.string(),
 	description: z.string().optional(),
-	dueDate: z.iso.date(),
+	dueDate: storedCalendarDateSchema,
 	dueTime: dueTimeSchema.optional(),
 	priority: prioritySchema,
 	createdAt: z.date(),
 	completedAt: z.date().optional(),
-	repeat: repeatSchema.extend({ anchor: z.iso.date() }).optional(),
+	repeat: repeatSchema.extend({ anchor: storedCalendarDateSchema }).optional(),
 	labels: z.array(labelSchema),
 })
 
@@ -57,7 +54,7 @@ export const listTasksInputSchema = z
 export type ListTasksInput = z.infer<typeof listTasksInputSchema>
 
 export const listTasksByLabelInputSchema = z.object({
-	labelId: z.uuid(),
+	labelId: labelIdSchema,
 	today: calendarDateSchema,
 })
 
@@ -89,7 +86,7 @@ export const createTaskInputSchema = z.object({
 	priority: prioritySchema.optional(),
 	repeat: repeatInputSchema.optional(),
 	labelIds: z
-		.array(z.uuid())
+		.array(labelIdSchema)
 		.refine(ids => new Set(ids).size === ids.length, {
 			message: 'Each label can be added once.',
 		})
@@ -100,14 +97,14 @@ export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 // Replaces every field (an absent description or time clears it) but the repeat rule: null clears it, absent keeps it for clients from before repeating tasks.
 export const updateTaskInputSchema = createTaskInputSchema.extend({
-	id: z.uuid(),
+	id: taskIdSchema,
 	priority: prioritySchema,
 	repeat: repeatInputSchema.nullable().optional(),
 })
 
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
 
-export const taskIdInputSchema = z.object({ id: z.uuid() })
+export const taskIdInputSchema = z.object({ id: taskIdSchema })
 
 // Both optional for clients from before repeating tasks. `dueDate` is the one the client saw.
 export const completeTaskInputSchema = taskIdInputSchema.extend({
@@ -123,15 +120,15 @@ export const uncompleteTaskInputSchema = taskIdInputSchema.extend({
 const RESCHEDULE_MAX_TASKS = 1000
 
 export const rescheduleTasksInputSchema = z.object({
-	ids: z.array(z.uuid()).min(1).max(RESCHEDULE_MAX_TASKS),
+	ids: z.array(taskIdSchema).min(1).max(RESCHEDULE_MAX_TASKS),
 	dueDate: calendarDateSchema,
 })
 
 export type RescheduleTasksInput = z.infer<typeof rescheduleTasksInputSchema>
 
 export const taskLabelInputSchema = z.object({
-	id: z.uuid(),
-	labelId: z.uuid(),
+	id: taskIdSchema,
+	labelId: labelIdSchema,
 })
 
 export type TaskLabelInput = z.infer<typeof taskLabelInputSchema>

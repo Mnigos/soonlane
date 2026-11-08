@@ -1,5 +1,5 @@
 import type { Label } from '@soonlane/contracts'
-import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { useState } from 'react'
 import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useCompleteTask } from '../../hooks/use-complete-task'
@@ -54,7 +54,7 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 
 			{[...tasksByDay].map(([date, tasks]) => (
 				<DaySection
-					date={toCalendarDate(date)}
+					date={date}
 					hasAddTask={false}
 					isLoading={false}
 					key={date}

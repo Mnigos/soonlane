@@ -1,5 +1,5 @@
 import type { Task } from '@soonlane/contracts'
-import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Calendar, Check, PencilLine, Tag } from 'lucide-react'
@@ -49,13 +49,8 @@ function keepFocusAfterMove(button: HTMLButtonElement) {
 export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const [isEditing, setIsEditing] = useState(false)
 	const [shouldFocusEdit, setShouldFocusEdit] = useState(false)
-	const due = getDueLabel(toCalendarDate(task.dueDate), task.dueTime, today)
-	const repeatText =
-		task.repeat &&
-		formatRepeatRule(
-			{ ...task.repeat, anchor: toCalendarDate(task.repeat.anchor) },
-			'long'
-		)
+	const due = getDueLabel(task.dueDate, task.dueTime, today)
+	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const buttonId = useId()
 	const titleId = useId()
 
@@ -68,7 +63,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 		return (
 			<li>
 				<TaskComposer
-					defaultDueDate={toCalendarDate(task.dueDate)}
+					defaultDueDate={task.dueDate}
 					onCancel={closeComposer}
 					onSaved={closeComposer}
 					source="task_row"
