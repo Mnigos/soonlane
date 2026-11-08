@@ -105,7 +105,7 @@ export function GoalChip({
 			{label === undefined ? (
 				'Goal'
 			) : (
-				<span className="ph-mask" id={labelId}>
+				<span className="ph-mask min-w-0 truncate" id={labelId}>
 					{label}
 				</span>
 			)}
@@ -115,7 +115,7 @@ export function GoalChip({
 	if (isReadOnly)
 		return (
 			<ComingSoonButton
-				className={COMPOSER_CHIP_CLASS}
+				className={cn(COMPOSER_CHIP_CLASS, 'max-w-full')}
 				label="Goal"
 				labelledBy={labelledBy}
 				onKeyDown={onKeyDown}
@@ -129,7 +129,11 @@ export function GoalChip({
 			<PopoverTrigger
 				aria-label="Goal"
 				aria-labelledby={labelledBy && `${triggerId} ${labelledBy}`}
-				className={cn(COMPOSER_CHIP_CLASS, value && 'text-foreground')}
+				className={cn(
+					COMPOSER_CHIP_CLASS,
+					'max-w-full',
+					value && 'text-foreground'
+				)}
 				id={triggerId}
 				onKeyDown={onKeyDown}
 			>

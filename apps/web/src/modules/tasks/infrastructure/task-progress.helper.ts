@@ -5,7 +5,7 @@ import type { ProgressLog } from '../application/task-repository.port'
 
 // One statement on the row locked as `before`: concurrent logs never lose an increment and `logged` is what this log applied.
 export async function updateProgress(
-	database: Database,
+	database: Pick<Database, '$with' | 'select' | 'with'>,
 	{ ownerId, id, amount, loggedAt, advance }: ProgressLog
 ) {
 	const before = database.$with('before').as(

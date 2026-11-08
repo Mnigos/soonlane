@@ -329,18 +329,25 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 					return await findTask(database, ownerId, id)
 				}),
 			logProgress: log =>
-				db.run('TaskRepository.logProgress', async database => {
-					const row = await updateProgress(database, log)
+				db.run(
+					'TaskRepository.logProgress',
+					async database =>
+						await database.transaction(async transaction => {
+							const row = await updateProgress(transaction, log)
 
-					if (!row) return undefined
+							if (!row) return undefined
 
-					const [logged] = await withLabels(database, log.ownerId, [row])
-					const completed = row.completed
-						? { dueDate: row.previousDueDate, progress: row.previousProgress }
-						: undefined
+							const [logged] = await withLabels(transaction, log.ownerId, [row])
+							const completed = row.completed
+								? {
+										dueDate: row.previousDueDate,
+										progress: row.previousProgress,
+									}
+								: undefined
 
-					return logged && { task: logged, logged: row.logged, completed }
-				}),
+							return logged && { task: logged, logged: row.logged, completed }
+						})
+				),
 		})
 	})
 )
