@@ -5,7 +5,7 @@ import {
 	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { AlarmClock, ArrowUp, Check, Plus, Tag, X } from 'lucide-react'
+import { ArrowUp, Check, Plus, Tag, X } from 'lucide-react'
 import {
 	type KeyboardEvent,
 	type SubmitEvent,
@@ -220,15 +220,6 @@ export function TaskComposer({
 					onKeyDown={cancelOnEscape}
 					value={priority}
 				/>
-
-				<ComingSoonButton
-					className={COMPOSER_CHIP_CLASS}
-					label="Reminders"
-					onKeyDown={cancelOnEscape}
-				>
-					<AlarmClock aria-hidden strokeWidth={CHIP_ICON_STROKE} />
-					Reminders
-				</ComingSoonButton>
 
 				{task ? (
 					// tasks.update does not save labels yet, so editing keeps the placeholder.

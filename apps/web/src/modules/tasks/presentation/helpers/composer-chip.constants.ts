@@ -1,4 +1,4 @@
-/** A chip in the composer's row (date, priority, reminders, labels): Todoist's 28px outlined button. */
+/** A chip in the composer's row (date, priority, labels): Todoist's 28px outlined button. */
 export const COMPOSER_CHIP_CLASS =
 	'inline-flex h-7 cursor-pointer items-center gap-1 rounded-md border px-1.5 text-label whitespace-nowrap text-secondary-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary data-popup-open:bg-hover [&_svg]:size-4 [&_svg]:shrink-0'
 
