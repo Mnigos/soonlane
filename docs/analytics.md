@@ -91,11 +91,11 @@ Following LudusPlatform `docs/guides/Privacy.md` (principles 3 and 5, decisions 
 
 ### The cookie
 
-`soonlane-consent`, first-party, `path=/`, `SameSite=Lax`, written in the browser through the Cookie Store API, or `document.cookie` where that API is missing (older browsers, plain-http origins). The value is the answer and a version, `granted.1` or `denied.1`. A grant lasts 12 months and a denial 6 months, then the banner asks again; raising the version asks everyone again. The server reads it during SSR, so the banner is in the first HTML or absent, without a flash. Without `VITE_POSTHOG_KEY` there is no banner and the cookie is never written.
+`soonlane-consent`, first-party, `path=/`, `SameSite=Lax`, written in the browser through the Cookie Store API, or `document.cookie` where that API is missing (older browsers, plain-http origins). The value is the answer and a version, `granted.1` or `denied.1`. A grant lasts 12 months and a denial 6 months, then the banner asks again; raising the version asks everyone again. The browser reads it after hydration (prerendered pages are built without the visitor's cookie), so the banner never ships in server HTML and appears only when no choice is stored. Without `VITE_POSTHOG_KEY` there is no banner and the cookie is never written.
 
 ### Global Privacy Control
 
-A browser that sends Global Privacy Control (`navigator.globalPrivacyControl`, the `Sec-GPC: 1` header during SSR) and has no stored answer counts as denied: the banner is not shown and nothing is stored. Privacy choices can still grant analytics, and a stored answer wins over the signal.
+A browser that sends Global Privacy Control (`navigator.globalPrivacyControl`) and has no stored answer counts as denied: the banner is not shown and nothing is stored. Privacy choices can still grant analytics, and a stored answer wins over the signal.
 
 ### Changing the answer
 
@@ -108,7 +108,7 @@ Privacy choices, in the user menu, in the public site's footer and below the sig
 
 The text lives in `apps/web/src/modules/consent/presentation/consent-copy.constants.ts`.
 
-Banner, a labelled region at the bottom of the page, bottom right from 640px (not a modal). It is sticky, so the page gains its height and nothing stays hidden under it:
+Banner, a labelled region fixed to the bottom of the viewport, bottom right from 640px (not a modal). It overlays the page, so showing or dismissing it never moves the content:
 
 > **Help improve Soonlane**
 > Can we link usage analytics and session replays, with your tasks hidden, to your account? If you reject, we still count pages, actions and errors anonymously, without cookies.
