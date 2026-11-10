@@ -47,6 +47,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 			<li>
 				<TaskComposer
 					defaultDueDate={task.dueDate}
+					defaultLabels={task.labels}
 					onCancel={closeComposer}
 					onSaved={closeComposer}
 					source="task_row"

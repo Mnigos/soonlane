@@ -10,7 +10,7 @@ import {
 	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { ArrowUp, Check, Plus, Tag, X } from 'lucide-react'
+import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import {
 	type KeyboardEvent,
 	type SubmitEvent,
@@ -24,10 +24,6 @@ import {
 	getEditedDueDate,
 	getEditedRule,
 } from '../../../domain/repeat-rule.helper'
-import {
-	CHIP_ICON_STROKE,
-	COMPOSER_CHIP_CLASS,
-} from '../../helpers/composer-chip.constants'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useUpdateTask } from '../../hooks/use-update-task'
 import { TaskActionsMenu } from '../task/task-actions-menu'
@@ -122,6 +118,10 @@ export function TaskComposer({
 		if (!canSubmit || isSubmittingRef.current) return
 
 		if (task) {
+			const labelIds = pickedLabels.map(({ id }) => id)
+			const isLabelChange =
+				labelIds.length !== task.labels.length ||
+				task.labels.some(({ id }) => !labelIds.includes(id))
 			const edited = {
 				id: task.id,
 				title: title.trim(),
@@ -130,8 +130,10 @@ export function TaskComposer({
 				dueTime,
 				priority,
 				repeat: repeat ?? null,
+				labelIds: isLabelChange ? labelIds : undefined,
 			}
 			const isChanged =
+				isLabelChange ||
 				(
 					['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
 				).some(field => edited[field] !== task[field]) ||
@@ -247,23 +249,11 @@ export function TaskComposer({
 					value={task?.goal ?? goal}
 				/>
 
-				{task ? (
-					// tasks.update does not save labels yet, so editing keeps the placeholder.
-					<ComingSoonButton
-						className={COMPOSER_CHIP_CLASS}
-						label="Labels"
-						onKeyDown={cancelOnEscape}
-					>
-						<Tag aria-hidden strokeWidth={CHIP_ICON_STROKE} />
-						Labels
-					</ComingSoonButton>
-				) : (
-					<LabelsChip
-						onChange={setLabels}
-						onKeyDown={cancelOnEscape}
-						value={pickedLabels}
-					/>
-				)}
+				<LabelsChip
+					onChange={setLabels}
+					onKeyDown={cancelOnEscape}
+					value={pickedLabels}
+				/>
 
 				<div className="ml-auto flex items-center gap-2">
 					<TaskActionsMenu

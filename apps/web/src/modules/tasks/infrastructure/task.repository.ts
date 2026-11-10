@@ -1,8 +1,6 @@
-import type { Label, Task } from '@soonlane/contracts'
-import { label, task, taskLabel, type TaskRow } from '@soonlane/db'
+import { label, task, taskLabel } from '@soonlane/db'
 import {
 	DEFAULT_TASK_PRIORITY,
-	type LabelId,
 	type TaskId,
 	type UserId,
 } from '@soonlane/domain'
@@ -17,19 +15,20 @@ import {
 	isNotNull,
 	isNull,
 	lt,
+	notInArray,
 	sql,
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
-import {
-	labelOrder,
-	toLabel,
-} from '@/modules/labels/infrastructure/label-row.helper'
-import { Db, type Database } from '@/platform/db/db.layer'
+import { toLabel } from '@/modules/labels/infrastructure/label-row.helper'
+import { Db } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
+import {
+	assignLabels,
+	type Queries,
+	withLabels,
+} from './task-label-rows.helper'
 import { updateProgress } from './task-progress.helper'
 import { toTask } from './task-row.helper'
-
-type Queries = Pick<Database, 'insert' | 'select'>
 
 // Keep in sync with compareTasks in task-list.helper.ts.
 const DAY_ORDER = [
@@ -38,61 +37,6 @@ const DAY_ORDER = [
 	asc(task.priority),
 	asc(task.createdAt),
 ]
-
-async function withLabels(
-	database: Queries,
-	ownerId: UserId,
-	rows: TaskRow[]
-): Promise<Task[]> {
-	if (rows.length === 0) return []
-
-	const assigned = await database
-		.select({ taskId: taskLabel.taskId, label })
-		.from(taskLabel)
-		.innerJoin(label, eq(label.id, taskLabel.labelId))
-		.where(
-			and(
-				eq(label.ownerId, ownerId),
-				inArray(
-					taskLabel.taskId,
-					rows.map(row => row.id)
-				)
-			)
-		)
-		.orderBy(...labelOrder)
-	const labelsByTask = new Map<TaskId, Label[]>()
-
-	for (const { taskId, label: labelRow } of assigned) {
-		const labels = labelsByTask.get(taskId) ?? []
-
-		if (labels.length === 0) labelsByTask.set(taskId, labels)
-		labels.push(toLabel(labelRow))
-	}
-
-	return rows.map(row => toTask(row, labelsByTask.get(row.id) ?? []))
-}
-
-// Inserts nothing for a label or a task that does not belong to the owner.
-async function assignLabels(
-	database: Queries,
-	ownerId: UserId,
-	id: TaskId,
-	labelIds: LabelId[]
-) {
-	await database
-		.insert(taskLabel)
-		.select(
-			database
-				.select({ taskId: task.id, labelId: label.id })
-				.from(task)
-				.innerJoin(
-					label,
-					and(eq(label.ownerId, ownerId), inArray(label.id, labelIds))
-				)
-				.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
-		)
-		.onConflictDoNothing()
-}
 
 async function findTask(database: Queries, ownerId: UserId, id: TaskId) {
 	const rows = await database
@@ -236,26 +180,45 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 				dueTime,
 				priority,
 				repeat,
+				labelIds,
 			}) =>
-				db.run('TaskRepository.update', async database => {
-					const rows = await database
-						.update(task)
-						.set({
-							title,
-							description: description || null,
-							dueDate,
-							dueTime: dueTime ?? null,
-							priority,
-							repeatUnit: repeat?.unit ?? null,
-							repeatInterval: repeat?.interval ?? null,
-							repeatAnchor: repeat?.anchor ?? null,
-						})
-						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
-						.returning()
-					const [updated] = await withLabels(database, ownerId, rows)
+				db.run(
+					'TaskRepository.update',
+					async database =>
+						await database.transaction(async transaction => {
+							const [row] = await transaction
+								.update(task)
+								.set({
+									title,
+									description: description || null,
+									dueDate,
+									dueTime: dueTime ?? null,
+									priority,
+									repeatUnit: repeat?.unit ?? null,
+									repeatInterval: repeat?.interval ?? null,
+									repeatAnchor: repeat?.anchor ?? null,
+								})
+								.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+								.returning()
 
-					return updated
-				}),
+							if (!row) return undefined
+							if (labelIds) {
+								await transaction
+									.delete(taskLabel)
+									.where(
+										and(
+											eq(taskLabel.taskId, id),
+											notInArray(taskLabel.labelId, labelIds)
+										)
+									)
+								await assignLabels(transaction, ownerId, id, labelIds)
+							}
+
+							const [updated] = await withLabels(transaction, ownerId, [row])
+
+							return updated
+						})
+				),
 			delete: ({ ownerId, id }) =>
 				db.run('TaskRepository.delete', async database => {
 					const [row] = await database

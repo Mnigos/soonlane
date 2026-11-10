@@ -8,31 +8,40 @@ import {
 	useQueryClient,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getEditedRule } from '../../domain/repeat-rule.helper'
-import { getListInput } from '../helpers/task-list-key.helper'
+import { getTaskListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
 	placeTask,
 	withMovedTask,
 } from '../helpers/task-list.helper'
 
-/** Saves an edited task at once (optimistically), moving it to wherever its new date belongs. */
+/** Saves an edited task at once (optimistically), moving it to wherever its new date and labels belong. */
 export function useUpdateTask() {
 	const queryClient = useQueryClient()
-	const listKey = orpcQuery.tasks.list.key()
+	const listKeys = [
+		orpcQuery.tasks.list.key(),
+		orpcQuery.tasks.listByLabel.key(),
+	]
 
 	const update = useMutation(
 		orpcQuery.tasks.update.mutationOptions({
 			onMutate: async variables => {
-				const { id, ...changes } = updateTaskInputSchema.parse(variables)
+				const { id, labelIds, ...changes } =
+					updateTaskInputSchema.parse(variables)
 
 				// An Undo from an earlier completion would overwrite this edit's date.
 				toast.dismiss(id)
-				await queryClient.cancelQueries({ queryKey: listKey })
-				const lists = queryClient.getQueriesData<ListTasksOutput>({
-					queryKey: listKey,
-				})
+				await Promise.all(
+					listKeys.map(
+						async queryKey => await queryClient.cancelQueries({ queryKey })
+					)
+				)
+				const lists = listKeys.flatMap(queryKey =>
+					queryClient.getQueriesData<ListTasksOutput>({ queryKey })
+				)
 				const previous = lists.map(([key, list]) => ({
 					key,
 					placement: list && findTaskPlacement(list, id),
@@ -41,12 +50,18 @@ export function useUpdateTask() {
 
 				if (!current) return { previous }
 
+				const knownLabels =
+					queryClient.getQueryData(orpcQuery.labels.list.queryKey())?.labels ??
+					current.labels
 				// Like the server, an absent description or time clears it; an absent rule stays and null clears it.
 				const task = {
 					...current,
 					description: undefined,
 					dueTime: undefined,
 					...changes,
+					labels: labelIds
+						? knownLabels.filter(label => labelIds.includes(label.id))
+						: current.labels,
 					repeat: getEditedRule(
 						current,
 						changes.dueDate,
@@ -59,7 +74,7 @@ export function useUpdateTask() {
 				// One render for every list (here and in the rollback), so a moved task never shows twice and its row can take focus there.
 				notifyManager.batch(() => {
 					for (const [key] of lists) {
-						const input = getListInput(key)
+						const input = getTaskListInput(key)
 
 						if (!input) continue
 
@@ -83,19 +98,16 @@ export function useUpdateTask() {
 				})
 				toast('Could not save the task. Try again.')
 			},
-			// A refetch while another save is in flight would undo that save's optimistic change.
-			onSettled: async () => {
-				if (
-					queryClient.isMutating({
-						mutationKey: orpcQuery.tasks.update.mutationKey(),
-					}) === 1
-				)
-					await Promise.all([
-						queryClient.invalidateQueries({ queryKey: listKey }),
-						queryClient.invalidateQueries({
-							queryKey: orpcQuery.tasks.listByLabel.key(),
-						}),
-					])
+			// A refetch landing while another save is in flight would undo its optimistic change; the timeout runs once this save has left pending.
+			onSettled: () => {
+				setTimeout(() => {
+					if (
+						!queryClient.isMutating({
+							mutationKey: orpcQuery.tasks.update.mutationKey(),
+						})
+					)
+						void refreshTaskAndLabelLists(queryClient)
+				}, 0)
 			},
 		})
 	)
