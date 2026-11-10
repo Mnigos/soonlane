@@ -1,4 +1,6 @@
 import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
+import type { QueryClient, QueryKey } from '@tanstack/react-query'
+import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 
 type TaskBucket = keyof ListTasksOutput
 
@@ -6,6 +8,11 @@ type TaskBucket = keyof ListTasksOutput
 interface TaskPlacement {
 	bucket: TaskBucket
 	task: Task
+}
+
+interface CachedPlacement {
+	key: QueryKey
+	placement: TaskPlacement
 }
 
 /** Scheduled tasks grouped by due date; the server already orders them within a day. */
@@ -98,4 +105,47 @@ export function withMovedTask(
 	const rest = withoutTask(list, id)
 
 	return placement ? withTask(rest, placement) : rest
+}
+
+/** Takes a task out of every cached task list at once, returning where it sat for {@link restoreCachedTask}. */
+export async function removeCachedTask(queryClient: QueryClient, id: string) {
+	const listKeys = [
+		orpcQuery.tasks.list.key(),
+		orpcQuery.tasks.listByLabel.key(),
+	]
+
+	await Promise.all(
+		listKeys.map(
+			async queryKey => await queryClient.cancelQueries({ queryKey })
+		)
+	)
+	const removed = listKeys
+		.flatMap(queryKey =>
+			queryClient.getQueriesData<ListTasksOutput>({ queryKey })
+		)
+		.flatMap(([key, list]): CachedPlacement[] => {
+			const placement = list && findTaskPlacement(list, id)
+
+			return placement ? [{ key, placement }] : []
+		})
+
+	for (const queryKey of listKeys)
+		queryClient.setQueriesData<ListTasksOutput>(
+			{ queryKey },
+			list => list && withoutTask(list, id)
+		)
+
+	return removed
+}
+
+/** Puts back only this task, so a concurrent change to the lists survives. */
+export function restoreCachedTask(
+	queryClient: QueryClient,
+	removed: CachedPlacement[] = []
+) {
+	for (const { key, placement } of removed)
+		queryClient.setQueryData<ListTasksOutput>(
+			key,
+			list => list && withTask(list, placement)
+		)
 }

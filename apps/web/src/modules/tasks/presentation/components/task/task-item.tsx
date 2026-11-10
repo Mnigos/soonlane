@@ -9,12 +9,14 @@ import { getDueLabel } from '../../../domain/due-label.helper'
 import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
+import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
 import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
 import { LogProgressControls } from './log-progress-controls'
+import { TaskActionsMenu } from './task-actions-menu'
 
 interface TaskItemProps {
 	task: Task
@@ -22,32 +24,9 @@ interface TaskItemProps {
 	onComplete: (task: Task) => void
 }
 
-// A saved date can move the row to another list or off the page, taking its focused Edit button along.
-function keepFocusAfterMove(button: HTMLButtonElement) {
-	return () => {
-		if (document.activeElement !== button) return
-
-		const movedSelector = `[data-edit-task="${button.dataset.editTask}"]`
-		const row = button.closest('li')
-		const neighbours = [row?.nextElementSibling, row?.previousElementSibling]
-		const section = button.closest('section')
-
-		// After the commit, so the task's row has mounted wherever it moved to.
-		queueMicrotask(() => {
-			if (document.activeElement !== document.body) return
-
-			const target = [
-				document.querySelector<HTMLElement>(movedSelector),
-				...neighbours.map(neighbour =>
-					neighbour?.querySelector<HTMLElement>('[data-edit-task]')
-				),
-				section?.querySelector<HTMLElement>('input, button'),
-			].find(element => element?.isConnected)
-
-			target?.focus()
-		})
-	}
-}
+/** Row controls show on hover and focus, always on touch screens; the negative margin keeps the row height. */
+const ROW_CONTROL_CLASS =
+	'-my-1.5 opacity-0 group-focus-within/task:opacity-100 group-hover/task:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100'
 
 export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
@@ -158,13 +137,15 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				<LogProgressControls task={task} titleId={titleId} today={today} />
 			)}
 
-			{/* The negative margin keeps the row height. */}
 			<Tooltip label="Edit task">
 				<button
 					aria-label="Edit task"
 					autoFocus={shouldFocusEdit}
-					className="-my-1.5 ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary-foreground opacity-0 transition group-focus-within/task:opacity-100 group-hover/task:opacity-100 hover:bg-hover focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-primary pointer-coarse:opacity-100"
-					data-edit-task={task.id}
+					className={cn(
+						'ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary',
+						ROW_CONTROL_CLASS
+					)}
+					data-task-id={task.id}
 					onClick={() => {
 						setOpenEditorId(task.id)
 						setShouldFocusEdit(false)
@@ -179,6 +160,12 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 					/>
 				</button>
 			</Tooltip>
+
+			<TaskActionsMenu
+				className={ROW_CONTROL_CLASS}
+				task={task}
+				today={today}
+			/>
 		</li>
 	)
 }

@@ -30,6 +30,7 @@ import {
 } from '../../helpers/composer-chip.constants'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useUpdateTask } from '../../hooks/use-update-task'
+import { TaskActionsMenu } from '../task/task-actions-menu'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
 import { GoalChip } from './goal-chip'
@@ -265,6 +266,12 @@ export function TaskComposer({
 				)}
 
 				<div className="ml-auto flex items-center gap-2">
+					<TaskActionsMenu
+						onKeyDown={cancelOnEscape}
+						task={task}
+						today={today}
+					/>
+
 					<button
 						aria-label="Cancel"
 						className="flex size-8 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary"

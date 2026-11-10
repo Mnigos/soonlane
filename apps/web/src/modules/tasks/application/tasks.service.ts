@@ -48,6 +48,10 @@ export class TasksService extends Context.Service<
 			id: TaskId,
 			input: UpdateTaskInput
 		) => Effect.Effect<Task, TaskNotFound | DbError>
+		readonly delete: (
+			ownerId: UserId,
+			id: TaskId
+		) => Effect.Effect<void, TaskNotFound | DbError>
 		readonly complete: (
 			ownerId: UserId,
 			id: TaskId,
@@ -205,6 +209,13 @@ export const TasksServiceLive = Layer.effect(
 			)
 		})
 
+		const remove = Effect.fn('TasksService.delete')(function* (
+			ownerId: UserId,
+			id: TaskId
+		) {
+			yield* requireTask(yield* repository.delete({ ownerId, id }))
+		})
+
 		// A repeating task stays open and moves to its next occurrence instead.
 		const complete = Effect.fn('TasksService.complete')(function* (
 			ownerId: UserId,
@@ -300,6 +311,7 @@ export const TasksServiceLive = Layer.effect(
 			listCompleted,
 			create,
 			update,
+			delete: remove,
 			complete,
 			uncomplete,
 			reschedule,
