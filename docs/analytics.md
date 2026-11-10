@@ -54,7 +54,7 @@ Details:
 
 ## Super properties
 
-Every event the app captures carries `app_version` (`version.json`), `commit`, `platform` (`web` or `desktop`, from `<html data-shell="desktop">`), `surface` (`landing` on the public site routes under the `/_site` layout: `/`, `/privacy`, `/terms`; `app` everywhere else, the app under `/app`, `/login` and the desktop screens; the type also allows `blog`), `environment` (`production`, `preview` or `development`, from `VERCEL_ENV` at build time), `timezone` and `route` (the matched route id, such as `/_session/app/today` or `/_site/privacy`). `route` and `surface` are registered before `identify` and before each `$pageview`, and again with the rest after `reset()`, opting in or out, so exceptions carry it too. The SDK's own internal events (`$set`, replay `$snapshot` envelopes) do not carry super properties. Server events carry `app_version`, `commit` and `environment`.
+Every event the app captures carries `app_version` (`version.json`), `commit`, `platform` (`web` or `desktop`, from `<html data-shell="desktop">`), `surface` (`blog` on `/blog` and its posts; `landing` on the other public site routes under the `/_site` layout: `/`, `/changelog`, `/privacy`, `/terms`; `app` everywhere else, the app under `/app`, `/login` and the desktop screens), `environment` (`production`, `preview` or `development`, from `VERCEL_ENV` at build time), `timezone` and `route` (the matched route id, such as `/_session/app/today` or `/_site/privacy`). `route` and `surface` are registered before `identify` and before each `$pageview`, and again with the rest after `reset()`, opting in or out, so exceptions carry it too. The SDK's own internal events (`$set`, replay `$snapshot` envelopes) do not carry super properties. Server events carry `app_version`, `commit` and `environment`.
 
 ## Consent
 
@@ -128,7 +128,10 @@ The dialog's Privacy policy link opens `/privacy` and closes the dialog. The ban
 ## Privacy
 
 - No autocapture, no dead-click or heatmap capture: they would record clicked element text, which includes task titles.
-- URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…` and `/desktop/callback#code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them.
+- URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…` and `/desktop/callback#code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them.
+- A label's name is part of its view's path, so the same rewrite sends `/app/labels/:name` in its place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). The private routes are listed in `posthog.config.ts`, typed against the router's paths. `route` already carries the route id (`/_session/app/labels/$name`).
+- `$pageview` is sent without `title`: the label view's document title is the label's name.
+- RPC calls are `POST /api/rpc/<procedure>` with the input in the body, so label names and task content never appear in a request URL.
 - Feature flags are off (`advanced_disable_feature_flags`): the SDK never calls `/flags`, whose body carries the stored initial URL outside `before_send`.
 - Replay keeps the DOM attributes of the app's own assets as they are, for example the development stylesheet's `?routes=` query in a `<link href>`. They carry nothing personal.
 - Replay records no network headers or bodies and no console logs. JSON-LD capture is off. Surveys, product tours and conversations are off.
@@ -139,13 +142,15 @@ The dialog's Privacy policy link opens `/privacy` and closes the dialog. The ban
 Replay runs only with analytics granted. Everything is visible except:
 
 - every input's value (`maskAllInputs`), which covers the composer's title, description and typed date;
-- text inside an element with the `ph-mask` class: task titles and descriptions in the list, goal text ("20/50 push-ups" in the list, the composer's Goal chip), the user's name and email in the user menu, and the email on the desktop hand-off screen;
+- text inside an element with the `ph-mask` class: task titles and descriptions in the list, goal text ("20/50 push-ups" in the list, the composer's Goal chip), label names (the sidebar rows, the label view heading, the chips on task rows and in the composer, the label picker's options and its "Create label" row, the delete-label dialog, and the name field's accessible name), the user's name and email in the user menu, and the email on the desktop hand-off screen;
+- the document title (`maskTextSelector: 'title'`), which is a label's name in the label view;
+- the label name in a link's `href` (`maskAttributeFn`, the same `/app/labels/:name` rewrite);
 - the subtree with the `ph-no-capture` class: the hand-off's "open it from here" link, whose `soonlane://` address carries a one-time code;
 - the user's avatar (`ph-no-capture`).
 
-Masking covers text, not attributes, so sensitive text never goes into `aria-label`, `title` or `alt`. The task's complete button and its goal controls (+1, log amount) take their name from the title element through `aria-labelledby`, and the Goal chip from its masked label the same way.
+Masking covers text, not attributes, so sensitive text never goes into `aria-label`, `title` or `alt`. Controls named after content take that name from the masked element through `aria-labelledby`: the task's complete button and its goal controls (+1, log amount) from the title, the Goal chip from its masked label, a sidebar label's "More actions" button and a composer chip's "Remove label" button from the label name, and the label name field from a visually hidden masked label.
 
-New UI that shows task content (goal units included), label names, or a user's name or email: add `ph-mask` to the element that renders it, keep that text out of attributes, and block (`ph-no-capture`) anything that holds a code or token.
+New UI that shows task content (goal units included), label names, or a user's name or email: add `ph-mask` to the element that renders it, keep that text out of attributes, and block (`ph-no-capture`) anything that holds a code or token. A new route with user content in a path param goes into the private routes in `posthog.config.ts`.
 
 ## Proxy and opt-out
 

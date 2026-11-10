@@ -10,6 +10,7 @@ import {
 	type Dispatch,
 	type KeyboardEvent,
 	type SetStateAction,
+	useId,
 	useRef,
 } from 'react'
 import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
@@ -34,6 +35,7 @@ export function LabelsChip({
 }: Readonly<LabelsChipProps>) {
 	const inputRef = useRef<HTMLInputElement>(null)
 	const triggerRef = useRef<HTMLButtonElement>(null)
+	const chipId = useId()
 	const createLabel = useCreateLabelMutation()
 
 	return (
@@ -80,15 +82,19 @@ export function LabelsChip({
 						)}
 						strokeWidth={CHIP_ICON_STROKE}
 					/>
-					{label.name}
+					<span className="ph-mask" id={`${chipId}-${label.id}-name`}>
+						{label.name}
+					</span>
 
 					<button
-						aria-label={`Remove label ${label.name}`}
+						aria-label="Remove label"
+						aria-labelledby={`${chipId}-${label.id}-remove ${chipId}-${label.id}-name`}
 						className="flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
 						onClick={() => {
 							onChange(value.filter(({ id }) => id !== label.id))
 							triggerRef.current?.focus()
 						}}
+						id={`${chipId}-${label.id}-remove`}
 						onKeyDown={onKeyDown}
 						type="button"
 					>

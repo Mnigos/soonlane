@@ -38,7 +38,7 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
 			<header className="pt-1 md:pt-4">
-				<h1 className="text-xl font-bold">{label.name}</h1>
+				<h1 className="ph-mask text-xl font-bold">{label.name}</h1>
 			</header>
 
 			{isError && <TaskListError onRetry={() => void refetch()} />}

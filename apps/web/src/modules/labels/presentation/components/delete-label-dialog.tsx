@@ -21,7 +21,8 @@ export function DeleteLabelDialog({
 			<h2 className="text-base font-semibold">Delete label?</h2>
 
 			<p className="mt-2 text-sm text-secondary-foreground">
-				{`The "${label.name}" label will be permanently deleted and removed from its tasks.`}
+				The &quot;<span className="ph-mask">{label.name}</span>&quot; label will
+				be permanently deleted and removed from its tasks.
 			</p>
 
 			<div className="mt-6 flex justify-end gap-2">

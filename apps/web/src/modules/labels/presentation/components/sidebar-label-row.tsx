@@ -9,7 +9,7 @@ import {
 import { sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Ellipsis, Pencil, Tag, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
 import { isLabelNamed } from '../helpers/label-name.helper'
 import { useUpdateLabelMutation } from '../hooks/use-update-label-mutation'
@@ -34,6 +34,8 @@ export function SidebarLabelRow({
 	const [isDeleting, setIsDeleting] = useState(false)
 	const updateLabel = useUpdateLabelMutation()
 	const navigate = useNavigate()
+	const nameId = useId()
+	const actionsId = useId()
 	const isViewOpen = isLabelNamed(label, activeLabelName)
 
 	function stopRenaming() {
@@ -97,7 +99,9 @@ export function SidebarLabelRow({
 					className={LABEL_COLOR_CLASSES[label.color ?? 'charcoal']}
 				/>
 
-				<span className="truncate">{label.name}</span>
+				<span className="ph-mask truncate" id={nameId}>
+					{label.name}
+				</span>
 
 				{label.openTaskCount > 0 && (
 					<span className="ml-auto text-caption text-muted-foreground pointer-fine:group-focus-within/label:invisible pointer-fine:group-hover/label:invisible pointer-fine:group-has-data-popup-open/label:invisible">
@@ -108,8 +112,10 @@ export function SidebarLabelRow({
 
 			<Menu>
 				<MenuTrigger
-					aria-label={`More actions for ${label.name}`}
+					aria-label="More actions for"
+					aria-labelledby={`${actionsId} ${nameId}`}
 					className="absolute top-1 right-1 flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground opacity-0 transition-colors group-focus-within/label:opacity-100 group-hover/label:opacity-100 hover:bg-hover hover:text-foreground data-popup-open:opacity-100 pointer-coarse:opacity-100"
+					id={actionsId}
 				>
 					<Ellipsis aria-hidden className="size-4" />
 				</MenuTrigger>
