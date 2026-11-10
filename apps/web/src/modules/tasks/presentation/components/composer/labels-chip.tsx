@@ -27,7 +27,12 @@ interface LabelsChipProps {
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
 
-/** "Labels" opens the label picker; each chosen label follows as a chip with a remove button. */
+/**
+ * One chip for the chosen labels: "Labels", or the first label and "+N" for the rest.
+ * It opens the label picker; its × clears every label. The × sits beside the trigger,
+ * not inside it, and the trigger stays mounted so focus can return to it. The label name
+ * is user content: it stays in masked text, and the accessible name points at it.
+ */
 export function LabelsChip({
 	value,
 	onChange,
@@ -35,23 +40,49 @@ export function LabelsChip({
 }: Readonly<LabelsChipProps>) {
 	const inputRef = useRef<HTMLInputElement>(null)
 	const triggerRef = useRef<HTMLButtonElement>(null)
-	const chipId = useId()
+	const triggerId = useId()
+	const nameId = useId()
+	const countId = useId()
 	const createLabel = useCreateLabelMutation()
+	const [first] = value
+	const moreCount = value.length - 1
 
 	return (
-		<>
+		<span className="inline-flex h-7 max-w-full min-w-0 items-center rounded-md border">
 			<Popover
 				onOpenChange={() => {
 					if (createLabel.isError) createLabel.reset()
 				}}
 			>
 				<PopoverTrigger
-					className={COMPOSER_CHIP_CLASS}
+					aria-label="Labels"
+					aria-labelledby={first && `${triggerId} ${nameId} ${countId}`}
+					className={cn(
+						COMPOSER_CHIP_CLASS,
+						'h-full min-w-0 border-0',
+						first && 'pr-1'
+					)}
+					id={triggerId}
 					onKeyDown={onKeyDown}
 					ref={triggerRef}
 				>
-					<Tag aria-hidden strokeWidth={CHIP_ICON_STROKE} />
-					Labels
+					<Tag
+						aria-hidden
+						className={first && LABEL_COLOR_CLASSES[first.color ?? 'charcoal']}
+						strokeWidth={CHIP_ICON_STROKE}
+					/>
+
+					{first ? (
+						<>
+							<span className="ph-mask min-w-0 truncate" id={nameId}>
+								{first.name}
+							</span>
+
+							{moreCount > 0 && <span id={countId}>+{moreCount}</span>}
+						</>
+					) : (
+						'Labels'
+					)}
 				</PopoverTrigger>
 
 				<PopoverContent
@@ -69,43 +100,20 @@ export function LabelsChip({
 				</PopoverContent>
 			</Popover>
 
-			{value.map(label => (
-				<span
-					className="inline-flex h-7 items-center gap-1 rounded-md border pr-0.5 pl-1.5 text-label whitespace-nowrap text-secondary-foreground"
-					key={label.id}
+			{first && (
+				<button
+					aria-label="Remove labels"
+					className="mr-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-sm text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+					onClick={() => {
+						onChange([])
+						triggerRef.current?.focus()
+					}}
+					onKeyDown={onKeyDown}
+					type="button"
 				>
-					<Tag
-						aria-hidden
-						className={cn(
-							'size-4 shrink-0',
-							LABEL_COLOR_CLASSES[label.color ?? 'charcoal']
-						)}
-						strokeWidth={CHIP_ICON_STROKE}
-					/>
-					<span className="ph-mask" id={`${chipId}-${label.id}-name`}>
-						{label.name}
-					</span>
-
-					<button
-						aria-label="Remove label"
-						aria-labelledby={`${chipId}-${label.id}-remove ${chipId}-${label.id}-name`}
-						className="flex size-5 cursor-pointer items-center justify-center rounded-sm transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
-						onClick={() => {
-							onChange(value.filter(({ id }) => id !== label.id))
-							triggerRef.current?.focus()
-						}}
-						id={`${chipId}-${label.id}-remove`}
-						onKeyDown={onKeyDown}
-						type="button"
-					>
-						<X
-							aria-hidden
-							className="size-3.5"
-							strokeWidth={CHIP_ICON_STROKE}
-						/>
-					</button>
-				</span>
-			))}
-		</>
+					<X aria-hidden className="size-3.5" strokeWidth={CHIP_ICON_STROKE} />
+				</button>
+			)}
+		</span>
 	)
 }
