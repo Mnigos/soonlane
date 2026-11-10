@@ -256,6 +256,15 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 
 					return updated
 				}),
+			delete: ({ ownerId, id }) =>
+				db.run('TaskRepository.delete', async database => {
+					const [row] = await database
+						.delete(task)
+						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
+						.returning({ id: task.id })
+
+					return row?.id
+				}),
 			count: ownerId =>
 				db.run(
 					'TaskRepository.count',

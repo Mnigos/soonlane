@@ -48,6 +48,7 @@ export interface ClientEvents {
 		was_overdue: boolean
 		completed_via: 'undo' | 'reopen'
 	}
+	task_deleted: TaskEventProperties
 	task_completion_failed: {
 		task_id: string
 		action: 'complete' | 'uncomplete'

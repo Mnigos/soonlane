@@ -214,6 +214,7 @@ export const tasksContract = {
 		.errors(taskErrors)
 		.input(updateTaskInputSchema)
 		.output(z.object({ task: taskSchema })),
+	delete: oc.errors(taskErrors).input(taskIdInputSchema).output(z.void()),
 	complete: oc
 		.errors(taskErrors)
 		.input(completeTaskInputSchema)

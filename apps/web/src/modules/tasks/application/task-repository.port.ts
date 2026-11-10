@@ -95,6 +95,9 @@ export class TaskRepository extends Context.Service<
 		readonly update: (
 			update: TaskUpdate
 		) => Effect.Effect<Task | undefined, DbError>
+		readonly delete: (
+			key: TaskKey
+		) => Effect.Effect<TaskId | undefined, DbError>
 		readonly count: (ownerId: UserId) => Effect.Effect<number, DbError>
 		readonly setCompletion: (
 			completion: TaskCompletion
