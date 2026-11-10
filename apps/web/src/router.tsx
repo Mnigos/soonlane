@@ -11,6 +11,10 @@ import { syncDockBadge } from './modules/tasks/presentation/helpers/dock-badge.h
 import { orpcQuery } from './platform/rpc/rpc-query.client'
 import { serializer } from './platform/rpc/rpc-serializer.constants'
 import { routeTree } from './routeTree.gen'
+import {
+	listenForChunkErrors,
+	recoverFromChunkError,
+} from './utils/stale-chunk.util'
 
 export interface RouterContext {
 	queryClient: QueryClient
@@ -47,7 +51,10 @@ export function getRouter() {
 		defaultPreloadStaleTime: 0,
 		context: { queryClient, orpc: orpcQuery },
 		defaultNotFoundComponent: () => <NotFound className="min-h-dvh" />,
-		defaultOnCatch: captureException,
+		defaultOnCatch: error => {
+			captureException(error)
+			void recoverFromChunkError(error)
+		},
 		Wrap: ({ children }) => (
 			<QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
 		),
@@ -56,6 +63,7 @@ export function getRouter() {
 	setupRouterSsrQueryIntegration({ router, queryClient })
 	trackRouter(router)
 	syncDockBadge(queryClient)
+	listenForChunkErrors()
 
 	return router
 }

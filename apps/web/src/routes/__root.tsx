@@ -9,6 +9,10 @@ import {
 } from '@tanstack/react-router'
 import type { PropsWithChildren } from 'react'
 import { ConsentProvider } from '@/modules/consent/presentation/components/consent-provider'
+import {
+	isChunkLoadError,
+	reloadAfterChunkError,
+} from '@/utils/stale-chunk.util'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 
@@ -41,6 +45,28 @@ function RootComponent() {
 
 function RootError({ error }: Readonly<ErrorComponentProps>) {
 	const router = useRouter()
+
+	if (isChunkLoadError(error))
+		return (
+			<RootDocument>
+				<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-4 px-6">
+					<div className="flex flex-col gap-1">
+						<h1 className="text-xl font-semibold">Soonlane was updated</h1>
+
+						<p className="text-sm text-muted-foreground">
+							Reload the page to get the new version.
+						</p>
+					</div>
+
+					<Button
+						className="self-start"
+						onClick={() => void reloadAfterChunkError(error)}
+					>
+						Reload
+					</Button>
+				</main>
+			</RootDocument>
+		)
 
 	return (
 		<RootDocument>
