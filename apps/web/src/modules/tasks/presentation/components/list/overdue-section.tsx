@@ -1,15 +1,14 @@
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
-import { cn } from '@soonlane/ui/cn'
 import {
 	Popover,
 	PopoverContent,
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
-import { ChevronDown } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useRescheduleTasks } from '../../hooks/use-reschedule-tasks'
 import { DueDatePicker } from '../composer/due-date-picker'
+import { SectionToggle } from './section-toggle'
 import { TaskList } from './task-list'
 
 interface OverdueSectionProps {
@@ -34,22 +33,13 @@ export function OverdueSection({
 		<section aria-labelledby="overdue-heading" className="pt-4">
 			<div className="flex items-center justify-between gap-4 border-b pb-2">
 				<h2 className="text-sm font-semibold" id="overdue-heading">
-					<button
-						aria-controls="overdue-tasks"
-						aria-expanded={isOpen}
-						className="flex cursor-pointer items-center gap-1.5 md:-ml-6"
-						onClick={() => setIsOpen(open => !open)}
-						type="button"
+					<SectionToggle
+						controls="overdue-tasks"
+						isOpen={isOpen}
+						onToggle={() => setIsOpen(open => !open)}
 					>
-						<ChevronDown
-							aria-hidden
-							className={cn(
-								'size-4.5 text-muted-foreground transition-transform',
-								!isOpen && '-rotate-90'
-							)}
-						/>
 						Overdue
-					</button>
+					</SectionToggle>
 				</h2>
 
 				<Popover onOpenChange={setIsPickerOpen} open={isPickerOpen}>

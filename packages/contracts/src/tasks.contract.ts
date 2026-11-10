@@ -76,6 +76,25 @@ export const listTasksOutputSchema = z.object({
 
 export type ListTasksOutput = z.infer<typeof listTasksOutputSchema>
 
+export const listCompletedTasksInputSchema = z
+	.object({ from: z.date(), to: z.date() })
+	.refine(({ from, to }) => from < to, {
+		path: ['to'],
+		message: 'The range must end after its start.',
+	})
+
+export type ListCompletedTasksInput = z.infer<
+	typeof listCompletedTasksInputSchema
+>
+
+export const listCompletedTasksOutputSchema = z.object({
+	tasks: z.array(taskSchema),
+})
+
+export type ListCompletedTasksOutput = z.infer<
+	typeof listCompletedTasksOutputSchema
+>
+
 export const repeatInputSchema = repeatSchema.refine(
 	({ unit, interval }) =>
 		interval === 1 || !SINGLE_INTERVAL_REPEAT_UNITS.includes(unit),
@@ -219,4 +238,8 @@ export const tasksContract = {
 		.errors(taskErrors)
 		.input(logProgressInputSchema)
 		.output(logProgressOutputSchema),
+	listCompleted: oc
+		.errors(authErrors)
+		.input(listCompletedTasksInputSchema)
+		.output(listCompletedTasksOutputSchema),
 }

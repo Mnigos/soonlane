@@ -15,6 +15,9 @@ export async function refreshTaskAndLabelLists(queryClient: QueryClient) {
 		queryClient.invalidateQueries({
 			queryKey: orpcQuery.tasks.listByLabel.key(),
 		}),
+		queryClient.invalidateQueries({
+			queryKey: orpcQuery.tasks.listCompleted.key(),
+		}),
 		queryClient.invalidateQueries({ queryKey: orpcQuery.labels.list.key() }),
 	])
 }

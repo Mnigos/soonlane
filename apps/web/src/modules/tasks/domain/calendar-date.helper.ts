@@ -37,6 +37,11 @@ export function getToday(now: Date, timeZone?: string): CalendarDate {
 	return toCalendarDate(`${part('year')}-${part('month')}-${part('day')}`)
 }
 
+/** The instant the day starts in the runtime's time zone (the browser's for the user). */
+export function getStartOfDay(date: CalendarDate) {
+	return new Date(`${date}T00:00:00`)
+}
+
 export function getMillisecondsUntilTomorrow(now: Date): number {
 	const tomorrow = new Date(
 		now.getFullYear(),
