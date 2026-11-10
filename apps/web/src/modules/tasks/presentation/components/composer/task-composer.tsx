@@ -4,11 +4,7 @@ import type {
 	RepeatInput,
 	Task,
 } from '@soonlane/contracts'
-import {
-	DEFAULT_TASK_PRIORITY,
-	type CalendarDate,
-	type TaskPriority,
-} from '@soonlane/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import {
@@ -25,6 +21,7 @@ import {
 	getEditedRule,
 } from '../../../domain/repeat-rule.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
+import { useTypedPriority } from '../../hooks/use-typed-priority'
 import { useUpdateTask } from '../../hooks/use-update-task'
 import { TaskActionsMenu } from '../task/task-actions-menu'
 import { ComingSoonButton } from './coming-soon-button'
@@ -79,13 +76,17 @@ export function TaskComposer({
 	autoFocus = true,
 	className,
 }: Readonly<TaskComposerProps>) {
-	const [title, setTitle] = useState(task?.title ?? '')
+	const {
+		title,
+		savedTitle,
+		priority,
+		changeTitle,
+		pickPriority,
+		resetTitleAndPriority,
+	} = useTypedPriority(task)
 	const [description, setDescription] = useState(task?.description ?? '')
 	const [dueDate, setDueDate] = useState(defaultDueDate)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
-	const [priority, setPriority] = useState<TaskPriority>(
-		task?.priority ?? DEFAULT_TASK_PRIORITY
-	)
 	const [repeat, setRepeat] = useState<RepeatInput | undefined>(
 		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
 	)
@@ -109,12 +110,12 @@ export function TaskComposer({
 	const isSubmittingRef = useRef(false)
 	const { mutate, isPending, isError } = useCreateTaskMutation(source, today)
 	const { updateTask } = useUpdateTask()
-	const canSubmit = title.trim() !== '' && !isPending
+	const canSubmit = savedTitle.trim() !== '' && !isPending
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault()
 		// The send button stays red like Todoist's; with no title it points back to the field.
-		if (title.trim() === '') titleRef.current?.focus()
+		if (savedTitle.trim() === '') titleRef.current?.focus()
 		if (!canSubmit || isSubmittingRef.current) return
 
 		if (task) {
@@ -124,7 +125,7 @@ export function TaskComposer({
 				task.labels.some(({ id }) => !labelIds.includes(id))
 			const edited = {
 				id: task.id,
-				title: title.trim(),
+				title: savedTitle.trim(),
 				description: description.trim() || undefined,
 				dueDate: scheduledDate,
 				dueTime,
@@ -148,7 +149,7 @@ export function TaskComposer({
 		isSubmittingRef.current = true
 		mutate(
 			{
-				title,
+				title: savedTitle,
 				description: description.trim() || undefined,
 				dueDate: scheduledDate,
 				dueTime,
@@ -159,10 +160,9 @@ export function TaskComposer({
 			},
 			{
 				onSuccess: () => {
-					setTitle('')
+					resetTitleAndPriority()
 					setDescription('')
 					setDueTime(undefined)
-					setPriority(DEFAULT_TASK_PRIORITY)
 					setRepeat(undefined)
 					resetLabels()
 					setGoal(undefined)
@@ -196,7 +196,7 @@ export function TaskComposer({
 				aria-label="Task name"
 				className={cn(FIELD_CLASS, 'text-base leading-6')}
 				maxLength={500}
-				onChange={event => setTitle(event.target.value)}
+				onChange={event => changeTitle(event.target.value)}
 				onKeyDown={cancelOnEscape}
 				placeholder="Task name"
 				ref={attachTitle}
@@ -237,7 +237,7 @@ export function TaskComposer({
 				/>
 
 				<PriorityChip
-					onChange={setPriority}
+					onChange={pickPriority}
 					onKeyDown={cancelOnEscape}
 					value={priority}
 				/>
