@@ -231,6 +231,7 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog and the De
 
 - Heading with a hairline below (today's in ink, later days in pencil, like Todoist), then task rows, then a muted "+ Add task" row whose plus turns into a filled red circle on hover.
 - The Overdue section has a collapse chevron and a coral "Reschedule" action on the right.
+- On Today, a "Completed" section sits above Overdue once a task was completed today: the same collapse chevron, the count in `muted-foreground` after the heading, collapsed on every visit. Its rows have a filled `faint-foreground` circle with a check and the title struck through in `muted-foreground`; clicking the circle reopens the task.
 
 ### Label view
 

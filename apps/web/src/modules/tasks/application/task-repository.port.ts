@@ -21,6 +21,12 @@ export interface OpenTasksBefore {
 	before: CalendarDate
 }
 
+export interface CompletedTasksBetween {
+	ownerId: UserId
+	from: Date
+	to: Date
+}
+
 export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
 	ownerId: UserId
 	repeat?: RepeatRule
@@ -80,6 +86,9 @@ export class TaskRepository extends Context.Service<
 		) => Effect.Effect<Task[], DbError>
 		readonly listOpenWithLabel: (
 			label: Omit<TaskLabel, 'id'>
+		) => Effect.Effect<Task[], DbError>
+		readonly listCompletedBetween: (
+			params: CompletedTasksBetween
 		) => Effect.Effect<Task[], DbError>
 		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>

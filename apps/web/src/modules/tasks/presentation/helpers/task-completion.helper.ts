@@ -1,11 +1,51 @@
-import type { Task } from '@soonlane/contracts'
+import type { ListCompletedTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { ClientEvents } from '@/modules/analytics/domain/analytics-event.types'
 import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
+import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTaskEventProperties } from './task-event.helper'
+
+// Keep in sync with the order of listCompletedBetween in task.repository.ts.
+function compareCompleted(a: Task, b: Task) {
+	return (
+		(b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0) ||
+		b.createdAt.getTime() - a.createdAt.getTime()
+	)
+}
+
+/** Shows a task in every cached Completed list where the server would place it; one without `completedAt` counts as completed now. */
+export function addToCompleted(queryClient: QueryClient, task: Task) {
+	const completed = { ...task, completedAt: task.completedAt ?? new Date() }
+
+	queryClient.setQueriesData<ListCompletedTasksOutput>(
+		{ queryKey: orpcQuery.tasks.listCompleted.key() },
+		list =>
+			list && {
+				tasks: [
+					...list.tasks.filter(({ id }) => id !== task.id),
+					completed,
+				].toSorted(compareCompleted),
+			}
+	)
+}
+
+/** Hides a task from every cached Completed list and returns it, so a failed change can put it back. */
+export function removeFromCompleted(queryClient: QueryClient, id: string) {
+	const queryKey = orpcQuery.tasks.listCompleted.key()
+	const [removed] = queryClient
+		.getQueriesData<ListCompletedTasksOutput>({ queryKey })
+		.flatMap(([, list]) => list?.tasks.filter(task => task.id === id) ?? [])
+
+	queryClient.setQueriesData<ListCompletedTasksOutput>(
+		{ queryKey },
+		list => list && { tasks: list.tasks.filter(task => task.id !== id) }
+	)
+
+	return removed
+}
 
 export function announceCompletion(
 	completed: Task,
@@ -27,12 +67,26 @@ export function announceCompletion(
 	})
 }
 
+/** Reopens a task: Undo in the toast, or its checkbox under Completed. */
 export function getUndoCallbacks(
 	queryClient: QueryClient,
-	today: CalendarDate
+	today: CalendarDate,
+	uncompletedVia: ClientEvents['task_uncompleted']['completed_via'] = 'undo'
 ) {
 	return {
-		onError: (_error: unknown, { id }: { id: string }) => {
+		onMutate: async ({ id }: { id: string }) => {
+			await queryClient.cancelQueries({
+				queryKey: orpcQuery.tasks.listCompleted.key(),
+			})
+
+			return { reopened: removeFromCompleted(queryClient, id) }
+		},
+		onError: (
+			_error: unknown,
+			{ id }: { id: string },
+			context?: { reopened?: Task }
+		) => {
+			if (context?.reopened) addToCompleted(queryClient, context.reopened)
 			capture('task_completion_failed', { task_id: id, action: 'uncomplete' })
 			toast('Could not restore the task. Try again.')
 		},
@@ -42,7 +96,7 @@ export function getUndoCallbacks(
 			capture('task_uncompleted', {
 				...properties,
 				was_overdue: properties.due_in_days < 0,
-				completed_via: 'undo',
+				completed_via: uncompletedVia,
 			})
 		},
 		onSettled: async () => await refreshTaskAndLabelLists(queryClient),

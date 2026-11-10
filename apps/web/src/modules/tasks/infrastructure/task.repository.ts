@@ -10,7 +10,9 @@ import {
 	and,
 	asc,
 	between,
+	desc,
 	eq,
+	gte,
 	inArray,
 	isNotNull,
 	isNull,
@@ -159,6 +161,23 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							)
 						)
 						.orderBy(...DAY_ORDER)
+
+					return await withLabels(database, ownerId, rows)
+				}),
+			listCompletedBetween: ({ ownerId, from, to }) =>
+				db.run('TaskRepository.listCompletedBetween', async database => {
+					const rows = await database
+						.select()
+						.from(task)
+						.where(
+							and(
+								eq(task.ownerId, ownerId),
+								gte(task.completedAt, from),
+								lt(task.completedAt, to)
+							)
+						)
+						// Keep in sync with compareCompleted in task-completion.helper.ts.
+						.orderBy(desc(task.completedAt), desc(task.createdAt))
 
 					return await withLabels(database, ownerId, rows)
 				}),

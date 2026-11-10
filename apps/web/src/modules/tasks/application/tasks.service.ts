@@ -1,6 +1,7 @@
 import type {
 	CreateTaskInput,
 	Label,
+	ListCompletedTasksInput,
 	ListTasksByLabelInput,
 	ListTasksInput,
 	ListTasksOutput,
@@ -34,6 +35,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: ListTasksByLabelInput
 		) => Effect.Effect<ListTasksOutput, LabelNotFound | DbError>
+		readonly listCompleted: (
+			ownerId: UserId,
+			input: ListCompletedTasksInput
+		) => Effect.Effect<Task[], DbError>
 		readonly create: (
 			ownerId: UserId,
 			input: CreateTaskInput
@@ -141,6 +146,14 @@ export const TasksServiceLive = Layer.effect(
 				overdue: tasks.filter(({ dueDate }) => dueDate < today),
 				scheduled: tasks.filter(({ dueDate }) => dueDate >= today),
 			}
+		})
+
+		// The bounds are the client's local midnights, since only it knows the owner's time zone.
+		const listCompleted = Effect.fn('TasksService.listCompleted')(function* (
+			ownerId: UserId,
+			{ from, to }: ListCompletedTasksInput
+		) {
+			return yield* repository.listCompletedBetween({ ownerId, from, to })
 		})
 
 		const create = Effect.fn('TasksService.create')(function* (
@@ -284,6 +297,7 @@ export const TasksServiceLive = Layer.effect(
 		return TasksService.of({
 			list,
 			listByLabel,
+			listCompleted,
 			create,
 			update,
 			complete,

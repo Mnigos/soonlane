@@ -16,6 +16,14 @@ export const tasksRouter = {
 
 		return yield* tasksService.listByLabel(context.user.id, input)
 	}),
+	listCompleted: os.tasks.listCompleted.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return { tasks: yield* tasksService.listCompleted(context.user.id, input) }
+	}),
 	create: os.tasks.create.use(requireUser).effect(function* ({
 		context,
 		input,

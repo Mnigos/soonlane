@@ -10,8 +10,10 @@ import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
+	addToCompleted,
 	announceCompletion,
 	getUndoCallbacks,
+	removeFromCompleted,
 } from '../helpers/task-completion.helper'
 import {
 	findTaskPlacement,
@@ -41,7 +43,7 @@ export function useCompleteTask(today: CalendarDate) {
 		orpcQuery.tasks.complete.mutationOptions({
 			onMutate: async ({ id }) => {
 				await Promise.all(
-					listKeys.map(
+					[...listKeys, orpcQuery.tasks.listCompleted.key()].map(
 						async queryKey => await queryClient.cancelQueries({ queryKey })
 					)
 				)
@@ -61,10 +63,16 @@ export function useCompleteTask(today: CalendarDate) {
 						list => list && withoutTask(list, id)
 					)
 
+				const completed = removed[0]?.placement.task
+
+				if (completed && !completed.repeat)
+					addToCompleted(queryClient, completed)
+
 				return { removed }
 			},
 			// Puts back only this task, so a concurrent completion's removal survives.
 			onError: (_error, { id }, context) => {
+				removeFromCompleted(queryClient, id)
 				for (const { key, placement } of context?.removed ?? [])
 					queryClient.setQueryData<ListTasksOutput>(
 						key,

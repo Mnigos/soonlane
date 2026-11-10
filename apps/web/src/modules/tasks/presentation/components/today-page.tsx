@@ -5,7 +5,9 @@ import {
 } from '../../domain/calendar-date.helper'
 import { getTodayListInput } from '../helpers/dock-badge.helper'
 import { useCompleteTask } from '../hooks/use-complete-task'
+import { useCompletedTasksQuery } from '../hooks/use-completed-tasks-query'
 import { useTasksQuery } from '../hooks/use-tasks-query'
+import { CompletedSection } from './list/completed-section'
 import { DaySection } from './list/day-section'
 import { OverdueSection } from './list/overdue-section'
 import { TaskListError } from './list/task-list-error'
@@ -19,6 +21,7 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 		getTodayListInput(today)
 	)
 	const { completeTask } = useCompleteTask(today)
+	const completed = useCompletedTasksQuery(today).data?.tasks ?? []
 
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
@@ -31,6 +34,10 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 			</header>
 
 			{isError && <TaskListError onRetry={() => void refetch()} />}
+
+			{completed.length > 0 && (
+				<CompletedSection tasks={completed} today={today} />
+			)}
 
 			<OverdueSection
 				isLoading={isPending}
