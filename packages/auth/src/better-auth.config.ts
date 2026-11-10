@@ -31,6 +31,7 @@ export interface OAuthProxyOptions {
 	secret?: string
 }
 
+/** `headers` are the request's, when it came over HTTP. */
 export interface AuthEvents {
 	userCreated: (
 		user: { id: string; createdAt: Date },

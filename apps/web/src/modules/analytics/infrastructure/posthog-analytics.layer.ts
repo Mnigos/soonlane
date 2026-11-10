@@ -41,7 +41,7 @@ function deliver(send: () => Promise<void>) {
 	)
 }
 
-// Every send is awaited: a Vercel function can freeze right after the response.
+/** Sends each event before the request ends (a Vercel function can freeze right after); a no-op without a key. Exceptions need no consent. */
 export const PostHogAnalyticsLive = Layer.effect(
 	Analytics,
 	Effect.gen(function* () {

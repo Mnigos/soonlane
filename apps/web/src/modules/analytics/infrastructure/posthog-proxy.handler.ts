@@ -23,6 +23,7 @@ function pickHeaders(headers: Headers, names: readonly string[]) {
 	)
 }
 
+/** Forwards the browser SDK's `/ingest/*` requests to PostHog's EU hosts; the host never comes from the request. */
 export async function proxyToPostHog(request: Request) {
 	const { pathname, search } = new URL(request.url)
 	const path = pathname.slice(PROXY_PREFIX.length)

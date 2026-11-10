@@ -145,6 +145,7 @@ export function trackRouter(router: RegisteredRouter) {
 	})
 }
 
+/** Applies a new answer without a reload: full PostHog on a grant, cookieless with nothing stored on a denial. */
 export function applyConsent(choice: ConsentChoice, source: ConsentSource) {
 	if (!trackedRouter) return
 
