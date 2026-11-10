@@ -4,6 +4,7 @@ import { cn } from '@soonlane/ui/cn'
 import { type Ref, useRef, useState } from 'react'
 import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { getDayHeading } from '../../../domain/day-label.helper'
+import { useOpenEditor } from '../../hooks/use-open-editor'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from './add-task-row'
 import { TaskList } from './task-list'
@@ -28,21 +29,23 @@ export function DaySection({
 	hasAddTask = true,
 	ref,
 }: Readonly<DaySectionProps>) {
-	const [isAdding, setIsAdding] = useState(false)
+	const { openEditorId, setOpenEditorId } = useOpenEditor()
+	const isAdding = openEditorId === date
 	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
 	const hasCreatedRef = useRef(false)
 	const headingId = `day-${date}-heading`
 
 	function openComposer() {
 		hasCreatedRef.current = false
-		setIsAdding(true)
+		setOpenEditorId(date)
+		setShouldFocusAddTask(false)
 		capture('composer_opened', { source: 'day_row' })
 	}
 
 	function closeComposer() {
 		if (!hasCreatedRef.current)
 			capture('composer_cancelled', { source: 'day_row' })
-		setIsAdding(false)
+		setOpenEditorId(undefined)
 		setShouldFocusAddTask(true)
 	}
 

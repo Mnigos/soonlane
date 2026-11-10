@@ -26,6 +26,7 @@ import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
 import { OverdueSection } from '../list/overdue-section'
 import { TaskListError } from '../list/task-list-error'
+import { OpenEditorProvider } from '../open-editor-provider'
 import { UpcomingRange } from './upcoming-range'
 import { WeekControls } from './week-controls'
 import { WeekStrip } from './week-strip'
@@ -79,58 +80,62 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 
 	// Room below the last day so it can scroll up under the sticky header (at least 6rem tall) while the next weeks load.
 	return (
-		<main className="mx-auto w-full max-w-3xl px-6 pb-[calc(100dvh-6rem)] md:px-10">
-			<header
-				className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4"
-				ref={headerRef}
-			>
-				<div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3">
-					<span aria-hidden className="hidden sm:block" />
+		<OpenEditorProvider>
+			<main className="mx-auto w-full max-w-3xl px-6 pb-[calc(100dvh-6rem)] md:px-10">
+				<header
+					className="sticky top-0 z-10 flex flex-col gap-3 border-b bg-background pt-1 md:pt-4"
+					ref={headerRef}
+				>
+					<div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-3">
+						<span aria-hidden className="hidden sm:block" />
 
-					<div className="flex flex-col items-start sm:items-center sm:text-center">
-						<h1 className="text-xl font-bold">Upcoming</h1>
+						<div className="flex flex-col items-start sm:items-center sm:text-center">
+							<h1 className="text-xl font-bold">Upcoming</h1>
 
-						<p className="text-label text-muted-foreground">
-							{strip.monthLabel}
-						</p>
+							<p className="text-label text-muted-foreground">
+								{strip.monthLabel}
+							</p>
+						</div>
+
+						<div className="flex justify-end">
+							<WeekControls
+								activeDayLabel={getActiveDayLabel(activeDay, today)}
+								onNext={goToNextDay}
+								onPrevious={
+									previousDay && (() => goTo(previousDay, 'previous'))
+								}
+								onToday={() => goTo(today, 'today')}
+							/>
+						</div>
 					</div>
 
-					<div className="flex justify-end">
-						<WeekControls
-							activeDayLabel={getActiveDayLabel(activeDay, today)}
-							onNext={goToNextDay}
-							onPrevious={previousDay && (() => goTo(previousDay, 'previous'))}
-							onToday={() => goTo(today, 'today')}
-						/>
-					</div>
-				</div>
+					<WeekStrip days={strip.days} onSelect={day => goTo(day, 'strip')} />
+				</header>
 
-				<WeekStrip days={strip.days} onSelect={day => goTo(day, 'strip')} />
-			</header>
+				{isError && <TaskListError onRetry={() => void refetch()} />}
 
-			{isError && <TaskListError onRetry={() => void refetch()} />}
-
-			<OverdueSection
-				isLoading={isPending}
-				onComplete={completeTask}
-				tasks={data?.overdue ?? []}
-				today={today}
-			/>
-
-			{ranges.map(({ from, to }, index) => (
-				<UpcomingRange
-					from={from}
-					key={from}
+				<OverdueSection
+					isLoading={isPending}
 					onComplete={completeTask}
-					onLoadMore={
-						index === ranges.length - 1 ? loadMoreOnScroll : undefined
-					}
-					sectionRef={sectionRef}
-					showsError={index > 0}
-					to={to}
+					tasks={data?.overdue ?? []}
 					today={today}
 				/>
-			))}
-		</main>
+
+				{ranges.map(({ from, to }, index) => (
+					<UpcomingRange
+						from={from}
+						key={from}
+						onComplete={completeTask}
+						onLoadMore={
+							index === ranges.length - 1 ? loadMoreOnScroll : undefined
+						}
+						sectionRef={sectionRef}
+						showsError={index > 0}
+						to={to}
+						today={today}
+					/>
+				))}
+			</main>
+		</OpenEditorProvider>
 	)
 }
