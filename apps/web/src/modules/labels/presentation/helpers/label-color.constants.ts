@@ -22,3 +22,27 @@ export const LABEL_COLOR_CLASSES = {
 	grey: 'text-label-grey',
 	taupe: 'text-label-taupe',
 } as const satisfies Record<LabelColor, string>
+
+/** Todoist's names for its palette, shown in the sidebar's Color submenu. */
+export const LABEL_COLOR_NAMES = {
+	'berry-red': 'Berry red',
+	red: 'Red',
+	orange: 'Orange',
+	yellow: 'Yellow',
+	'olive-green': 'Olive green',
+	'lime-green': 'Lime green',
+	green: 'Green',
+	'mint-green': 'Mint green',
+	teal: 'Teal',
+	'sky-blue': 'Sky blue',
+	'light-blue': 'Light blue',
+	blue: 'Blue',
+	grape: 'Grape',
+	violet: 'Violet',
+	lavender: 'Lavender',
+	magenta: 'Magenta',
+	salmon: 'Salmon',
+	charcoal: 'Charcoal',
+	grey: 'Grey',
+	taupe: 'Taupe',
+} as const satisfies Record<LabelColor, string>
