@@ -16,7 +16,16 @@ function isParam(segment: string) {
 	return segment.startsWith('$')
 }
 
-/** The router matches paths case-insensitively, so `/App/Labels/Work` is the label route too. */
+/** Compares a path segment as the router sees it; a malformed escape compares as written. */
+function toRouteSegment(segment: string) {
+	try {
+		return decodeURIComponent(segment).toLowerCase()
+	} catch {
+		return segment.toLowerCase()
+	}
+}
+
+/** The router decodes paths and matches them case-insensitively, so `/App/%6Cabels/Work` is the label route too. */
 function withoutPrivateParams(pathname: string) {
 	const segments = pathname.split('/')
 	const route = PRIVATE_ROUTE_SEGMENTS.find(
@@ -24,7 +33,7 @@ function withoutPrivateParams(pathname: string) {
 			routeSegments.length <= segments.length &&
 			routeSegments.every(
 				(segment, index) =>
-					isParam(segment) || segment === segments[index]?.toLowerCase()
+					isParam(segment) || segment === toRouteSegment(segments[index] ?? '')
 			)
 	)
 
