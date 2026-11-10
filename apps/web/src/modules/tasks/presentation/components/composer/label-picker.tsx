@@ -115,7 +115,10 @@ export function LabelPicker({
 								strokeWidth={CHIP_ICON_STROKE}
 							/>
 
-							<span className="truncate">{`Create label "${label.name}"`}</span>
+							<span className="truncate">
+								Create label &quot;<span className="ph-mask">{label.name}</span>
+								&quot;
+							</span>
 						</ComboboxItem>
 					) : (
 						<ComboboxItem className={ROW_CLASS} key={label.id} value={label}>
@@ -128,7 +131,7 @@ export function LabelPicker({
 								strokeWidth={CHIP_ICON_STROKE}
 							/>
 
-							<span className="truncate">{label.name}</span>
+							<span className="ph-mask truncate">{label.name}</span>
 
 							<span className="ml-auto flex size-4 shrink-0 items-center justify-center rounded-sm border border-border-strong group-data-selected:border-primary group-data-selected:bg-primary">
 								<Check

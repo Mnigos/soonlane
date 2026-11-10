@@ -3,10 +3,11 @@ import { LABEL_NAME_MAX_LENGTH, type LabelColor } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { Tag } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
 
 interface LabelNameFieldProps {
+	/** The field's accessible name; it may hold the label's current name, so it is rendered as masked text. */
 	label: string
 	color?: LabelColor
 	defaultValue?: string
@@ -29,6 +30,7 @@ export function LabelNameField({
 	onCancel,
 }: Readonly<LabelNameFieldProps>) {
 	const [value, setValue] = useState(defaultValue)
+	const labelId = useId()
 	// isPending lags a render, so a quick second Enter would save twice.
 	const isSavingRef = useRef(false)
 
@@ -60,8 +62,12 @@ export function LabelNameField({
 					)}
 				/>
 
+				<span className="ph-mask sr-only" id={labelId}>
+					{label}
+				</span>
+
 				<input
-					aria-label={label}
+					aria-labelledby={labelId}
 					autoFocus
 					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
 					maxLength={LABEL_NAME_MAX_LENGTH}

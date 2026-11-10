@@ -145,7 +145,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 								key={label.id}
 							>
 								<Tag aria-hidden className="size-3" />
-								{label.name}
+								<span className="ph-mask">{label.name}</span>
 							</span>
 						))}
 					</p>

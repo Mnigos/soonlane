@@ -17,6 +17,7 @@ const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY
 // The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there.
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
 const SITE_LAYOUT_ROUTE_ID = '/_site'
+const BLOG_ROUTE_ID_PREFIX = '/_site/blog'
 
 let posthogReady: Promise<PostHog | undefined> | undefined
 let trackedRouter: RegisteredRouter | undefined
@@ -26,17 +27,24 @@ function isDesktopShell() {
 	return document.documentElement.dataset.shell === 'desktop'
 }
 
+/** The blog's pages share the public site's layout but count as their own surface. */
+function getSurface(routeIds: string[]): SuperProperties['surface'] {
+	if (routeIds.at(-1)?.startsWith(BLOG_ROUTE_ID_PREFIX)) return 'blog'
+
+	return routeIds.includes(SITE_LAYOUT_ROUTE_ID) ? 'landing' : 'app'
+}
+
 function getSuperProperties(): SuperProperties {
-	const matches = trackedRouter?.state.matches ?? []
+	const routeIds = (trackedRouter?.state.matches ?? []).map(
+		({ routeId }) => routeId
+	)
 
 	return {
 		...BUILD_PROPERTIES,
 		platform: isDesktopShell() ? 'desktop' : 'web',
-		surface: matches.some(({ routeId }) => routeId === SITE_LAYOUT_ROUTE_ID)
-			? 'landing'
-			: 'app',
+		surface: getSurface(routeIds),
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-		route: matches.at(-1)?.routeId,
+		route: routeIds.at(-1),
 	}
 }
 
