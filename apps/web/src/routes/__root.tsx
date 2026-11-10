@@ -9,12 +9,10 @@ import {
 } from '@tanstack/react-router'
 import type { PropsWithChildren } from 'react'
 import { ConsentProvider } from '@/modules/consent/presentation/components/consent-provider'
-import { getConsent } from '@/modules/consent/presentation/helpers/consent-cookie.helper'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 
 export const Route = createRootRouteWithContext<RouterContext>()({
-	loader: () => ({ consent: getConsent() }),
 	head: () => ({
 		meta: [
 			{ charSet: 'utf-8' },
@@ -32,11 +30,9 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 })
 
 function RootComponent() {
-	const { consent } = Route.useLoaderData()
-
 	return (
 		<RootDocument>
-			<ConsentProvider initialConsent={consent}>
+			<ConsentProvider>
 				<Outlet />
 			</ConsentProvider>
 		</RootDocument>
