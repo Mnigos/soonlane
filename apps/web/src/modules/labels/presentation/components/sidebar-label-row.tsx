@@ -14,6 +14,7 @@ import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
 import { isLabelNamed } from '../helpers/label-name.helper'
 import { useUpdateLabelMutation } from '../hooks/use-update-label-mutation'
 import { DeleteLabelDialog } from './delete-label-dialog'
+import { LabelColorSubmenu } from './label-color-submenu'
 import { LabelNameField } from './label-name-field'
 
 interface SidebarLabelRowProps {
@@ -125,6 +126,8 @@ export function SidebarLabelRow({
 						<Pencil aria-hidden className="size-4" />
 						Rename
 					</MenuItem>
+
+					<LabelColorSubmenu label={label} />
 
 					<MenuItem className="text-danger" onClick={() => setIsDeleting(true)}>
 						<Trash2 aria-hidden className="size-4" />

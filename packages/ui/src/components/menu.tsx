@@ -1,16 +1,17 @@
 import { Menu as BaseMenu } from '@base-ui/react/menu'
-import { Check } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import type { ComponentProps } from 'react'
 import { cn } from '../utils/cn.util'
 
 export const Menu = BaseMenu.Root
 export const MenuTrigger = BaseMenu.Trigger
 export const MenuRadioGroup = BaseMenu.RadioGroup
+export const MenuSubmenu = BaseMenu.SubmenuRoot
 
 type MenuContentProps = ComponentProps<typeof BaseMenu.Popup> &
 	Pick<ComponentProps<typeof BaseMenu.Positioner>, 'align' | 'side'>
 
-/** The floating list of a menu, centered under its trigger like Todoist's, portaled and kept inside the viewport. */
+/** The floating list of a menu, centered under its trigger like Todoist's, portaled and kept inside the viewport, scrolling when taller than the room left. */
 export function MenuContent({
 	align = 'center',
 	side = 'bottom',
@@ -28,7 +29,7 @@ export function MenuContent({
 			>
 				<BaseMenu.Popup
 					className={cn(
-						'overflow-hidden rounded-lg border bg-popover text-secondary-foreground shadow-lg outline-none',
+						'max-h-(--available-height) overflow-y-auto rounded-lg border bg-popover text-secondary-foreground shadow-lg outline-none',
 						className
 					)}
 					data-slot="menu-content"
@@ -74,5 +75,24 @@ export function MenuRadioItem({
 				<Check aria-hidden className="size-4" strokeWidth={2.5} />
 			</BaseMenu.RadioItemIndicator>
 		</BaseMenu.RadioItem>
+	)
+}
+
+/** A row that opens a submenu, marked by a chevron and kept on the hover grey while its submenu is open. */
+export function MenuSubmenuTrigger({
+	className,
+	children,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.SubmenuTrigger>>) {
+	return (
+		<BaseMenu.SubmenuTrigger
+			className={cn(ITEM_CLASS, 'data-popup-open:bg-hover', className)}
+			data-slot="menu-submenu-trigger"
+			{...props}
+		>
+			{children}
+
+			<ChevronRight aria-hidden className="ml-auto size-4" />
+		</BaseMenu.SubmenuTrigger>
 	)
 }
