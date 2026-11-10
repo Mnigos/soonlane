@@ -1,8 +1,8 @@
 ---
 title: Why Soonlane
 description: Why I built another Todoist-style task list, why it opens on Upcoming, and why it is free and open source.
-date: '2026-11-06'
-draft: true
+date: '2026-11-10'
+draft: false
 ---
 
 I used Todoist for years. It is a good app. But most days I only touched a small part of it: the list of what is due today, what slipped from yesterday, and what is coming up next week. Projects, filters, karma and team features sat around that list and got in the way.
@@ -19,7 +19,7 @@ It is free. The code is open source under AGPL-3.0, and you can read all of it [
 
 Most task apps open on an inbox. Soonlane opens on Upcoming.
 
-Upcoming is one long scroll. At the top is Overdue, the things that slipped. Then Today. Then tomorrow, the day after, and every day after that. A week strip above the list tells you where you are, and each day in it jumps to that day in the list.
+Upcoming is one long scroll. At the top is Overdue, the things that slipped. Then Today. Then tomorrow, the day after, and every day after that. A week strip above the list tells you where you are, and each day from today on jumps to that day in the list.
 
 I wanted this because "what do I have to do and when" is the only question I ask a task list. A day heading answers it. You do not need a project tree or a filter to see your week. You scroll.
 
@@ -40,15 +40,35 @@ next week
 2026-11-14
 ```
 
-There are also quick picks for Today, Tomorrow, This weekend, Next week and Next weekend, and you can set a time and a priority from the same card.
+There are also quick picks for Today, Tomorrow, This weekend, Next week and Next weekend, and you can set a time, a repeat, a priority, labels and a goal from the same card.
+
+A goal is for tasks that come in amounts, like 50 push-ups. You log progress from the task row, and reaching the goal completes the task.
+
+## When plans change
+
+Every task has an Edit button. It opens the task in place, in the same card you used to add it.
+
+When a few days slip, Overdue fills up. The Overdue heading has a Reschedule button. Pick a day and every task in that Overdue section moves there at once.
+
+Some tasks come back. A task can repeat every day, every weekday, every week, month or year, or on a custom interval like every 3 weeks. When you complete it, it moves to its next date instead of leaving the list.
+
+## Labels
+
+Labels are the only way to group tasks. There are no projects. The sidebar lists your labels with a count of open tasks, and each label has its own page with those tasks by day.
+
+## Mac and phones
+
+There is also a Mac app. It opens the same web app in its own window, so your list is the same in both places. Once you give it Accessibility access in macOS, ⌥Space opens a small Quick Add window from any app. Add the task and the window closes. The Dock icon shows how many tasks are overdue or due today.
+
+On phones, the sidebar becomes a drawer and the rest of Soonlane stays the same.
 
 ## Quiet on purpose
 
-The look follows Todoist's dark theme, because it works and because it is familiar. A dark page, thin dividers, one column of days. Red only shows up where something needs you: the Add task button, today's date and overdue tasks.
+The look follows Todoist's dark theme, because it works and because it is familiar. A dark page, thin dividers, one column of days. Red shows up where something needs you: the Add task button, today's date, overdue tasks and top-priority tasks.
 
-There are no streaks, scores or badges. There is no dashboard of counts. A task list should tell you what is next and then get out of the way.
+There are no streaks, scores or achievements. There is no dashboard of counts. A task list should tell you what is next and then get out of the way.
 
-It should also be fast. Pages render on the server, and completing a task updates the list right away, with an Undo in case you clicked the wrong circle.
+It should also be fast. Completing a task updates the list right away, with an Undo in case you clicked the wrong circle.
 
 ## Why free and open source
 
@@ -58,8 +78,6 @@ If you delete your account, your tasks go with it. The [privacy policy](/privacy
 
 ## What is next
 
-A desktop app for the Mac is next. It uses the same API as the web app, so your list is the same in both places. On phones, Soonlane uses a responsive layout: the sidebar becomes a drawer and the rest stays the same. There is no separate phone app planned.
-
-After that come the things I miss most from my old setup: editing and rescheduling tasks, and labels.
+The Mac app has no download yet, so for now you build it from the repository. Signed releases that update themselves are next.
 
 If you want to try it, sign in with Google and add the first thing you need to do tomorrow. If something is broken or missing, open an issue on GitHub.
