@@ -26,6 +26,7 @@ function stripQueries(value: unknown) {
 		else stripQueries(entry)
 }
 
+/** Removes everything posthog-js keeps on the device: its identity, session, consent, debug and toolbar keys, and the cookies an older build left. */
 export function clearPostHogStorage() {
 	for (const storage of [localStorage, sessionStorage])
 		for (const key of Object.keys(storage))
@@ -41,6 +42,10 @@ export function clearPostHogStorage() {
 	}
 }
 
+/**
+ * Explicit events, pageviews, page leaves, exceptions and masked replay only; see docs/analytics.md.
+ * With analytics denied the SDK runs cookieless: no identity, no storage, no replay.
+ */
 export const POSTHOG_CONFIG = {
 	api_host: '/ingest',
 	ui_host: 'https://eu.posthog.com',

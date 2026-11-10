@@ -7,6 +7,7 @@ interface PrivacyChoicesButtonProps extends PropsWithChildren {
 	className?: string
 }
 
+/** Opens the Privacy choices dialog; there is nothing to choose without analytics. */
 export function PrivacyChoicesButton({
 	className,
 	children = CONSENT_COPY.choicesLink,

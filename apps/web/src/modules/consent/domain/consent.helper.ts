@@ -18,6 +18,7 @@ function toConsentChoice(value?: string): ConsentChoice | undefined {
 	return choice === 'granted' || choice === 'denied' ? choice : undefined
 }
 
+/** The stored answer wins; without one, Global Privacy Control gives `gpc`, which counts as denied. */
 export function readConsent(
 	cookieHeader: string,
 	hasGpc: boolean

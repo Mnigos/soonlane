@@ -6,6 +6,7 @@ export function readCookie(cookieHeader: string, name: string) {
 		?.slice(name.length + 1)
 }
 
+/** A first-party cookie for the next SSR render; a zero lifetime deletes it (pass `domain` for a domain cookie). */
 export async function saveCookie(
 	name: string,
 	value: string,
