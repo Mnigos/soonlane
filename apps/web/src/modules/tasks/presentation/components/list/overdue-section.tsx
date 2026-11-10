@@ -6,6 +6,7 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { useRef, useState } from 'react'
+import { useOpenEditor } from '../../hooks/use-open-editor'
 import { useRescheduleTasks } from '../../hooks/use-reschedule-tasks'
 import { DueDatePicker } from '../composer/due-date-picker'
 import { SectionToggle } from './section-toggle'
@@ -28,6 +29,12 @@ export function OverdueSection({
 	const [isPickerOpen, setIsPickerOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const { rescheduleTasks } = useRescheduleTasks()
+	const { openEditorId, setOpenEditorId } = useOpenEditor()
+
+	/** An edit card whose row is hidden or moved away would reopen wherever the task shows up next. */
+	function closeEditCard() {
+		if (tasks.some(({ id }) => id === openEditorId)) setOpenEditorId(undefined)
+	}
 
 	return (
 		<section aria-labelledby="overdue-heading" className="pt-4">
@@ -36,7 +43,10 @@ export function OverdueSection({
 					<SectionToggle
 						controls="overdue-tasks"
 						isOpen={isOpen}
-						onToggle={() => setIsOpen(open => !open)}
+						onToggle={() => {
+							closeEditCard()
+							setIsOpen(open => !open)
+						}}
 					>
 						Overdue
 					</SectionToggle>
@@ -59,6 +69,7 @@ export function OverdueSection({
 						<DueDatePicker
 							inputRef={inputRef}
 							onDateChange={dueDate => {
+								closeEditCard()
 								rescheduleTasks({ ids: tasks.map(({ id }) => id), dueDate })
 								setIsPickerOpen(false)
 							}}

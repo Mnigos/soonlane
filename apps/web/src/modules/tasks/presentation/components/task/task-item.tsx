@@ -10,6 +10,7 @@ import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
+import { useOpenEditor } from '../../hooks/use-open-editor'
 import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
@@ -49,7 +50,8 @@ function keepFocusAfterMove(button: HTMLButtonElement) {
 }
 
 export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
-	const [isEditing, setIsEditing] = useState(false)
+	const { openEditorId, setOpenEditorId } = useOpenEditor()
+	const isEditing = openEditorId === task.id
 	const [shouldFocusEdit, setShouldFocusEdit] = useState(false)
 	const due = getDueLabel(task.dueDate, task.dueTime, today)
 	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
@@ -57,7 +59,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const titleId = useId()
 
 	function closeComposer() {
-		setIsEditing(false)
+		setOpenEditorId(undefined)
 		setShouldFocusEdit(true)
 	}
 
@@ -163,7 +165,10 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 					autoFocus={shouldFocusEdit}
 					className="-my-1.5 ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary-foreground opacity-0 transition group-focus-within/task:opacity-100 group-hover/task:opacity-100 hover:bg-hover focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-primary pointer-coarse:opacity-100"
 					data-edit-task={task.id}
-					onClick={() => setIsEditing(true)}
+					onClick={() => {
+						setOpenEditorId(task.id)
+						setShouldFocusEdit(false)
+					}}
 					ref={keepFocusAfterMove}
 					type="button"
 				>

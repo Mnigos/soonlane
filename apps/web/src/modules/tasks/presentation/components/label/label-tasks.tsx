@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useLabelTasksQuery } from '../../hooks/use-label-tasks-query'
+import { useOpenEditor } from '../../hooks/use-open-editor'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from '../list/add-task-row'
 import { DaySection } from '../list/day-section'
@@ -17,11 +18,17 @@ interface LabelTasksProps {
 }
 
 export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
-	const [isAdding, setIsAdding] = useState(false)
+	const { openEditorId, setOpenEditorId } = useOpenEditor()
+	const isAdding = openEditorId === label.id
 	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
 
+	function openComposer() {
+		setOpenEditorId(label.id)
+		setShouldFocusAddTask(false)
+	}
+
 	function closeComposer() {
-		setIsAdding(false)
+		setOpenEditorId(undefined)
 		setShouldFocusAddTask(true)
 	}
 	const { data, isPending, isError, refetch } = useLabelTasksQuery({
@@ -80,10 +87,7 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 						today={today}
 					/>
 				) : (
-					<AddTaskRow
-						autoFocus={shouldFocusAddTask}
-						onClick={() => setIsAdding(true)}
-					/>
+					<AddTaskRow autoFocus={shouldFocusAddTask} onClick={openComposer} />
 				)}
 			</div>
 		</main>

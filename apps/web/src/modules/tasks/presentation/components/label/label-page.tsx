@@ -5,6 +5,7 @@ import { isLabelNamed } from '@/modules/labels/presentation/helpers/label-name.h
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { TaskListError } from '../list/task-list-error'
 import { TaskListSkeleton } from '../list/task-list.skeleton'
+import { OpenEditorProvider } from '../open-editor-provider'
 import { LabelTasks } from './label-tasks'
 
 interface LabelPageProps {
@@ -49,5 +50,9 @@ export function LabelPage({ name, today }: Readonly<LabelPageProps>) {
 			</main>
 		)
 
-	return <LabelTasks key={label.id} label={label} today={today} />
+	return (
+		<OpenEditorProvider key={label.id}>
+			<LabelTasks label={label} today={today} />
+		</OpenEditorProvider>
+	)
 }

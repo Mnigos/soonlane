@@ -11,6 +11,7 @@ import { CompletedSection } from './list/completed-section'
 import { DaySection } from './list/day-section'
 import { OverdueSection } from './list/overdue-section'
 import { TaskListError } from './list/task-list-error'
+import { OpenEditorProvider } from './open-editor-provider'
 
 interface TodayPageProps {
 	today: CalendarDate
@@ -24,35 +25,37 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 	const completed = useCompletedTasksQuery(today).data?.tasks ?? []
 
 	return (
-		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
-			<header className="flex flex-col pt-1 md:pt-4">
-				<h1 className="text-xl font-bold">Today</h1>
+		<OpenEditorProvider>
+			<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
+				<header className="flex flex-col pt-1 md:pt-4">
+					<h1 className="text-xl font-bold">Today</h1>
 
-				<p className="text-label text-muted-foreground">
-					{formatWeekday(today, 'long')}, {formatDayMonth(today)}
-				</p>
-			</header>
+					<p className="text-label text-muted-foreground">
+						{formatWeekday(today, 'long')}, {formatDayMonth(today)}
+					</p>
+				</header>
 
-			{isError && <TaskListError onRetry={() => void refetch()} />}
+				{isError && <TaskListError onRetry={() => void refetch()} />}
 
-			{completed.length > 0 && (
-				<CompletedSection tasks={completed} today={today} />
-			)}
+				{completed.length > 0 && (
+					<CompletedSection tasks={completed} today={today} />
+				)}
 
-			<OverdueSection
-				isLoading={isPending}
-				onComplete={completeTask}
-				tasks={data?.overdue ?? []}
-				today={today}
-			/>
+				<OverdueSection
+					isLoading={isPending}
+					onComplete={completeTask}
+					tasks={data?.overdue ?? []}
+					today={today}
+				/>
 
-			<DaySection
-				date={today}
-				isLoading={isPending}
-				onComplete={completeTask}
-				tasks={data?.scheduled ?? []}
-				today={today}
-			/>
-		</main>
+				<DaySection
+					date={today}
+					isLoading={isPending}
+					onComplete={completeTask}
+					tasks={data?.scheduled ?? []}
+					today={today}
+				/>
+			</main>
+		</OpenEditorProvider>
 	)
 }
