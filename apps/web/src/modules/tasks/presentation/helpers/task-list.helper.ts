@@ -1,4 +1,9 @@
-import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
+import type {
+	ListTasksByLabelInput,
+	ListTasksInput,
+	ListTasksOutput,
+	Task,
+} from '@soonlane/contracts'
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 
@@ -84,13 +89,18 @@ export function withTask(
 	return { ...list, [bucket]: [...tasks, task].toSorted(compareTasks) }
 }
 
-/** Where a task belongs in a list loaded for this range, as the server would place it. */
+/** Where a task belongs in a list loaded for this range or label, as the server would place it. */
 export function placeTask(
 	task: Task,
-	{ from, to, today }: ListTasksInput
+	input: ListTasksInput | ListTasksByLabelInput
 ): TaskPlacement | undefined {
-	if (task.dueDate < today) return { bucket: 'overdue', task }
-	if (from <= task.dueDate && task.dueDate <= to)
+	if ('labelId' in input && !task.labels.some(({ id }) => id === input.labelId))
+		return undefined
+	if (task.dueDate < input.today) return { bucket: 'overdue', task }
+	if (
+		!('from' in input) ||
+		(input.from <= task.dueDate && task.dueDate <= input.to)
+	)
 		return { bucket: 'scheduled', task }
 
 	return undefined

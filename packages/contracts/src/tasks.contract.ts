@@ -129,7 +129,8 @@ export const createTaskInputSchema = z.object({
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
-// Replaces every field (an absent description or time clears it) but the repeat rule: null clears it, absent keeps it for clients from before repeating tasks.
+// Replaces every field (an absent description or time clears it) but two that an absent value keeps for clients from before they could be edited:
+// the repeat rule (null clears it) and the labels (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels).
 // Editing a goal comes later (SOON-57), so an edit leaves the goal and its progress alone.
 export const updateTaskInputSchema = createTaskInputSchema
 	.omit({ goal: true })
