@@ -6,6 +6,7 @@ import { PrivacyChoicesButton } from './privacy-choices-button'
 const TITLE_ID = 'consent-banner-title'
 const BODY_ID = 'consent-banner-body'
 
+/** Overlays the bottom of the viewport, so showing or dismissing it never moves the page. */
 export function ConsentBanner() {
 	const { choose } = useConsent()
 
@@ -13,7 +14,7 @@ export function ConsentBanner() {
 		<section
 			aria-describedby={BODY_ID}
 			aria-labelledby={TITLE_ID}
-			className="sticky bottom-4 z-20 mx-4 mb-4 rounded-lg border bg-popover p-4 shadow-lg sm:ml-auto sm:w-96"
+			className="fixed inset-x-4 bottom-4 z-20 rounded-lg border bg-popover p-4 shadow-lg sm:left-auto sm:w-96"
 		>
 			<h2 className="text-sm font-semibold" id={TITLE_ID}>
 				{CONSENT_COPY.bannerTitle}
