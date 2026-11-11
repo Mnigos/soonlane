@@ -1,9 +1,9 @@
-import type { CalendarDate } from '@soonlane/domain'
-import { useSyncExternalStore } from 'react'
 import {
+	type CalendarDate,
 	getMillisecondsUntilTomorrow,
 	getToday,
-} from '../../domain/calendar-date.helper'
+} from '@soonlane/domain'
+import { useSyncExternalStore } from 'react'
 
 /** Re-reads the date at local midnight and when the tab returns, since timers stall while a laptop sleeps. */
 function subscribe(onChange: () => void) {

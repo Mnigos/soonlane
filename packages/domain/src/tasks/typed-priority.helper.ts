@@ -1,4 +1,4 @@
-import { TASK_PRIORITIES } from '@soonlane/domain'
+import { TASK_PRIORITIES } from './task.constants'
 
 const WORD_PATTERN = /\S+/gu
 

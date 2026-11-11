@@ -1,10 +1,10 @@
 import { capture } from '@soonlane/analytics/client'
+import { DATE_LOCALE } from '@soonlane/domain'
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
-import { DATE_LOCALE } from '@/modules/tasks/domain/calendar.constants'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { CalendarLinkField } from './calendar-link-field'
 

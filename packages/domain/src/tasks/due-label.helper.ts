@@ -1,11 +1,11 @@
-import type { CalendarDate } from '@soonlane/domain'
 import {
 	addDays,
 	formatDayMonth,
 	formatWeekday,
 	isBefore,
-} from './calendar-date.helper'
-import { getRelativeDayName } from './day-label.helper'
+} from '../dates/calendar-date.helper'
+import type { CalendarDate } from '../dates/calendar-date.types'
+import { getRelativeDayName } from '../dates/day-label.helper'
 
 /** Todoist's due colors: overdue red, today green, tomorrow orange, the next 2 to 7 days violet, later uncolored. */
 export type DueTone = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later'

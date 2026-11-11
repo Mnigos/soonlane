@@ -1,3 +1,4 @@
+import { findLabelQuery } from '@soonlane/domain'
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- a styled text input as an ARIA combobox; select and datalist cannot show label rows */
 import { Popover, PopoverContent } from '@soonlane/ui/components/popover'
 import { useQuery } from '@tanstack/react-query'
@@ -15,7 +16,6 @@ import {
 import { flushSync } from 'react-dom'
 import { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
-import { findLabelQuery } from '../../../domain/typed-label.helper'
 import { LABEL_ROW_CLASS } from '../../helpers/composer-chip.constants'
 import { searchLabels } from '../../helpers/label-search.helper'
 import { HighlightedInput } from './highlighted-input'

@@ -1,4 +1,3 @@
-import type { CalendarDate } from '@soonlane/domain'
 import {
 	addDays,
 	formatMonthYear,
@@ -7,12 +6,13 @@ import {
 	getDaysFrom,
 	getWeekStart,
 	isBefore,
-} from './calendar-date.helper'
+} from '../dates/calendar-date.helper'
+import type { CalendarDate } from '../dates/calendar-date.types'
 import {
 	DAYS_PER_WEEK,
 	UPCOMING_WEEK_COUNT,
 	UPCOMING_WEEKS_PER_LOAD,
-} from './calendar.constants'
+} from '../dates/calendar.constants'
 
 export interface WeekStripDay {
 	date: CalendarDate

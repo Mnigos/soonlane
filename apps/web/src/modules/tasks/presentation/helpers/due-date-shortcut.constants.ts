@@ -1,6 +1,6 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
+import type { DueDateShortcutId } from '@soonlane/domain'
 import type { ComponentType, SVGProps } from 'react'
-import type { DueDateShortcutId } from '../../domain/due-date-shortcut.helper'
 import {
 	NextWeekIcon,
 	TomorrowIcon,

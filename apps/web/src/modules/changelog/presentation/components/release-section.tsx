@@ -1,5 +1,5 @@
+import { formatDayMonthYear } from '@soonlane/domain'
 import { ChevronDown } from 'lucide-react'
-import { formatDayMonthYear } from '@/modules/tasks/domain/calendar-date.helper'
 import { getReleaseAnchor } from '../../domain/release-anchor.helper'
 import type { Release, ReleaseGroup } from '../../domain/release.types'
 import { ReleaseChanges } from './release-changes'

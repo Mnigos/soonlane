@@ -1,11 +1,10 @@
-import type { CalendarDate } from '@soonlane/domain'
+import { type CalendarDate, getToday } from '@soonlane/domain'
 import { matchQuery, type QueryClient } from '@tanstack/react-query'
 import {
 	isDesktopShell,
 	sendToDesktopHost,
 } from '@/modules/shell/presentation/helpers/desktop-host.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
-import { getToday } from '../../domain/calendar-date.helper'
 
 /** The Today list's input: overdue tasks and the ones due today. */
 export function getTodayListInput(today: CalendarDate) {

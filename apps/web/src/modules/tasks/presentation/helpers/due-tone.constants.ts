@@ -1,4 +1,4 @@
-import type { DueTone } from '../../domain/due-label.helper'
+import type { DueTone } from '@soonlane/domain'
 
 export const DUE_TONE_CLASSES = {
 	overdue: 'text-danger',

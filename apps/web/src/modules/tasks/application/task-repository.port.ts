@@ -7,10 +7,15 @@ import type {
 	UpdateTaskInput,
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
-import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
+import type {
+	CalendarDate,
+	LabelId,
+	TaskId,
+	UserId,
+	RepeatRule,
+} from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
 import type { DbError } from '@/platform/db/db.errors'
-import type { RepeatRule } from '../domain/repeat-rule.helper'
 
 export interface OpenTasksBetween {
 	ownerId: UserId

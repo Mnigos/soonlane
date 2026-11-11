@@ -1,12 +1,12 @@
-import type { CalendarDate } from '@soonlane/domain'
 import {
 	addDays,
 	formatWeekday,
 	formatWeekdayDayMonth,
 	getWeekStart,
 	getWeekdayIndex,
-} from './calendar-date.helper'
-import { DAYS_PER_WEEK } from './calendar.constants'
+} from '../dates/calendar-date.helper'
+import type { CalendarDate } from '../dates/calendar-date.types'
+import { DAYS_PER_WEEK } from '../dates/calendar.constants'
 
 export type DueDateShortcutId =
 	| 'today'

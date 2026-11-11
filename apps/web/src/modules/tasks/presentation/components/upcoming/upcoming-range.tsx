@@ -1,7 +1,6 @@
 import type { Task } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
+import { type CalendarDate, getDaysThrough } from '@soonlane/domain'
 import { memo, type RefCallback, useMemo } from 'react'
-import { getDaysThrough } from '../../../domain/upcoming-view.helper'
 import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
 import { DaySection } from '../list/day-section'

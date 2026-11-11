@@ -1,5 +1,5 @@
-import type { CalendarDate } from '@soonlane/domain'
 import { addDays, formatDayMonth, formatWeekday } from './calendar-date.helper'
+import type { CalendarDate } from './calendar-date.types'
 
 const LABEL_SEPARATOR = ' · '
 
