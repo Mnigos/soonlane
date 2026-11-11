@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { NotFound } from './components/not-found'
+import { RouteError } from './components/route-error'
 import {
 	captureException,
 	trackRouter,
@@ -51,6 +52,9 @@ export function getRouter() {
 		defaultPreloadStaleTime: 0,
 		context: { queryClient, orpc: orpcQuery },
 		defaultNotFoundComponent: () => <NotFound className="min-h-dvh" />,
+		defaultErrorComponent: ({ error }) => (
+			<RouteError className="flex-1 py-16" error={error} />
+		),
 		defaultOnCatch: error => {
 			captureException(error)
 			void recoverFromChunkError(error)
