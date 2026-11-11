@@ -1,4 +1,4 @@
-import type { CreateTaskInput } from '@soonlane/contracts'
+import type { GoalInput } from '@soonlane/contracts'
 import { GOAL_TARGET_MAX, GOAL_UNIT_MAX_LENGTH } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import {
@@ -14,15 +14,13 @@ import {
 	FOOTER_BUTTON_CLASS,
 } from '../../helpers/composer-chip.constants'
 import { GoalField } from '../task/goal-field'
-import { ComingSoonButton } from './coming-soon-button'
 
-type Goal = CreateTaskInput['goal']
+type Goal = GoalInput | undefined
 
 interface GoalChipProps {
 	value: Goal
 	onChange: (goal: Goal) => void
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
-	isReadOnly?: boolean
 }
 
 interface GoalFieldsProps {
@@ -89,7 +87,6 @@ export function GoalChip({
 	value,
 	onChange,
 	onKeyDown,
-	isReadOnly = false,
 }: Readonly<GoalChipProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const targetRef = useRef<HTMLInputElement>(null)
@@ -111,18 +108,6 @@ export function GoalChip({
 			)}
 		</>
 	)
-
-	if (isReadOnly)
-		return (
-			<ComingSoonButton
-				className={cn(COMPOSER_CHIP_CLASS, 'max-w-full')}
-				label="Goal"
-				labelledBy={labelledBy}
-				onKeyDown={onKeyDown}
-			>
-				{chip}
-			</ComingSoonButton>
-		)
 
 	return (
 		<Popover onOpenChange={setIsOpen} open={isOpen}>

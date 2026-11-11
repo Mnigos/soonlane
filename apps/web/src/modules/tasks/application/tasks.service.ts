@@ -1,5 +1,6 @@
 import type {
 	CreateTaskInput,
+	GoalInput,
 	Label,
 	ListCompletedTasksInput,
 	ListTasksByLabelInput,
@@ -9,6 +10,7 @@ import type {
 	LogProgressOutput,
 	Task,
 	UpdateTaskInput,
+	UpdateTaskOutput,
 } from '@soonlane/contracts'
 import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
@@ -47,7 +49,7 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			id: TaskId,
 			input: UpdateTaskInput
-		) => Effect.Effect<Task, TaskNotFound | DbError>
+		) => Effect.Effect<UpdateTaskOutput, TaskNotFound | DbError>
 		readonly delete: (
 			ownerId: UserId,
 			id: TaskId
@@ -94,6 +96,7 @@ interface CompletionDates {
 interface RestoredOccurrence {
 	dueDate?: CalendarDate
 	progress?: number
+	goal?: GoalInput
 }
 
 // From the date the client saw, so a stale list cannot advance the task twice.
@@ -187,7 +190,7 @@ export const TasksServiceLive = Layer.effect(
 		const update = Effect.fn('TasksService.update')(function* (
 			ownerId: UserId,
 			id: TaskId,
-			input: UpdateTaskInput
+			{ today, ...input }: UpdateTaskInput
 		) {
 			const current = yield* requireTask(
 				yield* repository.find({ ownerId, id })
@@ -197,6 +200,8 @@ export const TasksServiceLive = Layer.effect(
 					? current.repeat
 					: (input.repeat ?? undefined)
 			const dueDate = getEditedDueDate(current, input.dueDate, repeat?.unit)
+			const rule = getEditedRule(current, dueDate, repeat)
+			const editedAt = new Date(yield* Clock.currentTimeMillis)
 
 			return yield* requireTask(
 				yield* repository.update({
@@ -204,7 +209,9 @@ export const TasksServiceLive = Layer.effect(
 					ownerId,
 					id,
 					dueDate,
-					repeat: getEditedRule(current, dueDate, repeat),
+					repeat: rule,
+					nextDueDate: rule && getNextDueDate(dueDate, rule, today),
+					editedAt,
 				})
 			)
 		})

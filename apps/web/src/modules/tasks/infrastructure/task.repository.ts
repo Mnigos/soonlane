@@ -1,3 +1,4 @@
+import type { GoalInput } from '@soonlane/contracts'
 import { label, task, taskLabel } from '@soonlane/db'
 import {
 	DEFAULT_TASK_PRIORITY,
@@ -15,7 +16,6 @@ import {
 	isNotNull,
 	isNull,
 	lt,
-	notInArray,
 	sql,
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
@@ -29,6 +29,7 @@ import {
 } from './task-label-rows.helper'
 import { updateProgress } from './task-progress.helper'
 import { toTask } from './task-row.helper'
+import { updateTask } from './task-update.helper'
 
 // Keep in sync with compareTasks in task-list.helper.ts.
 const DAY_ORDER = [
@@ -37,6 +38,18 @@ const DAY_ORDER = [
 	asc(task.priority),
 	asc(task.createdAt),
 ]
+
+/** Clamped to the restored goal's target, or to the stored one; a task without a goal keeps 0, which its check requires. */
+function getRestoredProgress(
+	progress: number | undefined,
+	goal: GoalInput | undefined
+) {
+	if (goal && progress !== undefined) return Math.min(progress, goal.target)
+	if (goal) return sql`least(${task.goalProgress}, ${goal.target})`
+	if (progress === undefined) return undefined
+
+	return sql`least(${progress}, coalesce(${task.goalTarget}, 0))`
+}
 
 async function findTask(database: Queries, ownerId: UserId, id: TaskId) {
 	const rows = await database
@@ -171,53 +184,13 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 							return created ?? toTask(row, [])
 						})
 				),
-			update: ({
-				ownerId,
-				id,
-				title,
-				description,
-				dueDate,
-				dueTime,
-				priority,
-				repeat,
-				labelIds,
-			}) =>
+			update: update =>
 				db.run(
 					'TaskRepository.update',
 					async database =>
-						await database.transaction(async transaction => {
-							const [row] = await transaction
-								.update(task)
-								.set({
-									title,
-									description: description || null,
-									dueDate,
-									dueTime: dueTime ?? null,
-									priority,
-									repeatUnit: repeat?.unit ?? null,
-									repeatInterval: repeat?.interval ?? null,
-									repeatAnchor: repeat?.anchor ?? null,
-								})
-								.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
-								.returning()
-
-							if (!row) return undefined
-							if (labelIds) {
-								await transaction
-									.delete(taskLabel)
-									.where(
-										and(
-											eq(taskLabel.taskId, id),
-											notInArray(taskLabel.labelId, labelIds)
-										)
-									)
-								await assignLabels(transaction, ownerId, id, labelIds)
-							}
-
-							const [updated] = await withLabels(transaction, ownerId, [row])
-
-							return updated
-						})
+						await database.transaction(
+							async transaction => await updateTask(transaction, update)
+						)
 				),
 			delete: ({ ownerId, id }) =>
 				db.run('TaskRepository.delete', async database => {
@@ -234,18 +207,18 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 					async database =>
 						await database.$count(task, eq(task.ownerId, ownerId))
 				),
-			setCompletion: ({ ownerId, id, completedAt, dueDate, progress }) =>
+			setCompletion: ({ ownerId, id, completedAt, dueDate, progress, goal }) =>
 				db.run('TaskRepository.setCompletion', async database => {
 					const rows = await database
 						.update(task)
 						.set({
 							completedAt: completedAt ?? null,
 							dueDate,
-							// A task without a goal keeps 0, which its check requires.
-							goalProgress:
-								progress === undefined
-									? undefined
-									: sql`least(${progress}, coalesce(${task.goalTarget}, 0))`,
+							...(goal && {
+								goalTarget: goal.target,
+								goalUnit: goal.unit ?? null,
+							}),
+							goalProgress: getRestoredProgress(progress, goal),
 						})
 						.where(and(eq(task.ownerId, ownerId), eq(task.id, id)))
 						.returning()

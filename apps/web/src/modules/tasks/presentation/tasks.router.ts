@@ -38,9 +38,7 @@ export const tasksRouter = {
 	}) {
 		const tasksService = yield* TasksService
 
-		return {
-			task: yield* tasksService.update(context.user.id, input.id, input),
-		}
+		return yield* tasksService.update(context.user.id, input.id, input)
 	}),
 	delete: os.tasks.delete.use(requireUser).effect(function* ({
 		context,
@@ -70,6 +68,7 @@ export const tasksRouter = {
 			task: yield* tasksService.uncomplete(context.user.id, input.id, {
 				dueDate: input.dueDate,
 				progress: input.progress,
+				goal: input.goal,
 			}),
 		}
 	}),

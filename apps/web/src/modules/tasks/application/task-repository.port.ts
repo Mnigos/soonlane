@@ -1,9 +1,11 @@
 import type {
 	CreateTaskInput,
+	GoalInput,
 	Label,
 	LogProgressOutput,
 	Task,
 	UpdateTaskInput,
+	UpdateTaskOutput,
 } from '@soonlane/contracts'
 import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
@@ -32,10 +34,13 @@ export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
 	repeat?: RepeatRule
 }
 
-export interface TaskUpdate extends Omit<UpdateTaskInput, 'repeat'> {
+/** `nextDueDate` is where the edited rule moves the task when its new goal completes it. */
+export interface TaskUpdate extends Omit<UpdateTaskInput, 'repeat' | 'today'> {
 	ownerId: UserId
 	id: TaskId
 	repeat?: RepeatRule
+	nextDueDate?: CalendarDate
+	editedAt: Date
 }
 
 export interface TaskCompletion {
@@ -44,6 +49,7 @@ export interface TaskCompletion {
 	completedAt?: Date
 	dueDate?: CalendarDate
 	progress?: number
+	goal?: GoalInput
 }
 
 export interface TaskKey {
@@ -94,7 +100,7 @@ export class TaskRepository extends Context.Service<
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
 		readonly update: (
 			update: TaskUpdate
-		) => Effect.Effect<Task | undefined, DbError>
+		) => Effect.Effect<UpdateTaskOutput | undefined, DbError>
 		readonly delete: (
 			key: TaskKey
 		) => Effect.Effect<TaskId | undefined, DbError>
