@@ -1,6 +1,7 @@
 import type { UserId } from '@soonlane/domain'
 
-const MIN_SECRET_LENGTH = 32
+/** Better Auth signs sessions with `AUTH_SECRET`; shorter secrets are refused at startup. */
+export const MIN_SECRET_LENGTH = 32
 
 export interface AuthUser {
 	id: UserId
@@ -8,25 +9,6 @@ export interface AuthUser {
 	name: string
 	emailVerified: boolean
 	image?: string
-}
-
-export interface AuthSettings {
-	secret: string
-	googleClientId: string
-	googleClientSecret: string
-}
-
-export function canValidateSessions({
-	secret,
-}: Pick<AuthSettings, 'secret'>): boolean {
-	return secret.length >= MIN_SECRET_LENGTH
-}
-
-export function isAuthConfigured(settings: AuthSettings): boolean {
-	return (
-		canValidateSessions(settings) &&
-		Boolean(settings.googleClientId && settings.googleClientSecret)
-	)
 }
 
 function normalizeEmail(email: string) {

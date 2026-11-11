@@ -1,10 +1,12 @@
 import { RPCHandler } from '@orpc/server/fetch'
 import { Effect } from 'effect'
-import { RPC_PREFIX } from '@/platform/rpc/rpc-prefix.constants'
+import { RPC_PREFIX } from './rpc-prefix.constants'
 import type { RpcContext } from './rpc.context'
 import { router } from './rpc.router'
 
-type ContextBuilder = (request: Request) => Promise<RpcContext>
+type ContextBuilder = (
+	request: Request
+) => Promise<{ context: RpcContext; setCookies: string[] }>
 
 type TrustedOriginsProvider = () => Promise<readonly string[]>
 
@@ -41,12 +43,14 @@ export function createRpcHandler(
 			)
 				return new Response('Forbidden', { status: 403 })
 
-			const { response } = await handler.handle(request, {
-				prefix: RPC_PREFIX,
-				context: await buildContext(request),
-			})
+			const { context, setCookies } = await buildContext(request)
+			const { response = new Response('Not Found', { status: 404 }) } =
+				await handler.handle(request, { prefix: RPC_PREFIX, context })
 
-			return response ?? new Response('Not Found', { status: 404 })
+			for (const cookie of setCookies)
+				response.headers.append('set-cookie', cookie)
+
+			return response
 		} catch (error) {
 			// Only the error name: driver errors can carry SQL parameters such as session tokens.
 			Effect.runSync(

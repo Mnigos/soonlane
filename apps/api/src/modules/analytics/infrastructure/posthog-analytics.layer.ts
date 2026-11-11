@@ -4,7 +4,6 @@ import { PostHog } from 'posthog-node'
 import { AppConfig } from '@/platform/config/app.config'
 import { Analytics, AnalyticsConsent } from '../application/analytics.port'
 import type { ServerEvents } from '../domain/analytics-event.types'
-import { BUILD_PROPERTIES } from '../domain/analytics.constants'
 
 const POSTHOG_HOST = 'https://eu.i.posthog.com'
 const REQUEST_TIMEOUT_MS = 3000
@@ -41,14 +40,15 @@ function deliver(send: () => Promise<void>) {
 	)
 }
 
-/** Sends each event before the request ends (a Vercel function can freeze right after); a no-op without a key. Exceptions need no consent. */
+/** Sends each event before the request ends, so a deploy's shutdown loses none; a no-op without a key. Exceptions need no consent. */
 export const PostHogAnalyticsLive = Layer.effect(
 	Analytics,
 	Effect.gen(function* () {
-		const { posthogKey } = yield* AppConfig
+		const { posthogKey, version, commit, environment } = yield* AppConfig
 
 		if (!posthogKey) return disabledAnalytics
 
+		const buildProperties = { app_version: version, commit, environment }
 		const client = yield* Effect.acquireRelease(
 			Effect.sync(
 				() =>
@@ -75,7 +75,7 @@ export const PostHogAnalyticsLive = Layer.effect(
 					await client.captureImmediate({
 						distinctId: userId,
 						event,
-						properties: { ...BUILD_PROPERTIES, ...properties },
+						properties: { ...buildProperties, ...properties },
 					})
 			)
 		})
@@ -89,7 +89,7 @@ export const PostHogAnalyticsLive = Layer.effect(
 					await client.captureExceptionImmediate(
 						toSafeError(error),
 						userId,
-						BUILD_PROPERTIES
+						buildProperties
 					)
 			)
 		})

@@ -8,6 +8,7 @@ import { hooksDirOnlyHooksRule } from './hooks-dir-only-hooks.rule.mts'
 import { inferredTypePlacementRule } from './inferred-type-placement.rule.mts'
 import { jsxSiblingSpacingRule } from './jsx-sibling-spacing.rule.mts'
 import { moduleNameRule } from './module-name.rule.mts'
+import { noApiOnlyImportRule } from './no-api-only-import.rule.mts'
 import { noBrandConstructionRule } from './no-brand-construction.rule.mts'
 import { noLetRule } from './no-let.rule.mts'
 import { noRepositoryTryCatchRule } from './no-repository-try-catch.rule.mts'
@@ -26,6 +27,7 @@ export default definePlugin({
 		'inferred-type-placement': inferredTypePlacementRule,
 		'jsx-sibling-spacing': jsxSiblingSpacingRule,
 		'module-name': moduleNameRule,
+		'no-api-only-import': noApiOnlyImportRule,
 		'no-brand-construction': noBrandConstructionRule,
 		'no-let': noLetRule,
 		'no-repository-try-catch': noRepositoryTryCatchRule,

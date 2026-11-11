@@ -12,18 +12,24 @@ export interface RpcContext extends WithEffectContext<AppServices> {
 	session: AuthSession | null
 }
 
+/** The context of one RPC request and the `Set-Cookie` values its session lookup produced, which go onto that request's response. */
 export async function createRpcContext(
 	services: Context.Context<AppServices>,
 	headers: Headers
-): Promise<RpcContext> {
-	const session = await Context.get(services, Auth).getSession(headers)
+): Promise<{ context: RpcContext; setCookies: string[] }> {
+	const { session, setCookies } = await Context.get(services, Auth).getSession(
+		headers
+	)
 
 	return {
-		'effect/context': Context.add(
-			services,
-			AnalyticsConsent,
-			hasAnalyticsConsent(headers)
-		),
-		session,
+		context: {
+			'effect/context': Context.add(
+				services,
+				AnalyticsConsent,
+				hasAnalyticsConsent(headers)
+			),
+			session,
+		},
+		setCookies,
 	}
 }

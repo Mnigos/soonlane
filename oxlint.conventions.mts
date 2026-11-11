@@ -157,7 +157,7 @@ const BRAND_CONSTRUCTION_FILES = [
 	'packages/contracts/src/calendar-date.schemas.ts',
 	'packages/contracts/src/ids.schemas.ts',
 	'apps/web/src/modules/changelog/infrastructure/changelog.parser.ts',
-	'apps/web/src/modules/identity/infrastructure/better-auth.layer.ts',
+	'apps/api/src/modules/identity/infrastructure/better-auth.layer.ts',
 ] as const
 
 const ROLE_NAMED_SOURCES = [
@@ -238,7 +238,11 @@ export const CONVENTION_OVERRIDES = [
 		},
 	},
 	{
-		files: ['apps/web/src/modules/**', 'packages/contracts/src/*.contract.ts'],
+		files: [
+			'apps/web/src/modules/**',
+			'apps/api/src/modules/**',
+			'packages/contracts/src/*.contract.ts',
+		],
 		rules: { 'soonlane/module-name': 'error' },
 	},
 	{
@@ -248,6 +252,10 @@ export const CONVENTION_OVERRIDES = [
 	{
 		files: [...BRAND_CONSTRUCTION_FILES],
 		rules: { 'soonlane/no-brand-construction': 'off' },
+	},
+	{
+		files: ['apps/web/**'],
+		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
 	{
 		files: ['**/*.repository.ts'],

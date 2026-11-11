@@ -3,15 +3,16 @@ import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
 import { betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api'
-import { oAuthProxy } from 'better-auth/plugins/oauth-proxy'
-import { tanstackStartCookies } from 'better-auth/tanstack-start'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { AUTH_COOKIE_PREFIX } from './auth-cookie.constants'
 import { canSignUp } from './auth-policy.helper'
 import { DESKTOP_EXCHANGE_PATH, desktopSignIn } from './desktop-sign-in.handler'
 import type { SignInMethod } from './sign-in-method.types'
 import { SIGNED_IN_HINT_COOKIE } from './signed-in-hint.constants'
 
 export const AUTH_BASE_PATH = '/api/auth'
+/** The one header Better Auth reads the client IP from; the API's HTTP entry sets it and drops any copy a client sends. */
+export const CLIENT_IP_HEADER = 'x-soonlane-client-ip'
 
 export type AuthLogLevel = 'debug' | 'info' | 'warn' | 'error'
 
@@ -24,11 +25,6 @@ export type AuthLogger = (
 export interface GoogleProviderOptions {
 	clientId: string
 	clientSecret: string
-}
-
-export interface OAuthProxyOptions {
-	productionUrl: string
-	secret?: string
 }
 
 /** `headers` are the request's, when it came over HTTP. */
@@ -50,8 +46,7 @@ export interface CreateAuthOptions {
 	trustedOrigins: readonly string[]
 	secret: string
 	allowedEmails: readonly string[]
-	google?: GoogleProviderOptions
-	oauthProxy?: OAuthProxyOptions
+	google: GoogleProviderOptions
 	log: AuthLogger
 	events: AuthEvents
 }
@@ -68,9 +63,8 @@ const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
  * Better Auth for anyone with a verified Google address. `allowedEmails`, when
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
- * signed-in hint cookie, the OAuth proxy that lets Vercel previews sign in
- * through the production callback, and the hand-off of a browser sign-in to
- * the desktop app.
+ * signed-in hint cookie and the hand-off of a browser sign-in to the desktop
+ * app.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
@@ -93,10 +87,10 @@ export function createAuth(options: CreateAuthOptions) {
 		}),
 		advanced: {
 			database: { generateId: 'uuid' },
-			// Vercel overwrites x-forwarded-for, so clients cannot spoof it.
-			ipAddress: { ipAddressHeaders: ['x-forwarded-for'] },
+			cookiePrefix: AUTH_COOKIE_PREFIX,
+			ipAddress: { ipAddressHeaders: [CLIENT_IP_HEADER] },
 		},
-		// Vercel instances share no memory, so counters live in Postgres.
+		// Counters live in Postgres, so they survive deploys and hold across replicas.
 		rateLimit: {
 			enabled: true,
 			storage: 'database',
@@ -110,9 +104,9 @@ export function createAuth(options: CreateAuthOptions) {
 			},
 		},
 		// A client-held Google ID token would turn a stale session into a fresh one.
-		socialProviders: options.google
-			? { google: { ...options.google, disableIdTokenSignIn: true } }
-			: {},
+		socialProviders: {
+			google: { ...options.google, disableIdTokenSignIn: true },
+		},
 		user: { deleteUser: { enabled: true } },
 		hooks: {
 			after: createAuthMiddleware(async ctx => {
@@ -161,20 +155,7 @@ export function createAuth(options: CreateAuthOptions) {
 				},
 			},
 		},
-		plugins: [
-			// Previews send Google to the production callback, which forwards the encrypted profile back; production skips the proxy for its own sign-ins.
-			...(options.oauthProxy
-				? [
-						oAuthProxy({
-							productionURL: options.oauthProxy.productionUrl,
-							secret: options.oauthProxy.secret,
-						}),
-					]
-				: []),
-			desktopSignIn(),
-			// Puts the cookies of a session refreshed by a direct getSession call (the RPC handler's) on that request's response; keep it last.
-			tanstackStartCookies(),
-		],
+		plugins: [desktopSignIn()],
 	})
 }
 

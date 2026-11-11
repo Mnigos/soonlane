@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm'
 import { Effect } from 'effect'
+import { AppConfig } from '../config/app.config'
 import { Db } from '../db/db.layer'
 import { os } from '../rpc/rpc.base'
 
@@ -19,11 +20,8 @@ export const systemRouter = {
 				)
 			)
 
-		return {
-			ok: db === 'ok',
-			db,
-			version: import.meta.env.APP_VERSION,
-			commit: import.meta.env.APP_COMMIT,
-		}
+		const { version, commit } = yield* AppConfig
+
+		return { ok: db === 'ok', db, version, commit }
 	}),
 }

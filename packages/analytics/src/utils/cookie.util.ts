@@ -1,11 +1,3 @@
-export function readCookie(cookieHeader: string, name: string) {
-	return cookieHeader
-		.split(';')
-		.map(part => part.trim())
-		.find(part => part.startsWith(`${name}=`))
-		?.slice(name.length + 1)
-}
-
 /** A first-party cookie for the next SSR render; a zero lifetime deletes it (pass `domain` for a domain cookie). */
 export async function saveCookie(
 	name: string,

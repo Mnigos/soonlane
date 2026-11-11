@@ -1,5 +1,5 @@
 import { drizzle } from 'drizzle-orm/node-postgres'
-import { Context, Effect, Layer } from 'effect'
+import { Context, Effect, Layer, Redacted } from 'effect'
 import { Pool } from 'pg'
 import { AppConfig } from '../config/app.config'
 import {
@@ -34,7 +34,7 @@ export const DbLive = Layer.effect(
 		const pool = yield* Effect.acquireRelease(
 			Effect.sync(() => {
 				const createdPool = new Pool({
-					connectionString: databaseUrl,
+					connectionString: Redacted.value(databaseUrl),
 					max: POOL_MAX_CONNECTIONS,
 					connectionTimeoutMillis: CONNECTION_TIMEOUT_MS,
 					query_timeout: QUERY_TIMEOUT_MS,

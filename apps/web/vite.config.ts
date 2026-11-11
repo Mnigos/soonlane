@@ -25,28 +25,16 @@ const CHANGELOG_MODULE = 'virtual:changelog'
 const SERVER_ONLY_FILES = [
 	'**/*.server.*',
 	'**/platform/**',
-	'**/application/**',
 	'**/infrastructure/**',
-	'**/*.router.ts',
 	'**/*.handler.ts',
-	'**/*.port.ts',
-	'**/*.service.ts',
-	'**/*.repository.ts',
-	'**/*.layer.ts',
-	'**/*.middleware.ts',
 	'**/routes/api.*',
 ]
 
-/** Server-only workspace packages and drivers resolve outside the app's folders, so they are denied by specifier. The custom list replaces the default, so it repeats '@tanstack/react-start/server'. */
+/** The custom list replaces the default, so it repeats '@tanstack/react-start/server'. The app depends on @soonlane/auth for its browser client, so the package's server entry is denied here; soonlane/no-api-only-import keeps it, the database and its drivers out of apps/web altogether. */
 const SERVER_ONLY_SPECIFIERS = [
 	'@tanstack/react-start/server',
 	'@soonlane/auth/server',
-	'@soonlane/db',
-	'@soonlane/db/migrator',
-	'pg',
-	'posthog-node',
 	CHANGELOG_MODULE,
-	/^drizzle-orm(\/|$)/u,
 ]
 
 /** The browser half of the oRPC client lives in platform/rpc next to the server half; these files are the only platform code the client may import. The custom list replaces the default, so it repeats node_modules. */

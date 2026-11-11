@@ -40,14 +40,6 @@ export const routes = rootRoute('routes/__root.tsx', [
 	route('/sitemap[.]xml', 'modules/site/presentation/routes/sitemap.route.ts'),
 	route('/blog/rss[.]xml', 'modules/blog/presentation/routes/rss.route.ts'),
 	route(
-		'/calendar/{$token}[.]ics',
-		'modules/calendar/presentation/routes/calendar-feed.route.ts'
-	),
-	route(
-		'/calendar/$',
-		'modules/calendar/presentation/routes/calendar.$.route.ts'
-	),
-	route(
 		'/api/auth/$',
 		'modules/identity/presentation/routes/api.auth.$.route.ts'
 	),

@@ -1,5 +1,4 @@
 import { hasAnalyticsConsent } from '@soonlane/analytics'
-import { canValidateSessions, isAuthConfigured } from '@soonlane/auth'
 import { type AuthLogLevel, createAuth } from '@soonlane/auth/server'
 import { toUserId } from '@soonlane/domain'
 import { Effect, Layer, Redacted } from 'effect'
@@ -21,13 +20,6 @@ const LOG_BY_LEVEL = {
 	(...message: readonly unknown[]) => Effect.Effect<void>
 >
 
-async function respondNotConfigured() {
-	return Response.json(
-		{ message: 'Google sign-in is not configured.' },
-		{ status: 503 }
-	)
-}
-
 function withRequestConsent(headers?: Headers) {
 	return Effect.provideService(
 		AnalyticsConsent,
@@ -35,43 +27,22 @@ function withRequestConsent(headers?: Headers) {
 	)
 }
 
-const unconfiguredAuth = Auth.of({
-	configured: false,
-	handle: respondNotConfigured,
-	getSession: async () => null,
-})
-
 export const BetterAuthLive = Layer.effect(
 	Auth,
 	Effect.gen(function* () {
 		const config = yield* AppConfig
 		const db = yield* Db
 		const analytics = yield* Analytics
-		const settings = { ...config, secret: Redacted.value(config.authSecret) }
-
-		if (!canValidateSessions(settings)) return unconfiguredAuth
-
-		const googleConfigured = isAuthConfigured(settings)
 		const auth = createAuth({
 			database: db.database,
-			baseUrl: config.baseUrl,
+			baseUrl: config.appUrl,
 			trustedOrigins: config.trustedOrigins,
-			secret: settings.secret,
+			secret: Redacted.value(config.authSecret),
 			allowedEmails: config.allowedEmails,
-			google: googleConfigured
-				? {
-						clientId: config.googleClientId,
-						clientSecret: config.googleClientSecret,
-					}
-				: undefined,
-			oauthProxy: config.oauthProxy
-				? {
-						productionUrl: config.appUrl,
-						secret:
-							config.oauthProxySecret &&
-							Redacted.value(config.oauthProxySecret),
-					}
-				: undefined,
+			google: {
+				clientId: config.googleClientId,
+				clientSecret: Redacted.value(config.googleClientSecret),
+			},
 			log: (level, ...message) =>
 				Effect.runSync(LOG_BY_LEVEL[level](...message)),
 			events: {
@@ -96,23 +67,25 @@ export const BetterAuthLive = Layer.effect(
 		})
 
 		return Auth.of({
-			configured: googleConfigured,
-			handle: googleConfigured
-				? async request => await auth.handler(request)
-				: respondNotConfigured,
+			handle: async request => await auth.handler(request),
 			getSession: async headers => {
-				const result = await auth.api.getSession({ headers })
+				const { headers: responseHeaders, response: result } =
+					await auth.api.getSession({ headers, returnHeaders: true })
+				const setCookies = responseHeaders.getSetCookie()
 
-				if (!result) return null
+				if (!result) return { session: null, setCookies }
 
 				return {
-					user: {
-						id: toUserId(result.user.id),
-						email: result.user.email,
-						name: result.user.name,
-						emailVerified: result.user.emailVerified,
-						image: result.user.image ?? undefined,
+					session: {
+						user: {
+							id: toUserId(result.user.id),
+							email: result.user.email,
+							name: result.user.name,
+							emailVerified: result.user.emailVerified,
+							image: result.user.image ?? undefined,
+						},
 					},
+					setCookies,
 				}
 			},
 		})

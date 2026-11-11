@@ -1,4 +1,5 @@
-import { readCookie, saveCookie } from '@soonlane/analytics/cookie'
+import { saveCookie } from '@soonlane/analytics/cookie'
+import { readCookie } from '@soonlane/domain'
 import type { SidebarPreference } from '../sidebar-preference.types'
 
 const SIDEBAR_COOKIE = 'soonlane-sidebar'

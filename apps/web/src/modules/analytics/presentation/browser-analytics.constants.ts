@@ -7,11 +7,11 @@ import { BUILD_PROPERTIES } from '../domain/analytics.constants'
 export const BROWSER_ANALYTICS_OPTIONS = {
 	key: import.meta.env.VITE_POSTHOG_KEY,
 	buildProperties: BUILD_PROPERTIES,
-	// A label's name is user content and a calendar link's token is a secret.
+	// A label's name is user content and a calendar link's token (on the API host) is a secret.
 	privateRoutes: [
-		'/app/labels/$name',
+		...(['/app/labels/$name'] satisfies (keyof FileRoutesByFullPath)[]),
 		'/calendar/{$token}.ics',
-	] satisfies (keyof FileRoutesByFullPath)[],
+	],
 	getUser: router => {
 		const context = router.state.matches.at(-1)?.context
 

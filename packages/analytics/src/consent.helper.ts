@@ -1,5 +1,5 @@
+import { readCookie } from '@soonlane/domain'
 import type { ConsentChoice, ConsentState } from './consent.types'
-import { readCookie } from './utils/cookie.util'
 
 /** Shared by every host under `CONSENT_COOKIE_DOMAINS`, so one answer covers the site and the app. */
 export const CONSENT_COOKIE = 'soonlane-privacy'
