@@ -96,7 +96,8 @@ jobs:
         run: |
           echo "Promoting $NIGHTLY_TAG ($SOURCE) as $TAG"
           git tag "$TAG" "$SOURCE"
-          bun git-cliff --output CHANGELOG.md
+          # Prepend only the new section: earlier sections and their hand-written summaries stay byte for byte.
+          bun git-cliff --latest --prepend CHANGELOG.md
           bun git-cliff --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
           bun --no-env-file scripts/release.ts write-version "$VERSION"
         env:

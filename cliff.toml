@@ -1,10 +1,11 @@
-# git-cliff configuration. CHANGELOG.md and version.json are written only by the release workflow.
+# git-cliff configuration. The stable release prepends one section to CHANGELOG.md (--prepend strips this exact
+# header from the file first, so keep it in step with CHANGELOG.md); summaries above each list are written by hand.
 
 [changelog]
 header = """
 # Changelog
 
-Written by the release workflow from conventional commits; never edit this file by hand.
+Each release opens with a summary written for users; the list of changes under it is written by the release workflow from conventional commits.
 
 """
 body = """
