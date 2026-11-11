@@ -23,6 +23,17 @@
         "ultracite": "7.12.2",
       },
     },
+    "apps/api": {
+      "name": "@soonlane/api",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@soonlane/typescript-config": "workspace:*",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "apps/desktop": {
       "name": "@soonlane/desktop",
       "dependencies": {
@@ -719,6 +730,8 @@
     "@simple-libs/stream-utils": ["@simple-libs/stream-utils@2.0.0", "", {}, "sha512-fCTuZK4QBa+39Oz9l4OGfJfz+GpwCp3AqO7Zch3to99xHPgstVsRFpeQ8LNd2o1Gv8raL2mCFwiaHh7bFSp5DQ=="],
 
     "@sindresorhus/merge-streams": ["@sindresorhus/merge-streams@4.0.0", "", {}, "sha512-tlqY9xq5ukxTUZBmoOp+m61cqwQD5pHJtFY3Mn8CA8ps6yghLH/Hw8UPdqg4OLmFW3IFlcXnQNmo/dh8HzXYIQ=="],
+
+    "@soonlane/api": ["@soonlane/api@workspace:apps/api"],
 
     "@soonlane/auth": ["@soonlane/auth@workspace:packages/auth"],
 

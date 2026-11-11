@@ -163,6 +163,7 @@ const BRAND_CONSTRUCTION_FILES = [
 
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
+	'apps/api/src/**',
 	'apps/desktop/src/**',
 	'packages/*/*.ts',
 	'packages/*/src/**',

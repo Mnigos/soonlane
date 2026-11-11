@@ -6,6 +6,7 @@ node_modules/
 .nitro/
 .tanstack/
 .content-collections/
+dist/
 coverage/
 *.tsbuildinfo
 .env
