@@ -4,9 +4,9 @@ import {
 	formatWeekdayDayMonth,
 	getWeekStart,
 	getWeekdayIndex,
-} from '../dates/calendar-date.helper'
-import type { CalendarDate } from '../dates/calendar-date.types'
-import { DAYS_PER_WEEK } from '../dates/calendar.constants'
+} from './calendar-date.helper'
+import type { CalendarDate } from './calendar-date.types'
+import { DAYS_PER_WEEK } from './calendar.constants'
 
 export type DueDateShortcutId =
 	| 'today'

@@ -10,6 +10,8 @@ const ROLE_FOLDERS = {
 	repository: ['infrastructure'],
 	layer: ['infrastructure', 'platform'],
 	parser: ['infrastructure'],
+	mapper: ['infrastructure'],
+	query: ['infrastructure'],
 	client: [
 		'infrastructure',
 		'presentation',

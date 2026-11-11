@@ -3,7 +3,8 @@ import { and, count, eq, isNull } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
 import { Db } from '@/platform/db/db.layer'
 import { LabelRepository } from '../application/label-repository.port'
-import { labelOrder, toLabel } from './label-row.helper'
+import { labelOrder } from './label-order.query'
+import { toLabel } from './label.mapper'
 
 export const DrizzleLabelRepositoryLive = Layer.effect(
 	LabelRepository,
