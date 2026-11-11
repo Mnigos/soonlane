@@ -13,10 +13,12 @@ export const partial = 'soonlane'
 const HOSTS = {
 	production: {
 		api: 'api.soonlane.com',
+		app: 'https://soonlane.com',
 		trustedOrigins: 'https://soonlane.com',
 	},
 	staging: {
 		api: 'api.staging.soonlane.com',
+		app: 'https://staging.soonlane.com',
 		trustedOrigins: 'https://staging.soonlane.com',
 	},
 } as const
@@ -52,7 +54,12 @@ export default defineRailway(ctx => {
 			watchPatterns: isProduction
 				? [
 						'/apps/api/**',
+						'/packages/analytics/**',
+						'/packages/auth/**',
+						'/packages/contracts/**',
 						'/packages/db/**',
+						'/packages/domain/**',
+						'/version.json',
 						'/tooling/typescript-config/**',
 						'/package.json',
 						'/bun.lock',
@@ -71,9 +78,17 @@ export default defineRailway(ctx => {
 			PORT: String(PORT),
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
+			APP_URL: hosts.app,
 			TRUSTED_ORIGINS: hosts.trustedOrigins,
 			// Production holds Neon's direct URL, entered by hand.
 			DATABASE_URL: database ? database.env.DATABASE_URL : preserve(),
+			// Secrets, entered by hand per environment.
+			AUTH_SECRET: preserve(),
+			GOOGLE_CLIENT_ID: preserve(),
+			GOOGLE_CLIENT_SECRET: preserve(),
+			API_PROXY_SECRET: preserve(),
+			ALLOWED_EMAILS: preserve(),
+			POSTHOG_KEY: preserve(),
 		},
 	})
 
