@@ -3,7 +3,7 @@
 **Status:** Proposed, partly superseded by [ADR 0013](0013-three-hosts-on-railway.md)
 **Date:** 2026-11-06
 
-[ADR 0013](0013-three-hosts-on-railway.md) moves Soonlane to three hosts on Railway and supersedes only the rejection of a separate site app and of an `app.` subdomain under Options considered. Prerendering without environment variables and the signed-in hint still hold. The text below stays as written.
+[ADR 0013](0013-three-hosts-on-railway.md) moves Soonlane to three hosts on Railway and supersedes the rejection of a separate site app and of an `app.` subdomain under Options considered. It also replaces two points of the Decision: the app leaves the `/app` prefix on its own host, and `/robots.txt` becomes a build-time file per environment. The public pages stay in `apps/web` until stage 4 of ADR 0013. Prerendering without environment variables and the signed-in hint still hold. The text below stays as written.
 
 ## Context
 

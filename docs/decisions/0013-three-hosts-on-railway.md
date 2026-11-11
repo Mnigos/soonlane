@@ -30,7 +30,7 @@ Five defaults from the project brief, to which Igor has not objected:
 How the pieces fit:
 
 - **Session cookie.** Better Auth sets the session cookie on `.soonlane.com` through `advanced.crossSubDomainCookies` with `domain: 'soonlane.com'`. The release that widens the scope also sets a new `advanced.cookiePrefix`, so a browser that still holds the old host-only cookie never sends two cookies under one name. The `soonlane-signed-in` hint and the `soonlane-consent` cookie move to `.soonlane.com` too. The three hosts share one registrable domain, so the cookie is first-party on all of them. Railway's `*.up.railway.app` hosts are on the public suffix list, so shared sign-in needs the custom domains.
-- **API access.** The API answers CORS with credentials for the app origin only, from an exact allowlist, never `*`. The browser clients send `credentials: 'include'`, and the Better Auth client points at the API origin. Google's redirect URI becomes `https://api.soonlane.com/api/auth/callback/google`, and the `oAuthProxy` plugin goes away with Vercel previews.
+- **API access.** The API answers CORS with credentials only for the origin that serves the app, from an exact allowlist, never `*`. That origin is `https://soonlane.com` in stages 1 and 2 and `https://app.soonlane.com` from stage 3. The browser clients send `credentials: 'include'`, and the Better Auth client points at the API origin. Google's redirect URI becomes `https://api.soonlane.com/api/auth/callback/google`, and the `oAuthProxy` plugin goes away with Vercel previews.
 - **Staging session.** Staging uses its own `cookiePrefix` and `domain: 'staging.soonlane.com'`.
 - **Deploys.** Every staging service has auto-deploy switched off. A deploy runs `railway up` from the chosen checkout, for example in a GitHub Actions job with a token scoped to the staging environment. Railway configuration lives in `.railway/railway.ts`.
 - **Migrations.** They run in a Railway pre-deploy command, which runs after the build and can reach the private network. The ticket that sets it up picks the service. If the command fails, Railway stops the deploy and the previous deployment stays live.
@@ -62,7 +62,8 @@ Each stage ends in a state that can stay in production for weeks.
 - Between stages 1 and 2 the API in Amsterdam queries Neon in Frankfurt across regions.
 - Any subdomain of `soonlane.com` can read and overwrite a `.soonlane.com` cookie. Nothing untrusted may be hosted on a subdomain. Production cookies also reach the staging hosts, which is acceptable only while Igor runs both.
 - The landing loses its server. `/robots.txt` becomes a build-time file per environment, and `/ingest` moves to the API host or a Cloudflare rule.
-- Railway Postgres has point-in-time restore only as a separately billed option. A scheduled dump goes to storage outside Railway, and one restore drill runs before the cutover. Neon stays untouched for 14 days after it.
+- Railway Postgres has point-in-time restore only as a separately billed option. A scheduled dump goes to storage outside Railway, and one restore drill runs before the cutover. Neon stays untouched for 14 days after it. Going back to Neon after Railway has taken writes needs a second write freeze and a dump from Railway restored into Neon, checked by row counts the same way.
+- The build reads `VERCEL_ENV` and `VERCEL_GIT_COMMIT_SHA` for the environment name, the version and the blog's draft filter. Stage 3 replaces them with variables Railway sets, and every production build still leaves draft posts out.
 - Later tickets rewrite `ARCHITECTURE.md`, `README.md`, `docs/deploy-vercel.md` and `docs/release.md`.
 - Risks:
   - The rate limiter must not trust a client IP header until a test shows clients cannot forge it on Railway.
