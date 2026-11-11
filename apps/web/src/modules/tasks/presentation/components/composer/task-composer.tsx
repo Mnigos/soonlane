@@ -27,6 +27,7 @@ import { TaskActionsMenu } from '../task/task-actions-menu'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
 import { GoalChip } from './goal-chip'
+import { HighlightedInput } from './highlighted-input'
 import { LabelsChip } from './labels-chip'
 import { PriorityChip } from './priority-chip'
 
@@ -80,6 +81,7 @@ export function TaskComposer({
 		title,
 		savedTitle,
 		priority,
+		highlights,
 		changeTitle,
 		pickPriority,
 		resetTitleAndPriority,
@@ -192,9 +194,10 @@ export function TaskComposer({
 			)}
 			onSubmit={submit}
 		>
-			<input
+			<HighlightedInput
 				aria-label="Task name"
 				className={cn(FIELD_CLASS, 'text-base leading-6')}
+				highlights={highlights}
 				maxLength={500}
 				onChange={event => changeTitle(event.target.value)}
 				onKeyDown={cancelOnEscape}
