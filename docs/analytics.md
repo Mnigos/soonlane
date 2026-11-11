@@ -75,7 +75,7 @@ Every event the app captures carries `app_version` (`version.json`), `commit`, `
 
 ### Categories
 
-- **Essential**, always on, no choice: the Better Auth session cookie, the `soonlane-sidebar` preference cookie and the `soonlane-privacy` consent cookie itself (and `soonlane-consent`, the host-only cookie it replaces).
+- **Essential**, always on, no choice: the Better Auth session cookie, the `soonlane-sidebar` preference cookie and the `soonlane-privacy` consent cookie itself.
 - **Analytics**, optional: product analytics with a persistent PostHog id and a person profile linked to the account, plus masked session replay.
 - Error reports are not a choice. They rest on legitimate interest in keeping the service working, carry no content (name and stack only), and follow the lanes below: identified with analytics granted, anonymous and cookieless otherwise, not sent from the browser before an answer.
 
@@ -108,7 +108,7 @@ Following LudusPlatform `docs/guides/Privacy.md` (principles 3 and 5, decisions 
 
 `soonlane-privacy`, first-party, `path=/`, `SameSite=Lax`, one answer for every host of an environment: on `soonlane.com` and its subdomains it is set for `soonlane.com`, on `staging.soonlane.com` and its subdomains for `staging.soonlane.com`, and anywhere else (Vercel previews, localhost) it stays host-only, because a browser refuses a domain the host is not under. Staging hosts also receive production's `soonlane.com` cookie, and the one the browser set first wins there; that is accepted while only the team uses staging. It is written in the browser through the Cookie Store API, or `document.cookie` where that API is missing (older browsers, plain-http origins). The value is the answer and a version, `granted.1` or `denied.1`. A grant lasts 12 months and a denial 6 months, then the banner asks again; raising the version asks everyone again. The browser reads it after hydration (prerendered pages are built without the visitor's cookie), so the banner never ships in server HTML and appears only when no choice is stored. Without `VITE_POSTHOG_KEY` there is no banner and the cookie is never written.
 
-Answers given before the cookie was shared live in `soonlane-consent`, a host-only cookie on the host that asked. They still count: the browser and the server read `soonlane-consent` when `soonlane-privacy` is missing, so nobody on `soonlane.com` is asked again. The next answer writes `soonlane-privacy` and deletes `soonlane-consent`. A host that never saw the old cookie (`app.soonlane.com` once the app moves there) asks such a visitor once more, and that answer then covers every host. The old answer is not copied into the shared cookie, because the copy would get a fresh lifetime and outlive the 12 or 6 months the visitor agreed to. The fallback can go a year after this shipped, when the last old answers have expired.
+Answers stored before the cookie was shared, in the host-only `soonlane-consent` cookie, are not read: everyone is asked once more, and that answer covers every host. The new name keeps an old host-only cookie and the shared one from ever travelling under one name.
 
 ### Global Privacy Control
 

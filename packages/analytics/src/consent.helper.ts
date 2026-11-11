@@ -3,12 +3,6 @@ import { readCookie } from './utils/cookie.util'
 
 /** Shared by every host under `CONSENT_COOKIE_DOMAINS`, so one answer covers the site and the app. */
 export const CONSENT_COOKIE = 'soonlane-privacy'
-/**
- * The host-only cookie answers were stored in before they were shared across hosts. Read only when
- * `CONSENT_COOKIE` is missing, and deleted on the next answer; the fallback can go a year after shipping, once its
- * last answers have expired.
- */
-export const LEGACY_CONSENT_COOKIE = 'soonlane-consent'
 /** Staging first: its hosts also end in `.soonlane.com`. */
 const CONSENT_COOKIE_DOMAINS = ['staging.soonlane.com', 'soonlane.com']
 /** Raising it asks everyone again, e.g. when a new optional category appears. */
@@ -32,10 +26,7 @@ export function readConsent(
 	cookieHeader: string,
 	hasGpc: boolean
 ): ConsentState {
-	const choice = toConsentChoice(
-		readCookie(cookieHeader, CONSENT_COOKIE) ??
-			readCookie(cookieHeader, LEGACY_CONSENT_COOKIE)
-	)
+	const choice = toConsentChoice(readCookie(cookieHeader, CONSENT_COOKIE))
 
 	if (choice) return choice
 

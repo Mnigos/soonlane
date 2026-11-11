@@ -1,7 +1,6 @@
 import {
 	CONSENT_COOKIE,
 	getConsentCookieDomain,
-	LEGACY_CONSENT_COOKIE,
 	readConsent,
 	toConsentCookie,
 } from './consent.helper'
@@ -17,11 +16,10 @@ export function readStoredConsent(): ConsentState {
 	)
 }
 
-/** Stores the answer for every host of this environment and drops the host-only cookie it replaces. */
+/** Stores the answer for every host of this environment. */
 export async function saveConsent(choice: ConsentChoice) {
 	const { value, maxAgeMs } = toConsentCookie(choice)
 
-	await saveCookie(LEGACY_CONSENT_COOKIE, '', 0)
 	await saveCookie(
 		CONSENT_COOKIE,
 		value,
