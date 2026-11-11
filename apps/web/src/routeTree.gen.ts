@@ -22,6 +22,8 @@ import { Route as modulesChangelogPresentationRoutesChangelogDotrouteRouteImport
 import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
 import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
 import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './modules/blog/presentation/routes/rss.route'
+import { Route as modulesCalendarPresentationRoutesCalendarDotDotrouteRouteImport } from './modules/calendar/presentation/routes/calendar.$.route'
+import { Route as modulesCalendarPresentationRoutesCalendarFeedDotrouteRouteImport } from './modules/calendar/presentation/routes/calendar-feed.route'
 import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
@@ -109,6 +111,18 @@ const modulesBlogPresentationRoutesRssDotrouteRoute =
     path: '/blog/rss.xml',
     getParentRoute: () => rootRouteImport,
   } as any)
+const modulesCalendarPresentationRoutesCalendarDotDotrouteRoute =
+  modulesCalendarPresentationRoutesCalendarDotDotrouteRouteImport.update({
+    id: '/calendar/$',
+    path: '/calendar/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute =
+  modulesCalendarPresentationRoutesCalendarFeedDotrouteRouteImport.update({
+    id: '/calendar/{$token}.ics',
+    path: '/calendar/{$token}.ics',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport.update({
     id: '/ingest/$',
@@ -182,6 +196,8 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/calendar/$': typeof modulesCalendarPresentationRoutesCalendarDotDotrouteRoute
+  '/calendar/{$token}.ics': typeof modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
@@ -204,6 +220,8 @@ export interface FileRoutesByTo {
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/calendar/$': typeof modulesCalendarPresentationRoutesCalendarDotDotrouteRoute
+  '/calendar/{$token}.ics': typeof modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
@@ -230,6 +248,8 @@ export interface FileRoutesById {
   '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/calendar/$': typeof modulesCalendarPresentationRoutesCalendarDotDotrouteRoute
+  '/calendar/{$token}.ics': typeof modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
@@ -255,6 +275,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/blog/rss.xml'
+    | '/calendar/$'
+    | '/calendar/{$token}.ics'
     | '/ingest/$'
     | '/app/'
     | '/app/quick-add'
@@ -277,6 +299,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/terms'
     | '/blog/rss.xml'
+    | '/calendar/$'
+    | '/calendar/{$token}.ics'
     | '/ingest/$'
     | '/app'
     | '/app/quick-add'
@@ -302,6 +326,8 @@ export interface FileRouteTypes {
     | '/_site/privacy'
     | '/_site/terms'
     | '/blog/rss.xml'
+    | '/calendar/$'
+    | '/calendar/{$token}.ics'
     | '/ingest/$'
     | '/_session/app/'
     | '/_session/app/quick-add'
@@ -321,6 +347,8 @@ export interface RootRouteChildren {
   modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  modulesCalendarPresentationRoutesCalendarDotDotrouteRoute: typeof modulesCalendarPresentationRoutesCalendarDotDotrouteRoute
+  modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute: typeof modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
   routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
@@ -417,6 +445,20 @@ declare module '@tanstack/react-router' {
       path: '/blog/rss.xml'
       fullPath: '/blog/rss.xml'
       preLoaderRoute: typeof modulesBlogPresentationRoutesRssDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar/$': {
+      id: '/calendar/$'
+      path: '/calendar/$'
+      fullPath: '/calendar/$'
+      preLoaderRoute: typeof modulesCalendarPresentationRoutesCalendarDotDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar/{$token}.ics': {
+      id: '/calendar/{$token}.ics'
+      path: '/calendar/{$token}.ics'
+      fullPath: '/calendar/{$token}.ics'
+      preLoaderRoute: typeof modulesCalendarPresentationRoutesCalendarFeedDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/ingest/$': {
@@ -583,6 +625,10 @@ const rootRouteChildren: RootRouteChildren = {
     modulesShellPresentationRoutesLegacyTodayDotrouteRoute,
   modulesBlogPresentationRoutesRssDotrouteRoute:
     modulesBlogPresentationRoutesRssDotrouteRoute,
+  modulesCalendarPresentationRoutesCalendarDotDotrouteRoute:
+    modulesCalendarPresentationRoutesCalendarDotDotrouteRoute,
+  modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute:
+    modulesCalendarPresentationRoutesCalendarFeedDotrouteRoute,
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:
     modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute,
   modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:

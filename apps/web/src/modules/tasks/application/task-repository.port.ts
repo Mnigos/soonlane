@@ -84,6 +84,7 @@ export interface ProgressLog extends TaskKey {
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
+		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
 		readonly listOpenBetween: (
 			params: OpenTasksBetween
 		) => Effect.Effect<Task[], DbError>

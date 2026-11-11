@@ -1,6 +1,7 @@
 export * from './src/app.contract'
 export * from './src/auth.errors'
 export * from './src/calendar-date.schemas'
+export * from './src/calendar.contract'
 export * from './src/identity.contract'
 export * from './src/ids.schemas'
 export * from './src/labels.contract'

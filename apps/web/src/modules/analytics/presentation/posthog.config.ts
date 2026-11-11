@@ -7,13 +7,18 @@ const URL_OR_PATH = /^(?:https?:\/\/|\/(?!\/))/u
 // Resolves bare paths so URL can parse them; never part of a sent URL.
 const PATH_ORIGIN = 'http://path.invalid'
 const POSTHOG_STORAGE_KEY = /^(?:__)?ph_|^_postHogToolbarParams$/u
-/** Routes whose params are user content (a label's name); the param is sent as `:name`. */
+/** `$name` or `{$name}.ext` in a route path. */
+const ROUTE_PARAM = /^\{?\$(\w+)/u
+/** Routes whose params are user content (a label's name) or a secret (a calendar link's token); the param is sent as `:name`. */
 const PRIVATE_ROUTE_SEGMENTS = (
-	['/app/labels/$name'] satisfies (keyof FileRoutesByFullPath)[]
+	[
+		'/app/labels/$name',
+		'/calendar/{$token}.ics',
+	] satisfies (keyof FileRoutesByFullPath)[]
 ).map(path => path.split('/'))
 
-function isParam(segment: string) {
-	return segment.startsWith('$')
+function paramName(segment: string) {
+	return ROUTE_PARAM.exec(segment)?.[1]
 }
 
 /** Compares a path segment as the router sees it; a malformed escape compares as written. */
@@ -33,22 +38,25 @@ function withoutPrivateParams(pathname: string) {
 			routeSegments.length <= segments.length &&
 			routeSegments.every(
 				(segment, index) =>
-					isParam(segment) || segment === toRouteSegment(segments[index] ?? '')
+					paramName(segment) !== undefined ||
+					segment === toRouteSegment(segments[index] ?? '')
 			)
 	)
 
 	if (!route) return pathname
 
 	return [
-		...route.map(segment =>
-			isParam(segment) ? `:${segment.slice(1)}` : segment
-		),
+		...route.map(segment => {
+			const name = paramName(segment)
+
+			return name === undefined ? segment : `:${name}`
+		}),
 		...segments.slice(route.length),
 	].join('/')
 }
 
 /**
- * Sends `/app/labels/:name` instead of a label's name, and drops the query and hash unless `keepQuery`
+ * Sends `/app/labels/:name` instead of a label's name and `/calendar/:token` instead of a calendar link, and drops the query and hash unless `keepQuery`
  * (desktop sign-in URLs carry one-time codes and challenges there). Takes an absolute URL or a path and
  * returns the same form; anything else comes back as is.
  */

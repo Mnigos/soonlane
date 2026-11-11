@@ -67,6 +67,16 @@ export const DrizzleTaskRepositoryLive = Layer.effect(
 		const db = yield* Db
 
 		return TaskRepository.of({
+			listOpen: ownerId =>
+				db.run('TaskRepository.listOpen', async database => {
+					const rows = await database
+						.select()
+						.from(task)
+						.where(and(eq(task.ownerId, ownerId), isNull(task.completedAt)))
+						.orderBy(...DAY_ORDER)
+
+					return await withLabels(database, ownerId, rows)
+				}),
 			listOpenBetween: ({ ownerId, from, to }) =>
 				db.run('TaskRepository.listOpenBetween', async database => {
 					const rows = await database

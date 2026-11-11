@@ -5,6 +5,7 @@ const CANONICAL_ROBOTS = `User-agent: *
 Allow: /
 Disallow: /app
 Disallow: /api/
+Disallow: /calendar/
 Disallow: /login
 Disallow: /desktop/
 

@@ -67,6 +67,8 @@ export interface ClientEvents {
 		mode: 'docked' | 'overlay'
 	}
 	consent_updated: { analytics: ConsentChoice; source: ConsentSource }
+	calendar_subscription_created: { replaced: boolean }
+	calendar_subscription_revoked: Record<string, never>
 }
 
 export interface ServerEvents {

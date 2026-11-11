@@ -17,6 +17,7 @@ Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist 
 - **Upcoming** (default view at `/app`): the week strip, the Overdue section, then one section per day with an "Add task" row.
 - **Today** (`/app/today`): Overdue and today's tasks.
 - **Labels**: tags on tasks, listed in the sidebar; each label's view (`/app/labels/$name`) lists its open tasks by day.
+- **Calendar subscription**: one private, read-only link per account that shows open tasks on their days in Apple Calendar or any calendar app; replaced or revoked from the user menu.
 - **Sign in with Google**; anyone can sign up, and anyone can delete their account with all its tasks.
 
 Out of scope: projects, Inbox, filters, reporting, sharing, collaboration, comments, reminders by email.

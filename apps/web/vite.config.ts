@@ -64,6 +64,7 @@ const NON_PUBLIC_PATHS = [
 	'/login',
 	'/desktop',
 	'/api',
+	'/calendar',
 	'/robots.txt',
 	'/today',
 ]

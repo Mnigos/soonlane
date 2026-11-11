@@ -1,7 +1,8 @@
 import { DESKTOP_SIGN_IN_PATH } from '@soonlane/auth'
 import type { LinkTarget } from './navigation.types'
 
-const BROWSER_PROTOCOLS = new Set(['https:', 'http:', 'mailto:'])
+/** `webcal:` opens Calendar.app's subscribe sheet for a calendar link. */
+const EXTERNAL_PROTOCOLS = new Set(['https:', 'http:', 'mailto:', 'webcal:'])
 
 /**
  * Native navigation rules (last match wins): block everything, allow the web
@@ -17,8 +18,8 @@ export function getNavigationRules(appUrl: URL) {
 }
 
 /**
- * Where a link opens: the web app's own pages stay in the window, other web
- * and mail links go to the system browser, and anything else (`file:`,
+ * Where a link opens: the web app's own pages stay in the window, other web,
+ * mail and `webcal:` links go to the system's handler, and anything else (`file:`,
  * `javascript:`, `data:`, custom schemes) opens nowhere. Only the exact origin
  * counts as the app, so `http:` versions and subdomains of it leave the app.
  */
@@ -28,7 +29,7 @@ export function resolveLink(href: string, appUrl: URL): LinkTarget | undefined {
 	if (!url) return undefined
 	if (url.origin === appUrl.origin) return { opensIn: 'window', url }
 
-	return BROWSER_PROTOCOLS.has(url.protocol)
+	return EXTERNAL_PROTOCOLS.has(url.protocol)
 		? { opensIn: 'browser', url }
 		: undefined
 }
