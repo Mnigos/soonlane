@@ -249,6 +249,10 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'soonlane/no-brand-cast': 'off' },
 	},
 	{
+		files: ['apps/**'],
+		rules: { 'soonlane/redacted-secret-config': 'error' },
+	},
+	{
 		files: ['apps/web/**'],
 		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
