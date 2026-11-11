@@ -73,7 +73,11 @@ export function TaskActionsMenu({
 							className
 						)}
 						data-task-id={task.id}
-						onKeyDown={onKeyDown}
+						onKeyDown={event => {
+							// Escape pressed before focus enters the opening menu belongs to the menu, not the edit card.
+							if (!Object.hasOwn(event.currentTarget.dataset, 'popupOpen'))
+								onKeyDown?.(event)
+						}}
 						ref={attachTrigger}
 					>
 						<Ellipsis

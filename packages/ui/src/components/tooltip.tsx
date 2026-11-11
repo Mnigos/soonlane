@@ -6,6 +6,8 @@ interface TooltipProps {
 	/** The trigger; it gets the hover and focus handlers. */
 	children: ReactElement
 	side?: ComponentProps<typeof BaseTooltip.Positioner>['side']
+	/** Escape also reaches what holds the trigger (an open menu closes with its tooltip) instead of stopping at the tooltip. */
+	sharesEscape?: boolean
 }
 
 /** A short dark hint above its trigger on hover or keyboard focus, like Todoist's. */
@@ -13,9 +15,15 @@ export function Tooltip({
 	label,
 	children,
 	side = 'top',
+	sharesEscape = false,
 }: Readonly<TooltipProps>) {
 	return (
-		<BaseTooltip.Root>
+		<BaseTooltip.Root
+			onOpenChange={(_open, details) => {
+				if (sharesEscape && details.reason === 'escape-key')
+					details.allowPropagation()
+			}}
+		>
 			<BaseTooltip.Trigger delay={300} render={children} />
 
 			<BaseTooltip.Portal>
