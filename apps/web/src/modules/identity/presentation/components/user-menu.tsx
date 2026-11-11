@@ -91,7 +91,7 @@ export function UserMenu({
 							aria-hidden
 							className="size-4 text-muted-foreground"
 						/>
-						Calendar subscription
+						Calendar link
 					</button>
 
 					<button
