@@ -26,23 +26,26 @@ export default defineRailway(ctx => {
 		throw new Error(`No Railway config for environment "${environment}"`)
 
 	const hosts = HOSTS[environment]
+	const isProduction = environment === 'production'
 
 	const api = service('api', {
 		// Staging has no source, so only `railway up` from the deploy workflow deploys it.
-		source:
-			environment === 'production'
-				? github('Mnigos/soonlane', { branch: 'main', checkSuites: true })
-				: undefined,
+		source: isProduction
+			? github('Mnigos/soonlane', { branch: 'main', checkSuites: true })
+			: undefined,
 		build: {
 			builder: 'RAILPACK',
 			buildCommand: 'bun run --cwd apps/api build',
-			watchPatterns: [
-				'/apps/api/**',
-				'/tooling/typescript-config/**',
-				'/package.json',
-				'/bun.lock',
-				'/bunfig.toml',
-			],
+			// Railway skips `railway up` uploads that change no watched path too, so staging watches everything.
+			watchPatterns: isProduction
+				? [
+						'/apps/api/**',
+						'/tooling/typescript-config/**',
+						'/package.json',
+						'/bun.lock',
+						'/bunfig.toml',
+					]
+				: null,
 		},
 		start: 'bun apps/api/dist/main.js',
 		healthcheck: '/health',
