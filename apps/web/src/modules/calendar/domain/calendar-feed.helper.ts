@@ -112,7 +112,6 @@ export function buildCalendarFeed(feed: CalendarFeed) {
 		'VERSION:2.0',
 		'PRODID:-//Soonlane//Calendar subscription//EN',
 		'CALSCALE:GREGORIAN',
-		'METHOD:PUBLISH',
 		'X-WR-CALNAME:Soonlane',
 		`REFRESH-INTERVAL;VALUE=DURATION:${REFRESH_INTERVAL}`,
 		`X-PUBLISHED-TTL:${REFRESH_INTERVAL}`,
