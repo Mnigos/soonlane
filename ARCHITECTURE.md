@@ -132,6 +132,6 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 | [0009](docs/decisions/0009-open-sign-in.md)                                    | Anyone can sign up; optional allowlist, account deletion, rate limits, signed-in hint.              |
 | [0010](docs/decisions/0010-desktop-quick-add-and-dock-badge.md)                | ⌥Space Quick Add window, two page messages, Dock badge through AppKit.                              |
 | [0011](docs/decisions/0011-private-calendar-subscription-link.md)              | One private calendar link per account; the URL is the credential, hashed at rest, revocable.        |
-| [0012](docs/decisions/0012-changelog-written-at-release.md)                    | An agent drafts each stable changelog section in a release PR that pins the nightly it ships.       |
+| [0012](docs/decisions/0012-changelog-written-at-release.md)                    | An agent writes a summary above the commit list in a release PR that pins the nightly it ships.     |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md). Analytics: [docs/analytics.md](docs/analytics.md).
