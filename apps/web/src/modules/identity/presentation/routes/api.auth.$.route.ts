@@ -1,19 +1,12 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { Context } from 'effect'
-import { runtime } from '@/platform/app.runtime'
-import { Auth } from '../../application/auth.port'
+import { forwardToApi } from '@/platform/api/api-proxy.handler'
 
-async function handleAuth(request: Request) {
-	const services = await runtime.context()
-
-	return await Context.get(services, Auth).handle(request)
-}
-
+/** Better Auth runs on the API; the browser and Google's callback still use this origin, so cookies keep their host. */
 export const Route = createFileRoute('/api/auth/$')({
 	server: {
 		handlers: {
-			GET: async ({ request }) => await handleAuth(request),
-			POST: async ({ request }) => await handleAuth(request),
+			GET: async ({ request }) => await forwardToApi(request),
+			POST: async ({ request }) => await forwardToApi(request),
 		},
 	},
 })

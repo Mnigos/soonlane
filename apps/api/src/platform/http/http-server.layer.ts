@@ -1,25 +1,61 @@
-import { Effect, Layer } from 'effect'
+import { AUTH_BASE_PATH } from '@soonlane/auth/server'
+import { Context, Effect, Layer, Redacted } from 'effect'
+import { Analytics } from '@/modules/analytics/application/analytics.port'
+import { createCalendarFeedHandler } from '@/modules/calendar/presentation/calendar-feed.handler'
+import { Auth } from '@/modules/identity/application/auth.port'
+import type { AppServices } from '../app.runtime'
 import { AppConfig } from '../config/app.config'
+import { RPC_PREFIX } from '../rpc/rpc-prefix.constants'
+import { createRpcContext } from '../rpc/rpc.context'
+import { createRpcHandler } from '../rpc/rpc.handler'
+import { withClientIp } from './client-ip.helper'
 
 /**
  * Serves the API on `0.0.0.0:$PORT`. `/health` answers Railway's deploy check with the
  * environment and commit and never touches the database, so a database outage cannot block a deploy.
+ * Auth and RPC resolve the client IP first (`withClientIp`); the calendar feed needs none.
  */
 export const HttpServerLive = Layer.effectDiscard(
 	Effect.gen(function* () {
-		const { port, environment, commit } = yield* AppConfig
+		const { port, environment, commit, trustedOrigins, proxySecret } =
+			yield* AppConfig
+		const services = yield* Effect.context<AppServices>()
+		const auth = Context.get(services, Auth)
+		const withIp = (handle: (request: Request) => Promise<Response>) =>
+			withClientIp(Redacted.value(proxySecret), handle)
+		const handleAuth = withIp(auth.handle)
+		const handleRpc = withIp(
+			createRpcHandler(
+				async request => await createRpcContext(services, request.headers),
+				async () => trustedOrigins,
+				async error =>
+					await Effect.runPromise(
+						Context.get(services, Analytics).captureException(error)
+					)
+			)
+		)
 
 		const server = yield* Effect.acquireRelease(
 			Effect.sync(() =>
 				Bun.serve({
 					hostname: '0.0.0.0',
 					port,
+					development: false,
 					routes: {
 						'/health': {
 							GET: Response.json({ ok: true, environment, commit }),
 						},
+						[`${AUTH_BASE_PATH}/*`]: { GET: handleAuth, POST: handleAuth },
+						[`${RPC_PREFIX}/*`]: handleRpc,
+						'/calendar/*': createCalendarFeedHandler(services),
 					},
 					fetch: () => new Response(null, { status: 404 }),
+					// Only the name: Better Auth and driver errors embed SQL parameters such as session tokens.
+					error: error => {
+						Effect.runSync(Effect.logError('Request failed', error.name))
+
+						return new Response(null, { status: 500 })
+					},
 				})
 			),
 			// Stops accepting connections and resolves once requests in flight finish, within Railway's drain time.

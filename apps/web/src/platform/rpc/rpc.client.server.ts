@@ -1,29 +1,24 @@
+import { appendResponseHeader } from '@tanstack/react-start/server'
 import {
-	appendResponseHeader,
-	getRequestHeader,
-	getRequestUrl,
-} from '@tanstack/react-start/server'
+	addVisitorHeaders,
+	readApiSettings,
+} from '@/platform/api/api-proxy.handler'
 
-/** The page's own origin; `getRequestUrl` takes the scheme from `x-forwarded-proto`, since Vercel terminates TLS. */
-export function getRequestOrigin() {
-	return getRequestUrl().origin
+/** SSR calls the API directly at `API_INTERNAL_URL`, never through this server's own forwarder. */
+export function getInternalApiOrigin() {
+	return readApiSettings().origin
 }
 
 /**
- * Calls the API as the visitor: only their `cookie` header goes along, and
- * every `Set-Cookie` the API answers with (a refreshed session) goes onto the
- * page's response. No rate-limited endpoint is reached from here today: Better
- * Auth limits only requests through its own handler at `/api/auth`.
- * Once the API runs on another machine it sees this server's IP, so a
- * rate-limited call from here must carry the visitor's IP in a header only
- * this server can set.
+ * Calls the API as the visitor: their API cookies, their IP and the proxy
+ * secret go along, and every `Set-Cookie` the API answers with (a refreshed
+ * session) goes onto the page's response.
  */
 export async function fetchAsVisitor(url: string, init: RequestInit) {
-	const headers = new Headers(init.headers)
-	const cookie = getRequestHeader('cookie')
-
-	if (cookie) headers.set('cookie', cookie)
-
+	const headers = addVisitorHeaders(
+		new Headers(init.headers),
+		readApiSettings().secret
+	)
 	const response = await fetch(url, { ...init, headers })
 	const cookies = response.headers.getSetCookie()
 

@@ -6,14 +6,27 @@
   "scripts": {
     "dev": "bun --watch src/main.ts",
     "build": "env -u APP_COMMIT bun build src/main.ts --target=bun --outdir=dist --env-file=commit.env --env='APP_COMMIT*'",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "dev:session": "bun --env-file=.env.local scripts/dev-session.ts"
   },
   "dependencies": {
-    "effect": "catalog:"
+    "@orpc/contract": "catalog:",
+    "@orpc/experimental-effect": "catalog:",
+    "@orpc/server": "catalog:",
+    "@soonlane/analytics": "workspace:*",
+    "@soonlane/auth": "workspace:*",
+    "@soonlane/contracts": "workspace:*",
+    "@soonlane/db": "workspace:*",
+    "@soonlane/domain": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "pg": "catalog:",
+    "posthog-node": "^5.63.1"
   },
   "devDependencies": {
     "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
     "typescript": "catalog:"
   }
 }

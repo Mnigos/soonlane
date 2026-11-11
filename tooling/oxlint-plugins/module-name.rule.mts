@@ -3,7 +3,8 @@ import { posix } from 'node:path'
 import { defineRule, type ESTree } from '@oxlint/plugins'
 import { getRoleSuffix, toFilePath } from './file-role.helper.mts'
 
-const MODULE_FILE_PATTERN = /^(.*\/)?apps\/web\/src\/modules\/([^/]+)\//u
+const MODULE_FILE_PATTERN =
+	/^(.*\/)?apps\/(?:web|api)\/src\/modules\/([^/]+)\//u
 const CONTRACT_FILE_PATTERN =
 	/^(.*\/)?packages\/contracts\/src\/([a-z0-9-]+)\.contract\.ts$/u
 const MODULE_NAMED_ROLES = new Set(['service', 'router'])
@@ -18,7 +19,7 @@ function getNamespaces(root: string) {
 
 	const namespaces = new Set(
 		['modules', 'platform'].flatMap(folder =>
-			readdirSync(posix.join(root, 'apps/web/src', folder), {
+			readdirSync(posix.join(root, 'apps/api/src', folder), {
 				withFileTypes: true,
 			})
 				.filter(entry => entry.isDirectory())
@@ -50,10 +51,10 @@ function getExportedClassNames(program: ESTree.Program) {
 
 /**
  * Keeps names tied to their module (AGENTS.md module names). Inside
- * `apps/web/src/modules/<module>/`, `.service.ts` and `.router.ts` files are
+ * `apps/web/src/modules/<module>/` or `apps/api/src/modules/<module>/`, `.service.ts` and `.router.ts` files are
  * named `<module>`, and a service file exports `<Module>Service`. A
- * `packages/contracts/src/<name>.contract.ts` names a web module or a
- * `platform/` folder; the root `app.contract.ts` is exempt. Files about one
+ * `packages/contracts/src/<name>.contract.ts` names an API module or an
+ * API `platform/` folder; the root `app.contract.ts` is exempt. Files about one
  * entity (`task.repository.ts`, `task.errors.ts`) are not checked.
  */
 export const moduleNameRule = defineRule({
@@ -69,7 +70,7 @@ export const moduleNameRule = defineRule({
 			missingServiceClass:
 				'{{module}}.service.ts exports the {{className}} class (AGENTS.md module names).',
 			unknownContract:
-				'{{name}}.contract.ts names no module in apps/web/src/modules or folder in apps/web/src/platform (AGENTS.md module names).',
+				'{{name}}.contract.ts names no module in apps/api/src/modules or folder in apps/api/src/platform (AGENTS.md module names).',
 		},
 	},
 	create(context) {

@@ -44,7 +44,7 @@ export const CalendarServiceLive = Layer.effect(
 	Effect.gen(function* () {
 		const repository = yield* CalendarSubscriptionRepository
 		const tasksService = yield* TasksService
-		const { baseUrl } = yield* AppConfig
+		const { baseUrl, appUrl } = yield* AppConfig
 
 		const getSubscription = Effect.fn('CalendarService.getSubscription')(
 			function* (ownerId: UserId) {
@@ -83,7 +83,7 @@ export const CalendarServiceLive = Layer.effect(
 
 			return buildCalendarFeed({
 				tasks,
-				taskUrl: `${baseUrl}/app`,
+				taskUrl: `${appUrl}/app`,
 				builtAt: new Date(yield* Clock.currentTimeMillis),
 			})
 		})

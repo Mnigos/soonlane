@@ -1,12 +1,16 @@
+import { MIN_SECRET_LENGTH, parseAllowedEmails } from '@soonlane/auth'
 import {
 	Config,
 	ConfigProvider,
 	Context,
 	Effect,
 	Layer,
+	Option,
+	Redacted,
 	Schema,
 	SchemaTransformation,
 } from 'effect'
+import versionFile from '../../../../../version.json' with { type: 'json' }
 
 const originsSchema = Schema.String.pipe(
 	Schema.decodeTo(
@@ -18,18 +22,52 @@ const originsSchema = Schema.String.pipe(
 	)
 )
 
+const allowedEmailsSchema = Schema.String.check(
+	Schema.makeFilter(
+		value =>
+			value === '' ||
+			parseAllowedEmails(value).length > 0 ||
+			'ALLOWED_EMAILS must list at least one address, or be unset'
+	)
+)
+
+const authSecretSchema = Schema.String.check(
+	Schema.makeFilter(
+		value =>
+			value.length >= MIN_SECRET_LENGTH ||
+			`AUTH_SECRET must be at least ${MIN_SECRET_LENGTH} characters long`
+	)
+)
+
 export class AppConfig extends Context.Service<
 	AppConfig,
 	{
 		readonly port: number
 		readonly environment: string
 		readonly commit: string
+		readonly version: string
 		readonly baseUrl: string
+		readonly appUrl: string
 		readonly trustedOrigins: readonly string[]
+		readonly databaseUrl: Redacted.Redacted
+		readonly authSecret: Redacted.Redacted
+		readonly allowedEmails: readonly string[]
+		readonly googleClientId: string
+		readonly googleClientSecret: Redacted.Redacted
+		readonly proxySecret: Redacted.Redacted
+		readonly posthogKey?: string
 	}
 >()('soonlane/AppConfig') {}
 
-/** Every setting is required: a missing or malformed variable stops the start with its name. */
+function secretConfig(name: string) {
+	return Config.nonEmptyString(name).pipe(Config.map(Redacted.make))
+}
+
+function originConfig(name: string) {
+	return Config.url(name).pipe(Config.map(url => url.origin))
+}
+
+/** Every setting but `ALLOWED_EMAILS` and `POSTHOG_KEY` is required: a missing or malformed variable stops the start with its name. */
 const appConfig = Config.all({
 	port: Config.port('PORT'),
 	environment: Config.nonEmptyString('APP_ENV'),
@@ -37,9 +75,25 @@ const appConfig = Config.all({
 	commit: Config.nonEmptyString('RAILWAY_GIT_COMMIT_SHA').pipe(
 		Config.orElse(() => Config.nonEmptyString('APP_COMMIT'))
 	),
-	baseUrl: Config.url('API_URL').pipe(Config.map(url => url.origin)),
+	baseUrl: originConfig('API_URL'),
+	// The web app's origin: Better Auth's base URL and the host of event links; calendar subscription links use API_URL.
+	appUrl: originConfig('APP_URL'),
 	trustedOrigins: Config.schema(originsSchema, 'TRUSTED_ORIGINS').pipe(
 		Config.map(urls => urls.map(url => url.origin))
+	),
+	databaseUrl: secretConfig('DATABASE_URL'),
+	authSecret: Config.schema(authSecretSchema, 'AUTH_SECRET').pipe(
+		Config.map(Redacted.make)
+	),
+	allowedEmails: Config.schema(allowedEmailsSchema, 'ALLOWED_EMAILS').pipe(
+		Config.withDefault(''),
+		Config.map(parseAllowedEmails)
+	),
+	googleClientId: Config.nonEmptyString('GOOGLE_CLIENT_ID'),
+	googleClientSecret: secretConfig('GOOGLE_CLIENT_SECRET'),
+	proxySecret: secretConfig('API_PROXY_SECRET'),
+	posthogKey: Config.option(Config.nonEmptyString('POSTHOG_KEY')).pipe(
+		Config.map(Option.getOrUndefined)
 	),
 })
 
@@ -56,7 +110,7 @@ const bundleProvider = ConfigProvider.fromEnvRecord({
 export const AppConfigLive = Layer.effect(
 	AppConfig,
 	Effect.gen(function* () {
-		return yield* appConfig
+		return { ...(yield* appConfig), version: versionFile.version }
 	}).pipe(
 		Effect.provideService(
 			ConfigProvider.ConfigProvider,
