@@ -17,17 +17,17 @@ export function useDeleteTask(today: CalendarDate) {
 
 	const { mutate } = useMutation(
 		orpcQuery.tasks.delete.mutationOptions({
-			onMutate: async ({ id }) => {
-				// An Undo from an earlier completion of this task would fail once it is gone.
-				toast.dismiss(id)
-
-				return { removed: await removeCachedTask(queryClient, id) }
-			},
+			onMutate: async ({ id }) => ({
+				removed: await removeCachedTask(queryClient, id),
+			}),
 			onError: (_error, _input, context) => {
 				restoreCachedTask(queryClient, context?.removed)
 				toast('Could not delete the task. Try again.')
 			},
-			onSuccess: (_output, _input, context) => {
+			onSuccess: (_output, { id }, context) => {
+				// Undo on this task's completion toast would fail once it is gone; a failed delete keeps it.
+				toast.dismiss(id)
+
 				const deleted = context?.removed[0]?.placement.task
 
 				if (deleted)
