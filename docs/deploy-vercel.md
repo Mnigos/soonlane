@@ -29,8 +29,11 @@ Preview builds are not skipped: previews and local development use their own Neo
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | same               | same                    |
 | `OAUTH_PROXY_SECRET`    | optional, random              | same value as Production    | not needed              |
 | `VITE_POSTHOG_KEY`      | optional, the PostHog project key (`phc_…`) | same        | optional                |
+| `VITE_API_URL`          | unset                         | unset                       | unset                   |
 
 `VITE_POSTHOG_KEY` is public: Vite puts it in the browser bundle at build time and the server reads the same variable at runtime, so a change needs a new deployment. Without it nothing goes to PostHog ([docs/analytics.md](analytics.md)).
+
+`VITE_API_URL` is the API's origin for the oRPC client and the Better Auth browser client, read at build time by both bundles. Unset, it is the app's own origin: the browser calls relative URLs and server rendering calls the page's own host over HTTP with the visitor's cookie. Server rendering on a preview therefore passes deployment protection with the visitor's own `_vercel_jwt` cookie; a request let through without that cookie, such as one signed by `vercel curl`, may get the protection page from the inner call and fail on `/app`.
 
 `ALLOWED_EMAILS` is optional: a comma-separated list of addresses (case-insensitive) that may create an account. Leave it unset so anyone can sign up. Set it only to close sign-ups, for example while abuse is going on or on a self-hosted copy; existing accounts keep signing in. To open sign-ups again, delete the variable in the Vercel project settings and redeploy.
 

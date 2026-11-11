@@ -4,16 +4,23 @@ import type { RouterContractClient } from '@orpc/contract'
 import type { Contract } from '@soonlane/contracts'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { RPC_PREFIX } from './rpc-prefix.constants'
-import { createInProcessRpcClient } from './rpc.client.server'
+import { fetchAsVisitor, getRequestOrigin } from './rpc.client.server'
 
-type RpcClient = RouterContractClient<Contract>
+/** `VITE_API_URL`, the API's origin; unset, the app's own. */
+const API_ORIGIN = import.meta.env.VITE_API_URL
 
-function createHttpRpcClient(): RpcClient {
-	return createORPCClient(new RPCLink({ url: RPC_PREFIX }))
-}
+/** The server needs an absolute URL; the browser can stay relative. */
+const getApiOrigin = createIsomorphicFn()
+	.server(() => API_ORIGIN ?? getRequestOrigin())
+	.client(() => API_ORIGIN)
 
-const getRpcClient = createIsomorphicFn()
-	.server(createInProcessRpcClient)
-	.client(createHttpRpcClient)
+const fetchApi = createIsomorphicFn()
+	.server(fetchAsVisitor)
+	.client(
+		async (url: string, init: RequestInit) =>
+			await fetch(url, { ...init, credentials: 'include' })
+	)
 
-export const rpc = getRpcClient()
+export const rpc: RouterContractClient<Contract> = createORPCClient(
+	new RPCLink({ url: RPC_PREFIX, origin: getApiOrigin, fetch: fetchApi })
+)
