@@ -3,12 +3,12 @@
 The app runs as the Vercel project `soonlane` (team `mnigos-projects`) connected to `Mnigos/soonlane`. Production is https://soonlane.com from branch `main`; every other branch gets a preview deployment. The database is Neon (project `soonlane`, `eu-central-1`, database `soonlist`). The build configuration is in `apps/web/vercel.json`:
 
 - `installCommand`: `bun install --frozen-lockfile`; Bun installs the whole workspace from `bun.lock` in the repository root, even when the command starts in `apps/web`;
-- `buildCommand`: `bun ../../packages/db/scripts/migrate.ts && bun run build`; Drizzle migrations run against `DATABASE_URL_UNPOOLED` (the direct Neon connection), or `DATABASE_URL` without it, of the environment being built. A failed migration stops the build and the previous deployment keeps running;
+- `buildCommand`: `bun run build`. The build never migrates: the API's Railway deploy migrates production ([deploy-railway.md](deploy-railway.md#migrations));
 - `bunVersion: "1.4.x"`: functions run on Vercel's [Bun runtime](https://vercel.com/docs/functions/runtimes/bun) (beta), Bun 1.4 with patch versions managed by Vercel;
 - `framework: null`: Vite builds the app under Bun (`bunx --bun vite build`), and Nitro (preset `vercel`) writes the result to `apps/web/.vercel/output` in the Build Output API v3 format: static files in `static/` and one function `functions/__server.func` with the `bun1.4.x` runtime, a `maxDuration` of 60 s and the region `fra1` (set in `apps/web/vite.config.ts`, next to the database). The runtime is pinned there because Nitro's default for `bunVersion` is `bun1.x`, which Vercel runs on Bun 1.3. Under Bun, Nitro also bundles with the `bun` export condition, so the build and the function must both run on Bun.
 - After `vite build`, `apps/web/scripts/vercel-asset-routes.ts` rewrites the routes in `config.json`: a file under `/assets/` that exists gets `cache-control: public, max-age=31536000, immutable` (Vercel's `hit` phase), and one that does not answers 404 with `no-store` (a route right after the filesystem check, before the function fallback), so a chunk name from another deployment never stays cached as a 404 and never reaches the function. Nitro's preset sends the immutable header before the filesystem check, on misses too, and the script fails the build if Nitro stops writing that route.
 
-Preview builds are not skipped: previews and local development use their own Neon branch, so their migrations never touch production.
+Previews keep pointing at the Neon `preview` branch, which they share with local development, until the web app leaves Vercel in stage 3. Nothing migrates that branch on deploy: after a new migration lands, run `bun run db:migrate` locally (it reads `apps/web/.env.local`, which points at `preview`), or previews built from that commit run against the old schema.
 
 ## Project settings
 

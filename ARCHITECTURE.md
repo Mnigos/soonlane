@@ -94,7 +94,7 @@ The desktop app signs in through the system browser ([ADR 0007](docs/decisions/0
 
 ## Database
 
-Neon Postgres through `pg` and Drizzle. `Db` owns one pool per runtime (5 connections, 10 s `query_timeout`, an `error` listener); `Db.run` is the only place that creates `DbError`. Logs carry error names only, because driver errors embed SQL parameters such as session tokens. The Vercel build runs the migrator first against the environment's own Neon branch (`main` for production, `preview` for previews and local).
+Neon Postgres through `pg` and Drizzle. `Db` owns one pool per runtime (5 connections, 10 s `query_timeout`, an `error` listener); `Db.run` is the only place that creates `DbError`. Logs carry error names only, because driver errors embed SQL parameters such as session tokens. The API's Railway pre-deploy runs the migrator before each deployment goes live; the Vercel build never migrates ([docs/deploy-railway.md](docs/deploy-railway.md#migrations)).
 
 ## Server boundary
 
