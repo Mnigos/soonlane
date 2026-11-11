@@ -33,9 +33,9 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.2
-      # `railway up` uploads no git metadata, so the health endpoint reads the commit from this variable.
+      # `railway up` uploads no git metadata, so the build inlines the commit from this file (kept in the upload by .railwayignore).
       - name: Record the commit
-        run: $RAILWAY variable set "APP_COMMIT=$(git rev-parse HEAD)" --service api --environment staging --skip-deploys
+        run: echo "APP_COMMIT=$(git rev-parse HEAD)" > apps/api/commit.env
       - name: Build, deploy and wait for the health check
         run: |
           upload=$($RAILWAY up --service api --environment staging --detach --json --message "$REF $(git rev-parse --short HEAD)")

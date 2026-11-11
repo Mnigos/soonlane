@@ -1,0 +1,2 @@
+# The staging deploy workflow writes the commit here; it stays out of git but must reach `railway up`.
+!apps/api/commit.env
