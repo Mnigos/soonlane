@@ -119,19 +119,20 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 
 ## Decision records
 
-| ADR                                                                            | Decision                                                                                            |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| [0001](docs/decisions/0001-naming-and-layering-conventions.md)                 | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.                     |
-| [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs.                 |
-| [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.                      |
-| [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                                            |
-| [0005](docs/decisions/0005-desktop-app-layout.md)                              | Desktop modules (`window`, `navigation`, `menu`) on one Effect runtime.                             |
-| [0006](docs/decisions/0006-rename-to-soonlane.md)                              | The product is Soonlane; old names map to new ones.                                                 |
-| [0007](docs/decisions/0007-desktop-sign-in-through-the-system-browser.md)      | Desktop sign-in in the system browser, returned through a PKCE-bound `soonlane://` code.            |
-| [0008](docs/decisions/0008-public-site-inside-the-web-app.md)                  | Prerendered public pages in `apps/web`; session routes under a `session` layout; host-aware robots. |
-| [0009](docs/decisions/0009-open-sign-in.md)                                    | Anyone can sign up; optional allowlist, account deletion, rate limits, signed-in hint.              |
-| [0010](docs/decisions/0010-desktop-quick-add-and-dock-badge.md)                | ⌥Space Quick Add window, two page messages, Dock badge through AppKit.                              |
-| [0011](docs/decisions/0011-private-calendar-subscription-link.md)              | One private calendar link per account; the URL is the credential, hashed at rest, revocable.        |
-| [0012](docs/decisions/0012-changelog-written-at-release.md)                    | An agent writes a summary above the commit list in a release PR that pins the nightly it ships.     |
+| ADR                                                                            | Decision                                                                                                 |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| [0001](docs/decisions/0001-naming-and-layering-conventions.md)                 | Role-suffixed file names, `src/platform`, Effect layering, the server boundary.                          |
+| [0002](docs/decisions/0002-package-layout.md)                                  | Separate `contracts`, `domain`, `ui`, `db` and `auth` packages and tooling configs.                      |
+| [0003](docs/decisions/0003-better-auth-in-a-package-behind-an-effect-layer.md) | Better Auth as a plain factory in `packages/auth`, wrapped by an Effect layer.                           |
+| [0004](docs/decisions/0004-desktop-shell-with-electrobun.md)                   | An Electrobun macOS shell that loads the hosted web app.                                                 |
+| [0005](docs/decisions/0005-desktop-app-layout.md)                              | Desktop modules (`window`, `navigation`, `menu`) on one Effect runtime.                                  |
+| [0006](docs/decisions/0006-rename-to-soonlane.md)                              | The product is Soonlane; old names map to new ones.                                                      |
+| [0007](docs/decisions/0007-desktop-sign-in-through-the-system-browser.md)      | Desktop sign-in in the system browser, returned through a PKCE-bound `soonlane://` code.                 |
+| [0008](docs/decisions/0008-public-site-inside-the-web-app.md)                  | Prerendered public pages in `apps/web`; session routes under a `session` layout; host-aware robots.      |
+| [0009](docs/decisions/0009-open-sign-in.md)                                    | Anyone can sign up; optional allowlist, account deletion, rate limits, signed-in hint.                   |
+| [0010](docs/decisions/0010-desktop-quick-add-and-dock-badge.md)                | ⌥Space Quick Add window, two page messages, Dock badge through AppKit.                                   |
+| [0011](docs/decisions/0011-private-calendar-subscription-link.md)              | One private calendar link per account; the URL is the credential, hashed at rest, revocable.             |
+| [0012](docs/decisions/0012-changelog-written-at-release.md)                    | An agent writes a summary above the commit list in a release PR that pins the nightly it ships.          |
+| [0013](docs/decisions/0013-three-hosts-on-railway.md)                          | Landing, app and API on three Railway hosts with one session on `.soonlane.com`; partly supersedes 0008. |
 
 Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md). Analytics: [docs/analytics.md](docs/analytics.md).
