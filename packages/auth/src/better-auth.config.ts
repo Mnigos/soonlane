@@ -172,7 +172,7 @@ export function createAuth(options: CreateAuthOptions) {
 					]
 				: []),
 			desktopSignIn(),
-			// Forwards refreshed session cookies from server-side getSession calls (SSR and RPC); keep it last.
+			// Puts the cookies of a session refreshed by a direct getSession call (the RPC handler's) on that request's response; keep it last.
 			tanstackStartCookies(),
 		],
 	})

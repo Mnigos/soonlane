@@ -1,7 +1,10 @@
 import { createAuthClient } from 'better-auth/client'
 
-/** Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. */
-export const authClient = createAuthClient()
+/** Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. `VITE_API_URL` is the API's origin, the page's own when unset. */
+export const authClient = createAuthClient({
+	baseURL: import.meta.env.VITE_API_URL,
+	fetchOptions: { credentials: 'include' },
+})
 
 export interface GoogleSignInRedirects {
 	callbackURL: string
