@@ -158,6 +158,7 @@ export default defineConfig({
 		{
 			files: [
 				'apps/web/**',
+				'apps/api/src/**',
 				'apps/desktop/src/**',
 				'packages/*/src/**',
 				'packages/*/schema/**',
