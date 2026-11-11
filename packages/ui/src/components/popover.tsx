@@ -8,14 +8,15 @@ export const PopoverTrigger = BasePopover.Trigger
 type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> &
 	Pick<
 		ComponentProps<typeof BasePopover.Positioner>,
-		'align' | 'side' | 'sideOffset'
+		'align' | 'side' | 'sideOffset' | 'anchor'
 	>
 
-/** The floating panel of a popover, portaled to the body and kept inside the viewport. */
+/** The floating panel of a popover, portaled to the body and kept inside the viewport; `anchor` places it against another element than its trigger. */
 export function PopoverContent({
 	align = 'start',
 	side = 'bottom',
 	sideOffset = 4,
+	anchor,
 	className,
 	...props
 }: Readonly<PopoverContentProps>) {
@@ -23,6 +24,7 @@ export function PopoverContent({
 		<BasePopover.Portal>
 			<BasePopover.Positioner
 				align={align}
+				anchor={anchor}
 				className="z-50"
 				collisionPadding={8}
 				side={side}

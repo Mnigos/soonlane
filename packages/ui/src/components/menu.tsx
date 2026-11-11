@@ -1,12 +1,13 @@
 import { Menu as BaseMenu } from '@base-ui/react/menu'
 import { Check, ChevronRight } from 'lucide-react'
-import type { ComponentProps } from 'react'
+import type { ComponentProps, KeyboardEvent } from 'react'
 import { cn } from '../utils/cn.util'
 
 export const Menu = BaseMenu.Root
 export const MenuTrigger = BaseMenu.Trigger
 export const MenuRadioGroup = BaseMenu.RadioGroup
 export const MenuSubmenu = BaseMenu.SubmenuRoot
+export const MenuGroup = BaseMenu.Group
 
 type MenuContentProps = ComponentProps<typeof BaseMenu.Popup> &
 	Pick<ComponentProps<typeof BaseMenu.Positioner>, 'align' | 'side'>
@@ -94,5 +95,112 @@ export function MenuSubmenuTrigger({
 
 			<ChevronRight aria-hidden className="ml-auto size-4" />
 		</BaseMenu.SubmenuTrigger>
+	)
+}
+
+/** A small bold heading over a group of items, such as the row of choices under "Date". */
+export function MenuGroupLabel({
+	className,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.GroupLabel>>) {
+	return (
+		<BaseMenu.GroupLabel
+			className={cn(
+				'px-2 pt-1.5 pb-1 text-label font-semibold text-foreground',
+				className
+			)}
+			data-slot="menu-group-label"
+			{...props}
+		/>
+	)
+}
+
+/** A hairline between groups of items. */
+export function MenuSeparator({
+	className,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.Separator>>) {
+	return (
+		<BaseMenu.Separator
+			className={cn('my-1 h-px bg-border', className)}
+			data-slot="menu-separator"
+			{...props}
+		/>
+	)
+}
+
+const ICON_ITEM_CLASS =
+	'flex size-8 cursor-pointer items-center justify-center rounded-md border border-transparent outline-none select-none data-highlighted:bg-hover [&_svg]:shrink-0'
+
+/** A square item holding only an icon, for a row of quick choices; it needs an `aria-label`. */
+export function MenuIconItem({
+	className,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.Item>>) {
+	return (
+		<BaseMenu.Item
+			className={cn(ICON_ITEM_CLASS, className)}
+			data-slot="menu-icon-item"
+			{...props}
+		/>
+	)
+}
+
+/** An icon-only radio item that closes the menu when picked; the selected one is framed, like Todoist's current priority. */
+export function MenuIconRadioItem({
+	className,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.RadioItem>>) {
+	return (
+		<BaseMenu.RadioItem
+			className={cn(
+				ICON_ITEM_CLASS,
+				'data-checked:border-border-strong',
+				className
+			)}
+			closeOnClick
+			data-slot="menu-icon-radio-item"
+			{...props}
+		/>
+	)
+}
+
+/** Moves focus to the item beside the focused one; the menu's highlight follows focus. */
+function moveAlongRow(event: KeyboardEvent<HTMLElement>) {
+	if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
+
+	const items = [
+		...event.currentTarget.querySelectorAll<HTMLElement>('[role^="menuitem"]'),
+	]
+	const focused = document.activeElement
+
+	if (!(focused instanceof HTMLElement)) return
+
+	const index = items.indexOf(focused)
+	const next = items[index + (event.key === 'ArrowRight' ? 1 : -1)]
+
+	if (index === -1 || !next) return
+
+	event.preventDefault()
+	next.focus()
+}
+
+/** Items side by side: Left and Right move along the row, Up and Down keep the menu's order through every item. */
+export function MenuRow({
+	className,
+	onKeyDown,
+	...props
+}: Readonly<ComponentProps<'div'>>) {
+	return (
+		<div
+			className={cn('flex items-center gap-3 px-2 pb-1', className)}
+			role="none"
+			data-slot="menu-row"
+			onKeyDown={event => {
+				onKeyDown?.(event)
+				moveAlongRow(event)
+			}}
+			{...props}
+		/>
 	)
 }

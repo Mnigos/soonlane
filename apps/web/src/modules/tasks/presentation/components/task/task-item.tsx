@@ -16,7 +16,7 @@ import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
 import { LogProgressControls } from './log-progress-controls'
-import { TaskActionsMenu } from './task-actions-menu'
+import { TaskRowMenu } from './task-row-menu'
 
 interface TaskItemProps {
 	task: Task
@@ -36,6 +36,11 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const buttonId = useId()
 	const titleId = useId()
+
+	function openComposer() {
+		setOpenEditorId(task.id)
+		setShouldFocusEdit(false)
+	}
 
 	function closeComposer() {
 		setOpenEditorId(undefined)
@@ -147,10 +152,7 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 						ROW_CONTROL_CLASS
 					)}
 					data-task-id={task.id}
-					onClick={() => {
-						setOpenEditorId(task.id)
-						setShouldFocusEdit(false)
-					}}
+					onClick={openComposer}
 					ref={keepFocusAfterMove}
 					type="button"
 				>
@@ -162,8 +164,9 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				</button>
 			</Tooltip>
 
-			<TaskActionsMenu
+			<TaskRowMenu
 				className={ROW_CONTROL_CLASS}
+				onEdit={openComposer}
 				task={task}
 				today={today}
 			/>

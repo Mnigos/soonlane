@@ -25,7 +25,11 @@ export function DueDateShortcuts({
 	return (
 		<ul className="flex flex-col border-b py-1">
 			{shortcuts.map(({ id, label, date, hint }) => {
-				const { icon: Icon, className } = DUE_DATE_SHORTCUT_ICONS[id]
+				const {
+					icon: Icon,
+					className,
+					strokeWidth,
+				} = DUE_DATE_SHORTCUT_ICONS[id]
 
 				return (
 					<li key={id}>
@@ -37,7 +41,7 @@ export function DueDateShortcuts({
 							<Icon
 								aria-hidden
 								className={cn('size-5.5 shrink-0', className)}
-								strokeWidth={id === 'today' ? 0.75 : 1.1}
+								strokeWidth={strokeWidth}
 							/>
 							{label}
 							<span className="ml-auto font-normal text-secondary-foreground">
