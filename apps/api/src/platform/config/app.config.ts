@@ -1,4 +1,5 @@
 import { MIN_SECRET_LENGTH, parseAllowedEmails } from '@soonlane/auth'
+import type { Redacted } from 'effect'
 import {
 	Config,
 	ConfigProvider,
@@ -6,7 +7,6 @@ import {
 	Effect,
 	Layer,
 	Option,
-	Redacted,
 	Schema,
 	SchemaTransformation,
 } from 'effect'
@@ -61,10 +61,6 @@ export class AppConfig extends Context.Service<
 	}
 >()('soonlane/AppConfig') {}
 
-function secretConfig(name: string) {
-	return Config.nonEmptyString(name).pipe(Config.map(Redacted.make))
-}
-
 function originConfig(name: string) {
 	return Config.url(name).pipe(Config.map(url => url.origin))
 }
@@ -87,17 +83,15 @@ const appConfig = Config.all({
 	cookieDomain: Config.option(Config.nonEmptyString('AUTH_COOKIE_DOMAIN')).pipe(
 		Config.map(Option.getOrUndefined)
 	),
-	databaseUrl: secretConfig('DATABASE_URL'),
-	authSecret: Config.schema(authSecretSchema, 'AUTH_SECRET').pipe(
-		Config.map(Redacted.make)
-	),
+	databaseUrl: Config.redacted('DATABASE_URL'),
+	authSecret: Config.schema(Schema.Redacted(authSecretSchema), 'AUTH_SECRET'),
 	allowedEmails: Config.schema(allowedEmailsSchema, 'ALLOWED_EMAILS').pipe(
 		Config.withDefault(''),
 		Config.map(parseAllowedEmails)
 	),
 	googleClientId: Config.nonEmptyString('GOOGLE_CLIENT_ID'),
-	googleClientSecret: secretConfig('GOOGLE_CLIENT_SECRET'),
-	proxySecret: secretConfig('API_PROXY_SECRET'),
+	googleClientSecret: Config.redacted('GOOGLE_CLIENT_SECRET'),
+	proxySecret: Config.redacted('API_PROXY_SECRET'),
 	posthogKey: Config.option(Config.nonEmptyString('POSTHOG_KEY')).pipe(
 		Config.map(Option.getOrUndefined)
 	),
