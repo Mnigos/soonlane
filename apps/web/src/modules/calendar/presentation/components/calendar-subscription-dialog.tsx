@@ -34,6 +34,7 @@ export function CalendarSubscriptionDialog({
 		})
 	const create = useMutation(
 		orpcQuery.calendar.createSubscription.mutationOptions({
+			gcTime: 0,
 			onMutate: () => ({ replaced: subscription !== undefined }),
 			onSuccess: async (_output, _input, context) => {
 				capture('calendar_subscription_created', {
