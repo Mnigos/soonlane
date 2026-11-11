@@ -16,11 +16,16 @@ import { readMenuAction } from '../../menu/domain/menu-event.helper'
 import { QUICK_ADD_ACTION } from '../../menu/domain/menu.constants'
 import { followNavigation } from '../../navigation/infrastructure/navigation-events.layer'
 import { openAppWindow } from '../../window/infrastructure/app-window.helper'
-import { isQuickAddDone } from '../domain/quick-add-event.helper'
+import {
+	isQuickAddDone,
+	readSuggestionsOpen,
+} from '../domain/quick-add-event.helper'
 import { placeQuickAdd } from '../domain/quick-add-frame.helper'
 import {
 	QUICK_ADD_PATH,
 	QUICK_ADD_SHORTCUT,
+	QUICK_ADD_SIZE,
+	QUICK_ADD_SUGGESTIONS_HEIGHT,
 	QUICK_ADD_TITLE,
 } from '../domain/quick-add.constants'
 
@@ -50,6 +55,18 @@ function requestAccessibility() {
 				utf8('AXTrustedCheckOptionPrompt')
 			)
 		)
+	)
+}
+
+/** Grows the window while the "@" suggestions are open, keeping its top edge. */
+function fitSuggestions(window: BrowserWindow, isOpen: boolean) {
+	const { x, y, width } = window.getFrame()
+
+	window.setFrame(
+		x,
+		y,
+		width,
+		isOpen ? QUICK_ADD_SUGGESTIONS_HEIGHT : QUICK_ADD_SIZE.height
 	)
 }
 
@@ -90,9 +107,15 @@ export const QuickAddLive = Layer.effectDiscard(
 				electrobunEvents(`${name}-${window.webview.id}`)
 
 			yield* followNavigation(webviewEvents)
-			yield* handleEvents(webviewEvents('host-message'), event =>
-				isQuickAddDone(event) ? Effect.sync(() => window.close()) : Effect.void
-			)
+			yield* handleEvents(webviewEvents('host-message'), event => {
+				if (isQuickAddDone(event)) return Effect.sync(() => window.close())
+
+				const isOpen = readSuggestionsOpen(event)
+
+				return isOpen === undefined
+					? Effect.void
+					: Effect.sync(() => fitSuggestions(window, isOpen))
+			})
 			yield* Stream.runHead(electrobunEvents(`close-${window.id}`))
 		}, Effect.scoped)
 

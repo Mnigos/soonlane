@@ -5,5 +5,7 @@ export const QUICK_ADD_TITLE = 'Quick Add'
 export const QUICK_ADD_PATH = '/app/quick-add'
 /** Fits the task composer and its error line. */
 export const QUICK_ADD_SIZE = { width: 600, height: 136 }
+/** Also fits the "@" label suggestions under the task name: seven 32px rows and an error line. */
+export const QUICK_ADD_SUGGESTIONS_HEIGHT = 360
 /** How far down the work area the window's top edge sits, as a share of its height. */
 export const QUICK_ADD_TOP_SHARE = 0.2
