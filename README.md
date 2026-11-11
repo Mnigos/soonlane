@@ -6,18 +6,19 @@ Production: https://soonlane.com
 
 ## Monorepo
 
-| Directory                   | Purpose and main technology                                                               |
-| --------------------------- | ----------------------------------------------------------------------------------------- |
-| `apps/web`                  | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4. |
-| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                   |
-| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                               |
-| `packages/domain`           | Branded types such as `CalendarDate`.                                                     |
-| `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                            |
-| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.      |
-| `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.   |
-| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                 |
-| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                        |
-| `tooling/oxlint-plugins`    | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.      |
+| Directory                   | Purpose and main technology                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| `apps/web`                  | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4.    |
+| `apps/api`                  | API on Railway: a Bun server on Effect 4 ([docs/deploy-railway.md](docs/deploy-railway.md)). |
+| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                      |
+| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                  |
+| `packages/domain`           | Branded types such as `CalendarDate`.                                                        |
+| `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                               |
+| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.         |
+| `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.      |
+| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                    |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                           |
+| `tooling/oxlint-plugins`    | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.         |
 
 Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Product and design: [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
 

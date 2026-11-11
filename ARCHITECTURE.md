@@ -4,18 +4,19 @@ A Turborepo + Bun monorepo. One TanStack Start app serves the prerendered public
 
 ## Layout
 
-| Path                        | What it is                                                                                                        |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------------- |
-| `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Bun 1.4, `fra1`); `content-collections.ts` compiles the MDX. |
-| `apps/desktop`              | Electrobun macOS shell (Bun main process, WKWebView) that loads `APP_URL`; no UI of its own.                      |
-| `packages/domain`           | `@soonlane/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                        |
-| `packages/db`               | `@soonlane/db`: Drizzle schema, migrations and the migrator. Server-only.                                         |
-| `packages/auth`             | `@soonlane/auth`: `createAuth` (`/server`), the browser client (`/client`), the sign-up policy (root). No Effect. |
-| `packages/contracts`        | `@soonlane/contracts`: the oRPC contract and Zod schemas.                                                         |
-| `packages/ui`               | `@soonlane/ui`: app-agnostic React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.     |
-| `tooling/typescript-config` | tsconfig presets: `base`, `react-library`, `react-app`.                                                           |
-| `tooling/tailwind-config`   | Tailwind 4 theme and the tokens described in `DESIGN.md`.                                                         |
-| `tooling/oxlint-plugins`    | `soonlane/*` lint rules: file names, hooks folders, repositories, style.                                          |
+| Path                        | What it is                                                                                                                                                                                                                                                                    |
+| --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/web`                  | TanStack Start app on Vercel (Nitro `vercel` preset, Bun 1.4, `fra1`); `content-collections.ts` compiles the MDX.                                                                                                                                                             |
+| `apps/api`                  | The API on Railway: one Bun process (Effect `ManagedRuntime`, `Bun.serve` on `0.0.0.0:$PORT`) with `platform/config` (`AppConfig` from explicit variables) and `GET /health` (environment and commit, no database). The server code moves here from `apps/web` with SOON-119. |
+| `apps/desktop`              | Electrobun macOS shell (Bun main process, WKWebView) that loads `APP_URL`; no UI of its own.                                                                                                                                                                                  |
+| `packages/domain`           | `@soonlane/domain`: brands (`CalendarDate`, `UserId`) and access messages.                                                                                                                                                                                                    |
+| `packages/db`               | `@soonlane/db`: Drizzle schema, migrations and the migrator. Server-only.                                                                                                                                                                                                     |
+| `packages/auth`             | `@soonlane/auth`: `createAuth` (`/server`), the browser client (`/client`), the sign-up policy (root). No Effect.                                                                                                                                                             |
+| `packages/contracts`        | `@soonlane/contracts`: the oRPC contract and Zod schemas.                                                                                                                                                                                                                     |
+| `packages/ui`               | `@soonlane/ui`: app-agnostic React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.                                                                                                                                                                 |
+| `tooling/typescript-config` | tsconfig presets: `base`, `react-library`, `react-app`.                                                                                                                                                                                                                       |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the tokens described in `DESIGN.md`.                                                                                                                                                                                                                     |
+| `tooling/oxlint-plugins`    | `soonlane/*` lint rules: file names, hooks folders, repositories, style.                                                                                                                                                                                                      |
 
 Inside `apps/web/src`:
 
@@ -137,4 +138,4 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 | [0012](docs/decisions/0012-changelog-written-at-release.md)                    | An agent writes a summary above the commit list in a release PR that pins the nightly it ships.          |
 | [0013](docs/decisions/0013-three-hosts-on-railway.md)                          | Landing, app and API on three Railway hosts with one session on `.soonlane.com`; partly supersedes 0008. |
 
-Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md). Analytics: [docs/analytics.md](docs/analytics.md).
+Deploy: [docs/deploy-vercel.md](docs/deploy-vercel.md) (web), [docs/deploy-railway.md](docs/deploy-railway.md) (API). Analytics: [docs/analytics.md](docs/analytics.md).
