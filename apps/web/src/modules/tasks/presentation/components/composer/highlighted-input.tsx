@@ -3,7 +3,7 @@ import { type ComponentProps, type SyntheticEvent, useRef } from 'react'
 
 interface HighlightedInputProps extends ComponentProps<'input'> {
 	value: string
-	/** Character ranges of `value` to tint, e.g. the typed priority word. */
+	/** Non-overlapping character ranges of `value` to tint, e.g. the typed priority word. */
 	highlights: { start: number; end: number }[]
 }
 
@@ -17,7 +17,7 @@ function splitByRanges(
 		...sorted.flatMap((range, index) => [
 			text.slice(sorted[index - 1]?.end ?? 0, range.start),
 			<span
-				className="-mx-1 rounded-sm bg-primary-muted px-1 py-0.5"
+				className="-mx-0.5 rounded-sm bg-primary/40 px-0.5 py-0.5"
 				key={range.start}
 			>
 				{text.slice(range.start, range.end)}
