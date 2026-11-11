@@ -11,7 +11,7 @@ const RELEASE_PATTERN =
 const GROUP_PATTERN = /^### (.+) › (.+)$/u
 const ENTRY_PATTERN =
 	/^- (.+?)(?: \(\[#\d+\]\((https:\/\/[^\s)]+)\)\))? \(\[[0-9a-f]{7}\]\((https:\/\/[^\s)]+)\)\)$/u
-const AREA_PATTERN = /^### ([^›]+)$/u
+const AREA_PATTERN = /^### ([^›\s][^›]*)$/u
 const SUMMARY_ENTRY_PATTERN = /^- (\S.*)$/u
 // A paragraph line may not open like any other markdown block, so a stray heading or list fails the build.
 const PARAGRAPH_PATTERN = /^(?![#>*|`<+=-]|\d+[.)]\s)\S.*$/u
