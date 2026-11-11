@@ -1,7 +1,9 @@
 # ADR 0008: Public site inside the web app
 
-**Status:** Proposed
+**Status:** Proposed, partly superseded by [ADR 0013](0013-three-hosts-on-railway.md)
 **Date:** 2026-11-06
+
+[ADR 0013](0013-three-hosts-on-railway.md) moves Soonlane to three hosts on Railway and supersedes only the rejection of a separate site app and of an `app.` subdomain under Options considered. Prerendering without environment variables and the signed-in hint still hold. The text below stays as written.
 
 ## Context
 

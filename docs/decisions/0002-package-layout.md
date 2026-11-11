@@ -34,3 +34,4 @@ Soonlist starts as one TanStack Start app, but a desktop app is next and will ca
 
 - `ARCHITECTURE.md`: Monorepo layout, Package layering
 - ADR 0001: naming and layering conventions
+- [ADR 0013](0013-three-hosts-on-railway.md): adds `apps/api` for the Effect server code and moves `modules/tasks/domain` to a package both apps import, under the second-consumer rule above
