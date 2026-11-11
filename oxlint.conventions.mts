@@ -155,6 +155,12 @@ const FRONTEND_APPS = ['apps/web'] as const
 /** The private `fromUtcDate` brands every date the domain computes; the domain's brand schemas brand parsed values with Zod's `.brand()`. */
 const BRAND_CAST_FILE = 'packages/domain/src/dates/calendar-date.helper.ts'
 
+/** Process entry points that start the app runtime itself, so no app runtime exists yet to run through. */
+const DEFAULT_RUNTIME_FILES = [
+	'apps/api/src/main.ts',
+	'apps/desktop/src/main.ts',
+] as const
+
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
 	'apps/api/src/**',
@@ -250,7 +256,14 @@ export const CONVENTION_OVERRIDES = [
 	},
 	{
 		files: ['apps/**'],
-		rules: { 'soonlane/redacted-secret-config': 'error' },
+		rules: {
+			'soonlane/no-default-runtime': 'error',
+			'soonlane/redacted-secret-config': 'error',
+		},
+	},
+	{
+		files: [...DEFAULT_RUNTIME_FILES],
+		rules: { 'soonlane/no-default-runtime': 'off' },
 	},
 	{
 		files: ['apps/web/**'],
