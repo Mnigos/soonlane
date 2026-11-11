@@ -55,6 +55,7 @@ export function TaskMenuDateGroup({
 						>
 							<MenuIconItem
 								aria-label={`${label}, ${hint}`}
+								label={label}
 								onClick={() =>
 									onDateChange(date, DUE_DATE_SHORTCUT_CHOICES[id])
 								}
@@ -72,6 +73,7 @@ export function TaskMenuDateGroup({
 				<Tooltip label="More dates">
 					<MenuIconItem
 						aria-label="More dates"
+						label="More dates"
 						className="text-secondary-foreground"
 						onClick={onMoreDates}
 					>
