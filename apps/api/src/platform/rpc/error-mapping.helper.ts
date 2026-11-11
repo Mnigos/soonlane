@@ -1,5 +1,5 @@
 import { ORPCError } from '@orpc/server'
-import { DbError } from '../db/db.errors'
+import { DbError, findDriverErrorCode } from '../db/db.errors'
 
 export interface ContractDomainError {
 	readonly _tag: string
@@ -61,7 +61,9 @@ function extractData(error: object): Record<string, unknown> | undefined {
 }
 
 function toDbORPCError(error: DbError): ORPCError<string, unknown> {
-	if (isConnectionError(error.cause))
+	const code = findDriverErrorCode(error.cause)
+
+	if (code !== undefined && CONNECTION_ERROR_CODES.has(code))
 		return new ORPCError('SERVICE_UNAVAILABLE', {
 			message: 'The database is temporarily unavailable.',
 		})
@@ -71,15 +73,14 @@ function toDbORPCError(error: DbError): ORPCError<string, unknown> {
 	})
 }
 
-/** Drizzle wraps the driver error, so the connection code can sit several causes deep. */
-function isConnectionError(cause: unknown): boolean {
-	if (typeof cause !== 'object' || cause === null) return false
-	if (
-		'code' in cause &&
-		typeof cause.code === 'string' &&
-		CONNECTION_ERROR_CODES.has(cause.code)
-	)
-		return true
+/** What a report may say about a failure beyond the error's name: a DbError's operation and driver code, never its message, which embeds SQL parameters. */
+export function toFailureDetails(error: unknown): Record<string, string> {
+	if (!(error instanceof DbError)) return {}
 
-	return 'cause' in cause && isConnectionError(cause.cause)
+	const code = findDriverErrorCode(error.cause)
+
+	return {
+		db_operation: error.operation,
+		...(code !== undefined && { db_error_code: code }),
+	}
 }

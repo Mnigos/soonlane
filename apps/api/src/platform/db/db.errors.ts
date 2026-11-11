@@ -24,3 +24,11 @@ function hasUniqueViolation(cause: unknown, constraint: string): boolean {
 export function isUniqueViolation(error: DbError, constraint: string) {
 	return hasUniqueViolation(error.cause, constraint)
 }
+
+/** The first `code` down the cause chain: a Postgres SQLSTATE such as `42P01` or a Node code such as `ECONNREFUSED`. Drizzle wraps the driver error, so it can sit several causes deep. */
+export function findDriverErrorCode(cause: unknown): string | undefined {
+	if (typeof cause !== 'object' || cause === null) return undefined
+	if ('code' in cause && typeof cause.code === 'string') return cause.code
+
+	return 'cause' in cause ? findDriverErrorCode(cause.cause) : undefined
+}
