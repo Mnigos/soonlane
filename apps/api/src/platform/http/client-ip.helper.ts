@@ -2,7 +2,7 @@ import { createHash, timingSafeEqual } from 'node:crypto'
 import { BlockList, isIP } from 'node:net'
 import { CLIENT_IP_HEADER } from '@soonlane/auth/server'
 import { PROXY_SECRET_HEADER, VISITOR_IP_HEADER } from '@soonlane/contracts'
-import { Effect } from 'effect'
+import { type Context, Effect } from 'effect'
 import { CLOUDFLARE_IP_RANGES } from './cloudflare-ip-ranges.constants'
 
 type RequestHandler = (request: Request) => Promise<Response>
@@ -60,7 +60,11 @@ function resolveDirectIp(headers: Headers) {
  * shares Better Auth's rate limit bucket for unknown addresses. The secret and
  * the visitor IP never reach the handler.
  */
-export function withClientIp(proxySecret: string, handle: RequestHandler) {
+export function withClientIp(
+	context: Context.Context<never>,
+	proxySecret: string,
+	handle: RequestHandler
+) {
 	return async (request: Request) => {
 		const headers = new Headers(request.headers)
 		const secret = headers.get(PROXY_SECRET_HEADER)
@@ -74,7 +78,9 @@ export function withClientIp(proxySecret: string, handle: RequestHandler) {
 			headers.delete(name)
 
 		if (secret !== null && !isProxySecret(secret, proxySecret)) {
-			Effect.runSync(Effect.logWarning('Refused a wrong proxy secret'))
+			Effect.runSyncWith(context)(
+				Effect.logWarning('Refused a wrong proxy secret')
+			)
 
 			return reject(403)
 		}

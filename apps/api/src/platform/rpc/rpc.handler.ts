@@ -1,5 +1,4 @@
 import { RPCHandler } from '@orpc/server/fetch'
-import { Effect } from 'effect'
 import { RPC_PREFIX } from './rpc-prefix.constants'
 import type { RpcContext } from './rpc.context'
 import { router } from './rpc.router'
@@ -33,13 +32,6 @@ export function createRpcHandler(
 
 			return response
 		} catch (error) {
-			// Only the error name: driver errors can carry SQL parameters such as session tokens.
-			Effect.runSync(
-				Effect.logError(
-					'RPC request failed',
-					error instanceof Error ? error.name : typeof error
-				)
-			)
 			try {
 				await reportError?.(error)
 			} catch {

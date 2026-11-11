@@ -24,8 +24,9 @@ export const HttpServerLive = Layer.effectDiscard(
 		const auth = Context.get(services, Auth)
 		const forBrowser = (handle: (request: Request) => Promise<Response>) =>
 			withCors(
+				services,
 				trustedOrigins,
-				withClientIp(Redacted.value(proxySecret), handle)
+				withClientIp(services, Redacted.value(proxySecret), handle)
 			)
 		const handleAuth = forBrowser(auth.handle)
 		const handleRpc = forBrowser(
@@ -33,8 +34,16 @@ export const HttpServerLive = Layer.effectDiscard(
 				async request => await createRpcContext(services, request.headers),
 				trustedOrigins,
 				async error =>
-					await Effect.runPromise(
-						Context.get(services, Analytics).captureException(error)
+					await Effect.runPromiseWith(services)(
+						// Only the error name: driver errors can carry SQL parameters such as session tokens.
+						Effect.logError(
+							'RPC request failed',
+							error instanceof Error ? error.name : typeof error
+						).pipe(
+							Effect.andThen(
+								Context.get(services, Analytics).captureException(error)
+							)
+						)
 					)
 			)
 		)
@@ -60,7 +69,9 @@ export const HttpServerLive = Layer.effectDiscard(
 					fetch: () => new Response(null, { status: 404 }),
 					// Only the name: Better Auth and driver errors embed SQL parameters such as session tokens.
 					error: error => {
-						Effect.runSync(Effect.logError('Request failed', error.name))
+						Effect.runSyncWith(services)(
+							Effect.logError('Request failed', error.name)
+						)
 
 						return new Response(null, { status: 500 })
 					},

@@ -30,6 +30,7 @@ export const DbLive = Layer.effect(
 	Db,
 	Effect.gen(function* () {
 		const { databaseUrl } = yield* AppConfig
+		const context = yield* Effect.context()
 
 		const pool = yield* Effect.acquireRelease(
 			Effect.sync(() => {
@@ -42,7 +43,9 @@ export const DbLive = Layer.effect(
 
 				// An idle client losing its connection emits 'error'; without a listener Node crashes the process.
 				createdPool.on('error', error =>
-					Effect.runSync(Effect.logError('Postgres pool error', error.message))
+					Effect.runSyncWith(context)(
+						Effect.logError('Postgres pool error', error.message)
+					)
 				)
 
 				return createdPool

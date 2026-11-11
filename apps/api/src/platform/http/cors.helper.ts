@@ -1,4 +1,4 @@
-import { Effect } from 'effect'
+import { type Context, Effect } from 'effect'
 
 type RequestHandler = (request: Request) => Promise<Response>
 
@@ -12,11 +12,15 @@ const PREFLIGHT_HEADERS = {
 }
 
 /** A thrown failure becomes an empty 500 logged by name only, so it still carries the CORS headers. */
-async function handleOrFail(handle: RequestHandler, request: Request) {
+async function handleOrFail(
+	context: Context.Context<never>,
+	handle: RequestHandler,
+	request: Request
+) {
 	try {
 		return await handle(request)
 	} catch (error) {
-		Effect.runSync(
+		Effect.runSyncWith(context)(
 			Effect.logError(
 				'CORS-wrapped request failed',
 				error instanceof Error ? error.name : typeof error
@@ -39,6 +43,7 @@ function forbidden() {
  * Google's origin and be refused.
  */
 export function withCors(
+	context: Context.Context<never>,
 	trustedOrigins: readonly string[],
 	handle: RequestHandler
 ) {
@@ -60,7 +65,7 @@ export function withCors(
 				headers: { ...corsHeaders, ...PREFLIGHT_HEADERS, vary: 'Origin' },
 			})
 
-		const response = await handleOrFail(handle, request)
+		const response = await handleOrFail(context, handle, request)
 		// A fresh response: one from a redirect helper can have immutable headers.
 		const answer = new Response(response.body, response)
 

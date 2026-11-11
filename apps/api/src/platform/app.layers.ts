@@ -27,4 +27,5 @@ export const ServicesLive = Layer.mergeAll(
 	Layer.provideMerge(AppConfigLive)
 )
 
+/** A logger or tracer goes beneath this with `Layer.provideMerge`, not beside it with `Layer.merge`, so both `runtime.run*` and the contexts layers capture with `Effect.context()` see it. */
 export const AppLive = HttpServerLive.pipe(Layer.provideMerge(ServicesLive))
