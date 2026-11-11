@@ -15,11 +15,15 @@ const HOSTS = {
 		api: 'api.soonlane.com',
 		app: 'https://soonlane.com',
 		trustedOrigins: 'https://soonlane.com',
+		cookiePrefix: 'soonlane',
+		cookieDomain: 'soonlane.com',
 	},
 	staging: {
 		api: 'api.staging.soonlane.com',
 		app: 'https://staging.soonlane.com',
 		trustedOrigins: 'https://staging.soonlane.com',
+		cookiePrefix: 'soonlane-staging',
+		cookieDomain: 'staging.soonlane.com',
 	},
 } as const
 const PORT = 8080
@@ -80,6 +84,8 @@ export default defineRailway(ctx => {
 			API_URL: `https://${hosts.api}`,
 			APP_URL: hosts.app,
 			TRUSTED_ORIGINS: hosts.trustedOrigins,
+			AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
+			AUTH_COOKIE_DOMAIN: hosts.cookieDomain,
 			// Production holds Neon's direct URL, entered by hand.
 			DATABASE_URL: database ? database.env.DATABASE_URL : preserve(),
 			// Secrets, entered by hand per environment.

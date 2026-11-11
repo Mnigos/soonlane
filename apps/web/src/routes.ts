@@ -39,10 +39,5 @@ export const routes = rootRoute('routes/__root.tsx', [
 	route('/robots[.]txt', 'modules/site/presentation/routes/robots.route.ts'),
 	route('/sitemap[.]xml', 'modules/site/presentation/routes/sitemap.route.ts'),
 	route('/blog/rss[.]xml', 'modules/blog/presentation/routes/rss.route.ts'),
-	route(
-		'/api/auth/$',
-		'modules/identity/presentation/routes/api.auth.$.route.ts'
-	),
-	route('/api/rpc/$', 'routes/api.rpc.$.route.ts'),
 	route('/ingest/$', 'modules/analytics/presentation/routes/ingest.$.route.ts'),
 ])

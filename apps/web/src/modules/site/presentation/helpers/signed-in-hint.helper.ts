@@ -1,5 +1,5 @@
-import { SIGNED_IN_HINT_COOKIE } from '@soonlane/auth'
 import { createIsomorphicFn } from '@tanstack/react-start'
+import { SIGNED_IN_HINT_COOKIE } from '@/modules/identity/presentation/auth-cookie.constants'
 
 const SIGNED_IN_ATTRIBUTE = 'data-signed-in'
 const SIGNED_IN_COOKIE_PAIR = `${SIGNED_IN_HINT_COOKIE}=1`

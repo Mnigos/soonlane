@@ -9,6 +9,7 @@ import {
 import type { PropsWithChildren } from 'react'
 import { LayoutError } from '@/components/route-error'
 import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/domain/analytics.constants'
+import { AUTH_COOKIE_PREFIX } from '@/modules/identity/presentation/auth-cookie.constants'
 import { SIGNED_IN_HINT_SCRIPT } from '@/modules/site/presentation/helpers/signed-in-hint.helper'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
@@ -34,7 +35,10 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
 	return (
 		<RootDocument>
-			<ConsentProvider isAnalyticsEnabled={IS_ANALYTICS_ENABLED}>
+			<ConsentProvider
+				cookiePrefix={AUTH_COOKIE_PREFIX}
+				isAnalyticsEnabled={IS_ANALYTICS_ENABLED}
+			>
 				<Outlet />
 			</ConsentProvider>
 		</RootDocument>

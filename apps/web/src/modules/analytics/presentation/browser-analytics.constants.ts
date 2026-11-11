@@ -1,5 +1,6 @@
 import type { BrowserAnalyticsOptions } from '@soonlane/analytics/client'
 import type { RegisteredRouter } from '@tanstack/react-router'
+import { AUTH_COOKIE_PREFIX } from '@/modules/identity/presentation/auth-cookie.constants'
 import type { FileRoutesByFullPath } from '@/routeTree.gen'
 import { BUILD_PROPERTIES } from '../domain/analytics.constants'
 
@@ -7,6 +8,7 @@ import { BUILD_PROPERTIES } from '../domain/analytics.constants'
 export const BROWSER_ANALYTICS_OPTIONS = {
 	key: import.meta.env.VITE_POSTHOG_KEY,
 	buildProperties: BUILD_PROPERTIES,
+	cookiePrefix: AUTH_COOKIE_PREFIX,
 	// A label's name is user content and a calendar link's token (on the API host) is a secret.
 	privateRoutes: [
 		...(['/app/labels/$name'] satisfies (keyof FileRoutesByFullPath)[]),

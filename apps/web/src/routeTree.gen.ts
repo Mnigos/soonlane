@@ -29,8 +29,6 @@ import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from 
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
 import { Route as modulesBlogPresentationRoutesPostDotrouteRouteImport } from './modules/blog/presentation/routes/post.route'
-import { Route as modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport } from './modules/identity/presentation/routes/api.auth.$.route'
-import { Route as routesApiDotrpcDotDotrouteRouteImport } from './routes/api.rpc.$.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
 
 const modulesIdentityPresentationRoutesSessionDotrouteRoute =
@@ -151,18 +149,6 @@ const modulesBlogPresentationRoutesPostDotrouteRoute =
     path: '/blog/$slug',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
-const modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute =
-  modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport.update({
-    id: '/api/auth/$',
-    path: '/api/auth/$',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const routesApiDotrpcDotDotrouteRoute =
-  routesApiDotrpcDotDotrouteRouteImport.update({
-    id: '/api/rpc/$',
-    path: '/api/rpc/$',
-    getParentRoute: () => rootRouteImport,
-  } as any)
 const modulesLabelsPresentationRoutesLabelDotrouteRoute =
   modulesLabelsPresentationRoutesLabelDotrouteRouteImport.update({
     id: '/labels/$name',
@@ -189,8 +175,6 @@ export interface FileRoutesByFullPath {
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
-  '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
-  '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRoutesByTo {
@@ -211,8 +195,6 @@ export interface FileRoutesByTo {
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
-  '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
-  '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRoutesById {
@@ -237,8 +219,6 @@ export interface FileRoutesById {
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/_site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
-  '/api/auth/$': typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
-  '/api/rpc/$': typeof routesApiDotrpcDotDotrouteRoute
   '/_session/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 export interface FileRouteTypes {
@@ -262,8 +242,6 @@ export interface FileRouteTypes {
     | '/desktop/callback'
     | '/desktop/sign-in'
     | '/blog/$slug'
-    | '/api/auth/$'
-    | '/api/rpc/$'
     | '/app/labels/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -284,8 +262,6 @@ export interface FileRouteTypes {
     | '/desktop/callback'
     | '/desktop/sign-in'
     | '/blog/$slug'
-    | '/api/auth/$'
-    | '/api/rpc/$'
     | '/app/labels/$name'
   id:
     | '__root__'
@@ -309,8 +285,6 @@ export interface FileRouteTypes {
     | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
     | '/_site/blog/$slug'
-    | '/api/auth/$'
-    | '/api/rpc/$'
     | '/_session/app/labels/$name'
   fileRoutesById: FileRoutesById
 }
@@ -322,8 +296,6 @@ export interface RootRouteChildren {
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
-  modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute
-  routesApiDotrpcDotDotrouteRoute: typeof routesApiDotrpcDotDotrouteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -468,20 +440,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesBlogPresentationRoutesPostDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof modulesIdentityPresentationRoutesApiDotauthDotDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/rpc/$': {
-      id: '/api/rpc/$'
-      path: '/api/rpc/$'
-      fullPath: '/api/rpc/$'
-      preLoaderRoute: typeof routesApiDotrpcDotDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/_session/app/labels/$name': {
       id: '/_session/app/labels/$name'
       path: '/labels/$name'
@@ -585,9 +543,6 @@ const rootRouteChildren: RootRouteChildren = {
     modulesBlogPresentationRoutesRssDotrouteRoute,
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:
     modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute,
-  modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute:
-    modulesIdentityPresentationRoutesApiDotauthDotDotrouteRoute,
-  routesApiDotrpcDotDotrouteRoute: routesApiDotrpcDotDotrouteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

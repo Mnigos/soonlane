@@ -10,6 +10,8 @@ import { PrivacyChoicesDialog } from './privacy-choices-dialog'
 interface ConsentProviderProps extends PropsWithChildren {
 	/** Whether analytics can run at all (a PostHog key is set); without it there is nothing to choose. */
 	isAnalyticsEnabled: boolean
+	/** The environment's cookie prefix, which names the consent cookie. */
+	cookiePrefix: string
 }
 
 /**
@@ -18,9 +20,10 @@ interface ConsentProviderProps extends PropsWithChildren {
  */
 export function ConsentProvider({
 	isAnalyticsEnabled,
+	cookiePrefix,
 	children,
 }: Readonly<ConsentProviderProps>) {
-	const storedConsent = useStoredConsent()
+	const storedConsent = useStoredConsent(cookiePrefix)
 	const [chosenConsent, setChosenConsent] = useState<ConsentChoice>()
 	const [isChoosing, setIsChoosing] = useState(false)
 	const consent = chosenConsent ?? storedConsent
@@ -28,7 +31,7 @@ export function ConsentProvider({
 	function choose(choice: ConsentChoice, source: ConsentSource) {
 		setChosenConsent(choice)
 		setIsChoosing(false)
-		void saveConsent(choice)
+		void saveConsent(cookiePrefix, choice)
 		applyConsent(choice, source)
 	}
 

@@ -29,6 +29,8 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	>
 	/** Route paths (`/app/labels/$name`) whose params are user content or a secret, sent as `:name`. */
 	privateRoutes: readonly string[]
+	/** The environment's cookie prefix, which names the consent cookie. */
+	cookiePrefix: string
 	/** The signed-in user on the current page, identified when analytics is granted. */
 	getUser?: (router: TRouter) => AnalyticsUser | undefined
 }
@@ -38,6 +40,7 @@ interface Tracking {
 	key: string
 	buildProperties: BrowserAnalyticsOptions<AnyRouter>['buildProperties']
 	privateRoutes: readonly string[]
+	cookiePrefix: string
 	getUser: () => AnalyticsUser | undefined
 }
 
@@ -164,6 +167,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 		key,
 		buildProperties,
 		privateRoutes,
+		cookiePrefix,
 		getUser,
 	}: BrowserAnalyticsOptions<TRouter>
 ) {
@@ -174,6 +178,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 		key,
 		buildProperties,
 		privateRoutes,
+		cookiePrefix,
 		getUser: () => getUser?.(router),
 	}
 
@@ -192,7 +197,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 		window.location.assign(toLocation.href)
 	})
 	router.subscribe('onRendered', () => {
-		trackLocation(current, readStoredConsent())
+		trackLocation(current, readStoredConsent(current.cookiePrefix))
 	})
 }
 

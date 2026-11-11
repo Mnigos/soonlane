@@ -49,6 +49,8 @@ export class AppConfig extends Context.Service<
 		readonly baseUrl: string
 		readonly appUrl: string
 		readonly trustedOrigins: readonly string[]
+		readonly cookiePrefix: string
+		readonly cookieDomain?: string
 		readonly databaseUrl: Redacted.Redacted
 		readonly authSecret: Redacted.Redacted
 		readonly allowedEmails: readonly string[]
@@ -67,7 +69,7 @@ function originConfig(name: string) {
 	return Config.url(name).pipe(Config.map(url => url.origin))
 }
 
-/** Every setting but `ALLOWED_EMAILS` and `POSTHOG_KEY` is required: a missing or malformed variable stops the start with its name. */
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN` and `POSTHOG_KEY` is required: a missing or malformed variable stops the start with its name. */
 const appConfig = Config.all({
 	port: Config.port('PORT'),
 	environment: Config.nonEmptyString('APP_ENV'),
@@ -76,10 +78,14 @@ const appConfig = Config.all({
 		Config.orElse(() => Config.nonEmptyString('APP_COMMIT'))
 	),
 	baseUrl: originConfig('API_URL'),
-	// The web app's origin: Better Auth's base URL and the host of event links; calendar subscription links use API_URL.
+	// The web app's origin: the target of Better Auth's errors and the host of event links; calendar subscription links use API_URL.
 	appUrl: originConfig('APP_URL'),
 	trustedOrigins: Config.schema(originsSchema, 'TRUSTED_ORIGINS').pipe(
 		Config.map(urls => urls.map(url => url.origin))
+	),
+	cookiePrefix: Config.nonEmptyString('AUTH_COOKIE_PREFIX'),
+	cookieDomain: Config.option(Config.nonEmptyString('AUTH_COOKIE_DOMAIN')).pipe(
+		Config.map(Option.getOrUndefined)
 	),
 	databaseUrl: secretConfig('DATABASE_URL'),
 	authSecret: Config.schema(authSecretSchema, 'AUTH_SECRET').pipe(

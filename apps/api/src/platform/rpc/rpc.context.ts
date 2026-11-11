@@ -7,6 +7,7 @@ import {
 	type AuthSession,
 } from '@/modules/identity/application/auth.port'
 import type { AppServices } from '../app.runtime'
+import { AppConfig } from '../config/app.config'
 
 export interface RpcContext extends WithEffectContext<AppServices> {
 	session: AuthSession | null
@@ -26,7 +27,10 @@ export async function createRpcContext(
 			'effect/context': Context.add(
 				services,
 				AnalyticsConsent,
-				hasAnalyticsConsent(headers)
+				hasAnalyticsConsent(
+					headers,
+					Context.get(services, AppConfig).cookiePrefix
+				)
 			),
 			session,
 		},

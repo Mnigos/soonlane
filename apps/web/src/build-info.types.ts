@@ -8,5 +8,6 @@ declare global {
 		readonly APP_ENVIRONMENT: AppEnvironment
 		readonly VITE_POSTHOG_KEY?: string
 		readonly VITE_API_URL?: string
+		readonly VITE_AUTH_COOKIE_PREFIX?: string
 	}
 }
