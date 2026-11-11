@@ -42,11 +42,11 @@ Production builds `main` through Railway's GitHub connection with **Wait for CI*
 
 ## DNS
 
-Records in Cloudflare (`soonlane.com` zone). Staging hosts stay DNS only; a proxied production host needs SSL mode Full.
+Records in Cloudflare (`soonlane.com` zone). `api.soonlane.com` is proxied, with SSL mode Full (not Full (strict)); `api.staging.soonlane.com` stays DNS only, since Cloudflare's universal certificate does not cover a host two levels deep. Nothing depends on Railway's generated `*.up.railway.app` host: the deploy health check runs inside Railway and the staging workflow reads the deployment status.
 
-| Host                       | Type  | Name                          | Value                                      |
-| -------------------------- | ----- | ----------------------------- | ------------------------------------------ |
-| `api.soonlane.com`         | CNAME | `api`                         | `dw86xh7f.up.railway.app`                  |
-| `api.soonlane.com`         | TXT   | `_railway-verify.api`         | `railway-verify=fa12ce37…` (`railway domain status api.soonlane.com`) |
-| `api.staging.soonlane.com` | CNAME | `api.staging`                 | `8jedkcb7.up.railway.app`                  |
-| `api.staging.soonlane.com` | TXT   | `_railway-verify.api.staging` | `railway-verify=131a810e…` (`railway domain status api.staging.soonlane.com`) |
+| Host                       | Type  | Name                          | Value                                                                  | Proxy     |
+| -------------------------- | ----- | ----------------------------- | ---------------------------------------------------------------------- | --------- |
+| `api.soonlane.com`         | CNAME | `api`                         | `dw86xh7f.up.railway.app`                                              | Proxied   |
+| `api.soonlane.com`         | TXT   | `_railway-verify.api`         | `railway-verify=…` (`railway domain status api.soonlane.com`)          | DNS only  |
+| `api.staging.soonlane.com` | CNAME | `api.staging`                 | `8jedkcb7.up.railway.app`                                              | DNS only  |
+| `api.staging.soonlane.com` | TXT   | `_railway-verify.api.staging` | `railway-verify=…` (`railway domain status api.staging.soonlane.com`)  | DNS only  |
