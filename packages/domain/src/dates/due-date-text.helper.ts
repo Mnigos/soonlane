@@ -3,9 +3,9 @@ import {
 	getDaysInMonth,
 	getWeekdayIndex,
 	isBefore,
-} from '../dates/calendar-date.helper'
-import { type CalendarDate, toCalendarDate } from '../dates/calendar-date.types'
-import { DAYS_PER_WEEK } from '../dates/calendar.constants'
+} from './calendar-date.helper'
+import { type CalendarDate, toCalendarDate } from './calendar-date.types'
+import { DAYS_PER_WEEK } from './calendar.constants'
 import { getDueDateShortcuts } from './due-date-shortcut.helper'
 
 const MONTHS = [

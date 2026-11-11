@@ -4,7 +4,7 @@ import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { and, eq, notInArray } from 'drizzle-orm'
 import type { Database } from '@/platform/db/db.layer'
 import type { TaskUpdate } from '../application/task-repository.port'
-import { assignLabels, withLabels } from './task-label-rows.helper'
+import { assignLabels, withLabels } from './task-labels.query'
 
 type Transaction = Pick<Database, 'delete' | 'insert' | 'select' | 'update'>
 

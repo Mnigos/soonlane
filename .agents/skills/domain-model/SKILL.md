@@ -40,7 +40,7 @@ Use [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) for context docs, [ADR-FORMAT.md](.
 - `packages/ui`: reusable, app-agnostic React primitives. No router, no data fetching, no domain types.
 - `apps/web/src/modules/<module>/domain`: pure types, tagged errors (`*.errors.ts` with a `code` field) and helpers. No Effect services, framework, ORM or RPC imports.
 - `application/`: ports (`*.port.ts`, a `Context.Service` without implementation) and services (`*.service.ts`, a `Context.Service` plus its `*Live` layer, methods via `Effect.fn('Service.method')`). Services orchestrate ports; they never touch Drizzle or HTTP directly.
-- `infrastructure/`: adapters that implement ports. `*.repository.ts` runs every query through `Db.run` and never catches or translates errors; `*.layer.ts` wraps an external system as a Layer.
+- `infrastructure/`: adapters that implement ports. `*.repository.ts` runs every query through `Db.run` and never catches or translates errors, and so do the `*.query.ts` pieces repositories share; `*.mapper.ts` maps a row to a contract type; `*.layer.ts` wraps an external system as a Layer.
 - `presentation/`: oRPC routers, raw HTTP handlers, middleware, components, hooks and helpers. Tagged errors become oRPC errors only in `platform/rpc/rpc.base.ts`.
 - `platform/`: config, the composed `AppLive` and the single `ManagedRuntime`. A new `*Live` layer is wired in `app.layers.ts`.
 - Cross-module use goes through another module's service or port; importing another module's `infrastructure/` should be flagged.

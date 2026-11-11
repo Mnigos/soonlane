@@ -8,13 +8,13 @@ import {
 	getWeekStart,
 	getWeekdayIndex,
 	isBefore,
-} from './calendar-date.helper'
-import type { CalendarDate } from './calendar-date.types'
+} from '../dates/calendar-date.helper'
+import type { CalendarDate } from '../dates/calendar-date.types'
 import {
 	CALENDAR_HORIZON_MONTHS,
 	CALENDAR_MONTH_COUNT,
 	DAYS_PER_WEEK,
-} from './calendar.constants'
+} from '../dates/calendar.constants'
 
 const MONTHS_PER_YEAR = 12
 

@@ -19,17 +19,13 @@ import {
 	sql,
 } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
-import { toLabel } from '@/modules/labels/infrastructure/label-row.helper'
+import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
 import { Db } from '@/platform/db/db.layer'
 import { TaskRepository } from '../application/task-repository.port'
-import {
-	assignLabels,
-	type Queries,
-	withLabels,
-} from './task-label-rows.helper'
-import { updateProgress } from './task-progress.helper'
-import { toTask } from './task-row.helper'
-import { updateTask } from './task-update.helper'
+import { assignLabels, type Queries, withLabels } from './task-labels.query'
+import { updateProgress } from './task-progress.query'
+import { updateTask } from './task-update.query'
+import { toTask } from './task.mapper'
 
 /** Keep in sync with compareTasks in task-list.helper.ts. */
 const DAY_ORDER = [

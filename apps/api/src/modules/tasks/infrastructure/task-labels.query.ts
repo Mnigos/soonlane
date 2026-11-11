@@ -2,12 +2,10 @@ import type { Label, Task } from '@soonlane/contracts'
 import { label, task, taskLabel, type TaskRow } from '@soonlane/db'
 import type { LabelId, TaskId, UserId } from '@soonlane/domain'
 import { and, eq, inArray } from 'drizzle-orm'
-import {
-	labelOrder,
-	toLabel,
-} from '@/modules/labels/infrastructure/label-row.helper'
+import { labelOrder } from '@/modules/labels/infrastructure/label-order.query'
+import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
 import type { Database } from '@/platform/db/db.layer'
-import { toTask } from './task-row.helper'
+import { toTask } from './task.mapper'
 
 export type Queries = Pick<Database, 'insert' | 'select'>
 

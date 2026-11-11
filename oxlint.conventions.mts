@@ -258,7 +258,12 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
 	{
-		files: ['**/*.repository.ts'],
+		files: [
+			'**/*.repository.ts',
+			'**/*.repository.server.ts',
+			'**/*.query.ts',
+			'**/*.query.server.ts',
+		],
 		rules: { 'soonlane/no-repository-try-catch': 'error' },
 	},
 ] satisfies OxlintOverride[]

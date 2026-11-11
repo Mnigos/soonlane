@@ -1,4 +1,4 @@
-import { TASK_PRIORITIES } from './task.constants'
+import { TASK_PRIORITIES } from '../tasks/task.constants'
 
 const WORD_PATTERN = /\S+/gu
 
