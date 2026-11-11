@@ -8,27 +8,11 @@ type ContextBuilder = (
 	request: Request
 ) => Promise<{ context: RpcContext; setCookies: string[] }>
 
-type TrustedOriginsProvider = () => Promise<readonly string[]>
-
 type ErrorReporter = (error: unknown) => Promise<void>
-
-/** Behind a TLS-terminating proxy request.url can be http://, so the configured app origins are trusted too. */
-async function isTrustedOrigin(
-	origin: string,
-	request: Request,
-	getTrustedOrigins?: TrustedOriginsProvider
-) {
-	if (origin === new URL(request.url).origin) return true
-	if (!getTrustedOrigins) return false
-
-	const trustedOrigins = await getTrustedOrigins()
-
-	return trustedOrigins.some(trusted => new URL(trusted).origin === origin)
-}
 
 export function createRpcHandler(
 	buildContext: ContextBuilder,
-	getTrustedOrigins?: TrustedOriginsProvider,
+	trustedOrigins: readonly string[],
 	reportError?: ErrorReporter
 ) {
 	const handler = new RPCHandler(router)
@@ -37,10 +21,7 @@ export function createRpcHandler(
 		const origin = request.headers.get('origin')
 
 		try {
-			if (
-				origin &&
-				!(await isTrustedOrigin(origin, request, getTrustedOrigins))
-			)
+			if (origin && !trustedOrigins.includes(origin))
 				return new Response('Forbidden', { status: 403 })
 
 			const { context, setCookies } = await buildContext(request)

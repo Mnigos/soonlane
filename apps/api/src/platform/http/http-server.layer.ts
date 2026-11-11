@@ -9,11 +9,12 @@ import { RPC_PREFIX } from '../rpc/rpc-prefix.constants'
 import { createRpcContext } from '../rpc/rpc.context'
 import { createRpcHandler } from '../rpc/rpc.handler'
 import { withClientIp } from './client-ip.helper'
+import { withCors } from './cors.helper'
 
 /**
  * Serves the API on `0.0.0.0:$PORT`. `/health` answers Railway's deploy check with the
  * environment and commit and never touches the database, so a database outage cannot block a deploy.
- * Auth and RPC resolve the client IP first (`withClientIp`); the calendar feed needs none.
+ * Auth and RPC answer CORS first (`withCors`), then resolve the client IP (`withClientIp`); the calendar feed needs neither.
  */
 export const HttpServerLive = Layer.effectDiscard(
 	Effect.gen(function* () {
@@ -21,13 +22,16 @@ export const HttpServerLive = Layer.effectDiscard(
 			yield* AppConfig
 		const services = yield* Effect.context<AppServices>()
 		const auth = Context.get(services, Auth)
-		const withIp = (handle: (request: Request) => Promise<Response>) =>
-			withClientIp(Redacted.value(proxySecret), handle)
-		const handleAuth = withIp(auth.handle)
-		const handleRpc = withIp(
+		const forBrowser = (handle: (request: Request) => Promise<Response>) =>
+			withCors(
+				trustedOrigins,
+				withClientIp(Redacted.value(proxySecret), handle)
+			)
+		const handleAuth = forBrowser(auth.handle)
+		const handleRpc = forBrowser(
 			createRpcHandler(
 				async request => await createRpcContext(services, request.headers),
-				async () => trustedOrigins,
+				trustedOrigins,
 				async error =>
 					await Effect.runPromise(
 						Context.get(services, Analytics).captureException(error)
@@ -45,7 +49,11 @@ export const HttpServerLive = Layer.effectDiscard(
 						'/health': {
 							GET: Response.json({ ok: true, environment, commit }),
 						},
-						[`${AUTH_BASE_PATH}/*`]: { GET: handleAuth, POST: handleAuth },
+						[`${AUTH_BASE_PATH}/*`]: {
+							GET: handleAuth,
+							POST: handleAuth,
+							OPTIONS: handleAuth,
+						},
 						[`${RPC_PREFIX}/*`]: handleRpc,
 						'/calendar/*': createCalendarFeedHandler(services),
 					},
