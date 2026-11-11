@@ -23,3 +23,7 @@ export const PICKER_FIELD_CLASS =
 /** A muted line in a picker when it has nothing to list. */
 export const PICKER_NOTE_CLASS =
 	'flex h-8 items-center px-3 text-label text-faint-foreground'
+
+/** A 32px row of a list of labels (the label picker, the "@" suggestions). */
+export const LABEL_ROW_CLASS =
+	'group flex h-8 cursor-pointer items-center gap-2.5 px-3 text-label text-foreground outline-none select-none data-disabled:opacity-50 data-highlighted:bg-hover'

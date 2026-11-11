@@ -2,15 +2,8 @@ import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
-import {
-	type KeyboardEvent,
-	type SubmitEvent,
-	useCallback,
-	useRef,
-	useState,
-} from 'react'
+import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
 import type { ComposerSource } from '@/modules/analytics/domain/analytics-event.types'
-import { usePickedLabels } from '@/modules/labels/presentation/hooks/use-picked-labels'
 import {
 	getEditedDueDate,
 	getEditedRule,
@@ -20,15 +13,15 @@ import {
 	getChangedLabelIds,
 } from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
-import { useTypedPriority } from '../../hooks/use-typed-priority'
+import { useTypedTitle } from '../../hooks/use-typed-title'
 import { useUpdateTask } from '../../hooks/use-update-task'
 import { TaskActionsMenu } from '../task/task-actions-menu'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
 import { GoalChip } from './goal-chip'
-import { HighlightedInput } from './highlighted-input'
 import { LabelsChip } from './labels-chip'
 import { PriorityChip } from './priority-chip'
+import { TitleField } from './title-field'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate
@@ -43,6 +36,7 @@ interface TaskComposerProps {
 	onSaved?: () => void
 	/** Off in a dialog, which focuses the title itself and remembers its opener. */
 	autoFocus?: boolean
+	onSuggestionsToggle?: (isOpen: boolean) => void
 	className?: string
 }
 
@@ -74,25 +68,26 @@ export function TaskComposer({
 	task,
 	onSaved,
 	autoFocus = true,
+	onSuggestionsToggle,
 	className,
 }: Readonly<TaskComposerProps>) {
 	const {
 		title,
 		savedTitle,
 		priority,
+		pickedLabels,
 		highlights,
 		changeTitle,
 		pickPriority,
-		resetTitleAndPriority,
-	} = useTypedPriority(task)
+		pickLabels,
+		reset,
+	} = useTypedTitle(task, defaultLabels)
 	const [description, setDescription] = useState(task?.description ?? '')
 	const [dueDate, setDueDate] = useState(defaultDueDate)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
 	const [repeat, setRepeat] = useState<RepeatInput | undefined>(
 		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
 	)
-	const { pickedLabels, setLabels, resetLabels } =
-		usePickedLabels(defaultLabels)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
@@ -101,14 +96,6 @@ export function TaskComposer({
 		task?.goal && { target: task.goal.target, unit: task.goal.unit }
 	)
 	const titleRef = useRef<HTMLInputElement>(null)
-	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
-	const attachTitle = useCallback(
-		(input: HTMLInputElement | null) => {
-			titleRef.current = input
-			if (autoFocus) input?.focus()
-		},
-		[autoFocus]
-	)
 	// isPending lags a render, so a quick second Enter would send the task twice.
 	const isSubmittingRef = useRef(false)
 	const { mutate, isPending, isError } = useCreateTaskMutation(source, today)
@@ -164,11 +151,10 @@ export function TaskComposer({
 			},
 			{
 				onSuccess: () => {
-					resetTitleAndPriority()
+					reset()
 					setDescription('')
 					setDueTime(undefined)
 					setRepeat(undefined)
-					resetLabels()
 					setGoal(undefined)
 					titleRef.current?.focus()
 					onCreated?.()
@@ -196,15 +182,14 @@ export function TaskComposer({
 			)}
 			onSubmit={submit}
 		>
-			<HighlightedInput
-				aria-label="Task name"
+			<TitleField
+				autoFocus={autoFocus}
 				className={cn(FIELD_CLASS, 'text-base leading-6')}
 				highlights={highlights}
-				maxLength={500}
-				onChange={event => changeTitle(event.target.value)}
+				inputRef={titleRef}
+				onChange={changeTitle}
 				onKeyDown={cancelOnEscape}
-				placeholder="Task name"
-				ref={attachTitle}
+				onSuggestionsToggle={onSuggestionsToggle}
 				value={title}
 			/>
 
@@ -250,7 +235,7 @@ export function TaskComposer({
 				<GoalChip onChange={setGoal} onKeyDown={cancelOnEscape} value={goal} />
 
 				<LabelsChip
-					onChange={setLabels}
+					onChange={pickLabels}
 					onKeyDown={cancelOnEscape}
 					value={pickedLabels}
 				/>
