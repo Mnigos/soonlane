@@ -37,7 +37,9 @@ export function TaskRowMenu({
 	const triggerRef = useRef<HTMLButtonElement>(null)
 	const inputRef = useRef<HTMLInputElement>(null)
 
+	/** Focus moves to the "…" before the save, so it follows the task when the new date moves its row to another list. */
 	function changeDate(dueDate: CalendarDate, choice: DatePickerChoice) {
+		triggerRef.current?.focus()
 		capture('date_picker_used', {
 			choice,
 			has_time: task.dueTime !== undefined,
@@ -97,10 +99,8 @@ export function TaskRowMenu({
 						dueDate={task.dueDate}
 						inputRef={inputRef}
 						onDateChange={(dueDate, choice) => {
-							// Focus leaves the picker first, so it follows the task if the save moves its row away.
-							triggerRef.current?.focus()
-							setIsPickingDate(false)
 							changeDate(dueDate, choice)
+							setIsPickingDate(false)
 						}}
 						today={today}
 					/>
