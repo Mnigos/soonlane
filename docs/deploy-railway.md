@@ -13,7 +13,7 @@ bunx @railway/cli config plan --file <repo>/.railway/railway.ts --environment st
 bunx @railway/cli config apply --file <repo>/.railway/railway.ts --environment staging
 ```
 
-and the same for `production`. The file exports `partial = 'soonlane'`, so an apply touches only what the file declares; Postgres and anything created by hand are left alone. Every variable of the service is managed by the file: a variable the file does not declare is deleted on apply, unless the file marks it `preserve()`. Custom domains must exist in Railway before the file can declare them (`railway domain <host> --port 8080`).
+and the same for `production`. The file exports `partial = 'soonlane'`, so an apply touches only what the file declares: staging's Postgres, not production's, and nothing created by hand. Every variable of the service is managed by the file: a variable the file does not declare is deleted on apply, unless the file marks it `preserve()`. Custom domains must exist in Railway before the file can declare them (`railway domain <host> --port 8080`).
 
 ## Variables
 
