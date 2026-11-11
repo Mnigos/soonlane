@@ -97,8 +97,10 @@ export function TaskRowMenu({
 						dueDate={task.dueDate}
 						inputRef={inputRef}
 						onDateChange={(dueDate, choice) => {
-							changeDate(dueDate, choice)
+							// Focus leaves the picker first, so it follows the task if the save moves its row away.
+							triggerRef.current?.focus()
 							setIsPickingDate(false)
+							changeDate(dueDate, choice)
 						}}
 						today={today}
 					/>

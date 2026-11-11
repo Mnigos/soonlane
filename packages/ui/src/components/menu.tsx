@@ -165,7 +165,7 @@ export function MenuIconRadioItem({
 	)
 }
 
-/** Moves focus to the item beside the focused one; the menu's highlight follows focus. */
+/** Moves focus to the item beside the focused one, mirrored in right-to-left text; the menu's highlight follows focus. */
 function moveAlongRow(event: KeyboardEvent<HTMLElement>) {
 	if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
 
@@ -177,7 +177,10 @@ function moveAlongRow(event: KeyboardEvent<HTMLElement>) {
 	if (!(focused instanceof HTMLElement)) return
 
 	const index = items.indexOf(focused)
-	const next = items[index + (event.key === 'ArrowRight' ? 1 : -1)]
+	const isForward =
+		(event.key === 'ArrowRight') !==
+		(getComputedStyle(event.currentTarget).direction === 'rtl')
+	const next = items[index + (isForward ? 1 : -1)]
 
 	if (index === -1 || !next) return
 

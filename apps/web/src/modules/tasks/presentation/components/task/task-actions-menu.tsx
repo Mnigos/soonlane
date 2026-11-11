@@ -49,8 +49,12 @@ export function TaskActionsMenu({
 	const attachTrigger = useCallback(
 		(button: HTMLButtonElement) => {
 			if (triggerRef) triggerRef.current = button
+			const keepFocus = keepFocusAfterMove(button)
 
-			return keepFocusAfterMove(button)
+			return () => {
+				keepFocus()
+				if (triggerRef) triggerRef.current = null
+			}
 		},
 		[triggerRef]
 	)

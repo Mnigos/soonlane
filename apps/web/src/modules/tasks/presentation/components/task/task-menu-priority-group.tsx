@@ -34,6 +34,7 @@ export function TaskMenuPriorityGroup({
 						<Tooltip key={priority} label={`Priority ${priority}`}>
 							<MenuIconRadioItem
 								aria-label={`Priority ${priority}`}
+								label={`Priority ${priority}`}
 								value={priority}
 							>
 								<PriorityFlagIcon
