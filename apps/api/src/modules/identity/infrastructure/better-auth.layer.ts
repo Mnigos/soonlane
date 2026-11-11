@@ -1,6 +1,6 @@
 import { hasAnalyticsConsent } from '@soonlane/analytics'
 import { type AuthLogLevel, createAuth } from '@soonlane/auth/server'
-import { toUserId } from '@soonlane/domain'
+import { userIdSchema } from '@soonlane/contracts'
 import { Effect, Layer, Redacted } from 'effect'
 import {
 	Analytics,
@@ -49,7 +49,7 @@ export const BetterAuthLive = Layer.effect(
 				userCreated: async ({ id, createdAt }, headers) =>
 					await Effect.runPromise(
 						analytics
-							.capture(toUserId(id), 'user_signed_up', {
+							.capture(userIdSchema.parse(id), 'user_signed_up', {
 								$set_once: {
 									created_at: createdAt.toISOString(),
 									signup_date: createdAt.toISOString().slice(0, 10),
@@ -60,7 +60,7 @@ export const BetterAuthLive = Layer.effect(
 				sessionCreated: async (userId, method, headers) =>
 					await Effect.runPromise(
 						analytics
-							.capture(toUserId(userId), 'user_signed_in', { method })
+							.capture(userIdSchema.parse(userId), 'user_signed_in', { method })
 							.pipe(withRequestConsent(headers))
 					),
 			},
@@ -78,7 +78,7 @@ export const BetterAuthLive = Layer.effect(
 				return {
 					session: {
 						user: {
-							id: toUserId(result.user.id),
+							id: userIdSchema.parse(result.user.id),
 							email: result.user.email,
 							name: result.user.name,
 							emailVerified: result.user.emailVerified,

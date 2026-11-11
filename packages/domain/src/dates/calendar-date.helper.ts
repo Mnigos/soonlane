@@ -1,4 +1,5 @@
-import { type CalendarDate, toCalendarDate } from './calendar-date.types'
+import { toCalendarDate } from './calendar-date-brand.helper'
+import type { CalendarDate } from './calendar-date.types'
 import {
 	DATE_LOCALE,
 	DAYS_PER_WEEK,
