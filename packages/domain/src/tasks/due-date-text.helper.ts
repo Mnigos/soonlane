@@ -1,11 +1,11 @@
-import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
 import {
 	addDays,
 	getDaysInMonth,
 	getWeekdayIndex,
 	isBefore,
-} from './calendar-date.helper'
-import { DAYS_PER_WEEK } from './calendar.constants'
+} from '../dates/calendar-date.helper'
+import { type CalendarDate, toCalendarDate } from '../dates/calendar-date.types'
+import { DAYS_PER_WEEK } from '../dates/calendar.constants'
 import { getDueDateShortcuts } from './due-date-shortcut.helper'
 
 const MONTHS = [

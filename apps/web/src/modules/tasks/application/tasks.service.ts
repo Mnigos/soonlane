@@ -12,17 +12,20 @@ import type {
 	UpdateTaskInput,
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
-import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
-import { Clock, Context, Effect, Layer } from 'effect'
-import { Analytics } from '@/modules/analytics/application/analytics.port'
-import { LabelNotFound } from '@/modules/labels/domain/label.errors'
-import type { DbError } from '@/platform/db/db.errors'
 import {
+	type CalendarDate,
+	type LabelId,
+	type TaskId,
+	type UserId,
 	getEditedDueDate,
 	getEditedRule,
 	getFirstOccurrence,
 	getNextDueDate,
-} from '../domain/repeat-rule.helper'
+} from '@soonlane/domain'
+import { Clock, Context, Effect, Layer } from 'effect'
+import { Analytics } from '@/modules/analytics/application/analytics.port'
+import { LabelNotFound } from '@/modules/labels/domain/label.errors'
+import type { DbError } from '@/platform/db/db.errors'
 import { TaskNotFound } from '../domain/task.errors'
 import { TaskRepository } from './task-repository.port'
 

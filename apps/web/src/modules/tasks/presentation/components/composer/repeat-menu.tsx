@@ -1,5 +1,10 @@
 import type { RepeatInput } from '@soonlane/contracts'
-import type { CalendarDate, RepeatUnit } from '@soonlane/domain'
+import {
+	type CalendarDate,
+	type RepeatUnit,
+	formatRepeatRule,
+	type RepeatRule,
+} from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import {
@@ -11,10 +16,6 @@ import {
 } from '@soonlane/ui/components/menu'
 import { X } from 'lucide-react'
 import { useState } from 'react'
-import {
-	formatRepeatRule,
-	type RepeatRule,
-} from '../../../domain/repeat-rule.helper'
 import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 import { RepeatIcon } from './date-picker-icons'
 import { RepeatCustomForm } from './repeat-custom-form'

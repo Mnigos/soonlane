@@ -1,7 +1,6 @@
 import type { TaskEventProperties } from '@soonlane/analytics'
 import type { Task } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
-import { getDaysBetween } from '../../domain/calendar-date.helper'
+import { type CalendarDate, getDaysBetween } from '@soonlane/domain'
 
 /** What analytics may know about a task: its id, priority and due day relative to the browser's today. */
 export function getTaskEventProperties(

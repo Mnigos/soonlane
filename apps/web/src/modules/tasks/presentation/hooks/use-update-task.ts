@@ -4,7 +4,7 @@ import {
 	type Task,
 	updateTaskInputSchema,
 } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
+import { type CalendarDate, getEditedRule } from '@soonlane/domain'
 import {
 	notifyManager,
 	useMutation,
@@ -13,7 +13,6 @@ import {
 import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
-import { getEditedRule } from '../../domain/repeat-rule.helper'
 import {
 	announceCompletion,
 	getUndoCallbacks,

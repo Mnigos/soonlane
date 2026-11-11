@@ -1,3 +1,4 @@
+import { formatDayMonthYear } from '@soonlane/domain'
 import { createFileRoute } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import { buildPageHead } from '@/modules/site/presentation/helpers/seo.helper'
@@ -5,7 +6,6 @@ import {
 	RELEASES_URL,
 	SITE_NAME,
 } from '@/modules/site/presentation/site.constants'
-import { formatDayMonthYear } from '@/modules/tasks/domain/calendar-date.helper'
 import { RELEASES } from '../../infrastructure/releases.constants'
 import { ChangelogPage } from '../components/changelog-page'
 

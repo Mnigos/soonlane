@@ -1,9 +1,4 @@
 import {
-	type CalendarDate,
-	type RepeatUnit,
-	toCalendarDate,
-} from '@soonlane/domain'
-import {
 	addDays,
 	addMonths,
 	formatDayLongMonth,
@@ -15,8 +10,10 @@ import {
 	getWeekdayIndex,
 	isBefore,
 	isWeekend,
-} from './calendar-date.helper'
-import { DATE_LOCALE, DAYS_PER_WEEK } from './calendar.constants'
+} from '../dates/calendar-date.helper'
+import { type CalendarDate, toCalendarDate } from '../dates/calendar-date.types'
+import { DATE_LOCALE, DAYS_PER_WEEK } from '../dates/calendar.constants'
+import type { RepeatUnit } from './repeat-rule.constants'
 
 /** The anchor is the due date the rule was set on; it keeps the weekday and day of month. */
 export interface RepeatRule {

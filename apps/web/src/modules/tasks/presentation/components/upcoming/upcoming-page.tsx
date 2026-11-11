@@ -1,23 +1,19 @@
 import type { RangeLoadTrigger, UpcomingNavigation } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
-import type { CalendarDate } from '@soonlane/domain'
-import { useCallback, useState } from 'react'
-import { flushSync } from 'react-dom'
 import {
+	type CalendarDate,
 	addDays,
 	getDaysBetween,
 	isBefore,
-} from '../../../domain/calendar-date.helper'
-import {
 	UPCOMING_WEEK_COUNT,
 	UPCOMING_WEEKS_PER_LOAD,
-} from '../../../domain/calendar.constants'
-import { getActiveDayLabel } from '../../../domain/day-label.helper'
-import {
+	getActiveDayLabel,
 	getUpcomingLastDay,
 	getUpcomingRanges,
 	getWeekStrip,
-} from '../../../domain/upcoming-view.helper'
+} from '@soonlane/domain'
+import { useCallback, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useActiveDay } from '../../hooks/use-active-day'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'

@@ -1,4 +1,3 @@
-import type { CalendarDate } from '@soonlane/domain'
 import {
 	addDays,
 	addMonths,
@@ -10,6 +9,7 @@ import {
 	getWeekdayIndex,
 	isBefore,
 } from './calendar-date.helper'
+import type { CalendarDate } from './calendar-date.types'
 import {
 	CALENDAR_HORIZON_MONTHS,
 	CALENDAR_MONTH_COUNT,

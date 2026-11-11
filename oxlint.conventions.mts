@@ -158,9 +158,6 @@ const BRAND_CONSTRUCTION_FILES = [
 	'packages/contracts/src/ids.schemas.ts',
 	'apps/web/src/modules/changelog/infrastructure/changelog.parser.ts',
 	'apps/web/src/modules/identity/infrastructure/better-auth.layer.ts',
-	'apps/web/src/modules/tasks/domain/calendar-date.helper.ts',
-	'apps/web/src/modules/tasks/domain/due-date-text.helper.ts',
-	'apps/web/src/modules/tasks/domain/repeat-rule.helper.ts',
 ] as const
 
 const ROLE_NAMED_SOURCES = [

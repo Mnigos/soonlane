@@ -1,4 +1,4 @@
-import { type CalendarDate, toCalendarDate } from '@soonlane/domain'
+import { type CalendarDate, toCalendarDate } from './calendar-date.types'
 import {
 	DATE_LOCALE,
 	DAYS_PER_WEEK,

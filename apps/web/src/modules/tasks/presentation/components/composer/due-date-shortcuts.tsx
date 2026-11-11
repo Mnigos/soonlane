@@ -1,9 +1,9 @@
-import type { CalendarDate } from '@soonlane/domain'
-import { cn } from '@soonlane/ui/cn'
 import {
+	type CalendarDate,
 	type DueDateShortcutId,
 	getDueDateShortcuts,
-} from '../../../domain/due-date-shortcut.helper'
+} from '@soonlane/domain'
+import { cn } from '@soonlane/ui/cn'
 import { DUE_DATE_SHORTCUT_ICONS } from '../../helpers/due-date-shortcut.constants'
 
 interface DueDateShortcutsProps {

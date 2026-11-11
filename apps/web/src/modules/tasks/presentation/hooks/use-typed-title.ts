@@ -1,11 +1,15 @@
 import type { Label, Task } from '@soonlane/contracts'
-import { DEFAULT_TASK_PRIORITY, type TaskPriority } from '@soonlane/domain'
+import {
+	DEFAULT_TASK_PRIORITY,
+	type TaskPriority,
+	parseTypedLabels,
+	removeWords,
+	parseTypedPriorities,
+} from '@soonlane/domain'
 import { useQuery } from '@tanstack/react-query'
 import { type SetStateAction, useState } from 'react'
 import { usePickedLabels } from '@/modules/labels/presentation/hooks/use-picked-labels'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
-import { parseTypedLabels, removeWords } from '../../domain/typed-label.helper'
-import { parseTypedPriorities } from '../../domain/typed-priority.helper'
 
 const NO_LABELS: Label[] = []
 

@@ -1,11 +1,13 @@
 import type { Task } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
+import {
+	type CalendarDate,
+	getDueLabel,
+	formatRepeatRule,
+} from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Calendar, Check, Tag } from 'lucide-react'
 import { useId, useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
-import { getDueLabel } from '../../../domain/due-label.helper'
-import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
