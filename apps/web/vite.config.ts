@@ -8,20 +8,20 @@ import { defineConfig } from 'vite'
 import versionFile from '../../version.json' with { type: 'json' }
 import { routes } from './src/routes'
 
-// The product version comes from version.json (written by the release workflow); the commit from Vercel, 'dev' locally.
 const SHORT_SHA_LENGTH = 7
+/** The commit from Vercel, 'dev' locally; the product version comes from version.json (written by the release workflow). */
 const APP_COMMIT =
 	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'
 const APP_ENVIRONMENT = process.env.VERCEL_ENV || 'development'
 
-// Missing until the first stable release.
+/** Missing until the first stable release. */
 const CHANGELOG_PATH = new URL('../../CHANGELOG.md', import.meta.url)
 const CHANGELOG = existsSync(CHANGELOG_PATH)
 	? readFileSync(CHANGELOG_PATH, 'utf-8')
 	: ''
 const CHANGELOG_MODULE = 'virtual:changelog'
 
-// A custom list replaces TanStack Start's default client deny list, so it repeats '**/*.server.*'.
+/** A custom list replaces TanStack Start's default client deny list, so it repeats the default's `*.server.*` pattern. */
 const SERVER_ONLY_FILES = [
 	'**/*.server.*',
 	'**/platform/**',
@@ -37,7 +37,7 @@ const SERVER_ONLY_FILES = [
 	'**/routes/api.*',
 ]
 
-// Server-only workspace packages and drivers resolve outside the app's folders, so they are denied by specifier. The custom list replaces the default, so it repeats '@tanstack/react-start/server'.
+/** Server-only workspace packages and drivers resolve outside the app's folders, so they are denied by specifier. The custom list replaces the default, so it repeats '@tanstack/react-start/server'. */
 const SERVER_ONLY_SPECIFIERS = [
 	'@tanstack/react-start/server',
 	'@soonlane/auth/server',
@@ -49,7 +49,7 @@ const SERVER_ONLY_SPECIFIERS = [
 	/^drizzle-orm(\/|$)/u,
 ]
 
-// The browser half of the oRPC client lives in platform/rpc next to the server half; these files are the only platform code the client may import. The custom list replaces the default, so it repeats node_modules.
+/** The browser half of the oRPC client lives in platform/rpc next to the server half; these files are the only platform code the client may import. The custom list replaces the default, so it repeats node_modules. */
 const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/node_modules/**',
 	'**/platform/rpc/rpc.client.ts',
@@ -58,7 +58,7 @@ const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/platform/rpc/rpc-serializer.constants.ts',
 ]
 
-// The prerender runs without env vars, so it must stay off routes that read the session.
+/** The prerender runs without env vars, so it must stay off routes that read the session. */
 const NON_PUBLIC_PATHS = [
 	'/app',
 	'/login',

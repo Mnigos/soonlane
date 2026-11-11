@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react'
 import type { ConsentState } from '../../domain/consent.types'
 import { getConsent } from '../helpers/consent-cookie.helper'
 
-// Cookies have no change event; a choice made in another tab shows once this tab is visible again.
+/** Cookies have no change event; a choice made in another tab shows once this tab is visible again. */
 function subscribe(onChange: () => void) {
 	document.addEventListener('visibilitychange', onChange)
 

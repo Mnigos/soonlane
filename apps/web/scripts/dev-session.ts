@@ -4,7 +4,7 @@ import { eq } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import { Pool } from 'pg'
 
-// Local QA only: the app itself has no test login.
+/** Local QA only: the app itself has no test login. */
 const SAMPLE_USER = {
 	name: 'Sample User',
 	email: 'sample@soonlane.test',
@@ -16,7 +16,7 @@ const TOKEN_BYTES = 24
 const shouldDelete = process.argv.includes('--delete')
 const databaseUrl = process.env.DATABASE_URL
 const secret = process.env.AUTH_SECRET
-// The production Neon endpoint comes from the environment, so the open-source script never names it.
+/** The production Neon endpoint comes from the environment, so the open-source script never names it. */
 const productionDatabaseHost = process.env.PRODUCTION_DATABASE_HOST?.trim()
 
 function getHost(url: string | undefined) {

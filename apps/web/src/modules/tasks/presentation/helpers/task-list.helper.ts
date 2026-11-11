@@ -30,10 +30,10 @@ export function groupTasksByDay(tasks: Task[]) {
 	return days
 }
 
-// Sorts after every HH:MM due time, so untimed tasks come last like on the server.
+/** Sorts after every HH:MM due time, so untimed tasks come last like on the server. */
 const UNTIMED = '24:00'
 
-// Keep in sync with DAY_ORDER in task.repository.ts.
+/** Keep in sync with DAY_ORDER in task.repository.ts. */
 function compareTasks(a: Task, b: Task) {
 	return (
 		a.dueDate.localeCompare(b.dueDate) ||

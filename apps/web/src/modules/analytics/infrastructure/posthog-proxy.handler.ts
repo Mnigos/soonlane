@@ -3,14 +3,14 @@ const API_HOST = 'https://eu.i.posthog.com'
 const ASSETS_HOST = 'https://eu-assets.i.posthog.com'
 const ASSET_PATH = /^\/(?:static|array)\//u
 const UPSTREAM_TIMEOUT_MS = 10_000
-// No cookies or Authorization: the app's session must never reach PostHog.
+/** No cookies or Authorization: the app's session must never reach PostHog. */
 const REQUEST_HEADERS = [
 	'content-type',
 	'content-encoding',
 	'user-agent',
 	'x-forwarded-for',
 ]
-// Without content-encoding and content-length: fetch has already decompressed the body.
+/** Without content-encoding and content-length: fetch has already decompressed the body. */
 const RESPONSE_HEADERS = ['content-type', 'cache-control']
 
 function pickHeaders(headers: Headers, names: readonly string[]) {

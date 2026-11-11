@@ -23,7 +23,7 @@ interface SidebarLabelRowProps {
 	onNavigate: () => void
 }
 
-// Touch screens always show the "…" button beside the count.
+/** Touch screens always show the "…" button beside the count. */
 const LINK_CLASS = 'pr-2 [&_svg]:size-4 pointer-coarse:pr-9'
 
 export function SidebarLabelRow({

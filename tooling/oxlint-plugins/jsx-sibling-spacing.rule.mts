@@ -3,7 +3,7 @@ import { defineRule, type ESTree, type Fixer } from '@oxlint/plugins'
 type JsxParent = ESTree.JSXElement | ESTree.JSXFragment
 type JsxChild = JsxParent['children'][number]
 
-// Phrasing hosts: their children form an inline label (icon + text, weekday + day number), so they stay tight.
+/** Phrasing hosts: their children form an inline label (icon + text, weekday + day number), so they stay tight. */
 const INLINE_HOSTS = new Set([
 	'a',
 	'abbr',

@@ -1,6 +1,6 @@
 import { GITHUB_URL } from './site.constants'
 
-// CSS pixels; the WebP files are captured at 2x.
+/** `width` and `height` are CSS pixels; the WebP files are captured at 2x. */
 export interface LandingImage {
 	src: string
 	width: number

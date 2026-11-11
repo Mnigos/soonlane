@@ -10,7 +10,7 @@ type TrustedOriginsProvider = () => Promise<readonly string[]>
 
 type ErrorReporter = (error: unknown) => Promise<void>
 
-// Behind a TLS-terminating proxy request.url can be http://, so the configured app origins are trusted too.
+/** Behind a TLS-terminating proxy request.url can be http://, so the configured app origins are trusted too. */
 async function isTrustedOrigin(
 	origin: string,
 	request: Request,

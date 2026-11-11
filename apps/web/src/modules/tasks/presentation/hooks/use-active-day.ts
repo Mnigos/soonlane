@@ -2,7 +2,7 @@ import type { CalendarDate } from '@soonlane/domain'
 import { useMemo, useSyncExternalStore } from 'react'
 
 const REACHED_TOLERANCE_PX = 4
-// Without scrollend, a requested scroll settles once no scroll event came for this long.
+/** Without scrollend, a requested scroll settles once no scroll event came for this long. */
 const SCROLL_SETTLE_FALLBACK_MS = 1000
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 

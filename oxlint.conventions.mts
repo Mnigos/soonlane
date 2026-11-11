@@ -139,6 +139,7 @@ function restrictImports(...restrictions: readonly ImportRestriction[]) {
 }
 
 // oxlint config types use mutable tuples, so rule maps below use satisfies without as const.
+
 export const CONVENTION_RULES = {
 	'max-lines': ['error', { max: 400 }],
 	'soonlane/declaration-group-spacing': 'error',
@@ -170,7 +171,7 @@ const ROLE_NAMED_SOURCES = [
 	'packages/db/schema/**',
 ] as const
 
-// Each override replaces no-restricted-imports wholesale, so every scope lists all restrictions that apply to it.
+/** Each override replaces no-restricted-imports wholesale, so every scope lists all restrictions that apply to it. */
 export const CONVENTION_OVERRIDES = [
 	...WORKSPACES.map(workspace => ({
 		files: [`${workspace}/**`],

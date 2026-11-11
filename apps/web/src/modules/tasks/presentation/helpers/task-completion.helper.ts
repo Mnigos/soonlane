@@ -8,7 +8,7 @@ import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTaskEventProperties } from './task-event.helper'
 
-// Keep in sync with the order of listCompletedBetween in task.repository.ts.
+/** Keep in sync with the order of listCompletedBetween in task.repository.ts. */
 function compareCompleted(a: Task, b: Task) {
 	return (
 		(b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0) ||

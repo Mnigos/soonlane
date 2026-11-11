@@ -162,13 +162,13 @@ export type UpdateTaskOutput = z.infer<typeof updateTaskOutputSchema>
 
 export const taskIdInputSchema = z.object({ id: taskIdSchema })
 
-// Both optional for clients from before repeating tasks. `dueDate` is the one the client saw.
+/** Both optional for clients from before repeating tasks. `dueDate` is the one the client saw. */
 export const completeTaskInputSchema = taskIdInputSchema.extend({
 	today: calendarDateSchema.optional(),
 	dueDate: calendarDateSchema.optional(),
 })
 
-// Undo of a repeating task sends the due date and the goal progress it had before completing; Undo of an edit that completed it also sends the goal.
+/** Undo of a repeating task sends the due date and the goal progress it had before completing; Undo of an edit that completed it also sends the goal. */
 export const uncompleteTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
 	progress: z.int().min(0).max(GOAL_TARGET_MAX).optional(),
@@ -201,7 +201,7 @@ export const logProgressInputSchema = completeTaskInputSchema.extend({
 
 export type LogProgressInput = z.infer<typeof logProgressInputSchema>
 
-// `logged` is the amount applied after clamping to the goal's range, so Undo reverts exactly that.
+/** `logged` is the amount applied after clamping to the goal's range, so Undo reverts exactly that. */
 export const logProgressOutputSchema = z.object({
 	task: taskSchema,
 	logged: z.int(),

@@ -3,7 +3,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { resetAnalytics } from '@/modules/analytics/presentation/analytics.client'
 
-// Better Auth deletes only from a session younger than its freshAge (one day).
+/** Better Auth deletes only from a session younger than its freshAge (one day). */
 async function deleteAccount() {
 	const { error } = await authClient.deleteUser()
 

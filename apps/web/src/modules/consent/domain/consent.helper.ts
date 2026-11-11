@@ -2,7 +2,7 @@ import { readCookie } from '@/utils/cookie.util'
 import type { ConsentChoice, ConsentState } from './consent.types'
 
 export const CONSENT_COOKIE = 'soonlane-consent'
-// Raising it asks everyone again, e.g. when a new optional category appears.
+/** Raising it asks everyone again, e.g. when a new optional category appears. */
 const CONSENT_VERSION = 1
 const DAY_MS = 24 * 60 * 60 * 1000
 const CONSENT_MAX_AGE_MS = {

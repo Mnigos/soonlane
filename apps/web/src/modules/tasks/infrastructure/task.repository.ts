@@ -31,7 +31,7 @@ import { updateProgress } from './task-progress.helper'
 import { toTask } from './task-row.helper'
 import { updateTask } from './task-update.helper'
 
-// Keep in sync with compareTasks in task-list.helper.ts.
+/** Keep in sync with compareTasks in task-list.helper.ts. */
 const DAY_ORDER = [
 	asc(task.dueDate),
 	sql`${task.dueTime} asc nulls last`,

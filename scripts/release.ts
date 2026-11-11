@@ -5,7 +5,6 @@ import { $ } from 'bun'
 //   bun scripts/release.ts stable [--version X.Y.Z]    promotes the latest nightly's commit
 //   bun scripts/release.ts write-version X.Y.Z         writes version.json (release workflow only)
 
-// Bun's shell globs unquoted words, so tag patterns are passed as interpolated values.
 const STABLE_TAG_PATTERN = /^v(\d+)\.(\d+)\.(\d+)$/u
 const VERSION_PATTERN = /^(\d+)\.(\d+)\.(\d+)$/u
 const NIGHTLY_TAG_PATTERN = /^v(\d+\.\d+\.\d+)-nightly\.(\d{8})\.(\d+)$/u
@@ -79,6 +78,7 @@ async function readCommitMessages(range: string) {
 		.filter(Boolean)
 }
 
+/** Bun's shell globs unquoted words, so tag patterns are passed as interpolated values. */
 async function listTags(pattern: string, ref?: string) {
 	const merged = ref ? ['--merged', ref] : []
 	const output = await $`git tag --list ${pattern} ${merged}`.text()

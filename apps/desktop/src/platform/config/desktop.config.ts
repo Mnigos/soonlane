@@ -1,6 +1,6 @@
 import { Config, ConfigProvider, Context, Layer, Schema } from 'effect'
 
-// The app's origin decides what may load in the window, so it has to be a web origin; file: and custom schemes have none.
+/** The app's origin decides what may load in the window, so it has to be a web origin; file: and custom schemes have none. */
 const appUrlSchema = Schema.URLFromString.check(
 	Schema.makeFilter(
 		url =>

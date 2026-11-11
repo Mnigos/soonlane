@@ -56,7 +56,7 @@ export interface CreateAuthOptions {
 	events: AuthEvents
 }
 
-// Drizzle query errors embed SQL parameters, which include session tokens.
+/** Drizzle query errors embed SQL parameters, which include session tokens. */
 function redactLogArgument(argument: unknown) {
 	return argument instanceof Error ? argument.name : argument
 }

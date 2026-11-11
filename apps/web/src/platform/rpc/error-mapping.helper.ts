@@ -71,7 +71,7 @@ function toDbORPCError(error: DbError): ORPCError<string, unknown> {
 	})
 }
 
-// Drizzle wraps the driver error, so the connection code can sit several causes deep.
+/** Drizzle wraps the driver error, so the connection code can sit several causes deep. */
 function isConnectionError(cause: unknown): boolean {
 	if (typeof cause !== 'object' || cause === null) return false
 	if (
