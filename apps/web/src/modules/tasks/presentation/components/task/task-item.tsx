@@ -1,15 +1,12 @@
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { Tooltip } from '@soonlane/ui/components/tooltip'
-import { Calendar, Check, PencilLine, Tag } from 'lucide-react'
+import { Calendar, Check, Tag } from 'lucide-react'
 import { useId, useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import { getDueLabel } from '../../../domain/due-label.helper'
 import { formatRepeatRule } from '../../../domain/repeat-rule.helper'
-import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
-import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
 import { RepeatIcon } from '../composer/date-picker-icons'
@@ -31,7 +28,7 @@ const ROW_CONTROL_CLASS =
 export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 	const isEditing = openEditorId === task.id
-	const [shouldFocusEdit, setShouldFocusEdit] = useState(false)
+	const [shouldFocusMenu, setShouldFocusMenu] = useState(false)
 	const due = getDueLabel(task.dueDate, task.dueTime, today)
 	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const buttonId = useId()
@@ -39,12 +36,12 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 
 	function openComposer() {
 		setOpenEditorId(task.id)
-		setShouldFocusEdit(false)
+		setShouldFocusMenu(false)
 	}
 
 	function closeComposer() {
 		setOpenEditorId(undefined)
-		setShouldFocusEdit(true)
+		setShouldFocusMenu(true)
 	}
 
 	if (isEditing)
@@ -143,28 +140,8 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 				<LogProgressControls task={task} titleId={titleId} today={today} />
 			)}
 
-			<Tooltip label="Edit task">
-				<button
-					aria-label="Edit task"
-					autoFocus={shouldFocusEdit}
-					className={cn(
-						'ml-auto flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary',
-						ROW_CONTROL_CLASS
-					)}
-					data-task-id={task.id}
-					onClick={openComposer}
-					ref={keepFocusAfterMove}
-					type="button"
-				>
-					<PencilLine
-						aria-hidden
-						className="size-4.5"
-						strokeWidth={CHIP_ICON_STROKE}
-					/>
-				</button>
-			</Tooltip>
-
 			<TaskRowMenu
+				autoFocus={shouldFocusMenu}
 				className={ROW_CONTROL_CLASS}
 				onEdit={openComposer}
 				task={task}
