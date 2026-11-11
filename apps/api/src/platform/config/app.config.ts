@@ -45,8 +45,9 @@ const appConfig = Config.all({
 
 /**
  * `railway up` uploads no git metadata, so `bun build` inlines `process.env.APP_COMMIT` from `commit.env`,
- * which the staging deploy workflow writes into the upload. Read ahead of the environment, so the reported
- * commit always belongs to the running bundle.
+ * which the staging deploy workflow writes into the upload. The build unsets an inherited `APP_COMMIT`, which Bun
+ * would prefer over the file, and the bundle is read ahead of the environment, so the reported commit always
+ * belongs to the running bundle.
  */
 const bundleProvider = ConfigProvider.fromEnvRecord({
 	APP_COMMIT: process.env.APP_COMMIT,
