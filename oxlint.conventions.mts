@@ -152,12 +152,10 @@ export const CONVENTION_RULES = {
 
 const FRONTEND_APPS = ['apps/web'] as const
 
-/** The only files that build a branded id or calendar date from a plain string. */
-const BRAND_CONSTRUCTION_FILES = [
-	'packages/contracts/src/calendar-date.schemas.ts',
-	'packages/contracts/src/ids.schemas.ts',
-	'apps/web/src/modules/changelog/infrastructure/changelog.parser.ts',
-	'apps/api/src/modules/identity/infrastructure/better-auth.layer.ts',
+/** The only files that cast a plain string to a branded id or calendar date. */
+const BRAND_CAST_FILES = [
+	'packages/contracts/src/*.schemas.ts',
+	'packages/domain/**',
 ] as const
 
 const ROLE_NAMED_SOURCES = [
@@ -247,11 +245,11 @@ export const CONVENTION_OVERRIDES = [
 	},
 	{
 		files: ['apps/**', 'packages/**'],
-		rules: { 'soonlane/no-brand-construction': 'error' },
+		rules: { 'soonlane/no-brand-cast': 'error' },
 	},
 	{
-		files: [...BRAND_CONSTRUCTION_FILES],
-		rules: { 'soonlane/no-brand-construction': 'off' },
+		files: [...BRAND_CAST_FILES],
+		rules: { 'soonlane/no-brand-cast': 'off' },
 	},
 	{
 		files: ['apps/web/**'],

@@ -1,4 +1,4 @@
-import { toCalendarDate } from '@soonlane/domain'
+import { storedCalendarDateSchema } from '@soonlane/contracts'
 import type {
 	Release,
 	ReleaseGroup,
@@ -75,7 +75,12 @@ function parseLine(releases: Release[], line: string) {
 	const release = releases.at(-1)
 
 	if (version) {
-		releases.push({ version, date: toCalendarDate(date), url, groups: [] })
+		releases.push({
+			version,
+			date: storedCalendarDateSchema.parse(date),
+			url,
+			groups: [],
+		})
 		return true
 	}
 	if (!release) return false

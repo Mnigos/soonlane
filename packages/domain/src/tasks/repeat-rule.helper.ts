@@ -1,3 +1,4 @@
+import { toCalendarDate } from '../dates/calendar-date-brand.helper'
 import {
 	addDays,
 	addMonths,
@@ -11,7 +12,7 @@ import {
 	isBefore,
 	isWeekend,
 } from '../dates/calendar-date.helper'
-import { type CalendarDate, toCalendarDate } from '../dates/calendar-date.types'
+import type { CalendarDate } from '../dates/calendar-date.types'
 import { DATE_LOCALE, DAYS_PER_WEEK } from '../dates/calendar.constants'
 import type { RepeatUnit } from './repeat-rule.constants'
 
