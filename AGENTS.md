@@ -1,6 +1,6 @@
 # Soonlane agent rules
 
-Todoist-like personal task list: anyone can sign up with Google and gets their own tasks. Bun + Turborepo; TanStack Start (React 19, Router, Query) on Vercel; Effect 4 on the server; oRPC v2; Drizzle on Neon Postgres; Better Auth (Google, open sign-up); Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
+Todoist-like personal task list: anyone can sign up with Google and gets their own tasks. Bun + Turborepo; TanStack Start (React 19, Router, Query) on Vercel; the API (`apps/api`, Bun + Effect 4) on Railway; oRPC v2; Drizzle on Neon Postgres; Better Auth (Google, open sign-up); Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
 
 ## Must
 
@@ -14,11 +14,12 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 ## Boundaries
 
-- Packages: `domain` (brands, no workspace deps) ← `contracts` (the only API boundary, oRPC + Zod) and `ui` (app-agnostic primitives: no router, data fetching or domain types); `domain` ← `db` (Drizzle schema, migrations; server-only) ← `auth` (`createAuth` at `/server`, server-only; browser client at `/client`; sign-up policy and the signed-in hint cookie at the root). Packages never import an app and never use Effect; the web app wraps them in layers.
-- `apps/web/src/modules/<module>/`: `domain/` is pure (no Effect services, framework, ORM or RPC); `application/` holds ports and services (`Context.Service`, `*Live` layer, `Effect.fn('Service.method')`); `infrastructure/` implements ports (repositories run queries through `Db.run` and never catch); `presentation/` holds routers, middleware, components, hooks, routes.
+- Packages: `domain` (brands and pure domain logic both apps run, no workspace deps) ← `contracts` (the only API boundary, oRPC + Zod) and `ui` (app-agnostic primitives: no router, data fetching or domain types); `domain` ← `db` (Drizzle schema, migrations; server-only) ← `auth` (`createAuth` at `/server`, server-only; browser client at `/client`; sign-up policy and the signed-in hint cookie at the root). Packages never import an app and never use Effect; the API wraps them in layers.
+- `apps/api/src/modules/<module>/` (server) and `apps/web/src/modules/<module>/` (UI): `domain/` is pure (no Effect services, framework, ORM or RPC); `application/` holds ports and services (`Context.Service`, `*Live` layer, `Effect.fn('Service.method')`); `infrastructure/` implements ports (repositories run queries through `Db.run` and never catch); `presentation/` holds routers, middleware, components, hooks, routes.
 - `apps/desktop/src/` uses the same `platform/` and `modules/<module>/{domain,application,infrastructure}` split; Electrobun is imported only in `infrastructure/`, `platform/electrobun/` and `main.ts`.
-- `apps/web/src/platform/`: config, `AppLive`, the single `ManagedRuntime`, oRPC wiring. Tagged errors (`Data.TaggedError` with `code`) become oRPC errors only in `platform/rpc/rpc.base.ts`.
-- Server-only: `platform/`, `application/`, `infrastructure/`, `*.router|handler|port|service|repository|layer|middleware.ts`, `*.server.*`, `routes/api.*`, and the specifiers `@soonlane/auth/server`, `@soonlane/db`, `pg`, `drizzle-orm`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
+- `apps/api/src/platform/`: config, `AppLive`, the single `ManagedRuntime`, the HTTP entry (client IP), oRPC wiring. Tagged errors (`Data.TaggedError` with `code`) become oRPC errors only in `platform/rpc/rpc.base.ts`. Only the API reaches the database and Better Auth's server.
+- `apps/web/src/platform/`: the forwarder to the API (`api/api-proxy.handler.ts`) and the oRPC client; no Effect runtime. The web app never imports `@soonlane/db`, `@soonlane/auth/server`, `pg`, `drizzle-orm` or `effect`.
+- Web server-only: `platform/`, `infrastructure/`, `*.handler.ts`, `*.server.*`, `routes/api.*`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
 
 ## Code
 

@@ -10,7 +10,7 @@ Soonlist starts as one TanStack Start app, but a desktop app is next and will ca
 ## Decision
 
 - `packages/contracts`: the oRPC contract and Zod schemas, the only API boundary. Browser-safe.
-- `packages/domain`: brands (`CalendarDate`, `UserId`) and shared constants. No dependencies.
+- `packages/domain`: brands (`CalendarDate`, `UserId`), shared constants and pure domain logic both apps run (date helpers, repeat rules, the cookie reader; SOON-119). No dependencies.
 - `packages/ui`: app-agnostic React primitives and `cn`, consumed through an export map (`@soonlist/ui/components/*`, `@soonlist/ui/cn`) with no barrel. No router, data fetching or domain types.
 - `packages/db`: Drizzle schema, migrations and the migrator. Server-only.
 - `packages/auth`: the Better Auth factory (Google, owner-only hook, oAuthProxy) and the browser client. The web app wraps the server factory in an Effect layer; the package itself stays free of Effect so the desktop app's tooling can reuse it.
@@ -29,6 +29,10 @@ Soonlist starts as one TanStack Start app, but a desktop app is next and will ca
 - Tailwind scans `packages/ui` through `@source` in `apps/web/src/styles.css`; a new package with classes needs its own `@source`.
 - Moving code into a package is cheap but not free: each package has its own `package.json`, tsconfig and lint scope. Code stays in `apps/web` until a second consumer exists.
 - Rejected: one `packages/shared` grab bag (blurs browser and server code), and Effect services inside packages (would tie the desktop app's build to Effect's runtime choices made for the web app).
+
+## Update 2026-11-12 (SOON-119)
+
+The server code moved to `apps/api`, so Effect services, ports and layers now live in both apps. The web app no longer depends on `@soonlane/db`, `@soonlane/auth/server`, `pg` or `drizzle-orm`, so its import protection no longer lists them.
 
 ## Related
 

@@ -1,6 +1,6 @@
 # Analytics
 
-Soonlane sends product analytics, session replays and exceptions to PostHog (EU cloud, project 337571). Everything is optional: without `VITE_POSTHOG_KEY` nothing is sent, nothing is loaded and no consent banner appears. With a key, what is sent depends on each visitor's answer ([Consent](#consent)). Soonlane is a public product: anyone can sign in with Google, so nothing here assumes one user.
+Soonlane sends product analytics, session replays and exceptions to PostHog (EU cloud, project 337571). Everything is optional: without `VITE_POSTHOG_KEY` in the web app nothing is loaded and no consent banner appears, and without `POSTHOG_KEY` on the API no server event or exception is sent. With a key, what is sent depends on each visitor's answer ([Consent](#consent)). Soonlane is a public product: anyone can sign in with Google, so nothing here assumes one user.
 
 ## Layout
 
@@ -10,11 +10,11 @@ The browser half lives in `packages/analytics` (`@soonlane/analytics`), so the a
 - `@soonlane/analytics/client`: the posthog-js client (`trackRouter`, `capture`, `captureException`, `applyConsent`, `resetAnalytics`) and the PostHog configuration.
 - `@soonlane/analytics/components/*`: `ConsentProvider` (with the banner and the Privacy choices dialog) and `PrivacyChoicesButton`; `@soonlane/analytics/consent-copy` holds their text.
 
-Each app passes what only it knows. `trackRouter(router, options)` takes the PostHog key, the build properties, the private routes typed against the app's own route tree, and how to find the signed-in user; `ConsentProvider` takes `isAnalyticsEnabled`. In `apps/web` these live in `modules/analytics/presentation/browser-analytics.constants.ts` and `routes/__root.tsx`. The server half stays in `apps/web/src/modules/analytics`: the server events (`ServerEvents`), the `Analytics` port, `PostHogAnalyticsLive` and the `/ingest` proxy.
+Each app passes what only it knows. `trackRouter(router, options)` takes the PostHog key, the build properties, the private routes typed against the app's own route tree, and how to find the signed-in user; `ConsentProvider` takes `isAnalyticsEnabled`. In `apps/web` these live in `modules/analytics/presentation/browser-analytics.constants.ts` and `routes/__root.tsx`. The server half lives in the apps: the server events (`ServerEvents`), the `Analytics` port and `PostHogAnalyticsLive` in `apps/api/src/modules/analytics`, the `/ingest` proxy in `apps/web/src/modules/analytics`.
 
 ## Naming
 
-Event names and their properties are typed in `packages/analytics/src/analytics-event.types.ts` (browser) and `apps/web/src/modules/analytics/domain/analytics-event.types.ts` (server); a misspelled name or property does not compile. Names are `object_action` in snake_case and the past tense. Properties are snake_case and hold only ids, enums, counts, booleans and durations: never task titles, descriptions, label names, emails or names.
+Event names and their properties are typed in `packages/analytics/src/analytics-event.types.ts` (browser) and `apps/api/src/modules/analytics/domain/analytics-event.types.ts` (server); a misspelled name or property does not compile. Names are `object_action` in snake_case and the past tense. Properties are snake_case and hold only ids, enums, counts, booleans and durations: never task titles, descriptions, label names, emails or names.
 
 ## Events
 
@@ -146,10 +146,10 @@ The dialog's Privacy policy link opens `/privacy` and closes the dialog. The ban
 
 - No autocapture, no dead-click or heatmap capture: they would record clicked element text, which includes task titles.
 - URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…` and `/desktop/callback#code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them.
-- A label's name is part of its view's path, so the same rewrite sends `/app/labels/:name` in its place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). Each app lists its private routes in the options it passes to `trackRouter` (`browser-analytics.constants.ts` in `apps/web`), typed against its router's paths. `route` already carries the route id (`/_session/app/labels/$name`). A calendar link is a secret, so any path under `/calendar/` is sent as `/calendar/:token` the same way.
+- A label's name is part of its view's path, so the same rewrite sends `/app/labels/:name` in its place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). Each app lists its private paths in the options it passes to `trackRouter` (`browser-analytics.constants.ts` in `apps/web`), the web ones typed against its router's paths. `route` already carries the route id (`/_session/app/labels/$name`). A calendar link is a secret, so any path under `/calendar/` is sent as `/calendar/:token` the same way.
 - `$pageview` is sent without `title`: the label view's document title is the label's name.
 - RPC calls are `POST /api/rpc/<procedure>` with the input in the body, so label names and task content never appear in a request URL.
-- The calendar link carries a secret, so it is in no event, and the browser never opens it: calendar apps fetch `/calendar/<token>.ics`, and that route logs and reports neither the URL nor the token ([ADR 0011](decisions/0011-private-calendar-subscription-link.md)). `calendar.createSubscription` returns it in a response body, which replay does not record.
+- The calendar link carries a secret, so it is in no event, and the browser never opens it: calendar apps fetch `/calendar/<token>.ics` from the API host, and the API logs and reports neither the URL nor the token ([ADR 0011](decisions/0011-private-calendar-subscription-link.md)). `calendar.createSubscription` returns it in a response body, which replay does not record.
 - Feature flags are off (`advanced_disable_feature_flags`): the SDK never calls `/flags`, whose body carries the stored initial URL outside `before_send`.
 - Replay keeps the DOM attributes of the app's own assets as they are, for example the development stylesheet's `?routes=` query in a `<link href>`. They carry nothing personal.
 - Replay records no network headers or bodies and no console logs. JSON-LD capture is off. Surveys, product tours and conversations are off.
