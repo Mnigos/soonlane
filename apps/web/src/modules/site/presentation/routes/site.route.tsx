@@ -6,8 +6,10 @@ import {
 } from '@/modules/blog/presentation/blog.constants'
 import { SiteFooter } from '../components/site-footer'
 import { SiteHeader } from '../components/site-header'
+import { syncSignedInHint } from '../helpers/signed-in-hint.helper'
 
 export const Route = createFileRoute('/_site')({
+	onEnter: syncSignedInHint,
 	head: () => ({
 		links: [
 			{
