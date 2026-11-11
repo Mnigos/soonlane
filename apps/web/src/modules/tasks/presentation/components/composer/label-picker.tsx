@@ -1,6 +1,4 @@
-import { isDefinedError } from '@orpc/client'
 import type { Label } from '@soonlane/contracts'
-import { cn } from '@soonlane/ui/cn'
 import {
 	Combobox,
 	ComboboxInput,
@@ -8,17 +6,17 @@ import {
 	ComboboxList,
 } from '@soonlane/ui/components/combobox'
 import { useQuery } from '@tanstack/react-query'
-import { Check, Plus, Tag } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { type Dispatch, type Ref, type SetStateAction, useState } from 'react'
-import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import type { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
-	CHIP_ICON_STROKE,
+	LABEL_ROW_CLASS,
 	PICKER_FIELD_CLASS,
 	PICKER_FIELD_ROW_CLASS,
-	PICKER_NOTE_CLASS,
 } from '../../helpers/composer-chip.constants'
+import { NEW_LABEL_ID, searchLabels } from '../../helpers/label-search.helper'
+import { CreateLabelOption, LabelListNotes, LabelOption } from './label-options'
 
 interface LabelPickerProps {
 	value: Label[]
@@ -26,12 +24,6 @@ interface LabelPickerProps {
 	createLabel: ReturnType<typeof useCreateLabelMutation>
 	inputRef: Ref<HTMLInputElement>
 }
-
-// The "Create label" row is a label with this id, so the arrow keys and Enter reach it.
-const NEW_LABEL_ID = 'new'
-
-const ROW_CLASS =
-	'group flex h-8 cursor-pointer items-center gap-2.5 px-3 text-label text-foreground outline-none select-none data-disabled:opacity-50 data-highlighted:bg-hover'
 
 /** The Labels chip's popover: a search field over the owner's labels to tick, and a row creating a new one. */
 export function LabelPicker({
@@ -43,14 +35,7 @@ export function LabelPicker({
 	const [query, setQuery] = useState('')
 	const { data, isError } = useQuery(orpcQuery.labels.list.queryOptions())
 	const labels = data?.labels ?? []
-	const name = query.trim()
-	const search = name.toLowerCase()
-	const matches = labels.filter(label =>
-		label.name.toLowerCase().includes(search)
-	)
-	const isNewName =
-		name !== '' && !labels.some(label => label.name.toLowerCase() === search)
-	const items = isNewName ? [...matches, { id: NEW_LABEL_ID, name }] : matches
+	const { name, items } = searchLabels(labels, query)
 
 	return (
 		<Combobox
@@ -104,34 +89,20 @@ export function LabelPicker({
 				{(label: Label) =>
 					label.id === NEW_LABEL_ID ? (
 						<ComboboxItem
-							className={ROW_CLASS}
+							className={LABEL_ROW_CLASS}
 							disabled={createLabel.isPending}
 							key={NEW_LABEL_ID}
 							value={label}
 						>
-							<Plus
-								aria-hidden
-								className="size-4 shrink-0 text-secondary-foreground"
-								strokeWidth={CHIP_ICON_STROKE}
-							/>
-
-							<span className="truncate">
-								Create label &quot;<span className="ph-mask">{label.name}</span>
-								&quot;
-							</span>
+							<CreateLabelOption name={label.name} />
 						</ComboboxItem>
 					) : (
-						<ComboboxItem className={ROW_CLASS} key={label.id} value={label}>
-							<Tag
-								aria-hidden
-								className={cn(
-									'size-4 shrink-0',
-									LABEL_COLOR_CLASSES[label.color ?? 'charcoal']
-								)}
-								strokeWidth={CHIP_ICON_STROKE}
-							/>
-
-							<span className="ph-mask truncate">{label.name}</span>
+						<ComboboxItem
+							className={LABEL_ROW_CLASS}
+							key={label.id}
+							value={label}
+						>
+							<LabelOption label={label} />
 
 							<span className="ml-auto flex size-4 shrink-0 items-center justify-center rounded-sm border border-border-strong group-data-selected:border-primary group-data-selected:bg-primary">
 								<Check
@@ -145,22 +116,11 @@ export function LabelPicker({
 				}
 			</ComboboxList>
 
-			{data && labels.length === 0 && name === '' && (
-				<p className={PICKER_NOTE_CLASS}>No labels yet</p>
-			)}
-
-			{isError && (
-				<p className={PICKER_NOTE_CLASS}>Could not load your labels.</p>
-			)}
-
-			{createLabel.isError && (
-				<p className="px-3 py-2 text-caption text-danger" role="alert">
-					{isDefinedError(createLabel.error) &&
-					createLabel.error.code === 'CONFLICT'
-						? createLabel.error.message
-						: 'Could not create the label. Try again.'}
-				</p>
-			)}
+			<LabelListNotes
+				createLabel={createLabel}
+				isEmpty={data !== undefined && labels.length === 0 && name === ''}
+				isLoadError={isError}
+			/>
 		</Combobox>
 	)
 }

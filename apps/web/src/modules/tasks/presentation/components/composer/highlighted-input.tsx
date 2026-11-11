@@ -36,6 +36,7 @@ export function HighlightedInput({
 	value,
 	highlights,
 	className,
+	onSelect,
 	...props
 }: Readonly<HighlightedInputProps>) {
 	const layerRef = useRef<HTMLSpanElement>(null)
@@ -53,7 +54,7 @@ export function HighlightedInput({
 				aria-hidden
 				className={cn(
 					className,
-					'pointer-events-none absolute -inset-x-1 inset-y-0 flex items-center overflow-hidden px-1 text-transparent select-none'
+					'ph-mask pointer-events-none absolute -inset-x-1 inset-y-0 flex items-center overflow-hidden px-1 text-transparent select-none'
 				)}
 			>
 				<span className="whitespace-pre" ref={layerRef}>
@@ -65,7 +66,10 @@ export function HighlightedInput({
 				{...props}
 				className={cn('relative', className)}
 				onScroll={followScroll}
-				onSelect={followScroll}
+				onSelect={event => {
+					followScroll(event)
+					onSelect?.(event)
+				}}
 				value={value}
 			/>
 		</div>

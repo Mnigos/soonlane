@@ -4,6 +4,10 @@ import { useDockBadgeQuery } from '../hooks/use-dock-badge-query'
 import { useToday } from '../hooks/use-today'
 import { TaskComposer } from './composer/task-composer'
 
+function growForSuggestions(isOpen: boolean) {
+	sendToDesktopHost({ type: 'quick-add-suggestions', isOpen })
+}
+
 /** The desktop app's Quick Add window: the task composer on its own, due today like the global Add task. */
 export function QuickAddPage() {
 	const today = useToday()
@@ -24,6 +28,7 @@ export function QuickAddPage() {
 					defaultDueDate={today}
 					onCancel={finish}
 					onCreated={finish}
+					onSuggestionsToggle={growForSuggestions}
 					source="quick_add"
 					today={today}
 				/>

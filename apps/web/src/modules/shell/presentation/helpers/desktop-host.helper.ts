@@ -1,6 +1,7 @@
 /** What the page tells the desktop app's main process, which decodes and checks each message. */
 type DesktopHostMessage =
 	| { type: 'quick-add-done' }
+	| { type: 'quick-add-suggestions'; isOpen: boolean }
 	| { type: 'dock-badge'; count: number }
 
 declare global {
