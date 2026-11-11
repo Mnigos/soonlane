@@ -1,6 +1,5 @@
 import {
 	type ListTasksOutput,
-	listTasksInputSchema,
 	updateTaskInputSchema,
 } from '@soonlane/contracts'
 import {
@@ -9,17 +8,14 @@ import {
 	useQueryClient,
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getEditedRule } from '../../domain/repeat-rule.helper'
+import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
 	placeTask,
 	withMovedTask,
 } from '../helpers/task-list.helper'
-
-// oRPC query keys are [path, { input, type }]; the input tells where a list holds a task.
-const listKeyOptionsSchema = z.object({ input: listTasksInputSchema })
 
 /** Saves an edited task at once (optimistically), moving it to wherever its new date belongs. */
 export function useUpdateTask() {
@@ -63,7 +59,9 @@ export function useUpdateTask() {
 				// One render for every list (here and in the rollback), so a moved task never shows twice and its row can take focus there.
 				notifyManager.batch(() => {
 					for (const [key] of lists) {
-						const { input } = listKeyOptionsSchema.parse(key[1])
+						const input = getListInput(key)
+
+						if (!input) continue
 
 						queryClient.setQueryData<ListTasksOutput>(
 							key,
