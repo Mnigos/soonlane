@@ -1,0 +1,52 @@
+name: Deploy staging
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag or commit to deploy to staging
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+# One staging deploy at a time; a running deploy is never canceled.
+concurrency:
+  group: deploy-staging
+  cancel-in-progress: false
+
+env:
+  RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN_STAGING }}
+  RAILWAY: bunx @railway/cli@5.71.0
+  REF: ${{ inputs.ref }}
+
+jobs:
+  api:
+    name: Deploy the API
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.2
+      # `railway up` uploads no git metadata, so the health endpoint reads the commit from this variable.
+      - name: Record the commit
+        run: $RAILWAY variable set "APP_COMMIT=$(git rev-parse HEAD)" --service api --environment staging --skip-deploys
+      - name: Build and deploy
+        run: $RAILWAY up --service api --environment staging --ci --message "$REF $(git rev-parse --short HEAD)"
+      - name: Wait for the health check
+        run: |
+          for attempt in $(seq 60); do
+            status=$($RAILWAY deployment list --service api --environment staging --limit 1 --json | jq -r '.[0].status')
+            echo "Deployment status: $status"
+            case "$status" in
+              SUCCESS) exit 0 ;;
+              FAILED | CRASHED | REMOVED | SKIPPED) exit 1 ;;
+            esac
+            sleep 10
+          done
+          exit 1
