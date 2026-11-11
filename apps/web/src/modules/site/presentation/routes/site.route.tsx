@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { LayoutError } from '@/components/route-error'
 import {
 	BLOG_TITLE,
 	RSS_PATH,
@@ -18,6 +19,7 @@ export const Route = createFileRoute('/_site')({
 		],
 	}),
 	component: SiteLayout,
+	errorComponent: LayoutError,
 })
 
 function SiteLayout() {

@@ -7,6 +7,7 @@ import {
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 import { z } from 'zod'
+import { LayoutError } from '@/components/route-error'
 import { Shell } from '../components/shell'
 import { readSidebarPreference } from '../helpers/sidebar-preference.helper'
 
@@ -28,6 +29,7 @@ export const Route = createFileRoute('/_session/app')({
 	},
 	loader: () => ({ sidebarPreference: getSidebarPreference() }),
 	component: ShellRoute,
+	errorComponent: LayoutError,
 })
 
 function ShellRoute() {
