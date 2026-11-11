@@ -1,20 +1,16 @@
 import {
 	type ListTasksOutput,
-	listTasksInputSchema,
 	rescheduleTasksInputSchema,
 } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { z } from 'zod'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
+import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
 	withoutTask,
 	withTask,
 } from '../helpers/task-list.helper'
-
-// oRPC query keys are [path, { input, type }].
-const listKeyOptionsSchema = z.object({ input: listTasksInputSchema })
 
 /** Moves tasks to another day at once (optimistically), keeping their due times. */
 export function useRescheduleTasks() {
@@ -41,9 +37,9 @@ export function useRescheduleTasks() {
 				)
 
 				for (const { key, list } of lists) {
-					const { data } = listKeyOptionsSchema.safeParse(key[1])
+					const input = getListInput(key)
 					const shown =
-						data && data.input.from <= dueDate && dueDate <= data.input.to
+						input && input.from <= dueDate && dueDate <= input.to
 							? [...moved.values()]
 							: []
 
