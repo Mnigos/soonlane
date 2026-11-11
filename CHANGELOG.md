@@ -1,8 +1,37 @@
 # Changelog
 
-Written by the release workflow from conventional commits; never edit this file by hand.
+Each release opens with a summary written for users; the list of changes under it is written by the release workflow from conventional commits.
 
 ## [0.1.0](https://github.com/Mnigos/soonlane/releases/tag/v0.1.0) - 2026-11-11
+
+The first release of Soonlane, a personal task list built around the days ahead. It runs on the web and as a Mac app.
+
+### Tasks
+
+- Plan your days in Upcoming: a week strip, an Overdue section and one section per day that keeps loading as you scroll. Today shows only what is overdue and due today.
+- Add a task from the sidebar or from the Add task row under any day. Type a date like "fri" or "14 Nov" in the date picker, and type p1 to p4 in the task name to set its priority.
+- Repeat a task on a schedule, or give it a goal like 50 push-ups and log progress from its row.
+- Edit, reschedule or delete a task from its "…" menu, move every overdue task to one day at once, and undo a completion.
+- See what you finished today in a collapsed section above Overdue.
+
+### Labels
+
+- Tag tasks with labels while you add or edit them, and open a label from the sidebar to see its open tasks by day.
+- Rename, recolor and delete labels from their menu in the sidebar.
+
+### Calendar
+
+- See your open tasks in Apple Calendar or another calendar app through a private link, which you can replace or revoke at any time.
+
+### Mac app
+
+- The Mac app shows your list in its own window and signs you in through your browser.
+- Open Quick Add with ⌥Space from any app, and see on the Dock how many tasks are overdue or due today.
+
+### Account and website
+
+- Sign in with Google, and delete your account with all its tasks.
+- A homepage, privacy policy and terms, a blog with an RSS feed, this changelog, and Privacy choices in the footer.
 
 ### Features › blog
 
