@@ -11,6 +11,7 @@ import { jsxSiblingSpacingRule } from './jsx-sibling-spacing.rule.mts'
 import { moduleNameRule } from './module-name.rule.mts'
 import { noApiOnlyImportRule } from './no-api-only-import.rule.mts'
 import { noBrandCastRule } from './no-brand-cast.rule.mts'
+import { noDefaultRuntimeRule } from './no-default-runtime.rule.mts'
 import { noLetRule } from './no-let.rule.mts'
 import { noRepositoryTryCatchRule } from './no-repository-try-catch.rule.mts'
 import { propsWithChildrenRule } from './props-with-children.rule.mts'
@@ -32,6 +33,7 @@ export default definePlugin({
 		'module-name': moduleNameRule,
 		'no-api-only-import': noApiOnlyImportRule,
 		'no-brand-cast': noBrandCastRule,
+		'no-default-runtime': noDefaultRuntimeRule,
 		'no-let': noLetRule,
 		'no-repository-try-catch': noRepositoryTryCatchRule,
 		'props-with-children': propsWithChildrenRule,
