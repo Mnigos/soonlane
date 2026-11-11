@@ -1,9 +1,4 @@
-import type {
-	CreateTaskInput,
-	Label,
-	RepeatInput,
-	Task,
-} from '@soonlane/contracts'
+import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
@@ -20,6 +15,10 @@ import {
 	getEditedDueDate,
 	getEditedRule,
 } from '../../../domain/repeat-rule.helper'
+import {
+	getChangedGoal,
+	getChangedLabelIds,
+} from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useTypedPriority } from '../../hooks/use-typed-priority'
 import { useUpdateTask } from '../../hooks/use-update-task'
@@ -98,7 +97,9 @@ export function TaskComposer({
 	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
 	const savedRule = getSavedRule(task, scheduledDate, repeat)
-	const [goal, setGoal] = useState<CreateTaskInput['goal']>()
+	const [goal, setGoal] = useState<GoalInput | undefined>(
+		task?.goal && { target: task.goal.target, unit: task.goal.unit }
+	)
 	const titleRef = useRef<HTMLInputElement>(null)
 	// Stable, so a re-render (a picked priority) does not pull focus back to the title.
 	const attachTitle = useCallback(
@@ -111,7 +112,7 @@ export function TaskComposer({
 	// isPending lags a render, so a quick second Enter would send the task twice.
 	const isSubmittingRef = useRef(false)
 	const { mutate, isPending, isError } = useCreateTaskMutation(source, today)
-	const { updateTask } = useUpdateTask()
+	const { updateTask } = useUpdateTask(today)
 	const canSubmit = savedTitle.trim() !== '' && !isPending
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
@@ -121,10 +122,8 @@ export function TaskComposer({
 		if (!canSubmit || isSubmittingRef.current) return
 
 		if (task) {
-			const labelIds = pickedLabels.map(({ id }) => id)
-			const isLabelChange =
-				labelIds.length !== task.labels.length ||
-				task.labels.some(({ id }) => !labelIds.includes(id))
+			const labelIds = getChangedLabelIds(task, pickedLabels)
+			const changedGoal = getChangedGoal(task, goal)
 			const edited = {
 				id: task.id,
 				title: savedTitle.trim(),
@@ -133,10 +132,13 @@ export function TaskComposer({
 				dueTime,
 				priority,
 				repeat: repeat ?? null,
-				labelIds: isLabelChange ? labelIds : undefined,
+				labelIds,
+				goal: changedGoal,
+				today,
 			}
 			const isChanged =
-				isLabelChange ||
+				labelIds !== undefined ||
+				changedGoal !== undefined ||
 				(
 					['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
 				).some(field => edited[field] !== task[field]) ||
@@ -245,12 +247,7 @@ export function TaskComposer({
 					value={priority}
 				/>
 
-				<GoalChip
-					isReadOnly={Boolean(task)}
-					onChange={setGoal}
-					onKeyDown={cancelOnEscape}
-					value={task?.goal ?? goal}
-				/>
+				<GoalChip onChange={setGoal} onKeyDown={cancelOnEscape} value={goal} />
 
 				<LabelsChip
 					onChange={setLabels}

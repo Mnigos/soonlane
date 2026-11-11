@@ -106,6 +106,13 @@ export const repeatInputSchema = repeatSchema.refine(
 
 export type RepeatInput = z.infer<typeof repeatInputSchema>
 
+export const goalInputSchema = z.object({
+	target: z.int().min(1).max(GOAL_TARGET_MAX),
+	unit: z.string().trim().min(1).max(GOAL_UNIT_MAX_LENGTH).optional(),
+})
+
+export type GoalInput = z.infer<typeof goalInputSchema>
+
 export const createTaskInputSchema = z.object({
 	title: z.string().trim().min(1).max(TASK_TITLE_MAX_LENGTH),
 	description: z.string().trim().max(TASK_DESCRIPTION_MAX_LENGTH).optional(),
@@ -119,28 +126,39 @@ export const createTaskInputSchema = z.object({
 			message: 'Each label can be added once.',
 		})
 		.optional(),
-	goal: z
-		.object({
-			target: z.int().min(1).max(GOAL_TARGET_MAX),
-			unit: z.string().trim().min(1).max(GOAL_UNIT_MAX_LENGTH).optional(),
-		})
-		.optional(),
+	goal: goalInputSchema.optional(),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
-// Replaces every field (an absent description or time clears it) but two that an absent value keeps for clients from before they could be edited:
-// the repeat rule (null clears it) and the labels (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels).
-// Editing a goal comes later (SOON-57), so an edit leaves the goal and its progress alone.
-export const updateTaskInputSchema = createTaskInputSchema
-	.omit({ goal: true })
-	.extend({
-		id: taskIdSchema,
-		priority: prioritySchema,
-		repeat: repeatInputSchema.nullable().optional(),
-	})
+/**
+ * Replaces every field (an absent description or time clears it) but three that an absent value keeps for clients from before they could be edited:
+ * the repeat rule and the goal (null clears them) and the labels (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels).
+ * A goal at or below the progress of an open task completes it like a log reaching the target; `today` places a repeating task's next occurrence.
+ */
+export const updateTaskInputSchema = createTaskInputSchema.extend({
+	id: taskIdSchema,
+	priority: prioritySchema,
+	repeat: repeatInputSchema.nullable().optional(),
+	goal: goalInputSchema.nullable().optional(),
+	today: calendarDateSchema.optional(),
+})
 
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
+
+/** `completed` when the edit's goal completed the task: the due date it was completed on and the goal and progress Undo restores. */
+export const updateTaskOutputSchema = z.object({
+	task: taskSchema,
+	completed: z
+		.object({
+			dueDate: storedCalendarDateSchema,
+			progress: z.int(),
+			goal: z.object({ target: z.int(), unit: z.string().optional() }),
+		})
+		.optional(),
+})
+
+export type UpdateTaskOutput = z.infer<typeof updateTaskOutputSchema>
 
 export const taskIdInputSchema = z.object({ id: taskIdSchema })
 
@@ -150,10 +168,11 @@ export const completeTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
 })
 
-// Undo of a repeating task sends the due date and the goal progress it had before completing.
+// Undo of a repeating task sends the due date and the goal progress it had before completing; Undo of an edit that completed it also sends the goal.
 export const uncompleteTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
 	progress: z.int().min(0).max(GOAL_TARGET_MAX).optional(),
+	goal: goalInputSchema.optional(),
 })
 
 const RESCHEDULE_MAX_TASKS = 1000
@@ -214,7 +233,7 @@ export const tasksContract = {
 	update: oc
 		.errors(taskErrors)
 		.input(updateTaskInputSchema)
-		.output(z.object({ task: taskSchema })),
+		.output(updateTaskOutputSchema),
 	delete: oc.errors(taskErrors).input(taskIdInputSchema).output(z.void()),
 	complete: oc
 		.errors(taskErrors)
