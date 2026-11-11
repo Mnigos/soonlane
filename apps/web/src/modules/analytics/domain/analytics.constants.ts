@@ -1,4 +1,4 @@
-import type { SuperProperties } from './analytics-event.types'
+import type { SuperProperties } from '@soonlane/analytics'
 
 export const BUILD_PROPERTIES = {
 	app_version: import.meta.env.APP_VERSION,

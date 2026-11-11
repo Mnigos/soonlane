@@ -1,5 +1,5 @@
+import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
 import type { PropsWithChildren } from 'react'
-import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
 
 interface SignInLayoutProps extends PropsWithChildren {
 	heading?: string

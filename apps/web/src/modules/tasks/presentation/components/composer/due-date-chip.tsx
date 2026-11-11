@@ -1,3 +1,4 @@
+import { capture } from '@soonlane/analytics/client'
 import type { RepeatInput } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
@@ -7,7 +8,6 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { type KeyboardEvent, useRef, useState } from 'react'
-import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { getDueChipLabel } from '../../../domain/due-label.helper'
 import {
 	formatRepeatRule,

@@ -1,13 +1,11 @@
 import type { RPCJsonSerialization } from '@orpc/client'
+import { captureException, trackRouter } from '@soonlane/analytics/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
 import { NotFound } from './components/not-found'
 import { RouteError } from './components/route-error'
-import {
-	captureException,
-	trackRouter,
-} from './modules/analytics/presentation/analytics.client'
+import { BROWSER_ANALYTICS_OPTIONS } from './modules/analytics/presentation/browser-analytics.constants'
 import { syncDockBadge } from './modules/tasks/presentation/helpers/dock-badge.helper'
 import { orpcQuery } from './platform/rpc/rpc-query.client'
 import { serializer } from './platform/rpc/rpc-serializer.constants'
@@ -65,7 +63,7 @@ export function getRouter() {
 	})
 
 	setupRouterSsrQueryIntegration({ router, queryClient })
-	trackRouter(router)
+	trackRouter(router, BROWSER_ANALYTICS_OPTIONS)
 	syncDockBadge(queryClient)
 	listenForChunkErrors()
 

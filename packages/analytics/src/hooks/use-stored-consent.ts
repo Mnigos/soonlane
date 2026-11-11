@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react'
-import type { ConsentState } from '../../domain/consent.types'
-import { getConsent } from '../helpers/consent-cookie.helper'
+import { readStoredConsent } from '../consent-cookie.helper'
+import type { ConsentState } from '../consent.types'
 
 /** Cookies have no change event; a choice made in another tab shows once this tab is visible again. */
 function subscribe(onChange: () => void) {
@@ -17,5 +17,5 @@ const getServerSnapshot = () => undefined
  * known in the browser.
  */
 export function useStoredConsent(): ConsentState | undefined {
-	return useSyncExternalStore(subscribe, getConsent, getServerSnapshot)
+	return useSyncExternalStore(subscribe, readStoredConsent, getServerSnapshot)
 }

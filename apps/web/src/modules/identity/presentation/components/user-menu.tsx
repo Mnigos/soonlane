@@ -1,3 +1,5 @@
+import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
+import { CONSENT_COPY } from '@soonlane/analytics/consent-copy'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -11,8 +13,6 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { CalendarSubscriptionDialog } from '@/modules/calendar/presentation/components/calendar-subscription-dialog'
-import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
-import { CONSENT_COPY } from '@/modules/consent/presentation/consent-copy.constants'
 import { useSignOutMutation } from '../hooks/use-sign-out-mutation'
 import { DeleteAccountDialog } from './delete-account-dialog'
 

@@ -1,11 +1,8 @@
+import type { RangeLoadTrigger, UpcomingNavigation } from '@soonlane/analytics'
+import { capture } from '@soonlane/analytics/client'
 import type { CalendarDate } from '@soonlane/domain'
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
-import type {
-	RangeLoadTrigger,
-	UpcomingNavigation,
-} from '@/modules/analytics/domain/analytics-event.types'
-import { capture } from '@/modules/analytics/presentation/analytics.client'
 import {
 	addDays,
 	getDaysBetween,

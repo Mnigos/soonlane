@@ -1,6 +1,6 @@
+import { capture } from '@soonlane/analytics/client'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { useRef } from 'react'
-import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { useToday } from '../../hooks/use-today'
 import { TaskComposer } from '../composer/task-composer'
 

@@ -1,3 +1,4 @@
+import { ConsentProvider } from '@soonlane/analytics/components/consent-provider'
 import {
 	createRootRouteWithContext,
 	type ErrorComponentProps,
@@ -7,7 +8,7 @@ import {
 } from '@tanstack/react-router'
 import type { PropsWithChildren } from 'react'
 import { LayoutError } from '@/components/route-error'
-import { ConsentProvider } from '@/modules/consent/presentation/components/consent-provider'
+import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/domain/analytics.constants'
 import { SIGNED_IN_HINT_SCRIPT } from '@/modules/site/presentation/helpers/signed-in-hint.helper'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
@@ -33,7 +34,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function RootComponent() {
 	return (
 		<RootDocument>
-			<ConsentProvider>
+			<ConsentProvider isAnalyticsEnabled={IS_ANALYTICS_ENABLED}>
 				<Outlet />
 			</ConsentProvider>
 		</RootDocument>

@@ -1,4 +1,4 @@
-import type { AppEnvironment } from './modules/analytics/domain/analytics-event.types'
+import type { AppEnvironment } from '@soonlane/analytics'
 
 /** Replaced at build time: the APP_* values by vite.config.ts `define`, the VITE_* values from the environment. */
 declare global {
