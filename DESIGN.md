@@ -208,7 +208,7 @@ Sections stack in a 1120px column and are split by full-width `border` rules, ne
 
 ## 4. Elevation
 
-Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delete account dialog and the Delete task dialog (all over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
+Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delete account dialog, the Calendar subscription dialog and the Delete task dialog (all over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
 
 ## 5. Components
 
@@ -273,5 +273,5 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delet
 - **Don't** add cards, shadows or gradients.
 - **Don't** use red for anything that is not an action, the current day or overdue state.
 - **Don't** add blue outside the P3 priority color, the date picker's weekend couch and the owner's label colors; links and focus use red or neutrals.
-- **Don't** open a modal for a one- or two-field action; edit inline. There are three exceptions: the global "Add task" in the sidebar, which opens the task composer in a dialog; "Delete account" in the user menu, which asks for confirmation in a dialog with Cancel and a red "Delete account" button; and Delete in a task's "…" menu, which asks "Delete task?" the same way with a red "Delete".
+- **Don't** open a modal for a one- or two-field action; edit inline. There are four exceptions: the global "Add task" in the sidebar, which opens the task composer in a dialog; "Delete account" in the user menu, which asks for confirmation in a dialog with Cancel and a red "Delete account" button; and Delete in a task's "…" menu, which asks "Delete task?" the same way with a red "Delete"; and "Calendar link" in the user menu, whose dialog creates, shows once, replaces and revokes the private calendar link.
 - **Don't** introduce projects, boards or team visuals.
