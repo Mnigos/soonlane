@@ -31,7 +31,7 @@ export function TaskMenuPriorityGroup({
 			>
 				<MenuRow>
 					{TASK_PRIORITIES.map(priority => (
-						<Tooltip key={priority} label={`Priority ${priority}`}>
+						<Tooltip key={priority} label={`Priority ${priority}`} sharesEscape>
 							<MenuIconRadioItem
 								aria-label={`Priority ${priority}`}
 								label={`Priority ${priority}`}

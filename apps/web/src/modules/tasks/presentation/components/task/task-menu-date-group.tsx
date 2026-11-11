@@ -47,6 +47,7 @@ export function TaskMenuDateGroup({
 					return (
 						<Tooltip
 							key={id}
+							sharesEscape
 							label={
 								<>
 									{label} <span className="text-muted-foreground">{hint}</span>
@@ -70,7 +71,7 @@ export function TaskMenuDateGroup({
 					)
 				})}
 
-				<Tooltip label="More dates">
+				<Tooltip label="More dates" sharesEscape>
 					<MenuIconItem
 						aria-label="More dates"
 						label="More dates"
