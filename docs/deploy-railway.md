@@ -1,10 +1,10 @@
 # Deploy on Railway
 
-The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). The web app still deploys on Vercel ([deploy-vercel.md](deploy-vercel.md)).
+The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). The web app still deploys on Vercel ([deploy-vercel.md](deploy-vercel.md)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
 
 ## Configuration
 
-`.railway/railway.ts` defines the service for both environments: Railpack builds from the repository root (`bun install --frozen-lockfile`, Bun 1.4.2 from `packageManager`), runs `bun run --cwd apps/api build` and starts `bun apps/api/dist/main.js`. Railway calls `GET /health` until it answers 2xx before it switches traffic, and gives the old deployment 10 seconds to finish its requests after SIGTERM.
+`.railway/railway.ts` defines the service for both environments: Railpack builds from the repository root (`bun install --frozen-lockfile`, Bun 1.4.2 from `packageManager`), runs `bun run --cwd apps/api build`, runs the migrator as the pre-deploy command (below) and starts `bun apps/api/dist/main.js`. Railway calls `GET /health` until it answers 2xx before it switches traffic, and gives the old deployment 10 seconds to finish its requests after SIGTERM.
 
 Railway reads the file only when someone applies it, never during a deploy. After changing it, from a directory linked to the project:
 
@@ -23,8 +23,15 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 | `APP_ENV`         | `production`               | `staging`                          |
 | `API_URL`         | `https://api.soonlane.com` | `https://api.staging.soonlane.com` |
 | `TRUSTED_ORIGINS` | `https://soonlane.com`     | `https://staging.soonlane.com`     |
+| `DATABASE_URL`    | Neon `main`, direct, entered by hand | `${{Postgres.DATABASE_URL}}` |
 
 `TRUSTED_ORIGINS` is a comma-separated list of origins. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
+
+## Migrations
+
+The pre-deploy command `bun packages/db/scripts/migrate.ts` applies the Drizzle migrations from `packages/db/migrations` to `DATABASE_URL_UNPOOLED`, or `DATABASE_URL` without it. It runs in the built image after the build and before the new deployment takes traffic, where the private network is reachable. When it fails, the deployment fails and the previous one keeps serving; the pending migrations run in one transaction, so a failure leaves none of them applied. A change under `packages/db` deploys production, so a merged migration reaches it.
+
+Nothing migrates the Neon `preview` branch used by Vercel previews and local development; run `bun run db:migrate` after a new migration ([deploy-vercel.md](deploy-vercel.md)).
 
 ## Staging
 
@@ -37,7 +44,7 @@ curl https://api.staging.soonlane.com/health
 
 ## Production
 
-Production builds `main` through Railway's GitHub connection with **Wait for CI**: Railway holds each push to `main` until the CI workflow on that commit has finished, skips the deploy if it failed, and deploys only when a watched path changed (`apps/api`, `tooling/typescript-config`, the root `package.json`, `bun.lock`, `bunfig.toml`). Nothing else deploys production; never run `railway up` against it.
+Production builds `main` through Railway's GitHub connection with **Wait for CI**: Railway holds each push to `main` until the CI workflow on that commit has finished, skips the deploy if it failed, and deploys only when a watched path changed (`apps/api`, `packages/db`, `tooling/typescript-config`, the root `package.json`, `bun.lock`, `bunfig.toml`). Nothing else deploys production; never run `railway up` against it.
 
 ## DNS
 
