@@ -1,7 +1,7 @@
 import type { WithEffectContext } from '@orpc/experimental-effect'
+import { hasAnalyticsConsent } from '@soonlane/analytics'
 import { Context } from 'effect'
 import { AnalyticsConsent } from '@/modules/analytics/application/analytics.port'
-import { hasAnalyticsConsent } from '@/modules/consent/domain/consent.helper'
 import {
 	Auth,
 	type AuthSession,

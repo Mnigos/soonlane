@@ -2,7 +2,19 @@
 
 Soonlane sends product analytics, session replays and exceptions to PostHog (EU cloud, project 337571). Everything is optional: without `VITE_POSTHOG_KEY` nothing is sent, nothing is loaded and no consent banner appears. With a key, what is sent depends on each visitor's answer ([Consent](#consent)). Soonlane is a public product: anyone can sign in with Google, so nothing here assumes one user.
 
-Event names and their properties are typed in `apps/web/src/modules/analytics/domain/analytics-event.types.ts`; a misspelled name or property does not compile. Names are `object_action` in snake_case and the past tense. Properties are snake_case and hold only ids, enums, counts, booleans and durations: never task titles, descriptions, label names, emails or names.
+## Layout
+
+The browser half lives in `packages/analytics` (`@soonlane/analytics`), so the app and a separate landing load the same banner, the same PostHog setup and the same tracking plan:
+
+- `@soonlane/analytics`: the browser event types (`ClientEvents`), the super properties and the consent cookie (`readConsent`, `hasAnalyticsConsent`, `getConsentCookieDomain`). Plain TypeScript, safe on the server.
+- `@soonlane/analytics/client`: the posthog-js client (`trackRouter`, `capture`, `captureException`, `applyConsent`, `resetAnalytics`) and the PostHog configuration.
+- `@soonlane/analytics/components/*`: `ConsentProvider` (with the banner and the Privacy choices dialog) and `PrivacyChoicesButton`; `@soonlane/analytics/consent-copy` holds their text.
+
+Each app passes what only it knows. `trackRouter(router, options)` takes the PostHog key, the build properties, the private routes typed against the app's own route tree, and how to find the signed-in user; `ConsentProvider` takes `isAnalyticsEnabled`. In `apps/web` these live in `modules/analytics/presentation/browser-analytics.constants.ts` and `routes/__root.tsx`. The server half stays in `apps/web/src/modules/analytics`: the server events (`ServerEvents`), the `Analytics` port, `PostHogAnalyticsLive` and the `/ingest` proxy.
+
+## Naming
+
+Event names and their properties are typed in `packages/analytics/src/analytics-event.types.ts` (browser) and `apps/web/src/modules/analytics/domain/analytics-event.types.ts` (server); a misspelled name or property does not compile. Names are `object_action` in snake_case and the past tense. Properties are snake_case and hold only ids, enums, counts, booleans and durations: never task titles, descriptions, label names, emails or names.
 
 ## Events
 
@@ -63,7 +75,7 @@ Every event the app captures carries `app_version` (`version.json`), `commit`, `
 
 ### Categories
 
-- **Essential**, always on, no choice: the Better Auth session cookie, the `soonlane-sidebar` preference cookie and the `soonlane-consent` cookie itself.
+- **Essential**, always on, no choice: the Better Auth session cookie, the `soonlane-sidebar` preference cookie and the `soonlane-privacy` consent cookie itself (and `soonlane-consent`, the host-only cookie it replaces).
 - **Analytics**, optional: product analytics with a persistent PostHog id and a person profile linked to the account, plus masked session replay.
 - Error reports are not a choice. They rest on legitimate interest in keeping the service working, carry no content (name and stack only), and follow the lanes below: identified with analytics granted, anonymous and cookieless otherwise, not sent from the browser before an answer.
 
@@ -94,7 +106,9 @@ Following LudusPlatform `docs/guides/Privacy.md` (principles 3 and 5, decisions 
 
 ### The cookie
 
-`soonlane-consent`, first-party, `path=/`, `SameSite=Lax`, written in the browser through the Cookie Store API, or `document.cookie` where that API is missing (older browsers, plain-http origins). The value is the answer and a version, `granted.1` or `denied.1`. A grant lasts 12 months and a denial 6 months, then the banner asks again; raising the version asks everyone again. The browser reads it after hydration (prerendered pages are built without the visitor's cookie), so the banner never ships in server HTML and appears only when no choice is stored. Without `VITE_POSTHOG_KEY` there is no banner and the cookie is never written.
+`soonlane-privacy`, first-party, `path=/`, `SameSite=Lax`, one answer for every host of an environment: on `soonlane.com` and its subdomains it is set for `soonlane.com`, on `staging.soonlane.com` and its subdomains for `staging.soonlane.com`, and anywhere else (Vercel previews, localhost) it stays host-only, because a browser refuses a domain the host is not under. Staging hosts also receive production's `soonlane.com` cookie, and the one the browser set first wins there; that is accepted while only the team uses staging. It is written in the browser through the Cookie Store API, or `document.cookie` where that API is missing (older browsers, plain-http origins). The value is the answer and a version, `granted.1` or `denied.1`. A grant lasts 12 months and a denial 6 months, then the banner asks again; raising the version asks everyone again. The browser reads it after hydration (prerendered pages are built without the visitor's cookie), so the banner never ships in server HTML and appears only when no choice is stored. Without `VITE_POSTHOG_KEY` there is no banner and the cookie is never written.
+
+Answers given before the cookie was shared live in `soonlane-consent`, a host-only cookie on the host that asked. They still count: the browser and the server read `soonlane-consent` when `soonlane-privacy` is missing, so nobody on `soonlane.com` is asked again. The next answer writes `soonlane-privacy` and deletes `soonlane-consent`. A host that never saw the old cookie (`app.soonlane.com` once the app moves there) asks such a visitor once more, and that answer then covers every host. The old answer is not copied into the shared cookie, because the copy would get a fresh lifetime and outlive the 12 or 6 months the visitor agreed to. The fallback can go a year after this shipped, when the last old answers have expired.
 
 ### Global Privacy Control
 
@@ -109,7 +123,7 @@ Privacy choices, in the user menu, in the public site's footer and below the sig
 
 ### Copy
 
-The text lives in `apps/web/src/modules/consent/presentation/consent-copy.constants.ts`.
+The text lives in `packages/analytics/src/consent-copy.constants.ts`.
 
 Banner, a labelled region fixed to the bottom of the viewport, bottom right from 640px (not a modal). It overlays the page, so showing or dismissing it never moves the content:
 
@@ -132,7 +146,7 @@ The dialog's Privacy policy link opens `/privacy` and closes the dialog. The ban
 
 - No autocapture, no dead-click or heatmap capture: they would record clicked element text, which includes task titles.
 - URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…` and `/desktop/callback#code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them.
-- A label's name is part of its view's path, so the same rewrite sends `/app/labels/:name` in its place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). The private routes are listed in `posthog.config.ts`, typed against the router's paths. `route` already carries the route id (`/_session/app/labels/$name`). A calendar link is a secret, so any path under `/calendar/` is sent as `/calendar/:token` the same way.
+- A label's name is part of its view's path, so the same rewrite sends `/app/labels/:name` in its place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). Each app lists its private routes in the options it passes to `trackRouter` (`browser-analytics.constants.ts` in `apps/web`), typed against its router's paths. `route` already carries the route id (`/_session/app/labels/$name`). A calendar link is a secret, so any path under `/calendar/` is sent as `/calendar/:token` the same way.
 - `$pageview` is sent without `title`: the label view's document title is the label's name.
 - RPC calls are `POST /api/rpc/<procedure>` with the input in the body, so label names and task content never appear in a request URL.
 - The calendar link carries a secret, so it is in no event, and the browser never opens it: calendar apps fetch `/calendar/<token>.ics`, and that route logs and reports neither the URL nor the token ([ADR 0011](decisions/0011-private-calendar-subscription-link.md)). `calendar.createSubscription` returns it in a response body, which replay does not record.
@@ -154,11 +168,11 @@ Replay runs only with analytics granted. Everything is visible except:
 
 Masking covers text, not attributes, so sensitive text never goes into `aria-label`, `title` or `alt`. Controls named after content take that name from the masked element through `aria-labelledby`: the task's complete button and its goal controls (+1, log amount) from the title, the Goal chip from its masked label, a sidebar label's "More actions" button and a composer chip's "Remove label" button from the label name, and the label name field from a visually hidden masked label.
 
-New UI that shows task content (goal units included), label names, or a user's name or email: add `ph-mask` to the element that renders it, keep that text out of attributes, and block (`ph-no-capture`) anything that holds a code or token. A new route with user content in a path param goes into the private routes in `posthog.config.ts`.
+New UI that shows task content (goal units included), label names, or a user's name or email: add `ph-mask` to the element that renders it, keep that text out of attributes, and block (`ph-no-capture`) anything that holds a code or token. A new route with user content in a path param goes into the app's private routes (`browser-analytics.constants.ts`).
 
 ## Proxy and opt-out
 
-The browser sends to `/ingest`, a first-party proxy (`api_host: '/ingest'`, `ui_host: 'https://eu.posthog.com'`). `/ingest/static/*` and `/ingest/array/*` go to `https://eu-assets.i.posthog.com`, everything else to `https://eu.i.posthog.com`. The hosts are constants; only the path and query after `/ingest` are forwarded, with `GET` and `POST` only, a fixed allowlist of request headers (no cookies, no `Authorization`) and no followed redirects. An upstream that does not answer within 10 seconds gets a 504, and one that cannot be reached (DNS, refused connection) a 502.
+The browser sends to `/ingest`, a first-party proxy (`api_host: '/ingest'`, `ui_host: 'https://eu.posthog.com'`). `/ingest/static/*` and `/ingest/array/*` go to `https://eu-assets.i.posthog.com`, everything else to `https://eu.i.posthog.com`. The hosts are constants; only the path and query after `/ingest` are forwarded, with `GET` and `POST` only, a fixed allowlist of request headers (no cookies, no `Authorization`) and no followed redirects. An upstream that does not answer within 10 seconds gets a 504, and one that cannot be reached (DNS, refused connection) a 502. The proxy is a server route of `apps/web`, so a static landing cannot serve it; where it lives after the Railway split (the API host or a Cloudflare rule) is still open.
 
 Without `VITE_POSTHOG_KEY`:
 

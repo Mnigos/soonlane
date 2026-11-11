@@ -1,3 +1,4 @@
+import { hasAnalyticsConsent } from '@soonlane/analytics'
 import { canValidateSessions, isAuthConfigured } from '@soonlane/auth'
 import { type AuthLogLevel, createAuth } from '@soonlane/auth/server'
 import { toUserId } from '@soonlane/domain'
@@ -6,7 +7,6 @@ import {
 	Analytics,
 	AnalyticsConsent,
 } from '@/modules/analytics/application/analytics.port'
-import { hasAnalyticsConsent } from '@/modules/consent/domain/consent.helper'
 import { AppConfig } from '@/platform/config/app.config'
 import { Db } from '@/platform/db/db.layer'
 import { Auth } from '../application/auth.port'

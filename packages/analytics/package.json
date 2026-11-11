@@ -1,0 +1,36 @@
+{
+  "name": "@soonlane/analytics",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./client": "./src/analytics.client.ts",
+    "./components/*": "./src/components/*.tsx",
+    "./consent-copy": "./src/consent-copy.constants.ts",
+    "./cookie": "./src/utils/cookie.util.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@soonlane/domain": "workspace:*",
+    "@soonlane/ui": "workspace:*",
+    "posthog-js": "^1.447.3"
+  },
+  "devDependencies": {
+    "@soonlane/typescript-config": "workspace:*",
+    "@tanstack/react-router": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "@tanstack/react-router": ">=1.170",
+    "react": ">=19",
+    "react-dom": ">=19"
+  }
+}

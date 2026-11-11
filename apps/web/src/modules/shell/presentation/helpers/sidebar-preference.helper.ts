@@ -1,4 +1,4 @@
-import { readCookie, saveCookie } from '@/utils/cookie.util'
+import { readCookie, saveCookie } from '@soonlane/analytics/cookie'
 import type { SidebarPreference } from '../sidebar-preference.types'
 
 const SIDEBAR_COOKIE = 'soonlane-sidebar'

@@ -1,6 +1,6 @@
+import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
 import { cn } from '@soonlane/ui/cn'
 import { Link } from '@tanstack/react-router'
-import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
 import {
 	CONTACT_EMAIL,
 	GITHUB_URL,

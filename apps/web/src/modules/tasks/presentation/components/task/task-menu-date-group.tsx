@@ -1,3 +1,4 @@
+import type { DatePickerChoice } from '@soonlane/analytics'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import {
@@ -8,7 +9,6 @@ import {
 } from '@soonlane/ui/components/menu'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Ellipsis } from 'lucide-react'
-import type { DatePickerChoice } from '@/modules/analytics/domain/analytics-event.types'
 import { getDueDateShortcuts } from '../../../domain/due-date-shortcut.helper'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import {

@@ -1,3 +1,4 @@
+import type { DatePickerChoice } from '@soonlane/analytics'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { CalendarDays } from 'lucide-react'
@@ -8,7 +9,6 @@ import {
 	useId,
 	useState,
 } from 'react'
-import type { DatePickerChoice } from '@/modules/analytics/domain/analytics-event.types'
 import { formatWeekdayDayMonth } from '../../../domain/calendar-date.helper'
 import { parseDueDateText } from '../../../domain/due-date-text.helper'
 import {

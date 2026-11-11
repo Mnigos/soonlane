@@ -3,11 +3,12 @@ import type {
 	ConsentChoice,
 	ConsentSource,
 	ConsentState,
-} from '../domain/consent.types'
+} from './consent.types'
 
 export interface ConsentContextValue {
 	/** `undefined` until the browser has read the consent cookie. */
 	consent: ConsentState | undefined
+	isAnalyticsEnabled: boolean
 	choose: (choice: ConsentChoice, source: ConsentSource) => void
 	openChoices: () => void
 }

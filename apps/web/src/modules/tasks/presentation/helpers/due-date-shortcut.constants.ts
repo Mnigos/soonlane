@@ -1,5 +1,5 @@
+import type { DatePickerChoice } from '@soonlane/analytics'
 import type { ComponentType, SVGProps } from 'react'
-import type { DatePickerChoice } from '@/modules/analytics/domain/analytics-event.types'
 import type { DueDateShortcutId } from '../../domain/due-date-shortcut.helper'
 import {
 	NextWeekIcon,

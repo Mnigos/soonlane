@@ -1,11 +1,11 @@
+import type { ClientEvents } from '@soonlane/analytics'
+import { capture } from '@soonlane/analytics/client'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Toaster } from '@soonlane/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
-import type { ClientEvents } from '@/modules/analytics/domain/analytics-event.types'
-import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { AddTaskDialog } from '@/modules/tasks/presentation/components/task/add-task-dialog'
 import { useDockBadgeQuery } from '@/modules/tasks/presentation/hooks/use-dock-badge-query'
 import {

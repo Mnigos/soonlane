@@ -1,8 +1,8 @@
+import { capture } from '@soonlane/analytics/client'
 import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { capture } from '@/modules/analytics/presentation/analytics.client'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {

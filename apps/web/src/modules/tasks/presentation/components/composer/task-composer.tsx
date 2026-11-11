@@ -1,9 +1,9 @@
+import type { ComposerSource } from '@soonlane/analytics'
 import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
-import type { ComposerSource } from '@/modules/analytics/domain/analytics-event.types'
 import {
 	getEditedDueDate,
 	getEditedRule,
