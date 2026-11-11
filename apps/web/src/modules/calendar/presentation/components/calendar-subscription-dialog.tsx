@@ -100,8 +100,8 @@ export function CalendarSubscriptionDialog({
 		if (subscription)
 			return (
 				<p className="text-sm text-secondary-foreground">
-					Link created {createdDate.format(subscription.createdAt)}. A new link
-					stops the old one, so calendars using it stop updating.
+					Link created {createdDate.format(subscription.createdAt)}. Revoking it
+					or creating a new one stops calendars that use it from updating.
 				</p>
 			)
 
@@ -131,7 +131,7 @@ export function CalendarSubscriptionDialog({
 				{isConfirmingRevoke && !create.data && subscription ? (
 					<div className="flex flex-wrap items-center justify-end gap-2">
 						<p className="mr-auto text-sm text-secondary-foreground">
-							Calendars using this link stop updating.
+							Revoke the link?
 						</p>
 
 						<Button
