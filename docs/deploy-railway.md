@@ -24,7 +24,7 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 | `API_URL`         | `https://api.soonlane.com` | `https://api.staging.soonlane.com` |
 | `TRUSTED_ORIGINS` | `https://soonlane.com`     | `https://staging.soonlane.com`     |
 
-`TRUSTED_ORIGINS` is a comma-separated list of origins. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
+`TRUSTED_ORIGINS` is a comma-separated list of origins. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
 
 ## Staging
 
