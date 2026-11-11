@@ -10,7 +10,7 @@ const MODULE_NAMED_ROLES = new Set(['service', 'router'])
 const ROOT_CONTRACT = 'app'
 const namespacesByRoot = new Map<string, Set<string>>()
 
-// Platform folders such as `system` own oRPC namespaces too.
+/** Platform folders such as `system` own oRPC namespaces too. */
 function getNamespaces(root: string) {
 	const cached = namespacesByRoot.get(root)
 

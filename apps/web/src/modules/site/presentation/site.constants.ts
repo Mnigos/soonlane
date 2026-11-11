@@ -1,6 +1,6 @@
 import type { LinkProps } from '@tanstack/react-router'
 
-// Fixed, so previews and other hosts never compete with soonlane.com.
+/** Fixed, so previews and other hosts never compete with soonlane.com. */
 export const SITE_URL = 'https://soonlane.com'
 export const SITE_NAME = 'Soonlane'
 export const GITHUB_URL = 'https://github.com/Mnigos/soonlane'

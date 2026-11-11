@@ -48,7 +48,7 @@ const DISABLED_RULES = {
 		'AGENTS.md skips braces for single-statement blocks',
 } as const satisfies Record<string, string>
 
-// tooling/oxlint-plugins is copied verbatim from vinyl-wishlist (originally rigtch.fm), which still defers these rules; fix them upstream before removing an entry.
+/** tooling/oxlint-plugins is copied verbatim from vinyl-wishlist (originally rigtch.fm), which still defers these rules; fix them upstream before removing an entry. */
 const VENDORED_PLUGIN_DEFERRED_RULES = [
 	'require-unicode-regexp',
 	'soonlane/no-let',

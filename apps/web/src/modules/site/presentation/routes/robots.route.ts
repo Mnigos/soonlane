@@ -12,7 +12,7 @@ Disallow: /desktop/
 Sitemap: ${SITE_URL}/sitemap.xml
 `
 
-// Previews, the vercel.app domain and www serve the same pages, so only the canonical host may be crawled.
+/** Previews, the vercel.app domain and www serve the same pages, so only the canonical host may be crawled. */
 const BLOCKING_ROBOTS = `User-agent: *
 Disallow: /
 `

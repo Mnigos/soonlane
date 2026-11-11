@@ -54,7 +54,7 @@ export function buildPageHead({
 	}
 }
 
-// Escaping '<' keeps a value containing '</script>' from closing the tag.
+/** Escaping '<' keeps a value containing '</script>' from closing the tag. */
 export function jsonLdScript(data: WithContext<Thing>) {
 	return {
 		type: 'application/ld+json',

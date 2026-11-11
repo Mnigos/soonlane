@@ -13,7 +13,7 @@ const ENTRY_PATTERN =
 	/^- (.+?)(?: \(\[#\d+\]\((https:\/\/[^\s)]+)\)\))? \(\[[0-9a-f]{7}\]\((https:\/\/[^\s)]+)\)\)$/u
 const AREA_PATTERN = /^### ([^›\s][^›]*)$/u
 const SUMMARY_ENTRY_PATTERN = /^- (\S.*)$/u
-// A paragraph line may not open like any other markdown block, so a stray heading or list fails the build.
+/** A paragraph line may not open like any other markdown block, so a stray heading or list fails the build. */
 const PARAGRAPH_PATTERN = /^(?![#>*|`<+=-]|\d+[.)]\s)\S.*$/u
 const LINK_PATTERN = /\[([^\]]+)\]\((https:\/\/[^\s)]+)\)/u
 const GROUP_KINDS = new Map<string, ReleaseGroup['kind']>([

@@ -1,6 +1,6 @@
 import { posix } from 'node:path'
 
-// The closed naming table from AGENTS.md; `.route` and `.skeleton` are framework and component suffixes.
+/** The closed naming table from AGENTS.md; `.route` and `.skeleton` are framework and component suffixes. */
 export const ROLE_SUFFIXES = [
 	'base',
 	'client',

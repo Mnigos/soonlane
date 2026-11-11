@@ -9,7 +9,7 @@ import { formatDayMonthYear } from '@/modules/tasks/domain/calendar-date.helper'
 import { RELEASES } from '../../infrastructure/releases.constants'
 import { ChangelogPage } from '../components/changelog-page'
 
-// The client build gets an RPC stub, so the changelog text stays out of the browser bundle.
+/** The client build gets an RPC stub, so the changelog text stays out of the browser bundle. */
 const getReleases = createServerFn({ method: 'GET' }).handler(() => RELEASES)
 const DESCRIPTION = 'What changed in every stable release of Soonlane.'
 

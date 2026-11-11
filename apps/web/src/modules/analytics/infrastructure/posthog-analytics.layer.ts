@@ -18,7 +18,7 @@ function toErrorName(error: unknown) {
 	return error instanceof Error ? error.name : typeof error
 }
 
-// Name and stack frames only: driver errors embed SQL parameters such as session tokens.
+/** Name and stack frames only: driver errors embed SQL parameters such as session tokens. */
 function toSafeError(error: unknown) {
 	const name = toErrorName(error)
 	const safe = new Error(name)

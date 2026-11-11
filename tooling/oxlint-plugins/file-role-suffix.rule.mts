@@ -12,7 +12,7 @@ const COMPONENT_FILE_PATTERN =
 const HOOK_FILE_PATTERN = /^use-[a-z0-9-]+\.tsx?$/u
 const GENERATED_PATTERN = /\.(?:gen|d)\.ts$/u
 const IGNORED_SEGMENTS = ['routes', 'scripts'] as const
-// Entry points whose names TanStack Start, the virtual route config, the Electrobun config and the API's build command fix.
+/** Entry points whose names TanStack Start, the virtual route config, the Electrobun config and the API's build command fix. */
 const FRAMEWORK_ENTRIES = [
 	'/src/router.tsx',
 	'/src/routes.ts',

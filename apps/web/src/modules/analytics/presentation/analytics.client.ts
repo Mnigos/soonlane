@@ -14,7 +14,7 @@ import { BUILD_PROPERTIES } from '../domain/analytics.constants'
 import { clearPostHogStorage, POSTHOG_CONFIG } from './posthog.config'
 
 const POSTHOG_KEY = import.meta.env.VITE_POSTHOG_KEY
-// The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there.
+/** The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there. */
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
 const SITE_LAYOUT_ROUTE_ID = '/_site'
 const BLOG_ROUTE_ID_PREFIX = '/_site/blog'

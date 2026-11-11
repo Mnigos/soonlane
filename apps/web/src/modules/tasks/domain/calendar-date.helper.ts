@@ -7,7 +7,7 @@ import {
 
 const MILLISECONDS_PER_DAY = 86_400_000
 
-// Calendar dates are computed as UTC midnights, so day arithmetic never crosses a DST shift.
+/** Calendar dates are computed as UTC midnights, so day arithmetic never crosses a DST shift. */
 function toUtcDate(date: CalendarDate) {
 	return new Date(`${date}T00:00:00Z`)
 }

@@ -19,7 +19,7 @@ interface UpcomingRangeProps {
 	onLoadMore?: () => void
 }
 
-// Pixels, since browsers differ on what a percentage margin refers to.
+/** Pixels, since browsers differ on what a percentage margin refers to. */
 const LOAD_MORE_MARGIN = '0px 0px 1000px 0px'
 
 /**

@@ -1,7 +1,7 @@
 import type { Label, Task } from '@soonlane/contracts'
 import type { TaskRow } from '@soonlane/db'
 
-// Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM.
+/** Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM. */
 const DUE_TIME_LENGTH = 5
 
 export function toTask(row: TaskRow, labels: Label[]): Task {

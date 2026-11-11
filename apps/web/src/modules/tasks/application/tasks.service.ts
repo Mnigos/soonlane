@@ -101,7 +101,7 @@ interface RestoredOccurrence {
 	goal?: GoalInput
 }
 
-// From the date the client saw, so a stale list cannot advance the task twice.
+/** From the date the client saw, so a stale list cannot advance the task twice. */
 function getAdvance(
 	storedDueDate: CalendarDate,
 	repeat: NonNullable<Task['repeat']>,

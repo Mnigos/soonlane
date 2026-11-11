@@ -25,7 +25,7 @@ export function resolveBaseUrl({
 	return vercelEnv === 'preview' && host ? toHttpsUrl(host) : appUrl
 }
 
-// A preview answers on both its branch host and its deployment host, so both are trusted.
+/** A preview answers on both its branch host and its deployment host, so both are trusted. */
 export function resolveTrustedOrigins(urls: DeploymentUrls): string[] {
 	const vercelOrigins = [urls.vercelBranchUrl, urls.vercelUrl]
 		.filter(host => host !== undefined)

@@ -4,7 +4,7 @@ import { saveCookie } from '@/utils/cookie.util'
 
 const ABSOLUTE_URL = /^https?:\/\//u
 const URL_OR_PATH = /^(?:https?:\/\/|\/(?!\/))/u
-// Resolves bare paths so URL can parse them; never part of a sent URL.
+/** Resolves bare paths so URL can parse them; never part of a sent URL. */
 const PATH_ORIGIN = 'http://path.invalid'
 const POSTHOG_STORAGE_KEY = /^(?:__)?ph_|^_postHogToolbarParams$/u
 /** `$name` or `{$name}.ext` in a route path. */
