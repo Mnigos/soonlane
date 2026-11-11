@@ -1,54 +1,33 @@
+import { ChevronDown } from 'lucide-react'
 import { formatDayMonthYear } from '@/modules/tasks/domain/calendar-date.helper'
 import { getReleaseAnchor } from '../../domain/release-anchor.helper'
-import type {
-	Release,
-	ReleaseEntry,
-	ReleaseGroup,
-} from '../../domain/release.types'
+import type { Release, ReleaseGroup } from '../../domain/release.types'
+import { ReleaseChanges } from './release-changes'
+import { ReleaseSummary } from './release-summary'
 
-const RELEASE_KINDS = [
-	{ kind: 'feature', label: 'New' },
-	{ kind: 'fix', label: 'Fixed' },
-	{ kind: 'performance', label: 'Faster' },
-] as const satisfies { kind: ReleaseGroup['kind']; label: string }[]
-
-const SCOPE_LABELS: Partial<Record<string, string>> = {
-	tasks: 'Tasks',
-	labels: 'Labels',
-	shell: 'Sidebar',
-	desktop: 'Mac app',
-	identity: 'Sign-in',
-	site: 'Website',
-	blog: 'Blog',
-	changelog: 'Changelog',
-	consent: 'Privacy',
+interface AllChangesProps {
+	groups: ReleaseGroup[]
 }
 
-interface ReleaseEntryRowProps {
-	entry: ReleaseEntry
-	scope: string
-}
-
-function ReleaseEntryRow({ entry, scope }: Readonly<ReleaseEntryRowProps>) {
-	const scopeLabel = SCOPE_LABELS[scope]
-	const href = entry.pullRequestUrl ?? entry.commitUrl
-	const reference = href.split('/').at(-1)
+/** The git-cliff list under a summary, collapsed by default; native `<details>` keeps it in the prerendered HTML. */
+function AllChanges({ groups }: Readonly<AllChangesProps>) {
+	const count = groups.reduce((total, group) => total + group.entries.length, 0)
 
 	return (
-		<li className="flex flex-col gap-0.5">
-			<p className="text-sm text-foreground">{entry.text}</p>
+		<details className="group">
+			<summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-sm text-label font-semibold text-secondary-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary md:-ml-6 [&::-webkit-details-marker]:hidden">
+				<ChevronDown
+					aria-hidden
+					className="size-4.5 -rotate-90 text-muted-foreground transition-transform group-open:rotate-0"
+				/>
+				All changes
+				<span className="font-normal text-muted-foreground">{count}</span>
+			</summary>
 
-			<p className="flex gap-3 text-caption text-muted-foreground">
-				{scopeLabel && <span>{scopeLabel}</span>}
-
-				<a
-					className="underline-offset-4 transition-colors hover:text-foreground hover:underline"
-					href={href}
-				>
-					{entry.pullRequestUrl ? `#${reference}` : reference?.slice(0, 7)}
-				</a>
-			</p>
-		</li>
+			<div className="flex flex-col gap-5 pt-5">
+				<ReleaseChanges groups={groups} />
+			</div>
+		</details>
 	)
 }
 
@@ -58,6 +37,7 @@ interface ReleaseSectionProps {
 
 export function ReleaseSection({ release }: Readonly<ReleaseSectionProps>) {
 	const anchor = getReleaseAnchor(release.version)
+	const hasChanges = release.groups.length > 0
 
 	return (
 		<section
@@ -81,37 +61,21 @@ export function ReleaseSection({ release }: Readonly<ReleaseSectionProps>) {
 				</time>
 			</h2>
 
-			{release.groups.length === 0 && (
+			{!release.summary && !hasChanges && (
 				<p className="text-label text-muted-foreground">
 					Improvements under the hood.
 				</p>
 			)}
 
-			{RELEASE_KINDS.map(({ kind, label }) => {
-				const groups = release.groups.filter(group => group.kind === kind)
+			{release.summary ? (
+				<>
+					<ReleaseSummary summary={release.summary} />
 
-				if (groups.length === 0) return null
-
-				return (
-					<div className="flex flex-col gap-3" key={kind}>
-						<h3 className="text-label font-semibold text-secondary-foreground">
-							{label}
-						</h3>
-
-						<ul className="flex flex-col gap-3">
-							{groups.flatMap(group =>
-								group.entries.map(entry => (
-									<ReleaseEntryRow
-										entry={entry}
-										key={entry.commitUrl}
-										scope={group.scope}
-									/>
-								))
-							)}
-						</ul>
-					</div>
-				)
-			})}
+					{hasChanges && <AllChanges groups={release.groups} />}
+				</>
+			) : (
+				<ReleaseChanges groups={release.groups} />
+			)}
 		</section>
 	)
 }
