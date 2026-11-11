@@ -24,14 +24,14 @@ const HOP_BY_HOP_HEADERS = [
 	'transfer-encoding',
 	'upgrade',
 ]
-/** fetch has already decoded the body and set its own framing. */
+/** fetch has already decoded the body and sets its own framing; `set-cookie` is copied one by one. */
 const DROPPED_RESPONSE_HEADERS = [
 	...HOP_BY_HOP_HEADERS,
 	'content-encoding',
 	'content-length',
 	'set-cookie',
 ]
-// `state` is Better Auth's signed OAuth state, checked on Google's callback; without it sign-in fails.
+/** `state` is Better Auth's signed OAuth state, checked on Google's callback; without it sign-in fails. */
 const AUTH_COOKIES = ['session_token', 'session_data', 'dont_remember', 'state']
 const API_COOKIE_NAMES = new Set([
 	CONSENT_COOKIE,
