@@ -33,6 +33,7 @@ export const BetterAuthLive = Layer.effect(
 		const config = yield* AppConfig
 		const db = yield* Db
 		const analytics = yield* Analytics
+		const context = yield* Effect.context()
 		const auth = createAuth({
 			database: db.database,
 			baseUrl: config.baseUrl,
@@ -47,10 +48,10 @@ export const BetterAuthLive = Layer.effect(
 				clientSecret: Redacted.value(config.googleClientSecret),
 			},
 			log: (level, ...message) =>
-				Effect.runSync(LOG_BY_LEVEL[level](...message)),
+				Effect.runSyncWith(context)(LOG_BY_LEVEL[level](...message)),
 			events: {
 				userCreated: async ({ id, createdAt }, headers) =>
-					await Effect.runPromise(
+					await Effect.runPromiseWith(context)(
 						analytics
 							.capture(userIdSchema.parse(id), 'user_signed_up', {
 								$set_once: {
@@ -61,7 +62,7 @@ export const BetterAuthLive = Layer.effect(
 							.pipe(withRequestConsent(config.cookiePrefix, headers))
 					),
 				sessionCreated: async (userId, method, headers) =>
-					await Effect.runPromise(
+					await Effect.runPromiseWith(context)(
 						analytics
 							.capture(userIdSchema.parse(userId), 'user_signed_in', { method })
 							.pipe(withRequestConsent(config.cookiePrefix, headers))

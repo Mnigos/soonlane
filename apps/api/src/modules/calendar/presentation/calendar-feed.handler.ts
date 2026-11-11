@@ -47,7 +47,7 @@ export function createCalendarFeedHandler(
 				},
 			})
 		} catch (error) {
-			Effect.runSync(
+			Effect.runSyncWith(services)(
 				Effect.logError(
 					'Calendar feed failed',
 					error instanceof Error ? error.name : typeof error

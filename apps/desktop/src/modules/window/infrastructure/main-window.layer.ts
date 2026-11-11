@@ -19,6 +19,7 @@ const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 	const frameStore = yield* FrameStore
 	// Resize and move events carry the new frame, so closing never has to read a window that is going away.
 	const latest = yield* Ref.make(window.getFrame())
+	const context = yield* Effect.context()
 	const save = Effect.fn('MainWindow.saveFrame')(function* () {
 		yield* Ref.get(latest).pipe(
 			Effect.flatMap(frameStore.save),
@@ -33,7 +34,7 @@ const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 		const track = (event: unknown) => {
 			Queue.offerUnsafe(
 				queue,
-				Effect.runSync(
+				Effect.runSyncWith(context)(
 					Ref.updateAndGet(latest, frame => applyFrameEvent(frame, event))
 				)
 			)
@@ -52,8 +53,6 @@ const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 	)
 
 	// The app quits right after its last window closes, so this save runs inside the close callback.
-	const context = yield* Effect.context()
-
 	yield* listen(`close-${window.id}`, () => Effect.runSyncWith(context)(save()))
 })
 
