@@ -8,16 +8,42 @@ import {
 } from '../components/composer/date-picker-icons'
 import { DueCalendarIcon } from '../components/composer/due-calendar-icon'
 
-/** Todoist's quick date icons: green calendar, orange sun, purple arrow, blue couch. */
+const QUICK_ICON_STROKE = 1.1
+
+/** Todoist's quick date icons at 22px: green calendar, orange sun, purple arrow, blue couch; the calendar is drawn at 16px, so it takes a thinner stroke. */
 export const DUE_DATE_SHORTCUT_ICONS = {
-	today: { icon: DueCalendarIcon, className: 'text-due-today' },
-	tomorrow: { icon: TomorrowIcon, className: 'text-quick-tomorrow' },
-	'this-weekend': { icon: WeekendIcon, className: 'text-quick-weekend' },
-	'next-week': { icon: NextWeekIcon, className: 'text-quick-week' },
-	'next-weekend': { icon: WeekendIcon, className: 'text-quick-weekend' },
+	today: {
+		icon: DueCalendarIcon,
+		className: 'text-due-today',
+		strokeWidth: 0.75,
+	},
+	tomorrow: {
+		icon: TomorrowIcon,
+		className: 'text-quick-tomorrow',
+		strokeWidth: QUICK_ICON_STROKE,
+	},
+	'this-weekend': {
+		icon: WeekendIcon,
+		className: 'text-quick-weekend',
+		strokeWidth: QUICK_ICON_STROKE,
+	},
+	'next-week': {
+		icon: NextWeekIcon,
+		className: 'text-quick-week',
+		strokeWidth: QUICK_ICON_STROKE,
+	},
+	'next-weekend': {
+		icon: WeekendIcon,
+		className: 'text-quick-weekend',
+		strokeWidth: QUICK_ICON_STROKE,
+	},
 } as const satisfies Record<
 	DueDateShortcutId,
-	{ icon: ComponentType<SVGProps<SVGSVGElement>>; className: string }
+	{
+		icon: ComponentType<SVGProps<SVGSVGElement>>
+		className: string
+		strokeWidth: number
+	}
 >
 
 export const DUE_DATE_SHORTCUT_CHOICES = {
