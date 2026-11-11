@@ -31,10 +31,15 @@ const DROPPED_RESPONSE_HEADERS = [
 	'content-length',
 	'set-cookie',
 ]
-const API_COOKIE_PREFIXES = [
-	`${AUTH_COOKIE_PREFIX}.`,
-	`__Secure-${AUTH_COOKIE_PREFIX}.`,
-]
+// `state` is Better Auth's signed OAuth state, checked on Google's callback; without it sign-in fails.
+const AUTH_COOKIES = ['session_token', 'session_data', 'dont_remember', 'state']
+const API_COOKIE_NAMES = new Set([
+	CONSENT_COOKIE,
+	...AUTH_COOKIES.flatMap(name => [
+		`${AUTH_COOKIE_PREFIX}.${name}`,
+		`__Secure-${AUTH_COOKIE_PREFIX}.${name}`,
+	]),
+])
 
 /** `API_INTERNAL_URL` and `API_PROXY_SECRET`, read per call so the prerender, which calls no API, needs neither. */
 export function readApiSettings() {
@@ -52,16 +57,12 @@ export function readApiSettings() {
 	return { origin: origin.origin, secret }
 }
 
-/** Only Better Auth's cookies and the consent answer reach the API; the sidebar preference and PostHog's cookies stay here. */
+/** Only Better Auth's cookies (by name, `__Secure-` on https) and the consent answer reach the API; the sidebar preference and PostHog's cookies stay here. */
 function filterCookies(cookieHeader: string) {
 	return cookieHeader
 		.split(';')
 		.map(part => part.trim())
-		.filter(
-			part =>
-				part.startsWith(`${CONSENT_COOKIE}=`) ||
-				API_COOKIE_PREFIXES.some(prefix => part.startsWith(prefix))
-		)
+		.filter(part => API_COOKIE_NAMES.has(part.split('=', 1)[0] ?? ''))
 		.join('; ')
 }
 

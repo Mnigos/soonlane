@@ -26,7 +26,7 @@ The owner forgets to open Soonlane but looks at Apple Calendar on the iPhone all
 
 ## Update 2026-11-12 (SOON-119)
 
-The feed is served by the API at `https://api.soonlane.com/calendar/<token>.ics` (staging `api.staging.soonlane.com`), and new links use that host; event URLs still point at the web app (`APP_URL` + `/app`). The web app no longer answers `/calendar/*`, so links made before the move stop working and must be created again (no backward compatibility, decided by the owner).
+The feed is served on the API host only, at `https://api.soonlane.com/calendar/<token>.ics` (staging `api.staging.soonlane.com`), and new links use that host; event URLs still point at the web app (`APP_URL` + `/app`). The web app no longer answers `/calendar/*`, so links made before the move stop working and must be created again (no backward compatibility, decided by the owner).
 
 ## Related
 
