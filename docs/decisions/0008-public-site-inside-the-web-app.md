@@ -16,12 +16,13 @@ The site has to stay cheap and fast for visitors who never sign in, must not com
 - Public pages are prerendered at build time by TanStack Start (`prerender` and `pages` in `apps/web/vite.config.ts`, with `isPublicPath` keeping session routes out of the crawl). Nitro writes them to `.vercel/output/static`, and Vercel serves that directory before the `__server` function. The build therefore runs without any environment variables.
 - Legal text is MDX in `modules/site/content`, compiled at build time by content-collections.
 - The canonical origin is the constant `SITE_URL = 'https://soonlane.com'`, never derived from the request or env. Canonical links, Open Graph URLs and the sitemap use it. `/robots.txt` is a per-request server route: on the host `soonlane.com` it allows `/` and disallows `/app`, `/api/`, `/login` and `/desktop/`; every other host gets `Disallow: /`. `/sitemap.xml` is prerendered from one entry list.
-- The header learns the sign-in state from the `soonlane-signed-in=1` hint cookie (ADR 0009), read in the browser with `useSyncExternalStore` whose server snapshot is `false`. The prerendered HTML is the signed-out header; after hydration a signed-in browser shows "Open app". No session request is made on public pages.
+- The header and the landing call to action learn the sign-in state from the `soonlane-signed-in=1` hint cookie (ADR 0009). An inline script in the root route's head marks `<html data-signed-in>` from the cookie before first paint, and again whenever the tab becomes visible; the site layout's `onEnter` re-reads it after a client-side navigation into the site. The prerendered HTML holds both variants, and the `signed-in:` Tailwind variant shows "Open app" or "Log in", "Get started" and the terms note, so nothing swaps after hydration. No session request is made on public pages.
 
 ## Consequences
 
 - Public pages cost no function invocation and no database query; a Neon or auth outage leaves them up.
-- A stale hint only changes the header link: "Open app" leads to `/login` when the session is gone.
+- A stale hint only changes which links show: "Open app" leads to `/login` when the session is gone.
+- The hidden variant ships in every prerendered page; `display: none` keeps it out of the accessibility tree and the tab order.
 - Every public route must render without env vars. A route that reaches `AppConfig`, `Db` or Better Auth fails the prerender step, and so the build.
 - A new public page needs an entry in `pages` (or a crawlable link from one) and in `SITEMAP_ENTRIES`.
 - The app shell's chunks are not modulepreloaded on public pages; the Better Auth browser client is, because "Get started" starts Google sign-in on click.

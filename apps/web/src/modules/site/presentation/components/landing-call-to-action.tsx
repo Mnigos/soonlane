@@ -1,17 +1,24 @@
+import { cn } from '@soonlane/ui/cn'
 import { buttonVariants } from '@soonlane/ui/components/button'
 import { Link } from '@tanstack/react-router'
-import { useSignedInHint } from '../hooks/use-signed-in-hint'
 import { GetStartedButton } from './get-started-button'
 
 export function LandingCallToAction() {
-	const isSignedIn = useSignedInHint()
-
-	if (isSignedIn)
-		return (
-			<Link className={buttonVariants({ size: 'lg' })} to="/app">
+	return (
+		<>
+			<Link
+				className={cn(
+					buttonVariants({ size: 'lg' }),
+					'signed-in:inline-flex hidden'
+				)}
+				to="/app"
+			>
 				Open app
 			</Link>
-		)
 
-	return <GetStartedButton />
+			<div className="signed-in:hidden contents">
+				<GetStartedButton />
+			</div>
+		</>
+	)
 }

@@ -8,6 +8,7 @@ import {
 import type { PropsWithChildren } from 'react'
 import { LayoutError } from '@/components/route-error'
 import { ConsentProvider } from '@/modules/consent/presentation/components/consent-provider'
+import { SIGNED_IN_HINT_SCRIPT } from '@/modules/site/presentation/helpers/signed-in-hint.helper'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 
@@ -23,6 +24,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ rel: 'stylesheet', href: appCss },
 			{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
 		],
+		scripts: [{ children: SIGNED_IN_HINT_SCRIPT }],
 	}),
 	component: RootComponent,
 	errorComponent: RootError,
@@ -48,7 +50,7 @@ function RootError(props: Readonly<ErrorComponentProps>) {
 
 function RootDocument({ children }: Readonly<PropsWithChildren>) {
 	return (
-		// The desktop shell sets data-shell on <html> before hydration.
+		// The desktop shell and the signed-in hint script set data attributes on <html> before hydration.
 		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />
