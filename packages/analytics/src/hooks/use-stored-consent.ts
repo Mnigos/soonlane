@@ -16,6 +16,12 @@ const getServerSnapshot = () => undefined
  * hydrates. Prerendered pages are built without the visitor's cookie, so the stored choice is only
  * known in the browser.
  */
-export function useStoredConsent(): ConsentState | undefined {
-	return useSyncExternalStore(subscribe, readStoredConsent, getServerSnapshot)
+export function useStoredConsent(
+	cookiePrefix: string
+): ConsentState | undefined {
+	return useSyncExternalStore(
+		subscribe,
+		() => readStoredConsent(cookiePrefix),
+		getServerSnapshot
+	)
 }

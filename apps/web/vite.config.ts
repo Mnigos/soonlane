@@ -13,6 +13,17 @@ const SHORT_SHA_LENGTH = 7
 const APP_COMMIT =
 	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'
 const APP_ENVIRONMENT = process.env.VERCEL_ENV || 'development'
+/** Production and the `staging` branch must not fall back: without the API's origin or the cookie prefix, the deployed pages call no API and look signed out. CI and local builds keep the fallback. */
+const REQUIRES_API_VARIABLES =
+	process.env.VERCEL_ENV === 'production' ||
+	process.env.VERCEL_GIT_COMMIT_REF === 'staging'
+const API_VARIABLES = ['VITE_API_URL', 'VITE_AUTH_COOKIE_PREFIX'] as const
+
+for (const name of API_VARIABLES)
+	if (REQUIRES_API_VARIABLES && !process.env[name])
+		throw new Error(
+			`${name} is not set; production and staging builds need it (docs/deploy-vercel.md)`
+		)
 
 /** Missing until the first stable release. */
 const CHANGELOG_PATH = new URL('../../CHANGELOG.md', import.meta.url)

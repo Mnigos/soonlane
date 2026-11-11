@@ -20,10 +20,10 @@ const LOG_BY_LEVEL = {
 	(...message: readonly unknown[]) => Effect.Effect<void>
 >
 
-function withRequestConsent(headers?: Headers) {
+function withRequestConsent(cookiePrefix: string, headers?: Headers) {
 	return Effect.provideService(
 		AnalyticsConsent,
-		headers ? hasAnalyticsConsent(headers) : false
+		headers ? hasAnalyticsConsent(headers, cookiePrefix) : false
 	)
 }
 
@@ -35,8 +35,11 @@ export const BetterAuthLive = Layer.effect(
 		const analytics = yield* Analytics
 		const auth = createAuth({
 			database: db.database,
-			baseUrl: config.appUrl,
+			baseUrl: config.baseUrl,
 			trustedOrigins: config.trustedOrigins,
+			cookiePrefix: config.cookiePrefix,
+			cookieDomain: config.cookieDomain,
+			errorUrl: `${config.appUrl}/login`,
 			secret: Redacted.value(config.authSecret),
 			allowedEmails: config.allowedEmails,
 			google: {
@@ -55,13 +58,13 @@ export const BetterAuthLive = Layer.effect(
 									signup_date: createdAt.toISOString().slice(0, 10),
 								},
 							})
-							.pipe(withRequestConsent(headers))
+							.pipe(withRequestConsent(config.cookiePrefix, headers))
 					),
 				sessionCreated: async (userId, method, headers) =>
 					await Effect.runPromise(
 						analytics
 							.capture(userIdSchema.parse(userId), 'user_signed_in', { method })
-							.pipe(withRequestConsent(headers))
+							.pipe(withRequestConsent(config.cookiePrefix, headers))
 					),
 			},
 		})
