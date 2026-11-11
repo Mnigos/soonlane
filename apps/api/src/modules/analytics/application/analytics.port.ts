@@ -13,7 +13,8 @@ export class Analytics extends Context.Service<
 		) => Effect.Effect<void>
 		readonly captureException: (
 			error: unknown,
-			userId?: UserId
+			userId?: UserId,
+			details?: Record<string, string>
 		) => Effect.Effect<void>
 	}
 >()('soonlane/Analytics') {}

@@ -82,15 +82,15 @@ export const PostHogAnalyticsLive = Layer.effect(
 
 		const captureException = Effect.fn('Analytics.captureException')(function* (
 			error: unknown,
-			userId?: UserId
+			userId?: UserId,
+			details?: Record<string, string>
 		) {
 			yield* deliver(
 				async () =>
-					await client.captureExceptionImmediate(
-						toSafeError(error),
-						userId,
-						buildProperties
-					)
+					await client.captureExceptionImmediate(toSafeError(error), userId, {
+						...buildProperties,
+						...details,
+					})
 			)
 		})
 
