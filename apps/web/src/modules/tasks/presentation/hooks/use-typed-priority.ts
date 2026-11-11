@@ -16,8 +16,9 @@ function isDeletion(previous: TaskPriority[], next: TaskPriority[]) {
 
 /**
  * The composer's title and priority: a "p1" to "p4" typed in the title sets
- * the priority unless the chip was picked after it. An edited task keeps its
- * title's words and its saved priority until the owner edits the title.
+ * the priority unless the chip was picked after it, and `highlights` marks
+ * that word. An edited task keeps its title's words and its saved priority
+ * until the owner edits the title.
  */
 export function useTypedPriority(task: Task | undefined) {
 	const [title, setTitle] = useState(task?.title ?? '')
@@ -27,13 +28,14 @@ export function useTypedPriority(task: Task | undefined) {
 	)
 	const [isChipPicked, setIsChipPicked] = useState(false)
 	const typed = parseTypedPriorities(title)
-	const typedPriority =
-		isTitleEdited && !isChipPicked ? typed.priorities.at(-1) : undefined
+	const isTypedRead = isTitleEdited && !isChipPicked
+	const typedPriority = isTypedRead ? typed.priorities.at(-1) : undefined
 
 	return {
 		title,
 		savedTitle: isTitleEdited ? typed.title : title,
 		priority: typedPriority ?? chosenPriority,
+		highlights: isTypedRead && typed.range ? [typed.range] : [],
 		changeTitle: (next: string) => {
 			if (!isDeletion(typed.priorities, parseTypedPriorities(next).priorities))
 				setIsChipPicked(false)

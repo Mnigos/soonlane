@@ -1,6 +1,6 @@
 import { TASK_PRIORITIES } from '@soonlane/domain'
 
-const SPACES_PATTERN = /\s+/u
+const WORD_PATTERN = /\S+/gu
 
 function toPriority(word: string) {
 	const token = word.toLowerCase()
@@ -10,20 +10,22 @@ function toPriority(word: string) {
 
 /**
  * Reads "p1" to "p4" typed as words in a task name, in typed order (the last
- * one wins), and the name to save without them. A name without one comes
- * back as is.
+ * one wins), the name to save without them and where the winning word sits.
+ * A name without one comes back as is.
  */
 export function parseTypedPriorities(title: string) {
-	const words = title.split(SPACES_PATTERN)
-	const tokens = words.map(toPriority)
+	const words = [...title.matchAll(WORD_PATTERN)]
+	const tokens = words.map(([word]) => toPriority(word))
 	const priorities = tokens.filter(priority => priority !== undefined)
-	if (priorities.length === 0) return { title, priorities }
+	const last = words[tokens.findLastIndex(priority => priority !== undefined)]
+	if (!last) return { title, priorities }
 
 	return {
 		title: words
 			.filter((_, index) => tokens[index] === undefined)
-			.join(' ')
-			.trim(),
+			.map(([word]) => word)
+			.join(' '),
 		priorities,
+		range: { start: last.index, end: last.index + last[0].length },
 	}
 }
