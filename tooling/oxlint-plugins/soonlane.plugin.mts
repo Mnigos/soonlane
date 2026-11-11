@@ -1,5 +1,6 @@
 import { definePlugin } from '@oxlint/plugins'
 import { declarationGroupSpacingRule } from './declaration-group-spacing.rule.mts'
+import { declarationJsdocRule } from './declaration-jsdoc.rule.mts'
 import { fileRoleFolderRule } from './file-role-folder.rule.mts'
 import { fileRoleSuffixRule } from './file-role-suffix.rule.mts'
 import { hookQueryNamingRule } from './hook-query-naming.rule.mts'
@@ -17,6 +18,7 @@ export default definePlugin({
 	meta: { name: 'soonlane' },
 	rules: {
 		'declaration-group-spacing': declarationGroupSpacingRule,
+		'declaration-jsdoc': declarationJsdocRule,
 		'file-role-folder': fileRoleFolderRule,
 		'file-role-suffix': fileRoleSuffixRule,
 		'hook-query-naming': hookQueryNamingRule,

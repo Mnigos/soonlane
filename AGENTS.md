@@ -31,6 +31,7 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 - No `let` inside functions: use `const` and move the use into the block that assigns the value, return early, or extract a function. Module-level state and loop heads may use `let`. (lint-enforced)
 - Implementation files stay under 400 lines.
 - JSDoc (`/** … */`) on a declaration (exported or module-level function, component, hook, type, constant) is welcome when it says what the thing is for, its contract, or a non-obvious why. Keep it short; don't restate the name.
+- A comment directly above a module-level declaration is JSDoc, never `//`. (lint-enforced)
 - `//` comments inside function bodies are the exception: only for a quirk or constraint the reader would otherwise "fix" wrongly. Prefer moving that why into the declaration's JSDoc.
 - No comment narrates history ("previously", "now") or explains React, TanStack or Effect basics.
 - Consecutive single-line module-level `const` declarations stay together without blank lines. (lint-enforced)

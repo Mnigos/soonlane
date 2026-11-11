@@ -13,5 +13,6 @@
 - Mutation variables carry the contract's input type (plain strings); an optimistic update parses them with the procedure's input schema before writing them into cached output.
 - No `.then`/`.catch` chains on promises: `await` them with `try`/`catch` (or early returns); server code inside Effect keeps Effect idioms such as `Effect.tryPromise` and `Effect.catch`.
 - JSDoc (`/** … */`) on a declaration (exported or module-level function, component, hook, type, constant) is welcome when it says what the thing is for, its contract, or a non-obvious why. Keep it short; don't restate the name.
+- A comment directly above a module-level declaration is JSDoc, never `//`. (lint-enforced)
 - `//` comments inside function bodies are the exception: only for a quirk or constraint the reader would otherwise "fix" wrongly. Prefer moving that why into the declaration's JSDoc.
 - No comment narrates history ("previously", "now") or explains React, TanStack or Effect basics.

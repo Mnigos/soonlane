@@ -143,6 +143,7 @@ function restrictImports(...restrictions: readonly ImportRestriction[]) {
 export const CONVENTION_RULES = {
 	'max-lines': ['error', { max: 400 }],
 	'soonlane/declaration-group-spacing': 'error',
+	'soonlane/declaration-jsdoc': 'error',
 	'soonlane/inferred-type-placement': 'error',
 	'soonlane/no-let': 'error',
 	'soonlane/type-param-prefix': 'error',
