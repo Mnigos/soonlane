@@ -1,6 +1,6 @@
 # ADR 0012: An agent writes the changelog at release, in a release pull request
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-11-11
 
 ## Context
