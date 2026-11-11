@@ -1,6 +1,13 @@
-import { defineRailway, github, project, service } from 'railway/iac'
+import {
+	defineRailway,
+	github,
+	postgres,
+	preserve,
+	project,
+	service,
+} from 'railway/iac'
 
-/** Owns only what this file declares, so applying it never touches resources made elsewhere, such as Postgres. */
+/** Owns only what this file declares, so applying it never touches resources made elsewhere, such as production's Postgres. */
 export const partial = 'soonlane'
 
 const HOSTS = {
@@ -14,6 +21,7 @@ const HOSTS = {
 	},
 } as const
 const PORT = 8080
+const REGION = 'europe-west4-drams3a'
 
 function isKnownEnvironment(name: string): name is keyof typeof HOSTS {
 	return Object.hasOwn(HOSTS, name)
@@ -27,6 +35,10 @@ export default defineRailway(ctx => {
 
 	const hosts = HOSTS[environment]
 	const isProduction = environment === 'production'
+	// Production keeps Neon until its own Postgres takes over, so only staging declares one here.
+	const database = isProduction
+		? undefined
+		: postgres('Postgres', { region: REGION })
 
 	const api = service('api', {
 		// Staging has no source, so only `railway up` from the deploy workflow deploys it.
@@ -40,6 +52,7 @@ export default defineRailway(ctx => {
 			watchPatterns: isProduction
 				? [
 						'/apps/api/**',
+						'/packages/db/**',
 						'/tooling/typescript-config/**',
 						'/package.json',
 						'/bun.lock',
@@ -47,18 +60,24 @@ export default defineRailway(ctx => {
 					]
 				: null,
 		},
+		// Runs where the private network is reachable; a failure keeps the previous deployment live.
+		preDeploy: 'bun packages/db/scripts/migrate.ts',
 		start: 'bun apps/api/dist/main.js',
 		healthcheck: '/health',
 		deploy: { drainingSeconds: 10 },
-		regions: { 'europe-west4-drams3a': 1 },
+		regions: { [REGION]: 1 },
 		domains: [{ domain: hosts.api, port: PORT }],
 		env: {
 			PORT: String(PORT),
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
 			TRUSTED_ORIGINS: hosts.trustedOrigins,
+			// Production holds Neon's direct URL, entered by hand.
+			DATABASE_URL: database ? database.env.DATABASE_URL : preserve(),
 		},
 	})
 
-	return project('Soonlane', { resources: [api] })
+	return project('Soonlane', {
+		resources: database ? [database, api] : [api],
+	})
 })

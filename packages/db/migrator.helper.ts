@@ -7,7 +7,7 @@ export const MIGRATIONS_FOLDER = fileURLToPath(
 	new URL('migrations', import.meta.url)
 )
 
-/** Neon's direct connection suits schema changes better than the pooler; each Vercel environment points at its own Neon branch. */
+/** Neon's direct connection suits schema changes better than the pooler. */
 export function resolveMigrationUrl(env: Record<string, string | undefined>) {
 	const url = env.DATABASE_URL_UNPOOLED || env.DATABASE_URL
 
