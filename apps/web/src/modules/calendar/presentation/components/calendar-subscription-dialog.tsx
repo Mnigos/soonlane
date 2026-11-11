@@ -35,6 +35,7 @@ export function CalendarSubscriptionDialog({
 	const create = useMutation(
 		orpcQuery.calendar.createSubscription.mutationOptions({
 			gcTime: 0,
+			networkMode: 'always',
 			onMutate: () => ({ replaced: subscription !== undefined }),
 			onSuccess: async (_output, _input, context) => {
 				capture('calendar_subscription_created', {
@@ -46,6 +47,7 @@ export function CalendarSubscriptionDialog({
 	)
 	const revoke = useMutation(
 		orpcQuery.calendar.revokeSubscription.mutationOptions({
+			networkMode: 'always',
 			onSuccess: async () => {
 				capture('calendar_subscription_revoked', {})
 				setIsConfirmingRevoke(false)
@@ -61,7 +63,7 @@ export function CalendarSubscriptionDialog({
 	}
 
 	function close() {
-		if (!create.isPending) onClose()
+		if (!isBusy) onClose()
 	}
 
 	function renderBody() {
@@ -164,11 +166,7 @@ export function CalendarSubscriptionDialog({
 							</Button>
 						)}
 
-						<Button
-							disabled={create.isPending}
-							onClick={onClose}
-							variant="ghost"
-						>
+						<Button disabled={isBusy} onClick={onClose} variant="ghost">
 							{create.data ? 'Done' : 'Cancel'}
 						</Button>
 
