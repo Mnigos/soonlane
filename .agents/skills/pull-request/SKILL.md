@@ -53,5 +53,5 @@ The description is a guide for a reviewer, not a change log. A reviewer should a
 - Do not create new labels.
 - Before creating a PR, run `git fetch origin <base>` and `git rebase origin/<base>`; after rebasing an already-pushed PR branch, push with `--force-with-lease`.
 - Use `gh` for GitHub operations.
-- Every Vercel preview runs its own build and migrations against the Neon `preview` branch; mention a migration in `## Deploy`.
+- Vercel previews run against the Neon `preview` branch, which nothing migrates on deploy; for a migration, say in `## Deploy` that `bun run db:migrate` has to run against it.
 - Before editing files while preparing a PR, read at least 3 similar files.
