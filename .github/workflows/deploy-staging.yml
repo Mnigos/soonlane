@@ -36,12 +36,13 @@ jobs:
       # `railway up` uploads no git metadata, so the health endpoint reads the commit from this variable.
       - name: Record the commit
         run: $RAILWAY variable set "APP_COMMIT=$(git rev-parse HEAD)" --service api --environment staging --skip-deploys
-      - name: Build and deploy
-        run: $RAILWAY up --service api --environment staging --ci --message "$REF $(git rev-parse --short HEAD)"
-      - name: Wait for the health check
+      - name: Build, deploy and wait for the health check
         run: |
+          upload=$($RAILWAY up --service api --environment staging --detach --json --message "$REF $(git rev-parse --short HEAD)")
+          deployment=$(jq -r '.deploymentId' <<< "$upload")
+          echo "Build logs: $(jq -r '.logsUrl' <<< "$upload")"
           for attempt in $(seq 60); do
-            status=$($RAILWAY deployment list --service api --environment staging --limit 1 --json | jq -r '.[0].status')
+            status=$($RAILWAY deployment list --service api --environment staging --json | jq -r --arg id "$deployment" '.[] | select(.id == $id) | .status')
             echo "Deployment status: $status"
             case "$status" in
               SUCCESS) exit 0 ;;
