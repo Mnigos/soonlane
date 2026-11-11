@@ -2,8 +2,15 @@ import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
 import { useNavigate } from '@tanstack/react-router'
-import { ChevronDown, LogOut, ShieldCheck, Trash2 } from 'lucide-react'
+import {
+	CalendarSync,
+	ChevronDown,
+	LogOut,
+	ShieldCheck,
+	Trash2,
+} from 'lucide-react'
 import { useState } from 'react'
+import { CalendarSubscriptionDialog } from '@/modules/calendar/presentation/components/calendar-subscription-dialog'
 import { PrivacyChoicesButton } from '@/modules/consent/presentation/components/privacy-choices-button'
 import { CONSENT_COPY } from '@/modules/consent/presentation/consent-copy.constants'
 import { useSignOutMutation } from '../hooks/use-sign-out-mutation'
@@ -24,6 +31,7 @@ export function UserMenu({
 	user,
 }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
+	const [isSubscribingCalendar, setIsSubscribingCalendar] = useState(false)
 	const navigate = useNavigate()
 	const { mutate: signOut, isPending, isError } = useSignOutMutation()
 
@@ -76,6 +84,18 @@ export function UserMenu({
 
 					<button
 						className={MENU_ITEM_CLASS}
+						onClick={() => setIsSubscribingCalendar(true)}
+						type="button"
+					>
+						<CalendarSync
+							aria-hidden
+							className="size-4 text-muted-foreground"
+						/>
+						Calendar subscription
+					</button>
+
+					<button
+						className={MENU_ITEM_CLASS}
 						disabled={isPending}
 						onClick={() => signOut()}
 						type="button"
@@ -99,6 +119,12 @@ export function UserMenu({
 						</p>
 					)}
 				</div>
+			)}
+
+			{isSubscribingCalendar && (
+				<CalendarSubscriptionDialog
+					onClose={() => setIsSubscribingCalendar(false)}
+				/>
 			)}
 
 			{isDeletingAccount && (

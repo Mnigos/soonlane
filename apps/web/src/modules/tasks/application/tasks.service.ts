@@ -41,6 +41,8 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: ListCompletedTasksInput
 		) => Effect.Effect<Task[], DbError>
+		/** Every open task with any due date, in day order. */
+		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
 		readonly create: (
 			ownerId: UserId,
 			input: CreateTaskInput
@@ -161,6 +163,12 @@ export const TasksServiceLive = Layer.effect(
 			{ from, to }: ListCompletedTasksInput
 		) {
 			return yield* repository.listCompletedBetween({ ownerId, from, to })
+		})
+
+		const listOpen = Effect.fn('TasksService.listOpen')(function* (
+			ownerId: UserId
+		) {
+			return yield* repository.listOpen(ownerId)
 		})
 
 		const create = Effect.fn('TasksService.create')(function* (
@@ -316,6 +324,7 @@ export const TasksServiceLive = Layer.effect(
 			list,
 			listByLabel,
 			listCompleted,
+			listOpen,
 			create,
 			update,
 			delete: remove,

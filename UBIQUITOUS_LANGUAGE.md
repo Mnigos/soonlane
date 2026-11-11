@@ -40,6 +40,14 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Label           | "Labels"                                                  | `label` table, `Label`, `LABEL_COLORS`           | The owner's tag on tasks: a name unique ignoring case, an optional Todoist palette color picked in the sidebar. Not a project.        |
 | Label view      | the label's name as the page title                        | `label.route`, `LabelPage`, `tasks.listByLabel`  | A label's open tasks with any due date: Overdue, then each day from today that has tasks, and one Add task row with the label chosen. |
 
+## calendar
+
+| Term                  | UI label                                                         | Code                                                  | Meaning                                                                                                                             |
+| --------------------- | ---------------------------------------------------------------- | ----------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Calendar subscription | "Calendar subscription" in the user menu                         | `calendar_subscription` table, `CalendarSubscription` | The owner's one private link that shows their open tasks in a calendar app, read-only; replacing or revoking it stops the old link. |
+| Calendar link         | "Calendar link", "Create link", "Create new link", "Revoke link" | `calendar.createSubscription`, `CalendarLinkField`    | The subscription's URL with its secret token; shown once after creating it, never again. Anyone who has it can read the open tasks. |
+| Calendar feed         | "Subscribe in Calendar" (`webcal:`)                              | `/calendar/{$token}.ics`, `buildCalendarFeed`         | The iCalendar text a calendar app fetches every 15 minutes: one event per open task on its due date, all day or at its due time.    |
+
 ## Codebase
 
 | Term              | UI                         | Code                                 | Meaning                                                                                                                                                                    |
