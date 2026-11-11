@@ -23,13 +23,12 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 | `APP_ENV`         | `production`               | `staging`                          |
 | `API_URL`         | `https://api.soonlane.com` | `https://api.staging.soonlane.com` |
 | `TRUSTED_ORIGINS` | `https://soonlane.com`     | `https://staging.soonlane.com`     |
-| `APP_COMMIT`      | unset                      | set by the staging workflow        |
 
-`TRUSTED_ORIGINS` is a comma-separated list of origins. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys and from `APP_COMMIT` otherwise. The API refuses to start when a variable is missing or malformed and names it in the log.
+`TRUSTED_ORIGINS` is a comma-separated list of origins. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
 
 ## Staging
 
-Staging has no repository connected, so a push deploys nothing. To deploy a branch, tag or commit, run the **Deploy staging** workflow (Actions, or `gh workflow run deploy-staging.yml -f ref=<ref>`). It checks out the ref, records its commit in `APP_COMMIT`, runs `railway up` with the `RAILWAY_TOKEN_STAGING` secret and waits until the deployment passes its health check. Then:
+Staging has no repository connected, so a push deploys nothing. To deploy a branch, tag or commit, run the **Deploy staging** workflow (Actions, or `gh workflow run deploy-staging.yml -f ref=<ref>`). It checks out the ref, writes its commit into `apps/api/commit.env`, runs `railway up` with the `RAILWAY_TOKEN_STAGING` secret and waits until the deployment passes its health check. Then:
 
 ```sh
 curl https://api.staging.soonlane.com/health

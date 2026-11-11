@@ -14,3 +14,4 @@ coverage/
 !.env.example
 .DS_Store
 apps/web/public/og/blog/
+apps/api/commit.env

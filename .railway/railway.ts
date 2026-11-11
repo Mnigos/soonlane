@@ -1,4 +1,4 @@
-import { defineRailway, github, preserve, project, service } from 'railway/iac'
+import { defineRailway, github, project, service } from 'railway/iac'
 
 /** Owns only what this file declares, so applying it never touches resources made elsewhere, such as Postgres. */
 export const partial = 'soonlane'
@@ -57,8 +57,6 @@ export default defineRailway(ctx => {
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
 			TRUSTED_ORIGINS: hosts.trustedOrigins,
-			// The staging deploy workflow sets it, because `railway up` uploads no git metadata.
-			APP_COMMIT: preserve(),
 		},
 	})
 

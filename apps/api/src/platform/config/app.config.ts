@@ -1,5 +1,6 @@
 import {
 	Config,
+	ConfigProvider,
 	Context,
 	Effect,
 	Layer,
@@ -32,7 +33,7 @@ export class AppConfig extends Context.Service<
 const appConfig = Config.all({
 	port: Config.port('PORT'),
 	environment: Config.nonEmptyString('APP_ENV'),
-	// GitHub deploys get the commit from Railway; `railway up` uploads no git metadata, so the staging workflow sets `APP_COMMIT`.
+	// GitHub deploys get the commit from Railway; `railway up` deploys get it from the bundle.
 	commit: Config.nonEmptyString('RAILWAY_GIT_COMMIT_SHA').pipe(
 		Config.orElse(() => Config.nonEmptyString('APP_COMMIT'))
 	),
@@ -42,9 +43,23 @@ const appConfig = Config.all({
 	),
 })
 
+/**
+ * `railway up` uploads no git metadata, so `bun build` inlines `process.env.APP_COMMIT` from `commit.env`,
+ * which the staging deploy workflow writes into the upload. Read ahead of the environment, so the reported
+ * commit always belongs to the running bundle.
+ */
+const bundleProvider = ConfigProvider.fromEnvRecord({
+	APP_COMMIT: process.env.APP_COMMIT,
+})
+
 export const AppConfigLive = Layer.effect(
 	AppConfig,
 	Effect.gen(function* () {
 		return yield* appConfig
-	})
+	}).pipe(
+		Effect.provideService(
+			ConfigProvider.ConfigProvider,
+			ConfigProvider.orElse(bundleProvider, ConfigProvider.fromEnv())
+		)
+	)
 )
