@@ -29,6 +29,10 @@ What Better Auth 1.7.18 offers (read from `node_modules/better-auth`, not from m
 - Every request to `/api/auth` now writes to `rate_limit`; Better Auth prunes rows older than the longest window (one hour) when a window resets.
 - Rejected: memory storage for the limiter (each Vercel function instance would count alone), `x-real-ip` and `x-vercel-forwarded-for` (Vercel's docs promise the overwrite only for `x-forwarded-for`), a custom `freshAge` (the one-day default already asks for a recent Google sign-in), keeping the owner gate behind a flag (two code paths for one product).
 
+## Update 2026-11-12 (SOON-119)
+
+Better Auth runs on the API and reads the client IP only from `x-soonlane-client-ip`, which the API's HTTP entry sets and a client cannot: from the web server's `x-soonlane-visitor-ip` (taken from Vercel's `x-forwarded-for`) when `x-soonlane-proxy-secret` matches `API_PROXY_SECRET`, a wrong secret is refused with 403; otherwise from Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge. See `docs/deploy-railway.md`.
+
 ## Related
 
 - `packages/auth/src/better-auth.config.ts`, `packages/auth/src/auth-policy.helper.ts`, `apps/web/src/modules/identity/presentation/require-user.middleware.ts`

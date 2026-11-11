@@ -22,6 +22,10 @@ Sign-in (PR 2) first lived entirely in `apps/web/src/modules/identity`: the Bett
 - The web app does not depend on `better-auth` directly; only `@soonlist/auth` does.
 - Rejected: an Effect `Layer` exported from the package (ties every consumer to the web app's Effect version and runtime), and keeping the config in the web module (the desktop app would copy the owner policy).
 
+## Update 2026-11-12 (SOON-119)
+
+The Effect layer moved to `apps/api/src/modules/identity/infrastructure/better-auth.layer.ts`. `oAuthProxy` and `tanstackStartCookies` are gone: previews no longer sign in, and the API carries the `Set-Cookie` values of a session refreshed during an RPC call (`getSession` with `returnHeaders`) on that response. The web app keeps `/api/auth/$` as a forwarder to the API.
+
 ## Related
 
 - ADR 0002: package layout

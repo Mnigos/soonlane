@@ -24,8 +24,12 @@ The owner forgets to open Soonlane but looks at Apple Calendar on the iPhone all
 - A subscription shows tasks only; changes in the calendar do not come back. Apple Calendar may drop alarms from subscribed calendars (macOS offers "Remove alerts" on subscribe).
 - Rejected: CalDAV or two-way sync (a server protocol and conflict handling for a read-only need), Sign in with Apple or OAuth to calendar providers (a second identity provider and provider APIs per calendar app), a signed token without a table (it could not be revoked without a deny list), storing the token itself (a database leak would expose every feed), and several links per account (no need yet; one link keeps the UI to create, replace, revoke).
 
+## Update 2026-11-12 (SOON-119)
+
+The feed is served by the API at `https://api.soonlane.com/calendar/<token>.ics` (staging `api.staging.soonlane.com`), and new links use that host; event URLs still point at the web app (`APP_URL` + `/app`). The web app no longer answers `/calendar/*`, so links made before the move stop working and must be created again (no backward compatibility, decided by the owner).
+
 ## Related
 
-- `apps/web/src/modules/calendar`, `packages/db/schema/calendar.schema.ts`, `packages/contracts/src/calendar.contract.ts`
+- `apps/api/src/modules/calendar`, `apps/web/src/modules/calendar/presentation`, `packages/db/schema/calendar.schema.ts`, `packages/contracts/src/calendar.contract.ts`
 - [ADR 0009](0009-open-sign-in.md)
 - `ARCHITECTURE.md`: Calendar subscription; `docs/analytics.md`: Privacy, Session replay masking
