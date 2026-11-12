@@ -6,6 +6,7 @@ import {
 	SINGLE_INTERVAL_REPEAT_UNITS,
 	GOAL_TARGET_MAX,
 	GOAL_UNIT_MAX_LENGTH,
+	type ProjectId,
 	type TaskId,
 	type TaskPriority,
 	type UserId,
@@ -14,6 +15,7 @@ import { sql } from 'drizzle-orm'
 import {
 	check,
 	date,
+	foreignKey,
 	index,
 	integer,
 	pgTable,
@@ -24,6 +26,9 @@ import {
 	uuid,
 } from 'drizzle-orm/pg-core'
 import { user } from './auth.schema'
+import { project } from './projects.schema'
+
+export const TASK_PROJECT_FOREIGN_KEY = 'task_project_id_project_id_fkey'
 
 function toSqlList(values: readonly string[]) {
 	return sql.raw(values.map(value => `'${value}'`).join(', '))
@@ -59,9 +64,16 @@ export const task = pgTable(
 		goalUnit: text('goal_unit'),
 		// The current occurrence's progress, so repeating can reset it with the due date.
 		goalProgress: integer('goal_progress').notNull().default(0),
+		projectId: uuid('project_id').$type<ProjectId>(),
 	},
 	table => [
 		index('task_owner_due_idx').on(table.ownerId, table.dueDate),
+		index('task_project_idx').on(table.projectId),
+		foreignKey({
+			name: TASK_PROJECT_FOREIGN_KEY,
+			columns: [table.projectId],
+			foreignColumns: [project.id],
+		}).onDelete('set null'),
 		check('task_priority_range', sql`${table.priority} between 1 and 4`),
 		check(
 			'task_repeat_all_or_none',
