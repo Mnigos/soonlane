@@ -8,7 +8,7 @@
 - Date-dependent UI renders from `useToday()`, which is `undefined` during SSR: render a skeleton until the browser supplies the date.
 - UI primitives come from `@soonlane/ui` (`@soonlane/ui/components/*`, `@soonlane/ui/cn`); feature components stay in their module. Follow `DESIGN.md` and the tokens in `tooling/tailwind-config/tokens.css`.
 - Components take `Readonly<Props>` with the props interface right above them.
-- Read the session through `identity.me` (the session layout's `beforeLoad`, then `context.me`; public site routes never read the session); the shell route redirects signed-out visitors to `/login`. Use `@soonlane/auth/client` only for sign-in, sign-out and account deletion; never import `@soonlane/auth/server`.
+- Read the session through `identity.me` (the session layout's `beforeLoad`, then `context.me`; public site routes never read the session); the shell route redirects signed-out visitors to `/login`. Use `@soonlane/auth/client` only for sign-in, sign-out, account deletion and linking Todoist; never import `@soonlane/auth/server`.
 - Mutation variables carry the contract's input type (plain strings); an optimistic update parses them with the procedure's input schema before writing them into cached output.
 - No `.then`/`.catch` chains on promises: `await` them with `try`/`catch` (or early returns).
 - JSDoc (`/** … */`) on a declaration (exported or module-level function, component, hook, type, constant) is welcome when it says what the thing is for, its contract, or a non-obvious why. Keep it short; don't restate the name.
