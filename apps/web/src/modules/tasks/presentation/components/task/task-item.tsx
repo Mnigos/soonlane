@@ -3,6 +3,7 @@ import { capture } from '@soonlane/analytics/client'
 import type { Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
+	getDueChipLabel,
 	getDueLabel,
 	formatRepeatRule,
 	TASK_PRIORITIES,
@@ -29,17 +30,26 @@ interface TaskItemProps {
 	task: Task
 	today: CalendarDate
 	onComplete: (task: Task) => void
+	/** Names the due day in the due line, for a list without day headings. */
+	showsDueDay?: boolean
 }
 
 /** Row controls show on hover and focus, always on touch screens; the negative margin keeps the row height. */
 const ROW_CONTROL_CLASS =
 	'-my-1.5 opacity-0 group-focus-within/task:opacity-100 group-hover/task:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100'
 
-export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
+export function TaskItem({
+	task,
+	today,
+	onComplete,
+	showsDueDay,
+}: Readonly<TaskItemProps>) {
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 	const isEditing = openEditorId === task.id
 	const [shouldFocusMenu, setShouldFocusMenu] = useState(false)
-	const due = getDueLabel(task.dueDate, task.dueTime, today)
+	const due = showsDueDay
+		? getDueChipLabel(task.dueDate, task.dueTime, today)
+		: getDueLabel(task.dueDate, task.dueTime, today)
 	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const buttonId = useId()
 	const titleId = useId()

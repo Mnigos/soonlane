@@ -1,7 +1,5 @@
 import type {
 	CreateTaskInput,
-	GoalInput,
-	Label,
 	ListCompletedTasksInput,
 	ListTasksByLabelInput,
 	ListTasksByProjectInput,
@@ -9,13 +7,13 @@ import type {
 	ListTasksOutput,
 	RescheduleTasksInput,
 	LogProgressOutput,
+	SearchTasksInput,
+	SearchTasksOutput,
 	Task,
 	UpdateTaskInput,
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
-import { TASK_PROJECT_FOREIGN_KEY } from '@soonlane/db'
 import {
-	type CalendarDate,
 	type LabelId,
 	type ProjectId,
 	type TaskId,
@@ -27,11 +25,20 @@ import {
 } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
-import { LabelNotFound } from '@/modules/labels/domain/label.errors'
+import type { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import { ProjectNotFound } from '@/modules/projects/domain/project.errors'
-import { type DbError, isForeignKeyViolation } from '@/platform/db/db.errors'
-import { TaskNotFound } from '../domain/task.errors'
+import type { DbError } from '@/platform/db/db.errors'
+import type { TaskNotFound } from '../domain/task.errors'
 import { TaskRepository } from '../infrastructure/task.repository'
+import {
+	type CompletionDates,
+	type RestoredOccurrence,
+	failDeletedProject,
+	getAdvance,
+	requireLabel,
+	requireTask,
+	splitAtToday,
+} from './tasks.service.helper'
 
 export class TasksService extends Context.Service<
 	TasksService,
@@ -52,6 +59,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: ListCompletedTasksInput
 		) => Effect.Effect<Task[], DbError>
+		readonly search: (
+			ownerId: UserId,
+			input: SearchTasksInput
+		) => Effect.Effect<SearchTasksOutput, DbError>
 		/** Every open task with any due date, in day order. */
 		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
 		readonly create: (
@@ -103,53 +114,7 @@ export class TasksService extends Context.Service<
 	}
 >()('soonlane/TasksService') {}
 
-/** The client's today and the due date it showed; both absent from older clients. */
-interface CompletionDates {
-	today?: CalendarDate
-	dueDate?: CalendarDate
-}
-
-interface RestoredOccurrence {
-	dueDate?: CalendarDate
-	progress?: number
-	goal?: GoalInput
-}
-
-/** From the date the client saw, so a stale list cannot advance the task twice. */
-function getAdvance(
-	storedDueDate: CalendarDate,
-	repeat: NonNullable<Task['repeat']>,
-	{ today, dueDate }: CompletionDates
-) {
-	const from = dueDate ?? storedDueDate
-
-	return { from, to: getNextDueDate(from, repeat, today) }
-}
-
-function requireTask<T>(task: T | undefined) {
-	return task ? Effect.succeed(task) : Effect.fail(new TaskNotFound())
-}
-
-function requireLabel(label: Label | undefined) {
-	return label ? Effect.succeed(label) : Effect.fail(new LabelNotFound())
-}
-
-/** The project passed the owner check but was deleted before the write. */
-function failDeletedProject(error: DbError) {
-	return Effect.fail(
-		isForeignKeyViolation(error, TASK_PROJECT_FOREIGN_KEY)
-			? new ProjectNotFound()
-			: error
-	)
-}
-
-/** A view's open tasks, split at the client's today. */
-function splitAtToday(tasks: Task[], today: CalendarDate): ListTasksOutput {
-	return {
-		overdue: tasks.filter(({ dueDate }) => dueDate < today),
-		scheduled: tasks.filter(({ dueDate }) => dueDate >= today),
-	}
-}
+const SEARCH_RESULT_LIMIT = 50
 
 export const TasksServiceLive = Layer.effect(
 	TasksService,
@@ -211,6 +176,22 @@ export const TasksServiceLive = Layer.effect(
 			{ from, to }: ListCompletedTasksInput
 		) {
 			return yield* repository.listCompletedBetween({ ownerId, from, to })
+		})
+
+		const search = Effect.fn('TasksService.search')(function* (
+			ownerId: UserId,
+			{ query }: SearchTasksInput
+		) {
+			const tasks = yield* repository.listMatching({
+				ownerId,
+				query,
+				limit: SEARCH_RESULT_LIMIT + 1,
+			})
+
+			return {
+				tasks: tasks.slice(0, SEARCH_RESULT_LIMIT),
+				hasMore: tasks.length > SEARCH_RESULT_LIMIT,
+			}
 		})
 
 		const listOpen = Effect.fn('TasksService.listOpen')(function* (
@@ -382,6 +363,7 @@ export const TasksServiceLive = Layer.effect(
 			listByLabel,
 			listByProject,
 			listCompleted,
+			search,
 			listOpen,
 			create,
 			update,

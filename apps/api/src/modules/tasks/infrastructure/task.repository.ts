@@ -31,11 +31,13 @@ import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
 import { ownedTasks } from './owned-tasks.query'
 import { updateProgress } from './task-progress.query'
+import { matchesEveryWord, SEARCH_ORDER } from './task-search.query'
 import { updateTask } from './task-update.query'
 import { toTask } from './task.mapper'
 import type {
 	CompletedTasksBetween,
 	DueDateAdvance,
+	MatchingTasks,
 	NewTask,
 	OpenTasksBefore,
 	OpenTasksBetween,
@@ -66,6 +68,9 @@ export class TaskRepository extends Context.Service<
 		) => Effect.Effect<Task[], DbError>
 		readonly listCompletedBetween: (
 			params: CompletedTasksBetween
+		) => Effect.Effect<Task[], DbError>
+		readonly listMatching: (
+			params: MatchingTasks
 		) => Effect.Effect<Task[], DbError>
 		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
 		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
@@ -176,6 +181,16 @@ export const TaskRepositoryLive = Layer.effect(
 							and(gte(task.completedAt, from), lt(task.completedAt, to)),
 							// Keep in sync with compareCompleted in task-completion.helper.ts.
 							[desc(task.completedAt), desc(task.createdAt)]
+						)
+				),
+			listMatching: ({ ownerId, query, limit }) =>
+				db.run(
+					'TaskRepository.listMatching',
+					async database =>
+						await ownedTasks(database, ownerId).list(
+							matchesEveryWord(query),
+							SEARCH_ORDER,
+							limit
 						)
 				),
 			find: ({ ownerId, id }) =>

@@ -18,6 +18,7 @@ export async function refreshTaskAndLabelLists(queryClient: QueryClient) {
 		queryClient.invalidateQueries({
 			queryKey: orpcQuery.tasks.listCompleted.key(),
 		}),
+		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.search.key() }),
 		queryClient.invalidateQueries({ queryKey: orpcQuery.labels.list.key() }),
 	])
 }
@@ -68,6 +69,9 @@ export async function paintLabel(
 					scheduled: paintTasks(list.scheduled),
 				}
 		)
+	void queryClient.invalidateQueries({
+		queryKey: orpcQuery.tasks.search.key(),
+	})
 
 	return previousColor
 }

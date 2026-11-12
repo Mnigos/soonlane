@@ -3,7 +3,13 @@ import { useHostApp } from '@soonlane/app/hooks/use-host-app'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Sidebar } from '@soonlane/ui/components/sidebar'
-import { CalendarDays, CalendarFold, PanelLeftClose, Plus } from 'lucide-react'
+import {
+	CalendarDays,
+	CalendarFold,
+	PanelLeftClose,
+	Plus,
+	Search,
+} from 'lucide-react'
 import { SidebarLabels } from '@/modules/labels/presentation/components/sidebar-labels'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { SidebarNavLink } from './sidebar-nav-link'
@@ -73,6 +79,13 @@ export function ShellSidebar({
 					label="Today"
 					onNavigate={onNavigate}
 					to={APP_PATHS.today}
+				/>
+
+				<SidebarNavLink
+					icon={Search}
+					label="Search"
+					onNavigate={onNavigate}
+					to={APP_PATHS.search}
 				/>
 			</nav>
 

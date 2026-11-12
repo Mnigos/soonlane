@@ -10,6 +10,7 @@ import {
 	GOAL_UNIT_MAX_LENGTH,
 	TASK_DESCRIPTION_MAX_LENGTH,
 	TASK_PRIORITIES,
+	TASK_SEARCH_QUERY_MAX_LENGTH,
 	TASK_TITLE_MAX_LENGTH,
 	storedCalendarDateSchema,
 	taskIdSchema,
@@ -99,6 +100,17 @@ export const listCompletedTasksOutputSchema = z.object({
 export type ListCompletedTasksOutput = z.infer<
 	typeof listCompletedTasksOutputSchema
 >
+
+export const searchTasksInputSchema = z.object({
+	query: z.string().trim().min(1).max(TASK_SEARCH_QUERY_MAX_LENGTH),
+})
+export type SearchTasksInput = z.infer<typeof searchTasksInputSchema>
+
+export const searchTasksOutputSchema = z.object({
+	tasks: z.array(taskSchema),
+	hasMore: z.boolean(),
+})
+export type SearchTasksOutput = z.infer<typeof searchTasksOutputSchema>
 
 export const repeatInputSchema = repeatSchema.refine(
 	({ unit, interval }) =>
@@ -266,4 +278,8 @@ export const tasksContract = {
 		.errors(authErrors)
 		.input(listCompletedTasksInputSchema)
 		.output(listCompletedTasksOutputSchema),
+	search: query
+		.errors(authErrors)
+		.input(searchTasksInputSchema)
+		.output(searchTasksOutputSchema),
 }
