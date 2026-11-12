@@ -1,8 +1,8 @@
 import type { ListTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	announceCompletion,
 	getUndoCallbacks,
@@ -16,6 +16,7 @@ import {
 
 export function useLogProgress(today: CalendarDate) {
 	const queryClient = useQueryClient()
+	const { showToast } = getHostPorts()
 	const listKey = orpcQuery.tasks.list.key()
 	const mutationKey = orpcQuery.tasks.logProgress.mutationKey()
 	const undoCallbacks = getUndoCallbacks(queryClient, today)
@@ -51,8 +52,7 @@ export function useLogProgress(today: CalendarDate) {
 				)
 			},
 			// No snapshot to restore: it would drop newer logs; the refetch below brings the server's progress.
-			onError: error =>
-				toastFailure(error, 'Could not log progress. Try again.'),
+			onError: () => showToast('Could not log progress. Try again.'),
 			onSuccess: ({ task, logged, completed }) => {
 				if (!completed) return
 

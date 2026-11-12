@@ -3,7 +3,6 @@ import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	addToCompleted,
 	announceCompletion,
@@ -22,7 +21,7 @@ const seenProgress = new Map<string, number | undefined>()
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const { capture } = getHostPorts()
+	const { capture, showToast } = getHostPorts()
 
 	async function refreshLists() {
 		await refreshTaskLists(queryClient)
@@ -48,11 +47,11 @@ export function useCompleteTask(today: CalendarDate) {
 
 				return { removed }
 			},
-			onError: (error, { id }, context) => {
+			onError: (_error, { id }, context) => {
 				removeFromCompleted(queryClient, id)
 				restoreCachedTask(queryClient, context?.removed)
 				capture('task_completion_failed', { taskId: id, action: 'complete' })
-				toastFailure(error, 'Could not complete the task. Try again.')
+				showToast('Could not complete the task. Try again.')
 			},
 			onSuccess: ({ task }, input) => {
 				const { dueDate: seenDueDate } = completeTaskInputSchema.parse(input)

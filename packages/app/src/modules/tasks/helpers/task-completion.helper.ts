@@ -8,7 +8,6 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from './task-event.helper'
 import { refreshTaskLists } from './task-list.helper'
 
@@ -101,7 +100,7 @@ export function getUndoCallbacks(
 	today: CalendarDate,
 	uncompletedVia: ClientEvents['task_uncompleted']['completedVia'] = 'undo'
 ) {
-	const { capture } = getHostPorts()
+	const { capture, showToast } = getHostPorts()
 
 	return {
 		onMutate: async ({ id }: TaskVariables) => {
@@ -112,13 +111,13 @@ export function getUndoCallbacks(
 			return { reopened: removeFromCompleted(queryClient, id) }
 		},
 		onError: (
-			error: unknown,
+			_error: unknown,
 			{ id }: TaskVariables,
 			context?: ReopenContext
 		) => {
 			if (context?.reopened) addToCompleted(queryClient, context.reopened)
 			capture('task_completion_failed', { taskId: id, action: 'uncomplete' })
-			toastFailure(error, 'Could not restore the task. Try again.')
+			showToast('Could not restore the task. Try again.')
 		},
 		onSuccess: ({ task }: TaskResult) => {
 			const properties = getTaskEventProperties(task, today)

@@ -1,4 +1,3 @@
-import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { useRouter } from '@tanstack/react-router'
@@ -64,7 +63,7 @@ export function DeleteAccountDialog({
 
 				{error && (
 					<p className="text-sm font-medium text-danger" role="alert">
-						{describeFailure(error.cause, DELETE_ACCOUNT_FAILED)}
+						{DELETE_ACCOUNT_FAILED}
 					</p>
 				)}
 

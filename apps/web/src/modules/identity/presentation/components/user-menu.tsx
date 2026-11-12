@@ -1,7 +1,6 @@
 import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
 import { CONSENT_COPY } from '@soonlane/analytics/consent-copy'
 import { CalendarSubscriptionDialog } from '@soonlane/app/calendar/components/calendar-subscription-dialog'
-import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -135,7 +134,7 @@ export function UserMenu({
 
 					{error && (
 						<p className="px-2 text-caption text-danger" role="alert">
-							{describeFailure(error.cause, SIGN_OUT_FAILED)}
+							{SIGN_OUT_FAILED}
 						</p>
 					)}
 				</div>

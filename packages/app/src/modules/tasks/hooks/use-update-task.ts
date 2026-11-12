@@ -12,7 +12,6 @@ import {
 } from '@tanstack/react-query'
 import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	announceCompletion,
 	getUndoCallbacks,
@@ -45,7 +44,7 @@ function getEditedGoal(
  */
 export function useUpdateTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const { dismissToast } = getHostPorts()
+	const { dismissToast, showToast } = getHostPorts()
 	const listKey = orpcQuery.tasks.list.key()
 	const uncomplete = useMutation(
 		orpcQuery.tasks.uncomplete.mutationOptions(
@@ -117,7 +116,7 @@ export function useUpdateTask(today: CalendarDate) {
 				return { previous }
 			},
 			// Restores only this task, so concurrent changes to the lists survive.
-			onError: (error, { id }, context) => {
+			onError: (_error, { id }, context) => {
 				notifyManager.batch(() => {
 					for (const { key, placement } of context?.previous ?? [])
 						queryClient.setQueryData<ListTasksOutput>(
@@ -125,7 +124,7 @@ export function useUpdateTask(today: CalendarDate) {
 							list => list && withMovedTask(list, id, placement)
 						)
 				})
-				toastFailure(error, 'Could not save the task. Try again.')
+				showToast('Could not save the task. Try again.')
 			},
 			onSuccess: ({ task, completed }) => {
 				if (!completed) return

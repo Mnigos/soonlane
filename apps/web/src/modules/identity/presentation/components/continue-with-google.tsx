@@ -1,4 +1,3 @@
-import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import { DESKTOP_SIGN_IN_PATH, FRESH_SIGN_IN_PARAM } from '@soonlane/auth'
 import {
 	type GoogleSignInRedirects,
@@ -75,7 +74,7 @@ export function ContinueWithGoogle({
 
 			{error && (
 				<p className="text-sm font-medium text-danger" role="alert">
-					{describeFailure(error.cause, SIGN_IN_FAILED)}
+					{SIGN_IN_FAILED}
 				</p>
 			)}
 		</div>

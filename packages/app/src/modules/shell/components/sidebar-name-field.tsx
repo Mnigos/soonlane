@@ -3,7 +3,6 @@ import { cn } from '@soonlane/ui/cn'
 import type { UseMutationResult } from '@tanstack/react-query'
 import type { LucideIcon } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
-import { describeFailure } from '../helpers/maintenance.helper'
 
 /** What a sidebar list's name field shows besides the name: its icon, the name limit and the fallback error. */
 export interface SidebarNameFieldOptions {
@@ -90,9 +89,7 @@ export function SidebarNameField({
 
 			{mutation.error && (
 				<p className="px-2 text-caption text-danger" role="alert">
-					{isDefinedError(mutation.error)
-						? mutation.error.message
-						: describeFailure(mutation.error, saveError)}
+					{isDefinedError(mutation.error) ? mutation.error.message : saveError}
 				</p>
 			)}
 		</form>

@@ -4,7 +4,6 @@ import { cn } from '@soonlane/ui/cn'
 import { Plus, Tag } from 'lucide-react'
 import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
 import type { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
-import { describeFailure } from '../../../shell/helpers/maintenance.helper'
 import {
 	CHIP_ICON_STROKE,
 	PICKER_NOTE_CLASS,
@@ -70,10 +69,7 @@ export function LabelListNotes({
 					{isDefinedError(createLabel.error) &&
 					createLabel.error.code === 'CONFLICT'
 						? createLabel.error.message
-						: describeFailure(
-								createLabel.error,
-								'Could not create the label. Try again.'
-							)}
+						: 'Could not create the label. Try again.'}
 				</p>
 			)}
 		</>

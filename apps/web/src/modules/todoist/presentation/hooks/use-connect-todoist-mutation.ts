@@ -4,7 +4,7 @@ import { linkTodoist } from '@soonlane/auth/client'
 import { useMutation } from '@tanstack/react-query'
 import { TODOIST_COPY } from '../helpers/todoist-copy.constants'
 
-/** Closes any earlier connection first, so its tokens are revoked and the 15 minutes count from this link; a connection that cannot be closed stops the link. The thrown error's message is the copy to show, its cause the refusal. */
+/** Closes any earlier connection first, so its tokens are revoked and the 15 minutes count from this link; a connection that cannot be closed stops the link. The thrown error's message is the copy to show. */
 async function connectTodoist() {
 	try {
 		await orpcQuery.todoist.cancel.call()
