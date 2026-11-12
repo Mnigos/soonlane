@@ -40,7 +40,8 @@ function isValidName(file: FilePath) {
 
 /**
  * Requires every source file to be named `<kebab-name>.<role>.ts` with a role
- * from the closed AGENTS.md naming table. Components, hooks, routes,
+ * from the closed AGENTS.md naming table, or `<kebab-name>.<role>.<role>.ts`
+ * for a file that belongs to another (`task.repository.types.ts`). Components, hooks, routes,
  * package barrels, generated files and scripts keep their own names.
  */
 export const fileRoleSuffixRule = defineRule({
@@ -51,7 +52,7 @@ export const fileRoleSuffixRule = defineRule({
 				'Source files carry a role suffix from the closed AGENTS.md naming table.',
 		},
 		messages: {
-			missingRoleSuffix: `Name the file <kebab-name>.<role>.ts with a role from ${ROLE_SUFFIXES.join(', ')} (AGENTS.md naming table). Components stay bare kebab-case or end in .skeleton.tsx; hooks are use-*.ts.`,
+			missingRoleSuffix: `Name the file <kebab-name>.<role>.ts (or <kebab-name>.<role>.<role>.ts) with roles from ${ROLE_SUFFIXES.join(', ')} (AGENTS.md naming table). Components stay bare kebab-case or end in .skeleton.tsx; hooks are use-*.ts.`,
 		},
 	},
 	create(context) {

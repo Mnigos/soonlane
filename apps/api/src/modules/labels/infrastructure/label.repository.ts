@@ -1,13 +1,47 @@
+import type {
+	CreateLabelInput,
+	Label,
+	ListedLabel,
+	UpdateLabelInput,
+} from '@soonlane/contracts'
 import { label, task, taskLabel } from '@soonlane/db'
+import type { LabelId, UserId } from '@soonlane/domain'
 import { and, count, eq, isNull } from 'drizzle-orm'
-import { Effect, Layer } from 'effect'
+import { Context, Effect, Layer } from 'effect'
 import { ownedBy } from '@/modules/tasks/infrastructure/owned-tasks.query'
+import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
-import { LabelRepository } from '../application/label-repository.port'
 import { labelOrder } from './label-order.query'
 import { toLabel } from './label.mapper'
 
-export const DrizzleLabelRepositoryLive = Layer.effect(
+export interface OwnedLabel {
+	ownerId: UserId
+	id: LabelId
+}
+
+export interface NewLabel extends CreateLabelInput {
+	ownerId: UserId
+}
+
+export type LabelChanges = Omit<UpdateLabelInput, 'id'>
+
+export interface LabelChange extends OwnedLabel, LabelChanges {}
+
+export class LabelRepository extends Context.Service<
+	LabelRepository,
+	{
+		readonly list: (ownerId: UserId) => Effect.Effect<ListedLabel[], DbError>
+		readonly create: (label: NewLabel) => Effect.Effect<Label, DbError>
+		readonly update: (
+			change: LabelChange
+		) => Effect.Effect<Label | undefined, DbError>
+		readonly delete: (
+			label: OwnedLabel
+		) => Effect.Effect<Label | undefined, DbError>
+	}
+>()('soonlane/LabelRepository') {}
+
+export const LabelRepositoryLive = Layer.effect(
 	LabelRepository,
 	Effect.gen(function* () {
 		const db = yield* Db

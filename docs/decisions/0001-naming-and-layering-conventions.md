@@ -26,6 +26,10 @@ Soonlist starts from the conventions of `vinyl-wishlist`, where modules grew wit
 
 The lint rules moved to `tooling/oxlint-plugin/rules`, so renaming a role or folder now means updating the rules there.
 
+## Update 2026-11-12 (ADR 0014)
+
+Repositories no longer have ports: the tag and its layer live together in `infrastructure/<entity>.repository.ts`. A file name may carry two roles (`task.repository.types.ts`). See [ADR 0014](0014-repositories-without-ports.md).
+
 ## Related
 
 - `AGENTS.md`: File Naming, Effect Layering and Server Boundary
