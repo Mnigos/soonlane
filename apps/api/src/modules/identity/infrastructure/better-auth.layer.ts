@@ -1,6 +1,6 @@
 import { hasAnalyticsConsent } from '@soonlane/analytics'
 import { type AuthLogLevel, createAuth } from '@soonlane/auth/server'
-import { userIdSchema } from '@soonlane/contracts'
+import { userIdSchema } from '@soonlane/domain'
 import { Effect, Layer, Redacted } from 'effect'
 import {
 	Analytics,

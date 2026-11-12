@@ -35,8 +35,8 @@ Use [CONTEXT-FORMAT.md](./CONTEXT-FORMAT.md) for context docs, [ADR-FORMAT.md](.
 
 ## Soonlane Boundaries
 
-- `packages/domain`: brands (`CalendarDate`, `UserId`) and constants shared by every workspace. No Effect, framework, ORM or RPC.
-- `packages/contracts`: the oRPC contract and Zod schemas; the only API boundary between server, browser and the future desktop app.
+- `packages/domain`: brands (`CalendarDate`, `UserId`), each a Zod schema with its inferred type, and constants shared by every workspace. No Effect, framework, ORM or RPC.
+- `packages/contracts`: the oRPC contract and Zod schemas, composed from the domain's brand schemas; the only API boundary between server, browser and the future desktop app.
 - `packages/ui`: reusable, app-agnostic React primitives. No router, no data fetching, no domain types.
 - `apps/web/src/modules/<module>/domain`: pure types, tagged errors (`*.errors.ts` with a `code` field) and helpers. No Effect services, framework, ORM or RPC imports.
 - `application/`: ports (`*.port.ts`, a `Context.Service` without implementation) and services (`*.service.ts`, a `Context.Service` plus its `*Live` layer, methods via `Effect.fn('Service.method')`). Services orchestrate ports; they never touch Drizzle or HTTP directly.

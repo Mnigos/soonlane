@@ -32,9 +32,9 @@ function findBrand(type: ESTree.TSType): string | undefined {
 
 /**
  * Forbids type assertions (`value as` or `<TaskId>value`) to the id and
- * calendar date brands, also inside a Zod `.transform()`. Contract schemas
- * brand with Zod's `.brand()` and Drizzle brands rows, so code receives
- * branded values; the one cast is the private `fromUtcDate` in
+ * calendar date brands, also inside a Zod `.transform()`. The brand schemas in
+ * `packages/domain` brand with Zod's `.brand()` and Drizzle brands rows, so
+ * code receives branded values; the one cast is the private `fromUtcDate` in
  * `packages/domain/src/dates/calendar-date.helper.ts`, the file
  * `oxlint.conventions.mts` exempts.
  */
@@ -43,11 +43,11 @@ export const noBrandCastRule = defineRule({
 		type: 'problem',
 		docs: {
 			description:
-				'Branded ids and calendar dates come from the contract schemas, not from casts in app code.',
+				'Branded ids and calendar dates come from the domain brand schemas, not from casts in app code.',
 		},
 		messages: {
 			brandCast:
-				'Do not cast to {{ name }}; parse the value with its contract schema or take it from the Drizzle row (AGENTS.md).',
+				'Do not cast to {{ name }}; parse the value with its schema from @soonlane/domain or take it from the Drizzle row (AGENTS.md).',
 		},
 	},
 	create(context) {

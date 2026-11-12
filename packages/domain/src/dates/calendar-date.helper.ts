@@ -1,4 +1,4 @@
-import type { CalendarDate } from './calendar-date.types'
+import type { CalendarDate } from './calendar-date.schema'
 import {
 	DATE_LOCALE,
 	DAYS_PER_WEEK,

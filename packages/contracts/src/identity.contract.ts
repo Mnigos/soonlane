@@ -1,6 +1,6 @@
 import { oc } from '@orpc/contract'
+import { userIdSchema } from '@soonlane/domain'
 import { z } from 'zod'
-import { userIdSchema } from './ids.schemas'
 
 export const sessionUserSchema = z.object({
 	id: userIdSchema,

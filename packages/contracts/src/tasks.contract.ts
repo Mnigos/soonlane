@@ -1,5 +1,7 @@
 import { type ErrorMap, oc } from '@orpc/contract'
 import {
+	calendarDateSchema,
+	labelIdSchema,
 	REPEAT_INTERVAL_MAX,
 	REPEAT_UNITS,
 	SINGLE_INTERVAL_REPEAT_UNITS,
@@ -8,14 +10,11 @@ import {
 	TASK_DESCRIPTION_MAX_LENGTH,
 	TASK_PRIORITIES,
 	TASK_TITLE_MAX_LENGTH,
+	storedCalendarDateSchema,
+	taskIdSchema,
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import {
-	calendarDateSchema,
-	storedCalendarDateSchema,
-} from './calendar-date.schemas'
-import { labelIdSchema, taskIdSchema } from './ids.schemas'
 import { labelNotFound, labelSchema } from './labels.contract'
 
 const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)

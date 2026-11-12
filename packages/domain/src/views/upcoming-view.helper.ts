@@ -7,7 +7,7 @@ import {
 	getWeekStart,
 	isBefore,
 } from '../dates/calendar-date.helper'
-import type { CalendarDate } from '../dates/calendar-date.types'
+import type { CalendarDate } from '../dates/calendar-date.schema'
 import {
 	DAYS_PER_WEEK,
 	UPCOMING_WEEK_COUNT,

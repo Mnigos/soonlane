@@ -1,4 +1,4 @@
-import { storedCalendarDateSchema } from '@soonlane/contracts'
+import { storedCalendarDateSchema } from '@soonlane/domain'
 import type {
 	Release,
 	ReleaseGroup,

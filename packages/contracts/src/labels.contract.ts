@@ -1,8 +1,11 @@
 import { oc } from '@orpc/contract'
-import { LABEL_COLORS, LABEL_NAME_MAX_LENGTH } from '@soonlane/domain'
+import {
+	LABEL_COLORS,
+	LABEL_NAME_MAX_LENGTH,
+	labelIdSchema,
+} from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import { labelIdSchema } from './ids.schemas'
 
 const labelNameSchema = z.string().trim().min(1).max(LABEL_NAME_MAX_LENGTH)
 const labelColorSchema = z.enum(LABEL_COLORS)
