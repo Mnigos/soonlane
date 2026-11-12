@@ -23,6 +23,10 @@ export const routes = rootRoute('routes/__root.tsx', [
 				'modules/projects/presentation/routes/project.route.tsx'
 			),
 			route(
+				'/completed',
+				'modules/tasks/presentation/routes/completed.route.tsx'
+			),
+			route(
 				'/labels/$name',
 				'modules/labels/presentation/routes/label.route.tsx'
 			),

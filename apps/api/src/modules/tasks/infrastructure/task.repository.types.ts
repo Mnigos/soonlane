@@ -26,6 +26,11 @@ export interface CompletedTasksBetween {
 	to: Date
 }
 
+export interface CompletedTasksBefore {
+	ownerId: UserId
+	before: Date
+}
+
 export interface MatchingTasks {
 	ownerId: UserId
 	query: string

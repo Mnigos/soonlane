@@ -2,6 +2,7 @@ import type {
 	CreateTaskInput,
 	EditTaskInput,
 	ListCompletedTasksInput,
+	ListCompletedTasksOutput,
 	ListTasksInput,
 	ListTasksOutput,
 	RescheduleTasksInput,
@@ -49,7 +50,7 @@ export class TasksService extends Context.Service<
 		readonly listCompleted: (
 			ownerId: UserId,
 			input: ListCompletedTasksInput
-		) => Effect.Effect<Task[], DbError>
+		) => Effect.Effect<ListCompletedTasksOutput, DbError>
 		readonly search: (
 			ownerId: UserId,
 			input: SearchTasksInput
@@ -150,7 +151,16 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			{ from, to }: ListCompletedTasksInput
 		) {
-			return yield* repository.listCompletedBetween({ ownerId, from, to })
+			return yield* Effect.all(
+				{
+					tasks: repository.listCompletedBetween({ ownerId, from, to }),
+					earlierCompletedAt: repository.findLatestCompletedAt({
+						ownerId,
+						before: from,
+					}),
+				},
+				{ concurrency: 'unbounded' }
+			)
 		})
 
 		const search = Effect.fn('TasksService.search')(function* (

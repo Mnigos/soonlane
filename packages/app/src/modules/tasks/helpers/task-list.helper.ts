@@ -27,13 +27,18 @@ interface CachedPlacement {
 	placement: TaskPlacement
 }
 
-/** Scheduled tasks grouped by due date; the server already orders them within a day. */
-export function groupTasksByDay(tasks: Task[]) {
+/** Tasks grouped by due date, or by the day `getDay` gives, leaving out tasks without one; the server already orders them within a day. */
+export function groupTasksByDay(
+	tasks: Task[],
+	getDay: (task: Task) => CalendarDate | undefined = task => task.dueDate
+) {
 	const days = new Map<CalendarDate, Task[]>()
 
-	for (const task of tasks)
-		if (task.dueDate)
-			days.set(task.dueDate, [...(days.get(task.dueDate) ?? []), task])
+	for (const task of tasks) {
+		const day = getDay(task)
+
+		if (day) days.set(day, [...(days.get(day) ?? []), task])
+	}
 
 	return days
 }

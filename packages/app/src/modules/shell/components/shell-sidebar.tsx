@@ -4,6 +4,7 @@ import { Sidebar, sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import {
 	CalendarDays,
 	CalendarFold,
+	CircleCheckBig,
 	Inbox,
 	PanelLeftClose,
 	Plus,
@@ -102,6 +103,13 @@ export function ShellSidebar({
 					<Search aria-hidden />
 					Search
 				</button>
+
+				<SidebarNavLink
+					icon={CircleCheckBig}
+					label="Completed"
+					onNavigate={onNavigate}
+					to={APP_PATHS.completed}
+				/>
 			</nav>
 
 			<SidebarProjects

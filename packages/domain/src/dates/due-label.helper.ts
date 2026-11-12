@@ -5,7 +5,7 @@ import {
 	isBefore,
 } from './calendar-date.helper'
 import type { CalendarDate } from './calendar-date.schema'
-import { getRelativeDayName } from './day-label.helper'
+import { formatDueDate, getRelativeDayName } from './day-label.helper'
 
 /** Todoist's due colors: overdue red, today green, tomorrow orange, the next 2 to 7 days violet, later uncolored. */
 export type DueTone = 'overdue' | 'today' | 'tomorrow' | 'week' | 'later'
@@ -46,15 +46,6 @@ export function getDueLabel(
 	if (!dueTime) return undefined
 
 	return { text: dueTime, tone }
-}
-
-/** "14 Nov", with the year when it is not this year: "6 Jan 2027". */
-export function formatDueDate(dueDate: CalendarDate, today: CalendarDate) {
-	const year = dueDate.slice(0, 4)
-
-	return year === today.slice(0, 4)
-		? formatDayMonth(dueDate)
-		: `${formatDayMonth(dueDate)} ${year}`
 }
 
 function getDueDateName(dueDate: CalendarDate, today: CalendarDate) {

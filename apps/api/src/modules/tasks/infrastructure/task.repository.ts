@@ -35,6 +35,7 @@ import { matchesEveryWord, SEARCH_ORDER } from './task-search.query'
 import { updateTask } from './task-update.query'
 import { toRepeatColumns, toTask } from './task.mapper'
 import type {
+	CompletedTasksBefore,
 	CompletedTasksBetween,
 	DueDateAdvance,
 	MatchingTasks,
@@ -56,6 +57,9 @@ export class TaskRepository extends Context.Service<
 		readonly listCompletedBetween: (
 			params: CompletedTasksBetween
 		) => Effect.Effect<Task[], DbError>
+		readonly findLatestCompletedAt: (
+			params: CompletedTasksBefore
+		) => Effect.Effect<Date | undefined, DbError>
 		readonly listMatching: (
 			params: MatchingTasks
 		) => Effect.Effect<Task[], DbError>
@@ -146,6 +150,12 @@ export const TaskRepositoryLive = Layer.effect(
 							and(gte(task.completedAt, from), lt(task.completedAt, to)),
 							COMPLETED_ORDER
 						)
+				),
+			findLatestCompletedAt: ({ ownerId, before }) =>
+				db.run(
+					'TaskRepository.findLatestCompletedAt',
+					async database =>
+						await ownedTasks(database, ownerId).latestCompletedBefore(before)
 				),
 			listMatching: ({ ownerId, query, limit }) =>
 				db.run(
