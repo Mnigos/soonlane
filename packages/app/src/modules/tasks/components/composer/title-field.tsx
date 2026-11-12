@@ -24,7 +24,7 @@ import { CreateLabelOption, LabelListNotes, LabelOption } from './label-options'
 
 interface TitleFieldProps extends Pick<
 	ComponentProps<typeof HighlightedInput>,
-	'highlights' | 'dismissible' | 'onDismiss' | 'className'
+	'highlights' | 'dismissible' | 'className'
 > {
 	value: string
 	onChange: (title: string) => void

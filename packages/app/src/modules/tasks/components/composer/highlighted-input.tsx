@@ -12,19 +12,22 @@ interface TextRange {
 	end: number
 }
 
+interface DismissibleRange extends TextRange {
+	onDismiss: () => void
+}
+
 interface HighlightedInputProps extends ComponentProps<'input'> {
 	value: string
 	/** Non-overlapping character ranges of `value` to tint, e.g. the typed priority word. */
 	highlights: TextRange[]
-	/** One of `highlights` that Backspace right after it or a click on it turns off. */
-	dismissible?: TextRange
-	onDismiss?: () => void
+	/** Some of `highlights` that Backspace right after one or a click on it turns off. */
+	dismissible: DismissibleRange[]
 }
 
 function splitByRanges(
 	text: string,
 	ranges: TextRange[],
-	dismissible?: TextRange
+	dismissible: DismissibleRange[]
 ) {
 	const sorted = ranges.toSorted((a, b) => a.start - b.start)
 
@@ -33,7 +36,11 @@ function splitByRanges(
 			text.slice(sorted[index - 1]?.end ?? 0, range.start),
 			<span
 				className="-mx-0.5 rounded-sm bg-primary/40 px-0.5 py-0.5"
-				data-dismissible={range.start === dismissible?.start ? '' : undefined}
+				data-dismissible={
+					dismissible.some(({ start }) => start === range.start)
+						? range.start
+						: undefined
+				}
 				key={range.start}
 			>
 				{text.slice(range.start, range.end)}
@@ -52,7 +59,6 @@ export function HighlightedInput({
 	value,
 	highlights,
 	dismissible,
-	onDismiss,
 	className,
 	onSelect,
 	onKeyDown,
@@ -70,34 +76,39 @@ export function HighlightedInput({
 
 	function dismissOnBackspace(event: KeyboardEvent<HTMLInputElement>) {
 		const { selectionStart, selectionEnd } = event.currentTarget
-		const isDismissal =
+		const range =
 			event.key === 'Backspace' &&
 			!(event.altKey || event.ctrlKey || event.metaKey) &&
 			!event.nativeEvent.isComposing &&
-			selectionStart === selectionEnd &&
-			selectionEnd === dismissible?.end
-		if (!isDismissal) {
+			selectionStart === selectionEnd
+				? dismissible.find(({ end }) => end === selectionEnd)
+				: undefined
+		if (!range) {
 			onKeyDown?.(event)
 			return
 		}
 
 		event.preventDefault()
-		onDismiss?.()
+		range.onDismiss()
 	}
 
 	function dismissOnClick(event: MouseEvent<HTMLInputElement>) {
 		onClick?.(event)
-		const box = layerRef.current
-			?.querySelector('[data-dismissible]')
-			?.getBoundingClientRect()
 		const { selectionStart, selectionEnd } = event.currentTarget
-		if (
-			box &&
-			selectionStart === selectionEnd &&
-			event.clientX >= box.left &&
-			event.clientX <= box.right
-		)
-			onDismiss?.()
+		if (selectionStart !== selectionEnd) return
+
+		const clicked = [
+			...(layerRef.current?.querySelectorAll<HTMLElement>(
+				'[data-dismissible]'
+			) ?? []),
+		].find(element => {
+			const box = element.getBoundingClientRect()
+
+			return event.clientX >= box.left && event.clientX <= box.right
+		})
+		dismissible
+			.find(({ start }) => String(start) === clicked?.dataset.dismissible)
+			?.onDismiss()
 	}
 
 	return (

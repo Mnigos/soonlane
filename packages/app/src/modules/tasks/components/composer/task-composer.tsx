@@ -13,6 +13,7 @@ import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
 	getChangedGoal,
 	getChangedLabelIds,
+	isRepeatChanged,
 } from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useTypedTitle } from '../../hooks/use-typed-title'
@@ -78,26 +79,25 @@ export function TaskComposer({
 		title,
 		savedTitle,
 		priority,
+		repeat,
+		typedDueDate,
 		pickedLabels,
 		highlights,
-		dueDateWord,
+		dismissible,
 		changeTitle,
 		pickPriority,
 		pickDueDate,
-		dismissDueDateWord,
+		pickRepeat,
 		pickLabels,
 		reset,
 	} = useTypedTitle(task, today, defaultLabels)
 	const [description, setDescription] = useState(task?.description ?? '')
 	const [dueDate, setDueDate] = useState(defaultDueDate)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
-	const [repeat, setRepeat] = useState<RepeatInput | undefined>(
-		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
-	)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate = getEditedDueDate(
 		task,
-		dueDateWord?.date ?? dueDate,
+		typedDueDate ?? dueDate,
 		repeat?.unit
 	)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
@@ -139,8 +139,7 @@ export function TaskComposer({
 				(
 					['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
 				).some(field => edited[field] !== task[field]) ||
-				repeat?.unit !== task.repeat?.unit ||
-				repeat?.interval !== task.repeat?.interval
+				isRepeatChanged(task, repeat)
 
 			if (isChanged) updateTask(edited)
 			onSaved?.()
@@ -164,7 +163,6 @@ export function TaskComposer({
 					reset()
 					setDescription('')
 					setDueTime(undefined)
-					setRepeat(undefined)
 					setGoal(undefined)
 					titleRef.current?.focus()
 					onCreated?.()
@@ -201,10 +199,9 @@ export function TaskComposer({
 			<TitleField
 				autoFocus={autoFocus}
 				className={cn(FIELD_CLASS, 'text-base leading-6')}
-				dismissible={dueDateWord}
+				dismissible={dismissible}
 				highlights={highlights}
 				inputRef={titleRef}
-				onDismiss={dismissDueDateWord}
 				onChange={changeTitle}
 				onKeyDown={handleFieldKeys}
 				onSuggestionsToggle={onSuggestionsToggle}
@@ -240,7 +237,7 @@ export function TaskComposer({
 					onRepeatChange={rule => {
 						// Keeps the date on the chip, which the old rule may have moved off the picked day.
 						setDueDate(scheduledDate)
-						setRepeat(rule)
+						pickRepeat(rule)
 					}}
 					onTimeChange={setDueTime}
 					repeat={savedRule}
