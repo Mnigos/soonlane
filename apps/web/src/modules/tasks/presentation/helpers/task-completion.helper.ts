@@ -1,12 +1,12 @@
 import type { ClientEvents } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { ListCompletedTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTaskEventProperties } from './task-event.helper'
 
 /** Keep in sync with the order of listCompletedBetween in task.repository.ts. */

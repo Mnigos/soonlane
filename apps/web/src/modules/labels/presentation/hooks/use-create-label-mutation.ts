@@ -1,5 +1,5 @@
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 
 export function useCreateLabelMutation() {
 	const queryClient = useQueryClient()

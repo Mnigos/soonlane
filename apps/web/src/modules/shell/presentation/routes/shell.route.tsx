@@ -1,3 +1,4 @@
+import { HostAppContext } from '@soonlane/app/host-app'
 import {
 	createFileRoute,
 	Outlet,
@@ -8,6 +9,12 @@ import { createIsomorphicFn } from '@tanstack/react-start'
 import { getRequestHeader } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { LayoutError } from '@/components/route-error'
+import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
+import {
+	APP_COMMIT,
+	APP_VERSION,
+	RELEASE_NOTES_URL,
+} from '../build-info.constants'
 import { Shell } from '../components/shell'
 import { readSidebarPreference } from '../helpers/sidebar-preference.helper'
 
@@ -42,14 +49,29 @@ function ShellRoute() {
 	})
 
 	return (
-		<Shell
-			activeLabelName={labelMatch?.params.name}
-			initialSidebarPreference={sidebarPreference}
-			isDeletingAccount={deleteAccount === true}
-			reauthError={error}
-			user={user}
+		<HostAppContext
+			value={{
+				renderUserMenu: onShowShortcuts => (
+					<UserMenu
+						isDeletingAccount={deleteAccount === true}
+						onShowShortcuts={onShowShortcuts}
+						reauthError={error}
+						user={user}
+					/>
+				),
+				homePath: '/',
+				appVersion: APP_VERSION,
+				appCommit: APP_COMMIT,
+				releaseNotesUrl: RELEASE_NOTES_URL,
+			}}
 		>
-			<Outlet />
-		</Shell>
+			<Shell
+				activeLabelName={labelMatch?.params.name}
+				initialSidebarPreference={sidebarPreference}
+				user={user}
+			>
+				<Outlet />
+			</Shell>
+		</HostAppContext>
 	)
 }

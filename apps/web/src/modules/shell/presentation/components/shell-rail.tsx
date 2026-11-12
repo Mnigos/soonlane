@@ -1,3 +1,4 @@
+import { APP_PATHS } from '@soonlane/app/app-paths'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -73,9 +74,13 @@ export function ShellRail({
 			</button>
 
 			<nav aria-label="Views" className="flex flex-col gap-0.5">
-				<RailNavLink icon={CalendarDays} label="Upcoming" to="/app" />
+				<RailNavLink
+					icon={CalendarDays}
+					label="Upcoming"
+					to={APP_PATHS.upcoming}
+				/>
 
-				<RailNavLink icon={CalendarFold} label="Today" to="/app/today" />
+				<RailNavLink icon={CalendarFold} label="Today" to={APP_PATHS.today} />
 			</nav>
 
 			<button

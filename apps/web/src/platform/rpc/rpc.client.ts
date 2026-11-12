@@ -1,7 +1,4 @@
-import { createORPCClient } from '@orpc/client'
 import { RPCLink } from '@orpc/client/fetch'
-import type { RouterContractClient } from '@orpc/contract'
-import type { Contract } from '@soonlane/contracts'
 import { createIsomorphicFn } from '@tanstack/react-start'
 import { RPC_PREFIX } from './rpc-prefix.constants'
 import { fetchAsVisitor, getInternalApiOrigin } from './rpc.client.server'
@@ -20,6 +17,9 @@ const fetchApi = createIsomorphicFn()
 			await fetch(url, { ...init, credentials: 'include' })
 	)
 
-export const rpc: RouterContractClient<Contract> = createORPCClient(
-	new RPCLink({ url: RPC_PREFIX, origin: getApiOrigin, fetch: fetchApi })
-)
+/** Provided to `@soonlane/app` once; `createIsomorphicFn` looks up the SSR request per call, so visitors share no state. */
+export const rpcLink = new RPCLink({
+	url: RPC_PREFIX,
+	origin: getApiOrigin,
+	fetch: fetchApi,
+})

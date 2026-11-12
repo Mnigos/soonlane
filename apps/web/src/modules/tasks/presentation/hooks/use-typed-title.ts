@@ -1,3 +1,4 @@
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { Label, Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -11,7 +12,6 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { type SetStateAction, useState } from 'react'
 import { usePickedLabels } from '@/modules/labels/presentation/hooks/use-picked-labels'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 
 const NO_LABELS: Label[] = []
 

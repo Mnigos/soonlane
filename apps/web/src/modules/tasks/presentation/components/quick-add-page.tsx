@@ -1,3 +1,4 @@
+import { APP_PATHS } from '@soonlane/app/app-paths'
 import { useNavigate } from '@tanstack/react-router'
 import { sendToDesktopHost } from '@/modules/shell/presentation/helpers/desktop-host.helper'
 import { useDockBadgeQuery } from '../hooks/use-dock-badge-query'
@@ -17,7 +18,7 @@ export function QuickAddPage() {
 
 	function finish() {
 		if (!sendToDesktopHost({ type: 'quick-add-done' }))
-			void navigate({ to: '/app' })
+			void navigate({ to: APP_PATHS.upcoming })
 	}
 
 	return (

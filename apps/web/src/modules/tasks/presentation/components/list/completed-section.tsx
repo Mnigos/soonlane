@@ -1,3 +1,4 @@
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import {
@@ -6,7 +7,6 @@ import {
 	useQueryClient,
 } from '@tanstack/react-query'
 import { useState } from 'react'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getUndoCallbacks } from '../../helpers/task-completion.helper'
 import { CompletedTaskItem } from '../task/completed-task-item'
 import { SectionToggle } from './section-toggle'

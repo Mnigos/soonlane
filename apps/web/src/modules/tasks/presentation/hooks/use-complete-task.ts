@@ -1,10 +1,10 @@
 import { capture } from '@soonlane/analytics/client'
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	addToCompleted,
 	announceCompletion,

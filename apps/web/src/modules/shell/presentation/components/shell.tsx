@@ -22,8 +22,6 @@ import { ShellSidebar } from './shell-sidebar'
 interface ShellProps extends PropsWithChildren {
 	activeLabelName?: string
 	initialSidebarPreference: SidebarPreference
-	isDeletingAccount: boolean
-	reauthError?: string
 	user: SessionUser
 }
 
@@ -37,8 +35,6 @@ export function Shell({
 	activeLabelName,
 	children,
 	initialSidebarPreference,
-	isDeletingAccount,
-	reauthError,
 	user,
 }: Readonly<ShellProps>) {
 	const [preference, setPreference] = useState(initialSidebarPreference)
@@ -96,13 +92,10 @@ export function Shell({
 					isOverlayOpen ? 'flex' : 'hidden',
 					preference === 'full' ? 'xl:flex' : 'xl:hidden'
 				)}
-				isDeletingAccount={isDeletingAccount}
 				onAddTask={openAddTask}
 				onCollapse={() => toggleSidebar('collapsed')}
 				onNavigate={() => setIsOverlayOpen(false)}
 				onShowShortcuts={showShortcuts}
-				reauthError={reauthError}
-				user={user}
 			/>
 
 			<div className="relative flex h-12 items-center px-3 md:hidden desktop:pl-20">

@@ -1,3 +1,4 @@
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import {
 	type GoalInput,
 	type ListTasksOutput,
@@ -13,7 +14,6 @@ import {
 import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
 import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	announceCompletion,
 	getUndoCallbacks,

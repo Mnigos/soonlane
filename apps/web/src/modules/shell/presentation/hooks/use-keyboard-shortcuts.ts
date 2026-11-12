@@ -1,3 +1,4 @@
+import { APP_PATHS } from '@soonlane/app/app-paths'
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useRef, useSyncExternalStore } from 'react'
 import {
@@ -8,9 +9,11 @@ import { isShortcutKeydown } from '@/utils/keyboard-shortcut.util'
 
 /** How long after "g" its second key still counts. */
 const SEQUENCE_MS = 1000
-const SEQUENCE_VIEWS: Partial<Record<string, '/app' | '/app/today'>> = {
-	u: '/app',
-	t: '/app/today',
+const SEQUENCE_VIEWS: Partial<
+	Record<string, typeof APP_PATHS.upcoming | typeof APP_PATHS.today>
+> = {
+	u: APP_PATHS.upcoming,
+	t: APP_PATHS.today,
 }
 const ROW_STEPS: Partial<Record<string, 1 | -1>> = {
 	j: 1,

@@ -64,7 +64,6 @@ const SERVER_ONLY_SPECIFIERS = [
 const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/node_modules/**',
 	'**/platform/rpc/rpc.client.ts',
-	'**/platform/rpc/rpc-query.client.ts',
 	'**/platform/rpc/rpc-prefix.constants.ts',
 	'**/platform/rpc/rpc-serializer.constants.ts',
 ]
