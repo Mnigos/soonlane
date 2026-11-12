@@ -66,7 +66,6 @@ export default defineConfig({
 		'.agents/skills/impeccable/scripts/**',
 		'**/.nitro',
 		'**/.output',
-		'**/.vercel',
 		'**/routeTree.gen.ts',
 		'packages/db/migrations/**',
 	],

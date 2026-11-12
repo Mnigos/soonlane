@@ -30,7 +30,7 @@ function getHost(url: string | undefined) {
 }
 
 if (
-	process.env.VERCEL_ENV === 'production' ||
+	process.env.APP_ENV === 'production' ||
 	process.env.NODE_ENV === 'production'
 )
 	throw new Error('dev-session refuses to run in production')

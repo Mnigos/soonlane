@@ -2,7 +2,6 @@ node_modules/
 .turbo/
 .cache/
 .output/
-.vercel/
 .nitro/
 .tanstack/
 .content-collections/
@@ -15,3 +14,4 @@ coverage/
 .DS_Store
 apps/web/public/og/blog/
 apps/api/commit.env
+apps/web/commit.env

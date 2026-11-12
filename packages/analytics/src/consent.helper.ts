@@ -50,7 +50,7 @@ export function hasAnalyticsConsent(headers: Headers, cookiePrefix: string) {
 
 /**
  * The domain the answer is stored for on this host: `staging.soonlane.com` on staging hosts,
- * `soonlane.com` on production hosts, and none elsewhere (Vercel previews, localhost), where the
+ * `soonlane.com` on production hosts, and none elsewhere (Railway's generated hosts, localhost), where the
  * cookie stays host-only because the browser rejects a domain the host is not under.
  */
 export function getConsentCookieDomain(hostname: string) {

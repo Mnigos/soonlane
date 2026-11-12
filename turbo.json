@@ -9,10 +9,10 @@
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": [".output/**", ".vercel/output/**", "dist/**"],
+      "outputs": [".output/**", "dist/**"],
       "env": [
-        "VERCEL_GIT_COMMIT_SHA",
-        "VERCEL_ENV",
+        "RAILWAY_GIT_COMMIT_SHA",
+        "APP_ENV",
         "VITE_POSTHOG_KEY",
         "VITE_API_URL",
         "VITE_AUTH_COOKIE_PREFIX"
@@ -33,9 +33,6 @@
     "GOOGLE_CLIENT_SECRET",
     "API_INTERNAL_URL",
     "API_PROXY_SECRET",
-    "VERCEL_ENV",
-    "VERCEL_URL",
-    "VERCEL_BRANCH_URL",
     "NODE_ENV",
     "CI"
   ]

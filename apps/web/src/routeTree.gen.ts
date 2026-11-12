@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as modulesIdentityPresentationRoutesSessionDotrouteRouteImport } from './modules/identity/presentation/routes/session.route'
 import { Route as modulesSitePresentationRoutesSiteDotrouteRouteImport } from './modules/site/presentation/routes/site.route'
+import { Route as modulesHostingPresentationRoutesHealthDotrouteRouteImport } from './modules/hosting/presentation/routes/health.route'
 import { Route as modulesSitePresentationRoutesRobotsDotrouteRouteImport } from './modules/site/presentation/routes/robots.route'
 import { Route as modulesSitePresentationRoutesSitemapDotrouteRouteImport } from './modules/site/presentation/routes/sitemap.route'
 import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport } from './modules/shell/presentation/routes/legacy-today.route'
@@ -39,6 +40,12 @@ const modulesIdentityPresentationRoutesSessionDotrouteRoute =
 const modulesSitePresentationRoutesSiteDotrouteRoute =
   modulesSitePresentationRoutesSiteDotrouteRouteImport.update({
     id: '/_site',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesHostingPresentationRoutesHealthDotrouteRoute =
+  modulesHostingPresentationRoutesHealthDotrouteRouteImport.update({
+    id: '/health',
+    path: '/health',
     getParentRoute: () => rootRouteImport,
   } as any)
 const modulesSitePresentationRoutesRobotsDotrouteRoute =
@@ -158,6 +165,7 @@ const modulesLabelsPresentationRoutesLabelDotrouteRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/health': typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
@@ -179,6 +187,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/health': typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
@@ -201,6 +210,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_session': typeof modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren
   '/_site': typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
+  '/health': typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/health'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/today'
@@ -246,6 +257,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/health'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/today'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_session'
     | '/_site'
+    | '/health'
     | '/robots.txt'
     | '/sitemap.xml'
     | '/today'
@@ -291,6 +304,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   modulesIdentityPresentationRoutesSessionDotrouteRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren
   modulesSitePresentationRoutesSiteDotrouteRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
+  modulesHostingPresentationRoutesHealthDotrouteRoute: typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
@@ -312,6 +326,13 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/health': {
+      id: '/health'
+      path: '/health'
+      fullPath: '/health'
+      preLoaderRoute: typeof modulesHostingPresentationRoutesHealthDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/robots.txt': {
@@ -533,6 +554,8 @@ const rootRouteChildren: RootRouteChildren = {
     modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren,
   modulesSitePresentationRoutesSiteDotrouteRoute:
     modulesSitePresentationRoutesSiteDotrouteRouteWithChildren,
+  modulesHostingPresentationRoutesHealthDotrouteRoute:
+    modulesHostingPresentationRoutesHealthDotrouteRoute,
   modulesSitePresentationRoutesRobotsDotrouteRoute:
     modulesSitePresentationRoutesRobotsDotrouteRoute,
   modulesSitePresentationRoutesSitemapDotrouteRoute:
@@ -549,10 +572,11 @@ export const routeTree = rootRouteImport
   ._addFileTypes<FileRouteTypes>()
 
 import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
+import type { startInstance } from './start.ts'
 declare module '@tanstack/react-start' {
   interface Register {
     ssr: true
     router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
   }
 }

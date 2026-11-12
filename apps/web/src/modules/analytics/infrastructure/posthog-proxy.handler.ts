@@ -1,15 +1,12 @@
+import { resolveEdgeIp } from '@soonlane/auth/client-ip'
+
 const PROXY_PREFIX = '/ingest'
 const API_HOST = 'https://eu.i.posthog.com'
 const ASSETS_HOST = 'https://eu-assets.i.posthog.com'
 const ASSET_PATH = /^\/(?:static|array)\//u
 const UPSTREAM_TIMEOUT_MS = 10_000
 /** No cookies or Authorization: the app's session must never reach PostHog. */
-const REQUEST_HEADERS = [
-	'content-type',
-	'content-encoding',
-	'user-agent',
-	'x-forwarded-for',
-]
+const REQUEST_HEADERS = ['content-type', 'content-encoding', 'user-agent']
 /** Without content-encoding and content-length: fetch has already decompressed the body. */
 const RESPONSE_HEADERS = ['content-type', 'cache-control']
 
@@ -30,11 +27,16 @@ export async function proxyToPostHog(request: Request) {
 	const host = ASSET_PATH.test(path) ? ASSETS_HOST : API_HOST
 	const body =
 		request.method === 'POST' ? await request.arrayBuffer() : undefined
+	const headers = pickHeaders(request.headers, REQUEST_HEADERS)
+	const visitorIp = resolveEdgeIp(request.headers)
+
+	// PostHog places the event by the first address it is given; a browser's own X-Forwarded-For could name any.
+	if (visitorIp) headers.set('x-forwarded-for', visitorIp)
 
 	try {
 		const upstream = await fetch(`${host}${path}${search}`, {
 			method: request.method,
-			headers: pickHeaders(request.headers, REQUEST_HEADERS),
+			headers,
 			body,
 			redirect: 'manual',
 			signal: AbortSignal.timeout(UPSTREAM_TIMEOUT_MS),

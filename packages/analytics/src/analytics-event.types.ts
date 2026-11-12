@@ -77,4 +77,4 @@ export interface SuperProperties {
 	route?: string
 }
 
-export type AppEnvironment = 'production' | 'preview' | 'development'
+export type AppEnvironment = 'production' | 'staging' | 'development'

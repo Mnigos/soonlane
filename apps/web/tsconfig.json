@@ -14,5 +14,5 @@
     "*.ts",
     ".content-collections/generated/**/*"
   ],
-  "exclude": ["node_modules", ".output", ".nitro", ".vercel"]
+  "exclude": ["node_modules", ".output", ".nitro"]
 }

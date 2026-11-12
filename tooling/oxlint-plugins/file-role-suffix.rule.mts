@@ -16,6 +16,7 @@ const IGNORED_SEGMENTS = ['routes', 'scripts'] as const
 const FRAMEWORK_ENTRIES = [
 	'/src/router.tsx',
 	'/src/routes.ts',
+	'/src/start.ts',
 	'apps/api/src/main.ts',
 	'apps/desktop/src/main.ts',
 ] as const
