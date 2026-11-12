@@ -1,6 +1,7 @@
 import type {
 	GoalInput,
 	Label,
+	ListTasksInput,
 	ListTasksOutput,
 	Task,
 	UpdateTaskInput,
@@ -80,13 +81,18 @@ export function failDeletedProject(error: DbError) {
 	)
 }
 
-/** A view's open tasks: those without a due date, then the rest split at the client's today. */
+/** A view's open tasks: those without a due date (only those without a project, the Inbox, for an unfiltered view), then the rest split at the client's today. */
 export function splitAtToday(
 	tasks: Task[],
-	today: CalendarDate
+	{ today, labelId, projectId }: ListTasksInput
 ): ListTasksOutput {
+	const isFiltered = labelId !== undefined || projectId !== undefined
+
 	return {
-		undated: tasks.filter(({ dueDate }) => dueDate === undefined),
+		undated: tasks.filter(
+			({ dueDate, project }) =>
+				dueDate === undefined && (isFiltered || project === undefined)
+		),
 		overdue: tasks.filter(
 			({ dueDate }) => dueDate !== undefined && dueDate < today
 		),

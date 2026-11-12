@@ -17,9 +17,9 @@ import { flushSync } from 'react-dom'
 import { useActiveDay } from '../../hooks/use-active-day'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
-import { NoDateSection } from '../list/no-date-section'
 import { OverdueSection } from '../list/overdue-section'
 import { TaskListError } from '../list/task-list-error'
+import { UndatedSection } from '../list/undated-section'
 import { OpenEditorProvider } from '../open-editor-provider'
 import { UpcomingRange } from './upcoming-range'
 import { WeekControls } from './week-controls'
@@ -108,7 +108,8 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 
 				{isError && <TaskListError onRetry={() => void refetch()} />}
 
-				<NoDateSection
+				<UndatedSection
+					heading="Inbox"
 					onComplete={completeTask}
 					tasks={data?.undated ?? []}
 					today={today}

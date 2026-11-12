@@ -1,6 +1,6 @@
 import { type CalendarDate, getDueChipLabel } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { CalendarDays, CalendarFold, Search } from 'lucide-react'
+import { CalendarDays, CalendarFold, Inbox, Search } from 'lucide-react'
 import { LabelOption } from '../../tasks/components/composer/label-options'
 import { TaskMeta } from '../../tasks/components/task/task-meta'
 import { PRIORITY_CIRCLE_CLASSES } from '../../tasks/helpers/task-priority.constants'
@@ -12,7 +12,7 @@ interface SearchPaletteOptionProps {
 	today: CalendarDate
 }
 
-const VIEW_ICONS = { upcoming: CalendarDays, today: CalendarFold }
+const VIEW_ICONS = { inbox: Inbox, upcoming: CalendarDays, today: CalendarFold }
 
 /** A palette row's content: a view with its keys, a label, a task with its due date and labels, or "Show all results". */
 export function SearchPaletteOption({

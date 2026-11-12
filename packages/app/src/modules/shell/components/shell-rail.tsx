@@ -8,6 +8,7 @@ import {
 import {
 	CalendarDays,
 	CalendarFold,
+	Inbox,
 	PanelLeftOpen,
 	Plus,
 	Search,
@@ -77,6 +78,8 @@ export function ShellRail({
 			</button>
 
 			<nav aria-label="Views" className="flex flex-col gap-0.5">
+				<RailNavLink icon={Inbox} label="Inbox" to={APP_PATHS.inbox} />
+
 				<RailNavLink
 					icon={CalendarDays}
 					label="Upcoming"

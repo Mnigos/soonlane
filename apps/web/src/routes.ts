@@ -15,6 +15,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 	layout('session', 'modules/identity/presentation/routes/session.route.tsx', [
 		route('/app', 'modules/shell/presentation/routes/shell.route.tsx', [
 			index('modules/tasks/presentation/routes/upcoming.route.tsx'),
+			route('/inbox', 'modules/tasks/presentation/routes/inbox.route.tsx'),
 			route('/today', 'modules/tasks/presentation/routes/today.route.tsx'),
 			route('/search', 'modules/tasks/presentation/routes/search.route.tsx'),
 			route(

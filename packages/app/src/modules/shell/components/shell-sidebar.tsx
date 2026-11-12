@@ -4,6 +4,7 @@ import { Sidebar, sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import {
 	CalendarDays,
 	CalendarFold,
+	Inbox,
 	PanelLeftClose,
 	Plus,
 	Search,
@@ -69,6 +70,13 @@ export function ShellSidebar({
 			</button>
 
 			<nav aria-label="Views" className="flex flex-col gap-0.5">
+				<SidebarNavLink
+					icon={Inbox}
+					label="Inbox"
+					onNavigate={onNavigate}
+					to={APP_PATHS.inbox}
+				/>
+
 				<SidebarNavLink
 					icon={CalendarDays}
 					label="Upcoming"

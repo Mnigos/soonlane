@@ -13,7 +13,7 @@ interface CollapsibleTaskSectionProps extends PropsWithChildren {
 	onToggle: () => void
 }
 
-/** A list section above the days (Overdue, No date) whose heading collapses its tasks. */
+/** A list section above the days (Overdue, Inbox, No date) whose heading collapses its tasks. */
 export function CollapsibleTaskSection({
 	id,
 	heading,

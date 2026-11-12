@@ -4,18 +4,21 @@ import { useNoDateSection } from '../../hooks/use-no-date-section'
 import { CollapsibleTaskSection } from './collapsible-task-section'
 import { TaskList } from './task-list'
 
-interface NoDateSectionProps {
+interface UndatedSectionProps {
+	/** Inbox on Upcoming and Today, No date in a label's view. */
+	heading: 'Inbox' | 'No date'
 	tasks: Task[]
 	today: CalendarDate
 	onComplete: (task: Task) => void
 }
 
 /** Open tasks without a due date, in day order; hidden while there are none. */
-export function NoDateSection({
+export function UndatedSection({
+	heading,
 	tasks,
 	today,
 	onComplete,
-}: Readonly<NoDateSectionProps>) {
+}: Readonly<UndatedSectionProps>) {
 	const { isOpen, toggle } = useNoDateSection()
 
 	if (tasks.length === 0) return null
@@ -24,13 +27,14 @@ export function NoDateSection({
 		<CollapsibleTaskSection
 			heading={
 				<>
-					No date
+					{heading}
+
 					<span className="font-normal text-muted-foreground">
 						{tasks.length}
 					</span>
 				</>
 			}
-			id="no-date"
+			id="undated"
 			isOpen={isOpen}
 			onToggle={toggle}
 			tasks={tasks}
