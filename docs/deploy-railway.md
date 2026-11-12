@@ -39,7 +39,7 @@ The `api` service:
 
 `.railway/railway.ts` sets the plain values and marks the secrets `preserve()`, so an apply keeps what was entered by hand. `TRUSTED_ORIGINS` is a comma-separated list of exact origins that may call `/api/auth` and `/api/rpc` from the browser (CORS with credentials) and that sign-in may return to; any other `Origin` gets 403. `API_URL` is the API's public origin: Better Auth's base URL (Google returns to `<API_URL>/api/auth/callback/google`) and the host of calendar links. `APP_URL` is the web app's: Better Auth sends its errors to `<APP_URL>/login`, and the feed's events link there. `AUTH_COOKIE_PREFIX` names every cookie and must equal the web build's `VITE_AUTH_COOKIE_PREFIX`; `AUTH_COOKIE_DOMAIN` is the domain the cookies cover, so the web app's host receives them. Production's cookies cover `soonlane.com`, so the browser sends them to the staging hosts too: the staging API receives a production session token on every browser call from someone signed in to production. Staging's Better Auth ignores them, because its prefix and its `AUTH_SECRET` differ, and its web server forwards only `soonlane-staging.*` cookies, but only during server rendering; nothing filters the browser's direct calls. Code deployed to staging could copy that token, so staging runs only trusted refs, and the API never logs the cookie header. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
 
-Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=8080`, `APP_ENV=development`, `API_URL=http://localhost:8080`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, `AUTH_COOKIE_PREFIX=soonlane-dev` and no `AUTH_COOKIE_DOMAIN` (localhost cookies reach every port), any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
+Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=4000`, `APP_ENV=development`, `API_URL=http://localhost:4000`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, `AUTH_COOKIE_PREFIX=soonlane-dev` and no `AUTH_COOKIE_DOMAIN` (localhost cookies reach every port), any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
 
 ## Web app
 
@@ -55,10 +55,10 @@ What the server sends:
 | Variable                  | Read at | Production                 | Staging                            | Local                   |
 | ------------------------- | ------- | -------------------------- | ---------------------------------- | ----------------------- |
 | `APP_ENV`                 | build   | `production`               | `staging`                          | unset (`development`)   |
-| `VITE_API_URL`            | build   | `https://api.soonlane.com` | `https://api.staging.soonlane.com` | `http://localhost:8080` |
+| `VITE_API_URL`            | build   | `https://api.soonlane.com` | `https://api.staging.soonlane.com` | `http://localhost:4000` |
 | `VITE_AUTH_COOKIE_PREFIX` | build   | `soonlane`                 | `soonlane-staging`                 | `soonlane-dev`          |
 | `VITE_POSTHOG_KEY`        | build   | optional, `phc_…`          | optional                           | optional                |
-| `API_INTERNAL_URL`        | run     | `http://api.railway.internal:8080` | `http://api.railway.internal:8080` | `http://localhost:8080` |
+| `API_INTERNAL_URL`        | run     | `http://api.railway.internal:8080` | `http://api.railway.internal:8080` | `http://localhost:4000` |
 | `API_PROXY_SECRET`        | run     | the `api` service's value  | the `api` service's value          | the local API's value   |
 | `PORT`                    | run     | set by the service         | set by the service                 | 3000                    |
 
@@ -82,7 +82,7 @@ Signed-in screenshots without Google: `bun run --cwd apps/api dev:session` upser
 
 ### Google OAuth
 
-Better Auth runs on the API with the API's origin as its base URL, so Google returns to the API host, which sets the session cookie on the environment's domain and redirects to the app. The OAuth client (type **Web application**) needs the redirect URIs `https://api.soonlane.com/api/auth/callback/google`, `https://api.staging.soonlane.com/api/auth/callback/google` and `http://localhost:8080/api/auth/callback/google`. The app sends absolute callback and error URLs on the page's own origin, which must be in the API's `TRUSTED_ORIGINS`; the API refuses relative ones, other hosts and its own.
+Better Auth runs on the API with the API's origin as its base URL, so Google returns to the API host, which sets the session cookie on the environment's domain and redirects to the app. The OAuth client (type **Web application**) needs the redirect URIs `https://api.soonlane.com/api/auth/callback/google`, `https://api.staging.soonlane.com/api/auth/callback/google` and `http://localhost:4000/api/auth/callback/google`. The app sends absolute callback and error URLs on the page's own origin, which must be in the API's `TRUSTED_ORIGINS`; the API refuses relative ones, other hosts and its own.
 
 ## Migrations
 
