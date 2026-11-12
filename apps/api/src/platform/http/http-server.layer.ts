@@ -12,6 +12,12 @@ import { withClientIp } from './client-ip.helper'
 import { withCors } from './cors.helper'
 
 /**
+ * How long a shutdown waits for requests in flight once the server stops accepting new ones; the rest are cut.
+ * Kept under Railway's `drainingSeconds`, so PostHog's final flush and the pool's close still run before SIGKILL.
+ */
+const SERVER_DRAIN_TIMEOUT = '15 seconds'
+
+/**
  * Serves the API on `0.0.0.0:$PORT`. `/health` answers Railway's deploy check with the
  * environment and commit and never touches the database, so a database outage cannot block a deploy.
  * Auth and RPC answer CORS first (`withCors`), then resolve the client IP (`withClientIp`); the calendar feed needs neither.
@@ -77,8 +83,21 @@ export const HttpServerLive = Layer.effectDiscard(
 					},
 				})
 			),
-			// Stops accepting connections and resolves once requests in flight finish, within Railway's drain time.
-			startedServer => Effect.promise(async () => await startedServer.stop())
+			startedServer =>
+				Effect.promise(async () => await startedServer.stop()).pipe(
+					Effect.timeoutOrElse({
+						duration: SERVER_DRAIN_TIMEOUT,
+						orElse: () =>
+							Effect.logWarning(
+								'Requests still in flight after the drain timeout, closing them'
+							).pipe(
+								Effect.andThen(
+									Effect.promise(async () => await startedServer.stop(true))
+								)
+							),
+					}),
+					Effect.andThen(Effect.logInfo('API server stopped'))
+				)
 		)
 
 		yield* Effect.logInfo('API listening', server.url.href)
