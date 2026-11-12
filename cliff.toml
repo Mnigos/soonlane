@@ -39,8 +39,8 @@ topo_order = false
 sort_commits = "oldest"
 # Product scopes only (AGENTS.md); the rest is hidden, not skipped, since git-cliff drops a release whose commits are all skipped.
 commit_parsers = [
-	{ message = "^feat\\((tasks|labels|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 0 -->Features" },
-	{ message = "^fix\\((tasks|labels|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 1 -->Bug fixes" },
-	{ message = "^perf\\((tasks|labels|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 2 -->Performance" },
+	{ message = "^feat\\((tasks|labels|projects|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 0 -->Features" },
+	{ message = "^fix\\((tasks|labels|projects|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 1 -->Bug fixes" },
+	{ message = "^perf\\((tasks|labels|projects|shell|desktop|identity|site|blog|changelog|consent)\\)!?:", group = "<!-- 2 -->Performance" },
 	{ message = ".*", group = "Internal" },
 ]
