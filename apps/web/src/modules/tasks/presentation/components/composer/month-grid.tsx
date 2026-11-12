@@ -33,7 +33,7 @@ function focusElement(element: HTMLButtonElement | null) {
 
 function getDayTone(date: CalendarDate, today: CalendarDate) {
 	if (isBefore(date, today)) return 'text-faint-foreground'
-	if (date === today) return 'font-semibold text-primary'
+	if (date === today) return 'font-semibold text-danger'
 	if (isWeekend(date)) return 'text-secondary-foreground'
 
 	return 'text-foreground'
