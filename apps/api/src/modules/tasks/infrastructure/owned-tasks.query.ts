@@ -1,7 +1,16 @@
 import type { Label, Project, Task } from '@soonlane/contracts'
 import { label, project, task, taskLabel, type TaskRow } from '@soonlane/db'
-import type { LabelId, ProjectId, TaskId, UserId } from '@soonlane/domain'
-import { and, asc, eq, inArray, type SQL, sql } from 'drizzle-orm'
+import {
+	type LabelId,
+	type ProjectId,
+	TASK_COMPLETED_ORDER,
+	TASK_DAY_ORDER,
+	type TaskCompletedOrderKey,
+	type TaskDayOrderKey,
+	type TaskId,
+	type UserId,
+} from '@soonlane/domain'
+import { and, asc, desc, eq, inArray, type SQL, sql } from 'drizzle-orm'
 import type { PgUpdateSetSource } from 'drizzle-orm/pg-core'
 import { labelOrder } from '@/modules/labels/infrastructure/label-order.query'
 import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
@@ -15,13 +24,21 @@ export type Queries = Pick<
 	'$count' | 'delete' | 'insert' | 'select' | 'update'
 >
 
-/** Keep in sync with compareTasks in task-list.helper.ts. */
-export const DAY_ORDER = [
-	asc(task.dueDate),
-	sql`${task.dueTime} asc nulls last`,
-	asc(task.priority),
-	asc(task.createdAt),
-]
+const DAY_ORDER_SQL: Record<TaskDayOrderKey, SQL> = {
+	dueDate: asc(task.dueDate),
+	dueTime: sql`${task.dueTime} asc nulls last`,
+	priority: asc(task.priority),
+	createdAt: asc(task.createdAt),
+}
+const COMPLETED_ORDER_SQL: Record<TaskCompletedOrderKey, SQL> = {
+	completedAt: desc(task.completedAt),
+	createdAt: desc(task.createdAt),
+}
+
+export const DAY_ORDER = TASK_DAY_ORDER.map(key => DAY_ORDER_SQL[key])
+export const COMPLETED_ORDER = TASK_COMPLETED_ORDER.map(
+	key => COMPLETED_ORDER_SQL[key]
+)
 
 /**
  * The owner condition every query on the task table carries. Only this file reads `task.ownerId`, and only this file
