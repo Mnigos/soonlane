@@ -39,7 +39,9 @@ export const taskSchema = z.object({
 	priority: prioritySchema,
 	createdAt: z.date(),
 	completedAt: z.date().optional(),
-	repeat: repeatSchema.extend({ anchor: storedCalendarDateSchema }).optional(),
+	repeat: repeatSchema
+		.extend({ anchor: storedCalendarDateSchema, fromCompletion: z.boolean() })
+		.optional(),
 	labels: z.array(labelSchema),
 	project: projectSchema.optional(),
 	goal: z
@@ -109,14 +111,17 @@ export const searchTasksOutputSchema = z.object({
 })
 export type SearchTasksOutput = z.infer<typeof searchTasksOutputSchema>
 
-export const repeatInputSchema = repeatSchema.refine(
-	({ unit, interval }) =>
-		interval === 1 || !SINGLE_INTERVAL_REPEAT_UNITS.includes(unit),
-	{
-		path: ['interval'],
-		message: 'Every weekday and every year repeat with an interval of 1.',
-	}
-)
+/** `fromCompletion` ("every!") counts the next due date from the completion day; absent means false. */
+export const repeatInputSchema = repeatSchema
+	.extend({ fromCompletion: z.boolean().optional() })
+	.refine(
+		({ unit, interval }) =>
+			interval === 1 || !SINGLE_INTERVAL_REPEAT_UNITS.includes(unit),
+		{
+			path: ['interval'],
+			message: 'Every weekday and every year repeat with an interval of 1.',
+		}
+	)
 export type RepeatInput = z.infer<typeof repeatInputSchema>
 
 export const goalInputSchema = z.object({

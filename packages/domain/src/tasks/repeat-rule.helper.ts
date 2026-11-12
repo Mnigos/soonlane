@@ -5,22 +5,26 @@ import {
 	formatWeekday,
 	getCalendarDate,
 	getDayOfMonth,
-	getDaysInMonth,
 	getMonthStart,
 	getWeekStart,
 	getWeekdayIndex,
 	isBefore,
 	isWeekend,
+	onDayOfMonth,
 } from '../dates/calendar-date.helper'
 import type { CalendarDate } from '../dates/calendar-date.schema'
 import { DATE_LOCALE, DAYS_PER_WEEK } from '../dates/calendar.constants'
 import type { RepeatUnit } from './repeat-rule.constants'
 
-/** The anchor is the due date the rule was set on; it keeps the weekday and day of month. */
+/**
+ * The anchor is the due date the rule was set on; it keeps the weekday and day of month.
+ * `fromCompletion` ("every!") counts the next due date from the completion day instead.
+ */
 export interface RepeatRule {
 	unit: RepeatUnit
 	interval: number
 	anchor: CalendarDate
+	fromCompletion?: boolean
 }
 
 const MONTHS_PER_YEAR = 12
@@ -33,12 +37,6 @@ const ordinalRules = new Intl.PluralRules(DATE_LOCALE, { type: 'ordinal' })
 
 function formatOrdinal(value: number) {
 	return `${value}${ORDINAL_SUFFIXES[ordinalRules.select(value)] ?? 'th'}`
-}
-
-function onAnchorDay(monthStart: CalendarDate, anchor: CalendarDate) {
-	const day = Math.min(getDayOfMonth(anchor), getDaysInMonth(monthStart))
-
-	return addDays(monthStart, day - 1)
 }
 
 function getNextOccurrence(
@@ -56,9 +54,12 @@ function getNextOccurrence(
 		return addDays(start, offset || DAYS_PER_WEEK)
 	}
 	if (unit === 'month')
-		return onAnchorDay(addMonths(getMonthStart(date), interval), anchor)
+		return onDayOfMonth(
+			addMonths(getMonthStart(date), interval),
+			getDayOfMonth(anchor)
+		)
 
-	return onAnchorDay(
+	return onDayOfMonth(
 		addMonths(
 			getCalendarDate(
 				Number(date.slice(0, 4)),
@@ -67,7 +68,7 @@ function getNextOccurrence(
 			),
 			MONTHS_PER_YEAR
 		),
-		anchor
+		getDayOfMonth(anchor)
 	)
 }
 
@@ -92,7 +93,7 @@ export function getEditedDueDate(
 		: getFirstOccurrence(dueDate, unit)
 }
 
-/** An edit keeps the stored anchor unless it changes the due date or the rule's unit or interval. */
+/** An edit keeps the stored anchor unless it changes the due date or the rule's unit or interval; the rule counts from completion only when the edit says so. */
 export function getEditedRule(
 	task: {
 		dueDate: CalendarDate
@@ -100,7 +101,7 @@ export function getEditedRule(
 	},
 	dueDate: CalendarDate,
 	repeat: Omit<RepeatRule, 'anchor'> | undefined
-): RepeatRule | undefined {
+): Required<RepeatRule> | undefined {
 	if (!repeat) return undefined
 
 	const current = task.repeat
@@ -112,16 +113,23 @@ export function getEditedRule(
 
 	return {
 		...repeat,
+		fromCompletion: repeat.fromCompletion ?? false,
 		anchor: isSameSchedule ? current.anchor : dueDate,
 	}
 }
 
-/** The due date after completing: one step past the due date, then on until it is not before today when known. */
+/**
+ * The due date after completing: one step past the due date, then on until it is not before today when known.
+ * An "every!" rule takes one step from today, the completion day, as if the rule had been set on it.
+ */
 export function getNextDueDate(
 	dueDate: CalendarDate,
 	rule: RepeatRule,
 	today?: CalendarDate
 ) {
+	if (rule.fromCompletion && today)
+		return getNextOccurrence(today, { ...rule, anchor: today })
+
 	for (
 		let next = getNextOccurrence(dueDate, rule);
 		;
@@ -130,14 +138,19 @@ export function getNextDueDate(
 		if (!(today && isBefore(next, today))) return next
 }
 
-/** Todoist's label; `long` spells out the weekday range for screen readers. */
+/** Todoist's label; `long` spells out the weekday range for screen readers. An "every!" rule names no day, since completing picks it. */
 export function formatRepeatRule(
-	{ unit, interval, anchor }: RepeatRule,
+	{ unit, interval, anchor, fromCompletion }: RepeatRule,
 	width: 'long' | 'short' = 'short'
 ) {
 	const every = (singular: string) =>
 		interval === 1 ? `Every ${singular}` : `Every ${interval} ${singular}s`
 
+	if (fromCompletion && unit === 'weekday')
+		return width === 'long'
+			? 'Every weekday, Monday to Friday, after completion'
+			: 'Every weekday after completion'
+	if (fromCompletion) return `${every(unit)} after completion`
 	if (unit === 'day') return every('day')
 	if (unit === 'weekday')
 		return width === 'long'

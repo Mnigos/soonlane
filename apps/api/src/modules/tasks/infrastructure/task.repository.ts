@@ -33,7 +33,7 @@ import { COMPLETED_ORDER, ownedTasks } from './owned-tasks.query'
 import { updateProgress } from './task-progress.query'
 import { matchesEveryWord, SEARCH_ORDER } from './task-search.query'
 import { updateTask } from './task-update.query'
-import { toTask } from './task.mapper'
+import { toRepeatColumns, toTask } from './task.mapper'
 import type {
 	CompletedTasksBetween,
 	DueDateAdvance,
@@ -186,9 +186,7 @@ export const TaskRepositoryLive = Layer.effect(
 									dueDate,
 									dueTime: dueTime ?? null,
 									priority: priority ?? DEFAULT_TASK_PRIORITY,
-									repeatUnit: repeat?.unit ?? null,
-									repeatInterval: repeat?.interval ?? null,
-									repeatAnchor: repeat?.anchor ?? null,
+									...toRepeatColumns(repeat),
 									goalTarget: goal?.target ?? null,
 									goalUnit: goal?.unit ?? null,
 									projectId: projectId ?? null,

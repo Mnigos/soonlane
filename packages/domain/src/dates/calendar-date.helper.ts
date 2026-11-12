@@ -172,12 +172,17 @@ export function formatLongDate(date: CalendarDate) {
 	})
 }
 
+/** The `day`th of the month starting at `monthStart`, or its last day when the month is shorter. */
+export function onDayOfMonth(monthStart: CalendarDate, day: number) {
+	return addDays(monthStart, Math.min(day, getDaysInMonth(monthStart)) - 1)
+}
+
 /** The same day of another month, or that month's last day when it is shorter. */
 export function shiftMonths(date: CalendarDate, months: number) {
-	const monthStart = addMonths(getMonthStart(date), months)
-	const day = Math.min(getDayOfMonth(date), getDaysInMonth(monthStart))
-
-	return addDays(monthStart, day - 1)
+	return onDayOfMonth(
+		addMonths(getMonthStart(date), months),
+		getDayOfMonth(date)
+	)
 }
 
 /** "6 November", the day of a yearly repeat. */
