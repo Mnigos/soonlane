@@ -1,0 +1,108 @@
+---
+title: Your to do list in Google Calendar and Apple Calendar
+description: Subscribe to one private link and your open Soonlane tasks show up on their days in Google Calendar or Apple Calendar, next to your events.
+date: '2026-11-12'
+draft: true
+---
+
+I look at my calendar many times a day. I open my task list less often than I should. So I wanted the tasks to come to the calendar, on the same days as my meetings, without copying anything by hand.
+
+Soonlane is an [open source Todoist alternative](/) built around days, and it can publish your open tasks as a calendar. You add one private link to Google Calendar or Apple Calendar, and every open task appears on its due day.
+
+## How it works
+
+Calendar apps can subscribe to a calendar at a web address. They fetch that address in the background and show whatever events it holds. Soonlane gives each account one such address. It looks like `https://api.soonlane.com/calendar/` followed by a long random code and `.ics`.
+
+The code in the link is the only key. A calendar app cannot sign in with Google, so Soonlane does not ask it to. Anyone who has the link can see your open tasks, so treat it like a password. Soonlane stores only a hash of the code, which is why it can show you the link once and never again.
+
+## Create your calendar link
+
+1. Open Soonlane and click your name at the top of the sidebar.
+2. Choose Calendar link. A dialog called Calendar subscription opens.
+3. Click Create link.
+4. The dialog shows the link in a field called Calendar link, with a Copy button and a Subscribe in Calendar button.
+
+Copy the link before you click Done. The dialog says it plainly: "This is the only time the link is shown." If you lose it, click Create new link, and the old one stops working at once.
+
+If you want your tasks in both Apple Calendar and Google Calendar, add the same link to both. A new link replaces the old one, so a calendar still holding the old link stops updating.
+
+## Add it to Google Calendar
+
+Google lets you add a calendar by URL only in a browser on a computer. Its help page says [you can't subscribe in the Google Calendar app for Android, iPhone or iPad](https://support.google.com/calendar/answer/37100?hl=en&co=GENIE.Platform%3DDesktop).
+
+1. In Soonlane, create the link and click Copy.
+2. On your computer, open Google Calendar.
+3. On the left, next to "Other calendars", click Add other calendars.
+4. Choose From URL.
+5. Paste the link and click Add calendar.
+
+The calendar appears on the left under "Other calendars". You can hide it there by unchecking it, or remove it in Settings with Remove calendar. Google's steps for that are on its page about how to [delete or unsubscribe from a calendar](https://support.google.com/calendar/answer/37188?hl=en&co=GENIE.Platform%3DDesktop).
+
+## Add it to Apple Calendar on a Mac
+
+On a Mac, the Subscribe in Calendar button opens the Calendar app with the address already filled in. You can also start from Calendar. These steps follow Apple's guide to [subscribing to calendars on Mac](https://support.apple.com/guide/calendar/share-calendars-icl32362/mac).
+
+1. In Soonlane, create the link and click Subscribe in Calendar. Or open Calendar, choose File > New Calendar Subscription, paste the link and click Subscribe.
+2. Enter a name for the calendar and pick a color.
+3. In the Location pop-up menu, choose iCloud if you want the calendar on your iPhone and your other Apple devices too. On My Mac keeps it on this Mac only.
+4. Apple Calendar can remove a subscription's alerts. Deselect the Remove checkbox for alerts if you want an alert when a timed task starts.
+5. In the Auto-refresh pop-up menu, choose how often Calendar checks for changes.
+6. Click OK.
+
+To change these settings later, click the calendar's name and choose Edit > Get Info.
+
+## Add it to Apple Calendar on an iPhone
+
+If you chose iCloud as the location on your Mac, the calendar is already on your iPhone. Otherwise, add it on the phone itself, as Apple describes in [Set up multiple calendars on iPhone](https://support.apple.com/guide/iphone/use-multiple-calendars-iph3d1110d4/ios).
+
+1. Open Soonlane in Safari, create the link and tap Subscribe in Calendar. Or copy the link and open the Calendar app.
+2. In Calendar, tap the Calendars button, then tap Add Calendar.
+3. Tap Add Subscription Calendar, paste the link, then tap Find.
+
+To remove it later, tap the Calendars button, tap the Info button next to the calendar and tap Unsubscribe.
+
+## What shows up
+
+Each open task becomes one event on its due date.
+
+- A task without a due time is an all-day event on that day.
+- A task with a due time is a 30-minute event that starts at that time. It also carries an alert at the start, which Apple Calendar keeps only if you turned off Remove for alerts.
+- The event's title is the task's name. The notes hold the task's description and its labels.
+- Each event links back to Upcoming in Soonlane.
+
+Times in the feed have no time zone. A task due at 18:00 shows at 18:00 local time, the same way Soonlane shows it.
+
+A few things follow from "open tasks on their due dates". An overdue task stays on the day it was due, in the past, until you complete it or move it. A repeating task shows only its current date, not every future one. You can read how those dates move in the post on [repeating tasks](/blog/repeating-tasks). Completed tasks leave the feed.
+
+The feed marks every task as free time, not busy. Your tasks sit next to your events without making the day look booked.
+
+## It is read-only
+
+The calendar is a view of your tasks, not a second place to edit them. If you drag an event to another day or delete it in the calendar app, nothing changes in Soonlane. Complete, edit and reschedule tasks in Soonlane, and the calendar follows on its next refresh.
+
+Apple's guide says the same about every subscription. The provider controls the events, and you can't edit a calendar you subscribe to.
+
+## How often it refreshes
+
+The Soonlane feed asks calendar apps to check again every 15 minutes. The calendar app decides in the end.
+
+In Apple Calendar on a Mac, the Auto-refresh menu sets how often Calendar fetches the subscription. Apple's page on [refreshing calendars](https://support.apple.com/guide/calendar/refresh-calendars-icl1024/mac) shows how to change it later. Control-click the calendar's name, choose Get Info, then pick an option in Auto-refresh. View > Refresh Calendars checks right away.
+
+Google's help pages do not say how often Google Calendar fetches a calendar added by URL. If a change in Soonlane has not reached Google Calendar yet, give it time.
+
+## Replace or revoke the link
+
+Open the menu under your name and choose Calendar link again. The dialog shows the day you created the link and two buttons.
+
+- Create new link makes a new link and shows it once. The old link stops working the moment the new one exists.
+- Revoke link asks "Revoke the link?" and, after you click Revoke, deletes the link. Nothing can read your tasks through it any more.
+
+Either way, calendars that use the old link stop updating. Remove the old subscription from your calendar app, and add the new link if you made one.
+
+Do this whenever the link may have reached someone else, for example through a screenshot or a shared computer. If you delete your Soonlane account, the link goes with it.
+
+## What it does not do
+
+There is no two-way sync. Soonlane does not read your calendar, and nothing you do in the calendar reaches your tasks. Each account has one link, and the link shows all your open tasks. You cannot publish only one label.
+
+For me, that is enough. The calendar answers "what is on today" in one place, and Soonlane stays the place where tasks change. If you plan by the week, the post on [planning your week in an Upcoming view](/blog/plan-your-week-with-an-upcoming-view) covers the other half.

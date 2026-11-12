@@ -1,0 +1,84 @@
+---
+title: A to do list without projects, using labels instead
+description: Projects make every task pick one box. Labels let a task sit in several. Label sets that work for a personal list, and how labels work in Soonlane.
+date: '2026-11-12'
+draft: true
+---
+
+Most task apps start you with projects. You make one for work, one for home, one for the side thing, and every new task has to go into one of them. For a team, that fits. A project has an owner, a deadline and an end. A personal list is different. "Call the bank about the mortgage" is about money, about the house, and something to do by phone during office hours. A project makes you pick one.
+
+When I built Soonlane, an [open source Todoist alternative](/) organised by days, I left projects out. Labels are the only way to group tasks.
+
+## Why projects get in the way of a personal list
+
+A project gives each task exactly one home. That leads to a few problems I kept running into.
+
+First, the choice itself. Each time you add a task, you stop and decide where it goes. When the answer is "both", you pick one and the task goes missing from the other.
+
+Second, the tree grows. A project for the house gets sub-projects for the kitchen and the garden. A year later half of them are empty, and you scroll past them every day.
+
+Third, a project hides the date. You open "Home" and see a list of things with no sense of what is due this week. The question I ask a task list most often is "what do I have to do and when", and a project view does not answer it.
+
+Labels fix the first two. A task can carry as many labels as fit, and a label you stop using just sits there with no tasks. In Soonlane the third is handled by the date. Every task has a due day, so every list, including a label's, is sorted by day.
+
+## Label sets that work
+
+Start small. Five to ten labels is plenty. You can add more when you notice a group you keep looking for. Here are sets that work well for a personal list. Pick one, or mix two.
+
+**By area of life.** work, home, health, money, family. This is the closest to projects, minus the single home. The mortgage call gets both money and home.
+
+**By where you can do it.** computer, phone, errands, home. Useful when you are out. Open errands and you see everything you can do on the way.
+
+**By how much it takes.** quick for anything under ten minutes, focus for work that needs a quiet hour. On a tired evening, quick is the list to open.
+
+**By who is involved.** One label per person you often do things for or wait on, or one label called waiting for tasks stuck on someone else's reply.
+
+A task usually needs one or two labels, not a label from every set. If you add five labels to every task, the labels stop telling you anything.
+
+## How labels work in Soonlane
+
+There are three ways to put a label on a task.
+
+1. In the task card, click the Labels chip. Type in the "Type a label" field to find a label, or pick Create label to make a new one with that name.
+2. Type @ in the task name. Soonlane suggests your labels as you type, and can create a new one. "Call the bank @money @phone" saves as "Call the bank" with two labels.
+3. Click Add task on a label's page. The new task gets that label and today's date to start with.
+
+The sidebar has a Labels section. Its + button adds a label. Each label has a menu behind the "…" button with Rename, Color and Delete.
+
+Some details worth knowing:
+
+- A label name can be up to 60 characters and can include spaces.
+- Names are unique per person, ignoring case. You cannot have both Work and work.
+- Color offers Todoist's palette of 20 colors. A label without a color shows in charcoal.
+- Deleting a label removes it from every task that had it. The tasks stay.
+- Labels are listed alphabetically.
+
+On each task row, the labels show under the name in their colors, next to the due date.
+
+## Label pages and counts
+
+Next to each label in the sidebar is a number. It counts the label's open tasks, so you can see at a glance that errands has 4 waiting and money has 1. A label with no open tasks shows no number.
+
+Click a label and its page opens at `/app/labels/` plus the label's name. The page lists the label's open tasks by day. Overdue comes first, then each day that has tasks, as far ahead as tasks go. Like Upcoming, it is sorted by day, but it skips days without tasks. Completing a task there updates the count in the sidebar.
+
+This is what replaces a project view. Open health and you see that the dentist call slipped, the prescription is due Thursday, and the blood test is in three weeks. A project would have shown the same three tasks without the days.
+
+## What labels cannot do
+
+Labels in Soonlane are simple on purpose. Know the limits before you move a large list over.
+
+There are no filters. You cannot ask for "errands and quick" or "everything except work" in one view. Each label page shows one label.
+
+There are no sub-labels or nesting. A label is a flat name. If you want "home/kitchen", use a label called kitchen.
+
+There is no inbox either. Every task has a due day. If you are not sure when to do something, give it a rough day and move it later. The Overdue section has a Reschedule button that moves all its tasks to one day.
+
+If you are coming from Todoist, the post comparing [Soonlane and Todoist](/blog/soonlane-vs-todoist) covers what Soonlane drops and what it keeps.
+
+## A small example
+
+Here is the set I would hand someone starting out: work, home, money, health, errands, quick. Six labels, two kinds. The first four say what part of life a task belongs to. The last two say how you can do it.
+
+Add a week of tasks with those labels. Then look at the counts in the sidebar. If one label has 30 open tasks and another has none, the first is too broad or the second is not needed. Rename, split or delete until the counts mean something to you.
+
+Labels also reach your calendar. If you subscribe to your tasks in a calendar app, each event's notes list the task's labels. The post on [putting your tasks in Google Calendar and Apple Calendar](/blog/tasks-in-apple-calendar-and-google-calendar) shows how to set that up.

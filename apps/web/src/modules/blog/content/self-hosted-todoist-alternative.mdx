@@ -1,0 +1,97 @@
+---
+title: Three self-hosted Todoist alternatives
+description: Three self hosted Todoist alternatives, Soonlane, Vikunja and Nextcloud Tasks, with what each needs to run and what you get in return.
+date: '2026-11-12'
+draft: true
+---
+
+Todoist is a hosted service. Your tasks live on Todoist's servers, and you use them through its apps. For most people that is fine. Some people want their tasks on a server they control: they already run a home server, their work does not allow outside services, or they want to keep using the app even if the company behind it changes course.
+
+If that is you, you need an app whose code you can run yourself. Below are three that work like Todoist in some way, and what it takes to run each. I build one of them, Soonlane, so I start with it and say plainly where it is harder to run than the others.
+
+## What to look for
+
+Before you pick one, check these.
+
+- **Sign-in.** Some apps keep their own accounts with passwords. Others need an outside login provider.
+- **Moving parts.** One container with a built-in database is quick to set up. Several services and a separate database take more setup and upkeep.
+- **Phones.** A server alone gives you no phone app. Check how you will add tasks on your phone.
+
+## Soonlane
+
+Soonlane is an [open source Todoist alternative](/) built around days. It opens on Upcoming, one scroll from Overdue through Today and every day after. You get natural date input like `tom` or `fri`, priorities P1 to P4, due times, repeating tasks, labels and goals that count progress. Each account can also have a private calendar link that shows open tasks in Apple Calendar or any app that reads iCalendar feeds. It has no projects, filters, reminders or sharing.
+
+The code is on [GitHub](https://github.com/Mnigos/soonlane) under AGPL-3.0. You can run it for yourself or for other people. If you run a changed copy for others, the license asks you to offer them your changes.
+
+<img
+	src="/site/today-overdue.webp"
+	alt="Today with three overdue tasks above the four tasks due on Friday 6 Nov."
+	width={800}
+	height={610}
+/>
+
+### What it needs
+
+Soonlane has two parts and a database, plus a Google client and a domain.
+
+- **Postgres.** The hosted copy uses Neon in Frankfurt.
+- **The API.** A Bun server that handles sign-in, the task API and the calendar feed. A migration script in `packages/db` creates and updates the tables, and you run it before each new version starts.
+- **The web app.** A TanStack Start app that serves the pages and calls the API.
+- **A Google OAuth client.** Sign-in is Google only, so you create a client in Google Cloud and point its redirect at your API.
+- **A domain.** The API and the web app share a session cookie, so they should sit on the same domain, like `tasks.example.com` and `api.tasks.example.com`.
+
+The API reads its settings from environment variables: the database URL, an auth secret of at least 32 characters, the Google client, the public URLs of both parts, and a few more. It refuses to start when one is missing and logs which one. Set `ALLOWED_EMAILS` to your own address and nobody else can sign up on your copy.
+
+Analytics stay off unless you add a PostHog key, so a self-hosted copy sends nothing to PostHog by default.
+
+The Mac app works with your copy too. It loads the web app from an address baked in at build time, so `APP_URL=https://tasks.example.com bun run package` in `apps/desktop` builds a Mac app that opens your server instead of soonlane.com.
+
+### Where it is rough
+
+I want to be clear about this part. Soonlane is not packaged for self-hosting yet.
+
+There is no Docker image and no single command that starts everything. The deploy docs in the repository describe my own setup: the API on Railway and the web app on Vercel. The web app's build targets Vercel, so to run it on your own server you need to change its build setup. The hosting setup is also changing as the project moves between providers.
+
+If you are comfortable with Bun, Postgres and reading a deploy guide written for someone else, you can run it. If you want something that starts from one `docker run`, Vikunja is the better pick today.
+
+## Vikunja
+
+Vikunja is the most complete self-hosted option here. It is open source under AGPL-3.0, and the team says self-hosting is free with all core features included.
+
+It covers most of what Todoist does. You get projects, labels, reminders, repeating tasks and saved filters. Projects can be shown as a list, a kanban board, a Gantt chart or a table. You can share a project with other users, with teams, or with a link that works without an account. It imports from Todoist, Trello and Microsoft To Do, and it has a CalDAV integration, so apps that speak CalDAV can sync with it.
+
+Running it is simple. The API and the web interface ship as one binary or one Docker image, `vikunja/vikunja`. The quick start uses the bundled SQLite, so you need no separate database. For more users you can use PostgreSQL, MySQL or MariaDB. There is no default login. You register the first account yourself.
+
+If you would rather not run it, Vikunja Cloud is the paid hosted version, from 4 euros a month for the Personal plan as of November 2026.
+
+## Nextcloud Tasks
+
+If you already run Nextcloud, you may not need a new app at all. Nextcloud Tasks is an app inside Nextcloud, open source under AGPL-3.0. You turn it on from the Apps page under Organization.
+
+It is a simpler list than Todoist. Tasks have a title, a description, start and due dates, a priority and a status. You can nest subtasks and see smart collections for important, current and upcoming tasks.
+
+Its strength is CalDAV. Tasks are stored as standard calendar items, so many other apps can sync them. The project lists Apple Reminders on iPhone and Mac, DAVx5 and Tasks.org on Android, Thunderbird on the desktop, and GNOME and KDE apps on Linux. That answers the phone question better than most self-hosted options do.
+
+If you do not run Nextcloud already, setting it up only for tasks is a lot of server for one list.
+
+## How they compare
+
+|                | Soonlane                  | Vikunja                          | Nextcloud Tasks      |
+| -------------- | ------------------------- | -------------------------------- | -------------------- |
+| License        | AGPL-3.0                  | AGPL-3.0                         | AGPL-3.0             |
+| Install        | Two services and Postgres | One binary or container          | App inside Nextcloud |
+| Database       | Postgres                  | SQLite, Postgres, MySQL, MariaDB | Nextcloud's          |
+| Sign-in        | Google                    | Own accounts                     | Nextcloud accounts   |
+| Projects       | No, labels only           | Yes                              | Grouped by calendar  |
+| Phone          | Web app                   | CalDAV apps                      | CalDAV apps          |
+| Hosted version | Free at soonlane.com      | Vikunja Cloud, paid              | No                   |
+
+## Which one to run
+
+Run Vikunja if you want the closest thing to Todoist on your own server, with projects, filters and sharing, and the least setup.
+
+Use Nextcloud Tasks if you already have Nextcloud and want your tasks in the same apps that hold your calendar.
+
+Run Soonlane if you want a day-by-day list without projects, you are fine with Google sign-in, and you do not mind some setup work. Or skip the server and use the hosted copy at soonlane.com, which is free.
+
+If you are still choosing between hosted apps, [apps like Todoist](/blog/apps-like-todoist) compares seven free ones.
