@@ -9,6 +9,7 @@ const RELEASE_KINDS = [
 const SCOPE_LABELS: Partial<Record<string, string>> = {
 	tasks: 'Tasks',
 	labels: 'Labels',
+	projects: 'Projects',
 	shell: 'Sidebar',
 	desktop: 'Mac app',
 	identity: 'Sign-in',
