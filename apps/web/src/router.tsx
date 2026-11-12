@@ -25,17 +25,17 @@ function createQueryClient() {
 		defaultOptions: {
 			queries: {
 				queryKeyHashFn: queryKey =>
-					JSON.stringify(serializer.serialize(queryKey)),
+					JSON.stringify(serializer.serializeJson(queryKey)),
 				staleTime: 30_000,
 				retry: false,
 			},
 			dehydrate: {
 				shouldDehydrateQuery: query => query.state.status === 'success',
-				serializeData: data => serializer.serialize(data),
+				serializeData: data => serializer.serializeJson(data),
 			},
 			hydrate: {
 				deserializeData: (data: RPCJsonSerialization) =>
-					serializer.deserialize(data),
+					serializer.deserializeJson(data),
 			},
 		},
 	})

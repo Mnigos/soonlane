@@ -1,4 +1,4 @@
-import { middlewareGen } from '@orpc/experimental-effect'
+import { middlewareGen } from '@orpc/effect'
 import { os } from '@/platform/rpc/rpc.base'
 import { Unauthorized } from '../domain/identity.errors'
 
