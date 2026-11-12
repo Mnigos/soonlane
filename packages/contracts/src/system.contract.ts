@@ -1,5 +1,5 @@
-import { oc } from '@orpc/contract'
 import { z } from 'zod'
+import { query } from './read-only.base'
 
 export const healthOutputSchema = z.object({
 	ok: z.boolean(),
@@ -11,5 +11,5 @@ export const healthOutputSchema = z.object({
 export type HealthOutput = z.infer<typeof healthOutputSchema>
 
 export const systemContract = {
-	health: oc.output(healthOutputSchema),
+	health: query.output(healthOutputSchema),
 }

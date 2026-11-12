@@ -1,6 +1,6 @@
-import { oc } from '@orpc/contract'
 import { userIdSchema } from '@soonlane/domain'
 import { z } from 'zod'
+import { query } from './read-only.base'
 
 export const sessionUserSchema = z.object({
 	id: userIdSchema,
@@ -11,5 +11,5 @@ export const sessionUserSchema = z.object({
 export type SessionUser = z.infer<typeof sessionUserSchema>
 
 export const identityContract = {
-	me: oc.output(z.object({ user: sessionUserSchema.nullable() })),
+	me: query.output(z.object({ user: sessionUserSchema.nullable() })),
 }

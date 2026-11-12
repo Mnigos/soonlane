@@ -2,6 +2,7 @@ import { oc } from '@orpc/contract'
 import { PROJECT_NAME_MAX_LENGTH, projectIdSchema } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
+import { query } from './read-only.base'
 
 const projectNameSchema = z.string().trim().min(1).max(PROJECT_NAME_MAX_LENGTH)
 
@@ -32,7 +33,7 @@ export const projectNotFound = { message: 'This project no longer exists.' }
 const projectNameTaken = { message: 'A project with this name already exists.' }
 
 export const projectsContract = {
-	list: oc
+	list: query
 		.errors(authErrors)
 		.output(z.object({ projects: z.array(listedProjectSchema) })),
 	create: oc
