@@ -8,6 +8,7 @@ interface DeleteTaskDialogProps {
 	task: Task
 	today: CalendarDate
 	onClose: () => void
+	onDeleted?: () => void
 }
 
 /** Closes on Delete without waiting for the server: the task leaves the lists at once. */
@@ -15,6 +16,7 @@ export function DeleteTaskDialog({
 	task,
 	today,
 	onClose,
+	onDeleted,
 }: Readonly<DeleteTaskDialogProps>) {
 	const { deleteTask } = useDeleteTask(today)
 
@@ -36,6 +38,7 @@ export function DeleteTaskDialog({
 					onClick={() => {
 						deleteTask(task)
 						onClose()
+						onDeleted?.()
 					}}
 					size="sm"
 				>

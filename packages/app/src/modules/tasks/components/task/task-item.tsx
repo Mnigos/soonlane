@@ -5,25 +5,22 @@ import {
 	type CalendarDate,
 	getDueChipLabel,
 	getDueLabel,
-	formatRepeatRule,
 	TASK_PRIORITIES,
 	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { Calendar, Check, Tag } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { type KeyboardEvent, useId, useRef, useState } from 'react'
 import { isShortcutKeydown } from '../../../../utils/keyboard-shortcut.util'
-import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
-import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { getMenuEdit } from '../../helpers/task-edit.helper'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
 import { useUpdateTask } from '../../hooks/use-update-task'
-import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
 import { LogProgressControls } from './log-progress-controls'
+import { TaskMeta } from './task-meta'
 import { TaskRowMenu } from './task-row-menu'
 
 interface TaskItemProps {
@@ -50,7 +47,6 @@ export function TaskItem({
 	const due = showsDueDay
 		? getDueChipLabel(task.dueDate, task.dueTime, today)
 		: getDueLabel(task.dueDate, task.dueTime, today)
-	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const buttonId = useId()
 	const titleId = useId()
 	const { updateTask } = useUpdateTask(today)
@@ -164,47 +160,7 @@ export function TaskItem({
 
 				{task.goal && <GoalProgress goal={task.goal} />}
 
-				{(due || repeatText || task.labels.length > 0) && (
-					<p className="flex flex-wrap items-center gap-x-2 text-caption">
-						{(due || repeatText) && (
-							<span
-								className={cn(
-									'flex items-center gap-1',
-									due ? DUE_TONE_CLASSES[due.tone] : 'text-muted-foreground'
-								)}
-							>
-								{due && (
-									<>
-										<Calendar aria-hidden className="size-3" />
-
-										{due.text}
-									</>
-								)}
-
-								{repeatText && (
-									<>
-										<RepeatIcon className="size-3" />
-
-										<span className="sr-only">Repeats: {repeatText}</span>
-									</>
-								)}
-							</span>
-						)}
-
-						{task.labels.map(label => (
-							<span
-								className={cn(
-									'flex items-center gap-0.5',
-									LABEL_COLOR_CLASSES[label.color ?? 'charcoal']
-								)}
-								key={label.id}
-							>
-								<Tag aria-hidden className="size-3" />
-								<span className="ph-mask">{label.name}</span>
-							</span>
-						))}
-					</p>
-				)}
+				<TaskMeta due={due} task={task} />
 			</div>
 
 			{task.goal && (

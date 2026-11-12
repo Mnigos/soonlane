@@ -1,21 +1,14 @@
 import { Dialog } from '@soonlane/ui/components/dialog'
-import { Kbd } from '@soonlane/ui/components/kbd'
-import { Fragment } from 'react'
-import {
-	KEYBOARD_SHORTCUT_GROUPS,
-	MOD_KEY,
-} from '../keyboard-shortcuts.constants'
+import { KEYBOARD_SHORTCUT_GROUPS } from '../keyboard-shortcuts.constants'
+import { ShortcutKeys } from './shortcut-keys'
 
 interface KeyboardShortcutsDialogProps {
 	onClose: () => void
 }
 
-/** Opens only from a key press or a click, never in the server render, so it can read the platform for the ⌘ or Ctrl key. */
 export function KeyboardShortcutsDialog({
 	onClose,
 }: Readonly<KeyboardShortcutsDialogProps>) {
-	const modKey = /Mac|iPhone|iPad/u.test(navigator.userAgent) ? '⌘' : 'Ctrl'
-
 	return (
 		<Dialog
 			className="max-h-[calc(100dvh-2rem)] max-w-md overflow-y-auto p-4"
@@ -38,18 +31,8 @@ export function KeyboardShortcutsDialog({
 							>
 								<dt>{shortcut.action}</dt>
 
-								<dd className="flex items-center gap-1">
-									{shortcut.keys.map((key, index) => (
-										<Fragment key={key}>
-											{index > 0 && shortcut.joiner && (
-												<span className="px-0.5 text-caption text-muted-foreground">
-													{shortcut.joiner}
-												</span>
-											)}
-
-											<Kbd>{key === MOD_KEY ? modKey : key}</Kbd>
-										</Fragment>
-									))}
+								<dd>
+									<ShortcutKeys joiner={shortcut.joiner} keys={shortcut.keys} />
 								</dd>
 							</div>
 						))}

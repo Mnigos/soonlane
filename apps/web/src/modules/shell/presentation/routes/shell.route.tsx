@@ -5,6 +5,7 @@ import {
 	createFileRoute,
 	Outlet,
 	redirect,
+	useLocation,
 	useMatch,
 } from '@tanstack/react-router'
 import { createIsomorphicFn } from '@tanstack/react-start'
@@ -43,6 +44,7 @@ function ShellRoute() {
 	const { user } = Route.useRouteContext()
 	const { sidebarPreference } = Route.useLoaderData()
 	const { deleteAccount, error } = Route.useSearch()
+	const activePath = useLocation({ select: location => location.pathname })
 	const labelMatch = useMatch({
 		from: '/_session/app/labels/$name',
 		shouldThrow: false,
@@ -67,6 +69,7 @@ function ShellRoute() {
 		>
 			<Shell
 				activeLabelName={labelMatch?.params.name}
+				activePath={activePath}
 				initialSidebarPreference={sidebarPreference}
 				user={user}
 			>

@@ -3,20 +3,30 @@ import {
 	TASK_SEARCH_QUERY_MAX_LENGTH,
 } from '@soonlane/domain'
 import { Search } from 'lucide-react'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
+import { SEARCH_DELAY_MS } from '../../helpers/task-search.constants'
 import { useDebouncedValue } from '../../hooks/use-debounced-value'
 import { OpenEditorProvider } from '../open-editor-provider'
 import { SearchResults } from './search-results'
 
 interface SearchPageProps {
 	today: CalendarDate
+	/** The query the search palette hands over in navigation state, never in the URL. */
+	initialQuery?: string
 }
 
-const SEARCH_DELAY_MS = 300
-
-export function SearchPage({ today }: Readonly<SearchPageProps>) {
-	const [query, setQuery] = useState('')
+export function SearchPage({
+	today,
+	initialQuery = '',
+}: Readonly<SearchPageProps>) {
+	const [query, setQuery] = useState(initialQuery)
 	const settledQuery = useDebouncedValue(query.trim(), SEARCH_DELAY_MS)
+	const fillQuery = useCallback(
+		(input: HTMLInputElement | null) => {
+			if (input) input.value = initialQuery
+		},
+		[initialQuery]
+	)
 
 	return (
 		<OpenEditorProvider>
@@ -38,6 +48,7 @@ export function SearchPage({ today }: Readonly<SearchPageProps>) {
 							maxLength={TASK_SEARCH_QUERY_MAX_LENGTH}
 							onChange={event => setQuery(event.target.value)}
 							placeholder="Search tasks"
+							ref={fillQuery}
 							type="search"
 						/>
 					</div>

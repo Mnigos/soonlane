@@ -27,6 +27,7 @@ export function Dialog({
 
 				<BaseDialog.Popup
 					aria-label={label}
+					aria-modal
 					className={cn(
 						'fixed top-1/2 left-1/2 z-50 w-[calc(100%-2rem)] max-w-xl -translate-1/2 rounded-lg border bg-background text-foreground outline-none',
 						className

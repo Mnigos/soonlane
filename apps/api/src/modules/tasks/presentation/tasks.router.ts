@@ -24,6 +24,11 @@ export const tasksRouter = {
 
 		return yield* tasksService.search(context.user.id, input)
 	}),
+	get: os.tasks.get.use(requireUser).effect(function* ({ context, input }) {
+		const tasksService = yield* TasksService
+
+		return { task: yield* tasksService.get(context.user.id, input.id) }
+	}),
 	create: os.tasks.create.use(requireUser).effect(function* ({
 		context,
 		input,
