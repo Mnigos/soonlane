@@ -8,7 +8,6 @@ export const sessionUserSchema = z.object({
 	name: z.string(),
 	image: z.string().optional(),
 })
-
 export type SessionUser = z.infer<typeof sessionUserSchema>
 
 export const identityContract = {

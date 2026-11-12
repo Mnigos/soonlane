@@ -48,7 +48,6 @@ export const taskSchema = z.object({
 		})
 		.optional(),
 })
-
 export type Task = z.infer<typeof taskSchema>
 
 export const listTasksInputSchema = z
@@ -61,14 +60,12 @@ export const listTasksInputSchema = z
 		path: ['to'],
 		message: 'The range must end on or after its start.',
 	})
-
 export type ListTasksInput = z.infer<typeof listTasksInputSchema>
 
 export const listTasksByLabelInputSchema = z.object({
 	labelId: labelIdSchema,
 	today: calendarDateSchema,
 })
-
 export type ListTasksByLabelInput = z.infer<typeof listTasksByLabelInputSchema>
 
 export const listTasksByProjectInputSchema = z.object({
@@ -83,7 +80,6 @@ export const listTasksOutputSchema = z.object({
 	overdue: z.array(taskSchema),
 	scheduled: z.array(taskSchema),
 })
-
 export type ListTasksOutput = z.infer<typeof listTasksOutputSchema>
 
 export const listCompletedTasksInputSchema = z
@@ -92,7 +88,6 @@ export const listCompletedTasksInputSchema = z
 		path: ['to'],
 		message: 'The range must end after its start.',
 	})
-
 export type ListCompletedTasksInput = z.infer<
 	typeof listCompletedTasksInputSchema
 >
@@ -100,7 +95,6 @@ export type ListCompletedTasksInput = z.infer<
 export const listCompletedTasksOutputSchema = z.object({
 	tasks: z.array(taskSchema),
 })
-
 export type ListCompletedTasksOutput = z.infer<
 	typeof listCompletedTasksOutputSchema
 >
@@ -113,14 +107,12 @@ export const repeatInputSchema = repeatSchema.refine(
 		message: 'Every weekday and every year repeat with an interval of 1.',
 	}
 )
-
 export type RepeatInput = z.infer<typeof repeatInputSchema>
 
 export const goalInputSchema = z.object({
 	target: z.int().min(1).max(GOAL_TARGET_MAX),
 	unit: z.string().trim().min(1).max(GOAL_UNIT_MAX_LENGTH).optional(),
 })
-
 export type GoalInput = z.infer<typeof goalInputSchema>
 
 export const createTaskInputSchema = z.object({
@@ -139,7 +131,6 @@ export const createTaskInputSchema = z.object({
 	goal: goalInputSchema.optional(),
 	projectId: projectIdSchema.optional(),
 })
-
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 /**
@@ -156,7 +147,6 @@ export const updateTaskInputSchema = createTaskInputSchema.extend({
 	projectId: projectIdSchema.nullable().optional(),
 	today: calendarDateSchema.optional(),
 })
-
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
 
 /** `completed` when the edit's goal completed the task: the due date it was completed on and the goal and progress Undo restores. */
@@ -170,7 +160,6 @@ export const updateTaskOutputSchema = z.object({
 		})
 		.optional(),
 })
-
 export type UpdateTaskOutput = z.infer<typeof updateTaskOutputSchema>
 
 export const taskIdInputSchema = z.object({ id: taskIdSchema })
@@ -194,14 +183,12 @@ export const rescheduleTasksInputSchema = z.object({
 	ids: z.array(taskIdSchema).min(1).max(RESCHEDULE_MAX_TASKS),
 	dueDate: calendarDateSchema,
 })
-
 export type RescheduleTasksInput = z.infer<typeof rescheduleTasksInputSchema>
 
 export const taskLabelInputSchema = z.object({
 	id: taskIdSchema,
 	labelId: labelIdSchema,
 })
-
 export type TaskLabelInput = z.infer<typeof taskLabelInputSchema>
 
 export const logProgressInputSchema = completeTaskInputSchema.extend({
@@ -211,7 +198,6 @@ export const logProgressInputSchema = completeTaskInputSchema.extend({
 		.max(GOAL_TARGET_MAX)
 		.refine(amount => amount !== 0, 'Log a non-zero amount.'),
 })
-
 export type LogProgressInput = z.infer<typeof logProgressInputSchema>
 
 /** `logged` is the amount applied after clamping to the goal's range, so Undo reverts exactly that. */
@@ -222,7 +208,6 @@ export const logProgressOutputSchema = z.object({
 		.object({ dueDate: storedCalendarDateSchema, progress: z.int() })
 		.optional(),
 })
-
 export type LogProgressOutput = z.infer<typeof logProgressOutputSchema>
 
 const taskErrors = {

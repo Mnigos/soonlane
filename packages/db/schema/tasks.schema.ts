@@ -109,6 +109,5 @@ export const task = pgTable(
 		),
 	]
 )
-
 export type TaskRow = typeof task.$inferSelect
 export type NewTaskRow = typeof task.$inferInsert

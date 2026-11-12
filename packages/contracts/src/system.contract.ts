@@ -8,7 +8,6 @@ export const healthOutputSchema = z.object({
 	version: z.string(),
 	commit: z.string(),
 })
-
 export type HealthOutput = z.infer<typeof healthOutputSchema>
 
 export const systemContract = {

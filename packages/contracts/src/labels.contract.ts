@@ -15,20 +15,17 @@ export const labelSchema = z.object({
 	name: z.string(),
 	color: labelColorSchema.optional(),
 })
-
 export type Label = z.infer<typeof labelSchema>
 
 export const listedLabelSchema = labelSchema.extend({
 	openTaskCount: z.number().int().nonnegative(),
 })
-
 export type ListedLabel = z.infer<typeof listedLabelSchema>
 
 export const createLabelInputSchema = z.object({
 	name: labelNameSchema,
 	color: labelColorSchema.optional(),
 })
-
 export type CreateLabelInput = z.infer<typeof createLabelInputSchema>
 
 export const updateLabelInputSchema = z
@@ -40,11 +37,9 @@ export const updateLabelInputSchema = z
 	.refine(({ name, color }) => name !== undefined || color !== undefined, {
 		message: 'Change the name, the color or both.',
 	})
-
 export type UpdateLabelInput = z.infer<typeof updateLabelInputSchema>
 
 export const labelIdInputSchema = z.object({ id: labelIdSchema })
-
 export type LabelIdInput = z.infer<typeof labelIdInputSchema>
 
 export const labelNotFound = { message: 'This label no longer exists.' }
