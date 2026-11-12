@@ -1,11 +1,10 @@
 import { os } from '@/platform/rpc/rpc.base'
 
-/** `me.configured` is always true: the API does not start without Google's client id and secret. */
 export const identityRouter = {
 	me: os.identity.me.handler(({ context }) => {
 		const user = context.session?.user
 
-		if (!user) return { user: null, configured: true }
+		if (!user) return { user: null }
 
 		return {
 			user: {
@@ -14,7 +13,6 @@ export const identityRouter = {
 				name: user.name,
 				image: user.image,
 			},
-			configured: true,
 		}
 	}),
 }

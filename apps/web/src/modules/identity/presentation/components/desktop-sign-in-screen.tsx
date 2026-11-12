@@ -10,7 +10,6 @@ import { SignInScreen } from './sign-in-screen'
 interface DesktopSignInScreenProps {
 	challenge?: string
 	user: SessionUser | null
-	configured: boolean
 	fresh?: boolean
 	oauthError?: string
 }
@@ -24,7 +23,6 @@ interface DesktopSignInScreenProps {
 export function DesktopSignInScreen({
 	challenge,
 	user,
-	configured,
 	fresh = false,
 	oauthError,
 }: Readonly<DesktopSignInScreenProps>) {
@@ -47,7 +45,6 @@ export function DesktopSignInScreen({
 
 	return (
 		<SignInScreen
-			configured={configured}
 			fresh={fresh}
 			loginHint={user?.email}
 			oauthError={oauthError}

@@ -7,7 +7,6 @@ import { SignInLayout } from './sign-in-layout'
 const LOGIN_REDIRECTS = { callbackURL: '/app', errorCallbackURL: '/login' }
 
 interface SignInScreenProps {
-	configured: boolean
 	oauthError?: string
 	isAccountDeleted?: boolean
 	redirects?: GoogleSignInRedirects
@@ -16,7 +15,6 @@ interface SignInScreenProps {
 }
 
 export function SignInScreen({
-	configured,
 	oauthError,
 	isAccountDeleted = false,
 	redirects = LOGIN_REDIRECTS,
@@ -34,26 +32,15 @@ export function SignInScreen({
 				</output>
 			)}
 
-			{configured ? (
-				<div className="flex flex-col gap-3">
-					<ContinueWithGoogle
-						fresh={fresh}
-						loginHint={loginHint}
-						redirects={redirects}
-					/>
+			<div className="flex flex-col gap-3">
+				<ContinueWithGoogle
+					fresh={fresh}
+					loginHint={loginHint}
+					redirects={redirects}
+				/>
 
-					<TermsAgreement />
-				</div>
-			) : (
-				<div className="flex flex-col gap-1 text-sm" role="note">
-					<p className="font-semibold">Sign-in is disabled</p>
-
-					<p className="text-muted-foreground">
-						Google is not configured on this server. Set the environment
-						variables and restart the app.
-					</p>
-				</div>
-			)}
+				<TermsAgreement />
+			</div>
 
 			{oauthError && (
 				<p className="text-sm font-medium text-danger" role="alert">

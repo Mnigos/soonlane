@@ -17,14 +17,7 @@ export const Route = createFileRoute('/_session/login')({
 })
 
 function LoginRoute() {
-	const { me } = Route.useRouteContext()
 	const { error, deleted } = Route.useSearch()
 
-	return (
-		<SignInScreen
-			configured={me.configured}
-			isAccountDeleted={deleted}
-			oauthError={error}
-		/>
-	)
+	return <SignInScreen isAccountDeleted={deleted} oauthError={error} />
 }
