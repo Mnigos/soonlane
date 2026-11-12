@@ -22,10 +22,10 @@ env:
   REF: ${{ inputs.ref }}
 
 jobs:
-  api:
-    name: Deploy the API
+  deploy:
+    name: Deploy the API and the web app
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
         with:
@@ -35,25 +35,32 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.2
-      # `railway up` uploads no git metadata, so the build inlines the commit from this file (kept in the upload by .railwayignore).
+      # `railway up` uploads no git metadata, so each build inlines the commit from these files (kept in the upload by .railwayignore).
       - name: Record the commit
-        run: echo "APP_COMMIT=$COMMIT" > apps/api/commit.env
+        run: |
+          echo "APP_COMMIT=$COMMIT" > apps/api/commit.env
+          echo "APP_COMMIT=$COMMIT" > apps/web/commit.env
         env:
           COMMIT: ${{ steps.commit.outputs.sha }}
-      - name: Build, deploy and wait for the health check
+      - name: Build, deploy and wait for the health checks
         env:
           COMMIT: ${{ steps.commit.outputs.sha }}
         run: |
-          upload=$($RAILWAY up --service api --environment staging --detach --json --message "$REF ${COMMIT::7}")
-          deployment=$(jq -r '.deploymentId' <<< "$upload")
-          echo "Build logs: $(jq -r '.logsUrl' <<< "$upload")"
-          for attempt in $(seq 60); do
-            status=$($RAILWAY deployment list --service api --environment staging --json | jq -r --arg id "$deployment" '.[] | select(.id == $id) | .status')
-            echo "Deployment status: $status"
-            case "$status" in
-              SUCCESS) exit 0 ;;
-              FAILED | CRASHED | REMOVED | SKIPPED) exit 1 ;;
-            esac
-            sleep 10
-          done
-          exit 1
+          deploy() {
+            upload=$($RAILWAY up --service "$1" --environment staging --detach --json --message "$REF ${COMMIT::7}")
+            deployment=$(jq -r '.deploymentId' <<< "$upload")
+            echo "$1 build logs: $(jq -r '.logsUrl' <<< "$upload")"
+            for attempt in $(seq 60); do
+              status=$($RAILWAY deployment list --service "$1" --environment staging --json | jq -r --arg id "$deployment" '.[] | select(.id == $id) | .status')
+              echo "$1 deployment status: $status"
+              case "$status" in
+                SUCCESS) return 0 ;;
+                FAILED | CRASHED | REMOVED | SKIPPED) return 1 ;;
+              esac
+              sleep 10
+            done
+            return 1
+          }
+          # The API goes first, so the web app never calls an API older than itself.
+          deploy api
+          deploy web
