@@ -9,8 +9,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "db:generate": "bun --env-file=../../apps/web/.env.local drizzle-kit generate",
-    "db:migrate": "bun --env-file=../../apps/web/.env.local scripts/migrate.ts"
+    "db:generate": "bun --env-file=../../apps/api/.env.local drizzle-kit generate",
+    "db:migrate": "bun --env-file=../../apps/api/.env.local scripts/migrate.ts"
   },
   "dependencies": {
     "@soonlane/domain": "workspace:*",

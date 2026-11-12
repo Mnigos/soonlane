@@ -47,7 +47,7 @@ Run with `bun run <script>` from the root.
 | `check` / `check:fix` | oxlint and oxfmt through Ultracite.                                                                  |
 | `commit`              | Commitizen prompt for a conventional commit.                                                         |
 | `db:generate`         | Drizzle migration from `packages/db/schema`.                                                         |
-| `db:migrate`          | Apply migrations to the database in `apps/web/.env.local`.                                           |
+| `db:migrate`          | Apply migrations to the database in `apps/api/.env.local`.                                           |
 
 ## Desktop
 
