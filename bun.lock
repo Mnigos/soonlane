@@ -66,9 +66,8 @@
         "@content-collections/mdx": "0.2.2",
         "@content-collections/vite": "0.3.1",
         "@orpc/client": "catalog:",
-        "@orpc/contract": "catalog:",
-        "@orpc/tanstack-query": "catalog:",
         "@soonlane/analytics": "workspace:*",
+        "@soonlane/app": "workspace:*",
         "@soonlane/auth": "workspace:*",
         "@soonlane/contracts": "workspace:*",
         "@soonlane/domain": "workspace:*",
@@ -121,6 +120,32 @@
         "typescript": "catalog:",
       },
       "peerDependencies": {
+        "@tanstack/react-router": ">=1.170",
+        "react": ">=19",
+        "react-dom": ">=19",
+      },
+    },
+    "packages/app": {
+      "name": "@soonlane/app",
+      "version": "0.0.0",
+      "dependencies": {
+        "@orpc/client": "catalog:",
+        "@orpc/contract": "catalog:",
+        "@orpc/tanstack-query": "catalog:",
+        "@soonlane/contracts": "workspace:*",
+      },
+      "devDependencies": {
+        "@soonlane/typescript-config": "workspace:*",
+        "@tanstack/react-query": "catalog:",
+        "@tanstack/react-router": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "typescript": "catalog:",
+      },
+      "peerDependencies": {
+        "@tanstack/react-query": ">=5.102",
         "@tanstack/react-router": ">=1.170",
         "react": ">=19",
         "react-dom": ">=19",
@@ -757,6 +782,8 @@
     "@soonlane/analytics": ["@soonlane/analytics@workspace:packages/analytics"],
 
     "@soonlane/api": ["@soonlane/api@workspace:apps/api"],
+
+    "@soonlane/app": ["@soonlane/app@workspace:packages/app"],
 
     "@soonlane/auth": ["@soonlane/auth@workspace:packages/auth"],
 

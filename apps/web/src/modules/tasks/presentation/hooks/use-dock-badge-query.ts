@@ -1,6 +1,6 @@
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { isDesktopShell } from '@/modules/shell/presentation/helpers/desktop-host.helper'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTodayListInput } from '../helpers/dock-badge.helper'
 import { useToday } from './use-today'
 

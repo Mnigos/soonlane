@@ -1,3 +1,5 @@
+import { APP_PATHS } from '@soonlane/app/app-paths'
+import { useHostApp } from '@soonlane/app/hooks/use-host-app'
 import type { ListedLabel } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import {
@@ -35,6 +37,7 @@ export function SidebarLabelRow({
 	const [isDeleting, setIsDeleting] = useState(false)
 	const updateLabel = useUpdateLabelMutation()
 	const navigate = useNavigate()
+	const { homePath } = useHostApp()
 	const nameId = useId()
 	const actionsId = useId()
 	const isViewOpen = isLabelNamed(label, activeLabelName)
@@ -58,7 +61,7 @@ export function SidebarLabelRow({
 					stopRenaming()
 					if (isViewOpen)
 						void navigate({
-							to: '/app/labels/$name',
+							to: APP_PATHS.label,
 							params: { name },
 							replace: true,
 						})
@@ -93,7 +96,7 @@ export function SidebarLabelRow({
 				}}
 				onClick={onNavigate}
 				params={{ name: label.name }}
-				to="/app/labels/$name"
+				to={APP_PATHS.label}
 			>
 				<Tag
 					aria-hidden
@@ -142,7 +145,7 @@ export function SidebarLabelRow({
 					onClose={() => setIsDeleting(false)}
 					onDeleted={() => {
 						setIsDeleting(false)
-						if (isViewOpen) void navigate({ to: '/' })
+						if (isViewOpen) void navigate({ to: homePath })
 					}}
 				/>
 			)}

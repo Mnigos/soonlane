@@ -32,6 +32,7 @@ const REGION = 'europe-west4-drams3a'
 const WEB_WATCH_PATTERNS = [
 	'/apps/web/**',
 	'/packages/analytics/**',
+	'/packages/app/**',
 	'/packages/auth/**',
 	'/packages/contracts/**',
 	'/packages/domain/**',

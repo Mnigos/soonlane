@@ -1,8 +1,9 @@
+import { useHostApp } from '@soonlane/app/hooks/use-host-app'
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { CalendarDate } from '@soonlane/domain'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { isLabelNamed } from '@/modules/labels/presentation/helpers/label-name.helper'
-import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { TaskListError } from '../list/task-list-error'
 import { TaskListSkeleton } from '../list/task-list.skeleton'
 import { OpenEditorProvider } from '../open-editor-provider'
@@ -20,6 +21,7 @@ export function LabelPage({ name, today }: Readonly<LabelPageProps>) {
 		orpcQuery.labels.list.queryOptions()
 	)
 	const label = data?.labels.find(item => isLabelNamed(item, name))
+	const { homePath } = useHostApp()
 
 	if (!data)
 		return isError ? (
@@ -43,7 +45,7 @@ export function LabelPage({ name, today }: Readonly<LabelPageProps>) {
 
 				<Link
 					className="mt-4 inline-block text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-					to="/"
+					to={homePath}
 				>
 					Back to Upcoming
 				</Link>
