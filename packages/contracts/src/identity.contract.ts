@@ -12,10 +12,5 @@ export const sessionUserSchema = z.object({
 export type SessionUser = z.infer<typeof sessionUserSchema>
 
 export const identityContract = {
-	me: oc.output(
-		z.object({
-			user: sessionUserSchema.nullable(),
-			configured: z.boolean(),
-		})
-	),
+	me: oc.output(z.object({ user: sessionUserSchema.nullable() })),
 }
