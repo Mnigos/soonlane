@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { APP_PATHS } from '../../../app-path.constants'
 import { orpcQuery } from '../../../rpc-query.client'
-import { isLabelNamed } from '../../labels/helpers/label-name.helper'
+import { isNamed } from '../../tasks/helpers/task-view.helper'
 import {
 	forgetRecentViews,
 	rememberRecentView,
@@ -19,7 +19,7 @@ export function useTrackRecentViews(
 		shortcut => APP_PATHS[shortcut.view] === activePath
 	)?.view
 	const labelId = data?.labels.find(label =>
-		isLabelNamed(label, activeLabelName)
+		isNamed(label, activeLabelName)
 	)?.id
 
 	useEffect(() => {

@@ -1,35 +1,45 @@
 import { type AnyORPCError, isDefinedError } from '@orpc/client'
-import { LABEL_NAME_MAX_LENGTH, type LabelColor } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import type { UseMutationResult } from '@tanstack/react-query'
-import { Tag } from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
-import { describeFailure } from '../../shell/helpers/maintenance.helper'
-import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
+import { describeFailure } from '../helpers/maintenance.helper'
 
-interface LabelNameFieldProps {
-	/** The field's accessible name; it may hold the label's current name, so it is rendered as masked text. */
+/** What a sidebar list's name field shows besides the name: its icon, the name limit and the fallback error. */
+export interface SidebarNameFieldOptions {
+	icon: LucideIcon
+	iconClassName: string
+	maxLength: number
+	saveError: string
+}
+
+export type SidebarNameMutation = Pick<
+	UseMutationResult<unknown, AnyORPCError | Error>,
+	'error' | 'isPending' | 'reset'
+>
+
+interface SidebarNameFieldProps extends SidebarNameFieldOptions {
+	/** The field's accessible name; it may hold the item's current name, so it is rendered as masked text. */
 	label: string
-	color?: LabelColor
 	defaultValue?: string
-	mutation: Pick<
-		UseMutationResult<unknown, AnyORPCError | Error>,
-		'error' | 'isPending' | 'reset'
-	>
+	mutation: SidebarNameMutation
 	/** Starts the save; calls `onSettled` once it succeeds or fails, or right away when nothing is sent. */
 	onSave: (name: string, onSettled: () => void) => void
 	onCancel: () => void
 }
 
-/** The sidebar's inline name field for a new or renamed label: Enter saves, Escape or an empty name cancels. */
-export function LabelNameField({
+/** The sidebar's inline name field for a new or renamed item: Enter saves, Escape or an empty name cancels. */
+export function SidebarNameField({
+	icon: Icon,
+	iconClassName,
+	maxLength,
+	saveError,
 	label,
-	color,
 	defaultValue = '',
 	mutation,
 	onSave,
 	onCancel,
-}: Readonly<LabelNameFieldProps>) {
+}: Readonly<SidebarNameFieldProps>) {
 	const [value, setValue] = useState(defaultValue)
 	const labelId = useId()
 	// isPending lags a render, so a quick second Enter would save twice.
@@ -55,13 +65,7 @@ export function LabelNameField({
 			}}
 		>
 			<div className="flex h-8 items-center gap-2 rounded-md border border-border-strong bg-background px-2">
-				<Tag
-					aria-hidden
-					className={cn(
-						'size-4 shrink-0',
-						LABEL_COLOR_CLASSES[color ?? 'charcoal']
-					)}
-				/>
+				<Icon aria-hidden className={cn('size-4 shrink-0', iconClassName)} />
 
 				<span className="ph-mask sr-only" id={labelId}>
 					{label}
@@ -71,7 +75,7 @@ export function LabelNameField({
 					aria-labelledby={labelId}
 					autoFocus
 					className="min-w-0 flex-1 bg-transparent text-sm outline-none"
-					maxLength={LABEL_NAME_MAX_LENGTH}
+					maxLength={maxLength}
 					onChange={event => {
 						setValue(event.target.value)
 						if (mutation.error) mutation.reset()
@@ -88,10 +92,7 @@ export function LabelNameField({
 				<p className="px-2 text-caption text-danger" role="alert">
 					{isDefinedError(mutation.error)
 						? mutation.error.message
-						: describeFailure(
-								mutation.error,
-								'Could not save the label. Try again.'
-							)}
+						: describeFailure(mutation.error, saveError)}
 				</p>
 			)}
 		</form>

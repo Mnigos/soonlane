@@ -1,6 +1,5 @@
 import type { Label } from '@soonlane/contracts'
-import { Button } from '@soonlane/ui/components/button'
-import { Dialog } from '@soonlane/ui/components/dialog'
+import { SidebarDeleteDialog } from '../../shell/components/sidebar-delete-dialog'
 import { useDeleteLabelMutation } from '../hooks/use-delete-label-mutation'
 
 interface DeleteLabelDialogProps {
@@ -17,27 +16,14 @@ export function DeleteLabelDialog({
 	const { mutate, isPending } = useDeleteLabelMutation(onDeleted)
 
 	return (
-		<Dialog className="max-w-md p-4" label="Delete label?" onClose={onClose}>
-			<h2 className="text-base font-semibold">Delete label?</h2>
-
-			<p className="mt-2 text-sm text-secondary-foreground">
-				The &quot;<span className="ph-mask">{label.name}</span>&quot; label will
-				be permanently deleted and removed from its tasks.
-			</p>
-
-			<div className="mt-6 flex justify-end gap-2">
-				<Button onClick={onClose} size="sm" variant="outline">
-					Cancel
-				</Button>
-
-				<Button
-					disabled={isPending}
-					onClick={() => mutate({ id: label.id }, { onError: onClose })}
-					size="sm"
-				>
-					Delete
-				</Button>
-			</div>
-		</Dialog>
+		<SidebarDeleteDialog
+			isPending={isPending}
+			onClose={onClose}
+			onConfirm={() => mutate({ id: label.id }, { onError: onClose })}
+			title="Delete label?"
+		>
+			The &quot;<span className="ph-mask">{label.name}</span>&quot; label will
+			be permanently deleted and removed from its tasks.
+		</SidebarDeleteDialog>
 	)
 }
