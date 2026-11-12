@@ -78,6 +78,7 @@ export const listTasksInputSchema = z
 	})
 export type ListTasksInput = z.infer<typeof listTasksInputSchema>
 
+/** `undated` holds the tasks without a due date: with a label or project filter all that match it, without one only those without a project (the Inbox). */
 export const listTasksOutputSchema = z.object({
 	undated: z.array(taskSchema),
 	overdue: z.array(taskSchema),

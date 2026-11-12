@@ -115,7 +115,10 @@ export function placeTask(
 ): TaskPlacement | undefined {
 	if (labelId && !task.labels.some(({ id }) => id === labelId)) return undefined
 	if (projectId && task.project?.id !== projectId) return undefined
-	if (task.dueDate === undefined) return { bucket: 'undated', task }
+	if (task.dueDate === undefined)
+		return labelId || projectId || !task.project
+			? { bucket: 'undated', task }
+			: undefined
 	if (task.dueDate < today) return { bucket: 'overdue', task }
 	if (!from || !to || (from <= task.dueDate && task.dueDate <= to))
 		return { bucket: 'scheduled', task }

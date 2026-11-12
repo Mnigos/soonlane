@@ -10,6 +10,7 @@ interface KeyboardShortcut {
 
 /** The views a "g" sequence opens, which the search palette lists with the same keys. */
 export const VIEW_SHORTCUTS = [
+	{ view: 'inbox', name: 'Inbox', keys: ['G', 'I'] },
 	{ view: 'upcoming', name: 'Upcoming', keys: ['G', 'U'] },
 	{ view: 'today', name: 'Today', keys: ['G', 'T'] },
 ] as const

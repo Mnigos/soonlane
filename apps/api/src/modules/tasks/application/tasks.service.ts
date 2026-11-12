@@ -142,7 +142,7 @@ export const TasksServiceLive = Layer.effect(
 				range: from && to ? { before: today, from, to } : undefined,
 			})
 
-			return splitAtToday(tasks, today)
+			return splitAtToday(tasks, { today, labelId, projectId })
 		})
 
 		// The bounds are the client's local midnights, since only it knows the owner's time zone.

@@ -1,6 +1,6 @@
 # Soonlane
 
-Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Upcoming, Today and Labels; no projects, Inbox, filters or reporting. See [PRODUCT.md](PRODUCT.md).
+Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Inbox, Upcoming, Today and Labels; no projects, filters or reporting. See [PRODUCT.md](PRODUCT.md).
 
 Production: https://soonlane.com
 

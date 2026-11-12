@@ -3,6 +3,7 @@ import type { ConsentChoice, ConsentSource } from './consent.types'
 
 export type ComposerSource =
 	| 'day_row'
+	| 'inbox_view'
 	| 'label_view'
 	| 'quick_add'
 	| 'sidebar_dialog'
