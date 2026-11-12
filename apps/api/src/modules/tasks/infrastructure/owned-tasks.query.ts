@@ -1,10 +1,11 @@
-import type { Label, Task } from '@soonlane/contracts'
-import { label, task, taskLabel, type TaskRow } from '@soonlane/db'
-import type { LabelId, TaskId, UserId } from '@soonlane/domain'
+import type { Label, Project, Task } from '@soonlane/contracts'
+import { label, project, task, taskLabel, type TaskRow } from '@soonlane/db'
+import type { LabelId, ProjectId, TaskId, UserId } from '@soonlane/domain'
 import { and, asc, eq, inArray, type SQL, sql } from 'drizzle-orm'
 import type { PgUpdateSetSource } from 'drizzle-orm/pg-core'
 import { labelOrder } from '@/modules/labels/infrastructure/label-order.query'
 import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
+import { toProject } from '@/modules/projects/infrastructure/project.mapper'
 import type { Database } from '@/platform/db/db.layer'
 import { toTask } from './task.mapper'
 
@@ -39,8 +40,8 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 	const select = (where?: SQL) =>
 		database.select().from(task).where(and(owned, where))
 
-	/** The tasks with their labels, read in one query for all rows. */
-	async function withLabels(rows: TaskRow[]): Promise<Task[]> {
+	/** The tasks with their labels and their project, each read in one query for all rows. */
+	async function withLabelsAndProject(rows: TaskRow[]): Promise<Task[]> {
 		if (rows.length === 0) return []
 
 		const assigned = await database
@@ -66,16 +67,36 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 			labels.push(toLabel(labelRow))
 		}
 
-		return rows.map(row => toTask(row, labelsByTask.get(row.id) ?? []))
+		const projectIds = rows.flatMap(row => row.projectId ?? [])
+		const projects =
+			projectIds.length === 0
+				? []
+				: await database
+						.select()
+						.from(project)
+						.where(
+							and(eq(project.ownerId, ownerId), inArray(project.id, projectIds))
+						)
+		const projectsById = new Map<ProjectId | null, Project>(
+			projects.map(row => [row.id, toProject(row)])
+		)
+
+		return rows.map(row =>
+			toTask(
+				row,
+				labelsByTask.get(row.id) ?? [],
+				projectsById.get(row.projectId)
+			)
+		)
 	}
 
 	return {
-		withLabels,
+		withLabelsAndProject,
 		/** The owner's tasks matching `where`, with their labels, in day order unless `order` says otherwise. */
 		list: async (where?: SQL, order: SQL[] = DAY_ORDER) =>
-			await withLabels(await select(where).orderBy(...order)),
+			await withLabelsAndProject(await select(where).orderBy(...order)),
 		find: async (id: TaskId) => {
-			const [found] = await withLabels(await select(eq(task.id, id)))
+			const [found] = await withLabelsAndProject(await select(eq(task.id, id)))
 
 			return found
 		},

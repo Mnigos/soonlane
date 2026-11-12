@@ -82,6 +82,7 @@ export async function updateTask(
 		repeat,
 		labelIds,
 		goal,
+		projectId,
 		nextDueDate,
 		editedAt,
 	}: TaskUpdate
@@ -116,6 +117,7 @@ export async function updateTask(
 			repeatAnchor: repeat?.anchor ?? null,
 			completedAt: isCompleted && !isAdvanced ? editedAt : undefined,
 			...getGoalColumns(goal, previous.progress, isAdvanced),
+			projectId,
 		})
 		.where(where)
 		.returning()
@@ -123,7 +125,9 @@ export async function updateTask(
 	if (!row) return undefined
 	if (labelIds) await replaceLabels(transaction, { ownerId, id, labelIds })
 
-	const [updated] = await ownedTasks(transaction, ownerId).withLabels([row])
+	const [updated] = await ownedTasks(transaction, ownerId).withLabelsAndProject(
+		[row]
+	)
 
 	return (
 		updated && {

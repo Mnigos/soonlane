@@ -2,10 +2,11 @@ import type {
 	GoalInput,
 	Label,
 	LogProgressOutput,
+	Project,
 	Task,
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
-import { label, task, taskLabel } from '@soonlane/db'
+import { label, project, task, taskLabel } from '@soonlane/db'
 import {
 	DEFAULT_TASK_PRIORITY,
 	type TaskId,
@@ -25,6 +26,7 @@ import {
 } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
 import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
+import { toProject } from '@/modules/projects/infrastructure/project.mapper'
 import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
 import { ownedTasks } from './owned-tasks.query'
@@ -41,6 +43,7 @@ import type {
 	TaskCompletion,
 	TaskKey,
 	TaskLabel,
+	TaskProject,
 	TaskReschedule,
 	TaskUpdate,
 } from './task.repository.types'
@@ -57,6 +60,9 @@ export class TaskRepository extends Context.Service<
 		) => Effect.Effect<Task[], DbError>
 		readonly listOpenWithLabel: (
 			label: Omit<TaskLabel, 'id'>
+		) => Effect.Effect<Task[], DbError>
+		readonly listOpenInProject: (
+			project: TaskProject
 		) => Effect.Effect<Task[], DbError>
 		readonly listCompletedBetween: (
 			params: CompletedTasksBetween
@@ -82,6 +88,9 @@ export class TaskRepository extends Context.Service<
 		readonly findLabel: (
 			label: Omit<TaskLabel, 'id'>
 		) => Effect.Effect<Label | undefined, DbError>
+		readonly findProject: (
+			project: TaskProject
+		) => Effect.Effect<Project | undefined, DbError>
 		readonly assignLabel: (
 			taskLabel: TaskLabel
 		) => Effect.Effect<Task | undefined, DbError>
@@ -151,6 +160,14 @@ export const TaskRepositoryLive = Layer.effect(
 							)
 						)
 				),
+			listOpenInProject: ({ ownerId, projectId }) =>
+				db.run(
+					'TaskRepository.listOpenInProject',
+					async database =>
+						await ownedTasks(database, ownerId).list(
+							and(isNull(task.completedAt), eq(task.projectId, projectId))
+						)
+				),
 			listCompletedBetween: ({ ownerId, from, to }) =>
 				db.run(
 					'TaskRepository.listCompletedBetween',
@@ -176,6 +193,7 @@ export const TaskRepositoryLive = Layer.effect(
 				repeat,
 				labelIds = [],
 				goal,
+				projectId,
 			}) =>
 				db.run(
 					'TaskRepository.create',
@@ -195,16 +213,18 @@ export const TaskRepositoryLive = Layer.effect(
 									repeatAnchor: repeat?.anchor ?? null,
 									goalTarget: goal?.target ?? null,
 									goalUnit: goal?.unit ?? null,
+									projectId: projectId ?? null,
 								})
 								.returning()
 
 							if (!row) throw new Error('Task insert returned no row')
-							if (labelIds.length === 0) return toTask(row, [])
+							if (labelIds.length === 0 && !projectId) return toTask(row, [])
 
 							const tasks = ownedTasks(transaction, ownerId)
 
-							await tasks.assignLabels(row.id, labelIds)
-							const [created] = await tasks.withLabels([row])
+							if (labelIds.length > 0)
+								await tasks.assignLabels(row.id, labelIds)
+							const [created] = await tasks.withLabelsAndProject([row])
 
 							return created ?? toTask(row, [])
 						})
@@ -247,7 +267,7 @@ export const TaskRepositoryLive = Layer.effect(
 							eq(task.id, id)
 						)
 						.returning()
-					const [updated] = await tasks.withLabels(rows)
+					const [updated] = await tasks.withLabelsAndProject(rows)
 
 					return updated
 				}),
@@ -264,7 +284,7 @@ export const TaskRepositoryLive = Layer.effect(
 							)
 						)
 						.returning()
-					const [advanced] = await tasks.withLabels(rows)
+					const [advanced] = await tasks.withLabelsAndProject(rows)
 
 					return advanced
 				}),
@@ -278,7 +298,7 @@ export const TaskRepositoryLive = Layer.effect(
 						)
 						.returning()
 
-					return await tasks.withLabels(rows)
+					return await tasks.withLabelsAndProject(rows)
 				}),
 			findLabel: ({ ownerId, labelId }) =>
 				db.run('TaskRepository.findLabel', async database => {
@@ -288,6 +308,15 @@ export const TaskRepositoryLive = Layer.effect(
 						.where(and(eq(label.ownerId, ownerId), eq(label.id, labelId)))
 
 					return row && toLabel(row)
+				}),
+			findProject: ({ ownerId, projectId }) =>
+				db.run('TaskRepository.findProject', async database => {
+					const [row] = await database
+						.select()
+						.from(project)
+						.where(and(eq(project.ownerId, ownerId), eq(project.id, projectId)))
+
+					return row && toProject(row)
 				}),
 			assignLabel: ({ ownerId, id, labelId }) =>
 				db.run('TaskRepository.assignLabel', async database => {
@@ -317,7 +346,7 @@ export const TaskRepositoryLive = Layer.effect(
 							const [logged] = await ownedTasks(
 								transaction,
 								log.ownerId
-							).withLabels([row])
+							).withLabelsAndProject([row])
 							const completed = row.completed
 								? {
 										dueDate: row.previousDueDate,

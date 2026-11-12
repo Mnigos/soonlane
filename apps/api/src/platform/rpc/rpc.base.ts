@@ -25,8 +25,9 @@ const READ_PROCEDURES: {
 	calendar: ['getSubscription'],
 	identity: ['me'],
 	labels: ['list'],
+	projects: ['list'],
 	system: ['health'],
-	tasks: ['list', 'listByLabel', 'listCompleted'],
+	tasks: ['list', 'listByLabel', 'listByProject', 'listCompleted'],
 }
 const READ_PATHS = new Set(
 	Object.entries(READ_PROCEDURES).flatMap(([namespace, names]) =>

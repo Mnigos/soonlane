@@ -4,6 +4,7 @@ import type {
 	Label,
 	ListCompletedTasksInput,
 	ListTasksByLabelInput,
+	ListTasksByProjectInput,
 	ListTasksInput,
 	ListTasksOutput,
 	RescheduleTasksInput,
@@ -12,9 +13,11 @@ import type {
 	UpdateTaskInput,
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
+import { TASK_PROJECT_FOREIGN_KEY } from '@soonlane/db'
 import {
 	type CalendarDate,
 	type LabelId,
+	type ProjectId,
 	type TaskId,
 	type UserId,
 	getEditedDueDate,
@@ -25,7 +28,8 @@ import {
 import { Clock, Context, Effect, Layer } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { LabelNotFound } from '@/modules/labels/domain/label.errors'
-import type { DbError } from '@/platform/db/db.errors'
+import { ProjectNotFound } from '@/modules/projects/domain/project.errors'
+import { type DbError, isForeignKeyViolation } from '@/platform/db/db.errors'
 import { TaskNotFound } from '../domain/task.errors'
 import { TaskRepository } from '../infrastructure/task.repository'
 
@@ -40,6 +44,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: ListTasksByLabelInput
 		) => Effect.Effect<ListTasksOutput, LabelNotFound | DbError>
+		readonly listByProject: (
+			ownerId: UserId,
+			input: ListTasksByProjectInput
+		) => Effect.Effect<ListTasksOutput, ProjectNotFound | DbError>
 		readonly listCompleted: (
 			ownerId: UserId,
 			input: ListCompletedTasksInput
@@ -49,12 +57,15 @@ export class TasksService extends Context.Service<
 		readonly create: (
 			ownerId: UserId,
 			input: CreateTaskInput
-		) => Effect.Effect<Task, DbError>
+		) => Effect.Effect<Task, ProjectNotFound | DbError>
 		readonly update: (
 			ownerId: UserId,
 			id: TaskId,
 			input: UpdateTaskInput
-		) => Effect.Effect<UpdateTaskOutput, TaskNotFound | DbError>
+		) => Effect.Effect<
+			UpdateTaskOutput,
+			TaskNotFound | ProjectNotFound | DbError
+		>
 		readonly delete: (
 			ownerId: UserId,
 			id: TaskId
@@ -123,11 +134,37 @@ function requireLabel(label: Label | undefined) {
 	return label ? Effect.succeed(label) : Effect.fail(new LabelNotFound())
 }
 
+/** The project passed the owner check but was deleted before the write. */
+function failDeletedProject(error: DbError) {
+	return Effect.fail(
+		isForeignKeyViolation(error, TASK_PROJECT_FOREIGN_KEY)
+			? new ProjectNotFound()
+			: error
+	)
+}
+
+/** A view's open tasks, split at the client's today. */
+function splitAtToday(tasks: Task[], today: CalendarDate): ListTasksOutput {
+	return {
+		overdue: tasks.filter(({ dueDate }) => dueDate < today),
+		scheduled: tasks.filter(({ dueDate }) => dueDate >= today),
+	}
+}
+
 export const TasksServiceLive = Layer.effect(
 	TasksService,
 	Effect.gen(function* () {
 		const repository = yield* TaskRepository
 		const analytics = yield* Analytics
+
+		const requireProject = (ownerId: UserId, projectId: ProjectId) =>
+			repository
+				.findProject({ ownerId, projectId })
+				.pipe(
+					Effect.flatMap(project =>
+						project ? Effect.void : Effect.fail(new ProjectNotFound())
+					)
+				)
 
 		// "Today" comes from the client: the server cannot know the owner's time zone.
 		const list = Effect.fn('TasksService.list')(function* (
@@ -152,12 +189,20 @@ export const TasksServiceLive = Layer.effect(
 			const label = { ownerId, labelId }
 
 			yield* requireLabel(yield* repository.findLabel(label))
-			const tasks = yield* repository.listOpenWithLabel(label)
 
-			return {
-				overdue: tasks.filter(({ dueDate }) => dueDate < today),
-				scheduled: tasks.filter(({ dueDate }) => dueDate >= today),
-			}
+			return splitAtToday(yield* repository.listOpenWithLabel(label), today)
+		})
+
+		const listByProject = Effect.fn('TasksService.listByProject')(function* (
+			ownerId: UserId,
+			{ projectId, today }: ListTasksByProjectInput
+		) {
+			yield* requireProject(ownerId, projectId)
+
+			return splitAtToday(
+				yield* repository.listOpenInProject({ ownerId, projectId }),
+				today
+			)
 		})
 
 		// The bounds are the client's local midnights, since only it knows the owner's time zone.
@@ -178,13 +223,17 @@ export const TasksServiceLive = Layer.effect(
 			ownerId: UserId,
 			input: CreateTaskInput
 		) {
+			if (input.projectId) yield* requireProject(ownerId, input.projectId)
+
 			const dueDate = getFirstOccurrence(input.dueDate, input.repeat?.unit)
-			const task = yield* repository.create({
-				...input,
-				ownerId,
-				dueDate,
-				repeat: input.repeat && { ...input.repeat, anchor: dueDate },
-			})
+			const task = yield* repository
+				.create({
+					...input,
+					ownerId,
+					dueDate,
+					repeat: input.repeat && { ...input.repeat, anchor: dueDate },
+				})
+				.pipe(Effect.catchTag('DbError', failDeletedProject))
 			// The task is saved: a failed count skips the event instead of failing the request.
 			const count = yield* repository
 				.count(ownerId)
@@ -206,6 +255,9 @@ export const TasksServiceLive = Layer.effect(
 			const current = yield* requireTask(
 				yield* repository.find({ ownerId, id })
 			)
+
+			if (input.projectId) yield* requireProject(ownerId, input.projectId)
+
 			const repeat =
 				input.repeat === undefined
 					? current.repeat
@@ -215,15 +267,17 @@ export const TasksServiceLive = Layer.effect(
 			const editedAt = new Date(yield* Clock.currentTimeMillis)
 
 			return yield* requireTask(
-				yield* repository.update({
-					...input,
-					ownerId,
-					id,
-					dueDate,
-					repeat: rule,
-					nextDueDate: rule && getNextDueDate(dueDate, rule, today),
-					editedAt,
-				})
+				yield* repository
+					.update({
+						...input,
+						ownerId,
+						id,
+						dueDate,
+						repeat: rule,
+						nextDueDate: rule && getNextDueDate(dueDate, rule, today),
+						editedAt,
+					})
+					.pipe(Effect.catchTag('DbError', failDeletedProject))
 			)
 		})
 
@@ -326,6 +380,7 @@ export const TasksServiceLive = Layer.effect(
 		return TasksService.of({
 			list,
 			listByLabel,
+			listByProject,
 			listCompleted,
 			listOpen,
 			create,
