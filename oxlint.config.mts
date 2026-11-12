@@ -167,7 +167,7 @@ export default defineConfig({
 			rules: { 'no-console': 'off' },
 		},
 		{
-			files: ['apps/web/**'],
+			files: ['apps/web/**', 'packages/app/**'],
 			rules: { 'soonlane/hook-query-naming': 'error' },
 		},
 		{

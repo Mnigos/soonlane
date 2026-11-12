@@ -18,6 +18,7 @@ const ROLE_FOLDERS = {
 		'platform/rpc',
 		'packages/auth',
 		'packages/analytics',
+		'packages/app',
 	],
 	port: ['application'],
 	service: ['application'],
