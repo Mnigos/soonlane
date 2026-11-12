@@ -20,6 +20,10 @@ export const routes = rootRoute('routes/__root.tsx', [
 				'/labels/$name',
 				'modules/labels/presentation/routes/label.route.tsx'
 			),
+			route(
+				'/todoist',
+				'modules/todoist/presentation/routes/todoist.route.tsx'
+			),
 		]),
 		route(
 			'/app/quick-add',
