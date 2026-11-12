@@ -1,4 +1,5 @@
 import { createAuthClient } from 'better-auth/client'
+import { TODOIST_IMPORT_PATH, TODOIST_PROVIDER_ID } from './todoist.constants'
 
 /** Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. `VITE_API_URL` is the API's origin. */
 export const authClient = createAuthClient({
@@ -32,6 +33,17 @@ export async function signInWithGoogle(
 		).href,
 		loginHint,
 		additionalParams: fresh ? FORCED_GOOGLE_LOGIN_PARAMS : undefined,
+	})
+}
+
+/** Sends the signed-in browser to Todoist's consent screen; Todoist returns it to the import page, with `?error=` when nothing was linked. */
+export async function linkTodoist() {
+	const importPage = new URL(TODOIST_IMPORT_PATH, window.location.origin).href
+
+	return await authClient.linkSocial({
+		provider: TODOIST_PROVIDER_ID,
+		callbackURL: importPage,
+		errorCallbackURL: importPage,
 	})
 }
 

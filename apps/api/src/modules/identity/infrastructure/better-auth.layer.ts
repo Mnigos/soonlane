@@ -1,5 +1,9 @@
 import { hasAnalyticsConsent } from '@soonlane/analytics'
-import { type AuthLogLevel, createAuth } from '@soonlane/auth/server'
+import {
+	type AuthLogLevel,
+	createAuth,
+	readStoredOAuthToken,
+} from '@soonlane/auth/server'
 import { userIdSchema } from '@soonlane/domain'
 import { Effect, Layer, Redacted } from 'effect'
 import {
@@ -48,6 +52,10 @@ export const BetterAuthLive = Layer.effect(
 				clientId: config.googleClientId,
 				clientSecret: Redacted.value(config.googleClientSecret),
 			},
+			todoist: config.todoist && {
+				clientId: config.todoist.clientId,
+				clientSecret: Redacted.value(config.todoist.clientSecret),
+			},
 			log: (level, ...message) =>
 				Effect.runSyncWith(context)(LOG_BY_LEVEL[level](...message)),
 			events: {
@@ -73,6 +81,7 @@ export const BetterAuthLive = Layer.effect(
 
 		return Auth.of({
 			handle: async request => await auth.handler(request),
+			readStoredToken: async stored => await readStoredOAuthToken(auth, stored),
 			getSession: async headers => {
 				const { headers: responseHeaders, response: result } =
 					await auth.api.getSession({ headers, returnHeaders: true })

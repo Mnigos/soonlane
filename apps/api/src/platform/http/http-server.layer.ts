@@ -17,6 +17,8 @@ import { withCors } from './cors.helper'
  * Kept under Railway's `drainingSeconds`, so PostHog's final flush and the pool's close still run before SIGKILL.
  */
 const SERVER_DRAIN_TIMEOUT = '15 seconds'
+/** Bun's default of 10 s also cuts a request still waiting on its handler; this outlasts `todoist.preview` (a 20 s read, then up to two 15 s revokes). */
+const IDLE_TIMEOUT_SECONDS = 60
 
 /**
  * Serves the API on `0.0.0.0:$PORT`. `/health` answers Railway's deploy check with the
@@ -72,6 +74,7 @@ export const HttpServerLive = Layer.effectDiscard(
 					// Both stacks: Railway's private network resolves `api.railway.internal` to IPv6 too, and to IPv6 only in older environments.
 					hostname: '::',
 					port,
+					idleTimeout: IDLE_TIMEOUT_SECONDS,
 					development: false,
 					routes: {
 						'/health': {
