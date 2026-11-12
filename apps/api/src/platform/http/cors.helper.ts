@@ -11,6 +11,22 @@ const PREFLIGHT_HEADERS = {
 	'access-control-max-age': String(PREFLIGHT_MAX_AGE_S),
 }
 
+/** A thrown failure becomes an empty 500 logged by name only, so it still carries the CORS headers. */
+async function handleOrFail(handle: RequestHandler, request: Request) {
+	try {
+		return await handle(request)
+	} catch (error) {
+		Effect.runSync(
+			Effect.logError(
+				'CORS-wrapped request failed',
+				error instanceof Error ? error.name : typeof error
+			)
+		)
+
+		return new Response(null, { status: 500 })
+	}
+}
+
 function forbidden() {
 	return new Response(null, { status: 403, headers: { vary: 'Origin' } })
 }
@@ -20,7 +36,7 @@ function forbidden() {
  * Answers every preflight itself and refuses any other `Origin` with 403, including other `soonlane.com`
  * hosts and the API's own. A request without `Origin` (SSR, Google's redirect back) goes on to the
  * handler, whose own origin checks stay on; a provider that returned with a `form_post` would carry
- * Google's origin and be refused. Failures thrown by the handler still answer with the CORS headers.
+ * Google's origin and be refused.
  */
 export function withCors(
 	trustedOrigins: readonly string[],
@@ -44,16 +60,7 @@ export function withCors(
 				headers: { ...corsHeaders, ...PREFLIGHT_HEADERS, vary: 'Origin' },
 			})
 
-		const response = await handle(request).catch((error: unknown) => {
-			Effect.runSync(
-				Effect.logError(
-					'Request failed',
-					error instanceof Error ? error.name : typeof error
-				)
-			)
-
-			return new Response(null, { status: 500 })
-		})
+		const response = await handleOrFail(handle, request)
 		// A fresh response: one from a redirect helper can have immutable headers.
 		const answer = new Response(response.body, response)
 

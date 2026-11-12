@@ -6,6 +6,7 @@ import { APIError, createAuthMiddleware, isAPIError } from 'better-auth/api'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { canSignUp } from './auth-policy.helper'
 import { DESKTOP_EXCHANGE_PATH, desktopSignIn } from './desktop-sign-in.handler'
+import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
 import { getSignedInHintCookie } from './signed-in-hint.helper'
 
@@ -65,30 +66,6 @@ function redactLogArgument(argument: unknown) {
 
 const RATE_LIMIT_WINDOW_S = 60
 const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
-/** The body fields Better Auth redirects the browser to; its email-link GET endpoints also redirect to a query `callbackURL`. */
-const RETURN_ADDRESS_FIELDS = [
-	'callbackURL',
-	'errorCallbackURL',
-	'newUserCallbackURL',
-	'redirectTo',
-] as const
-
-/** A field of a request body or query, which Better Auth types as `any`. */
-function readField(source: unknown, field: string): unknown {
-	return typeof source === 'object' && source !== null
-		? Object.getOwnPropertyDescriptor(source, field)?.value
-		: undefined
-}
-
-/** Absolute and on a trusted web origin: Better Auth itself would also accept relative paths and its own host. */
-function isReturnAddress(value: unknown, trustedOrigins: readonly string[]) {
-	return (
-		typeof value === 'string' &&
-		URL.canParse(value) &&
-		trustedOrigins.includes(new URL(value).origin)
-	)
-}
-
 /**
  * Better Auth for anyone with a verified Google address. `allowedEmails`, when
  * set, limits who can create an account; existing accounts keep signing in.
@@ -143,29 +120,6 @@ export function createAuth(options: CreateAuthOptions) {
 		},
 		user: { deleteUser: { enabled: true } },
 		hooks: {
-			// Google sign-in without a body `callbackURL` would return to the API's own origin.
-			before: createAuthMiddleware(async ctx => {
-				const body: unknown = ctx.body
-				const returnAddresses = [
-					...RETURN_ADDRESS_FIELDS.map(field => readField(body, field)),
-					readField(ctx.query, 'callbackURL'),
-				].filter(value => value !== undefined)
-				const isMissingCallback =
-					ctx.path === '/sign-in/social' &&
-					readField(body, 'callbackURL') === undefined
-
-				if (
-					isMissingCallback ||
-					!returnAddresses.every(value =>
-						isReturnAddress(value, options.trustedOrigins)
-					)
-				)
-					throw new APIError('BAD_REQUEST', {
-						code: 'INVALID_RETURN_ADDRESS',
-						message:
-							'Return addresses must be absolute URLs on a trusted origin.',
-					})
-			}),
 			after: createAuthMiddleware(async ctx => {
 				const hintCookie = getSignedInHintCookie(options.cookiePrefix)
 				const attributes = {
@@ -213,7 +167,7 @@ export function createAuth(options: CreateAuthOptions) {
 				},
 			},
 		},
-		plugins: [desktopSignIn()],
+		plugins: [desktopSignIn(), returnAddresses(options.trustedOrigins)],
 	})
 }
 

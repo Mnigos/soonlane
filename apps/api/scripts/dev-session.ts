@@ -10,7 +10,7 @@ const SAMPLE_USER = {
 	email: 'sample@soonlane.test',
 	emailVerified: true,
 } as const
-const SESSION_COOKIE = 'better-auth.session_token'
+const SESSION_COOKIE = `${process.env.AUTH_COOKIE_PREFIX || 'soonlane-dev'}.session_token`
 const SESSION_TTL_MS = 86_400_000
 const TOKEN_BYTES = 24
 const shouldDelete = process.argv.includes('--delete')
