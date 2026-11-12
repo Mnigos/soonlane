@@ -45,7 +45,7 @@
         "role": "semantic",
         "displayName": "Overdue Coral",
         "canonical": "#ff7066",
-        "usage": "Active sidebar text, Reschedule, overdue dates, errors."
+        "usage": "Active sidebar text, Reschedule, overdue dates, errors, today's number in the date picker."
       },
       "priority-1": {
         "role": "semantic",
