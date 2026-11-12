@@ -9,9 +9,12 @@ export const BROWSER_ANALYTICS_OPTIONS = {
 	key: import.meta.env.VITE_POSTHOG_KEY,
 	buildProperties: BUILD_PROPERTIES,
 	cookiePrefix: AUTH_COOKIE_PREFIX,
-	// A label's name is user content and a calendar link's token (on the API host) is a secret.
+	// Label and project names are user content and a calendar link's token (on the API host) is a secret.
 	privateRoutes: [
-		...(['/app/labels/$name'] satisfies (keyof FileRoutesByFullPath)[]),
+		...([
+			'/app/labels/$name',
+			'/app/projects/$name',
+		] satisfies (keyof FileRoutesByFullPath)[]),
 		'/calendar/{$token}.ics',
 	],
 	getUser: router => {

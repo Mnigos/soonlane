@@ -14,7 +14,7 @@ interface DaySectionProps {
 	tasks: Task[]
 	isLoading: boolean
 	onComplete: (task: Task) => void
-	/** Off in a label view, which has one Add task row at its bottom. */
+	/** Off in a label or project view, which has one Add task row at its bottom. */
 	hasAddTask?: boolean
 	ref?: Ref<HTMLElement>
 }

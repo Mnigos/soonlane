@@ -3,10 +3,8 @@ import { updateLabelInputSchema } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
-import {
-	paintLabel,
-	refreshTaskAndLabelLists,
-} from '../helpers/label-queries.helper'
+import { refreshTaskLists } from '../../tasks/helpers/task-list.helper'
+import { paintLabel } from '../helpers/label-queries.helper'
 
 /**
  * Saves a label's color, showing it everywhere at once and painting the old one back if saving fails.
@@ -41,7 +39,7 @@ export function useUpdateLabelColorMutation() {
 					await paintLabel(queryClient, context.id, context.previousColor)
 			},
 			onSettled: async () => {
-				if (isLastUpdate()) await refreshTaskAndLabelLists(queryClient)
+				if (isLastUpdate()) await refreshTaskLists(queryClient)
 			},
 		})
 	)

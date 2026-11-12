@@ -5,5 +5,6 @@ export const APP_PATHS = {
 	today: '/app/today',
 	search: '/app/search',
 	label: '/app/labels/$name',
+	project: '/app/projects/$name',
 	quickAdd: '/app/quick-add',
 } as const

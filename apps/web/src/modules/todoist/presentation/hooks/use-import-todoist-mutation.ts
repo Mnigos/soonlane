@@ -1,6 +1,6 @@
 import { APP_PATHS } from '@soonlane/app/app-paths'
-import { refreshTaskAndLabelLists } from '@soonlane/app/labels/helpers/label-queries.helper'
 import { orpcQuery } from '@soonlane/app/rpc-query'
+import { refreshTaskLists } from '@soonlane/app/tasks/helpers/task-list.helper'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
@@ -26,10 +26,7 @@ export function useImportTodoistMutation() {
 					queryClient.invalidateQueries({
 						queryKey: orpcQuery.todoist.status.key(),
 					}),
-					refreshTaskAndLabelLists(queryClient),
-					queryClient.invalidateQueries({
-						queryKey: orpcQuery.projects.key(),
-					}),
+					refreshTaskLists(queryClient),
 				])
 				await navigate({ to: APP_PATHS.upcoming })
 				toast(

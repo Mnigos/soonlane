@@ -8,18 +8,6 @@ import type { LabelColor, LabelId } from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 
-/** Task rows show label names and the sidebar counts open tasks per label, so both lists follow either change. */
-export async function refreshTaskAndLabelLists(queryClient: QueryClient) {
-	await Promise.all([
-		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.list.key() }),
-		queryClient.invalidateQueries({
-			queryKey: orpcQuery.tasks.listCompleted.key(),
-		}),
-		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.search.key() }),
-		queryClient.invalidateQueries({ queryKey: orpcQuery.labels.list.key() }),
-	])
-}
-
 /**
  * Shows a label in a new color in the labels list and on every task that carries it, before the server confirms it.
  * Returns the color it had, so a failed save can paint that back.

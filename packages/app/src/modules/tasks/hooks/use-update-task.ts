@@ -12,7 +12,6 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '../../../rpc-query.client'
-import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	announceCompletion,
@@ -22,6 +21,7 @@ import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
 	placeTask,
+	refreshTaskLists,
 	withMovedTask,
 } from '../helpers/task-list.helper'
 
@@ -160,7 +160,7 @@ export function useUpdateTask(today: CalendarDate) {
 							mutationKey: orpcQuery.tasks.update.mutationKey(),
 						})
 					)
-						void refreshTaskAndLabelLists(queryClient)
+						void refreshTaskLists(queryClient)
 				}, 0)
 			},
 		})

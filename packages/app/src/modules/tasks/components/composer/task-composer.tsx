@@ -1,5 +1,11 @@
 import type { ComposerSource } from '@soonlane/analytics'
-import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
+import type {
+	GoalInput,
+	Label,
+	Project,
+	RepeatInput,
+	Task,
+} from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	getEditedDueDate,
@@ -30,6 +36,8 @@ interface TaskComposerProps {
 	defaultDueDate: CalendarDate | undefined
 	/** Picked again after each task, like the label of an open label view. */
 	defaultLabels?: Label[]
+	/** Every task it adds goes into it, like the project of an open project view. */
+	defaultProject?: Project
 	today: CalendarDate
 	source: ComposerSource
 	onCancel: () => void
@@ -67,6 +75,7 @@ function getSavedRule(
 export function TaskComposer({
 	defaultDueDate,
 	defaultLabels,
+	defaultProject,
 	today,
 	source,
 	onCancel,
@@ -159,6 +168,7 @@ export function TaskComposer({
 				priority,
 				repeat,
 				labelIds: pickedLabels.map(({ id }) => id),
+				projectId: defaultProject?.id,
 				goal,
 			},
 			{

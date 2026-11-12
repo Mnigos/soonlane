@@ -12,12 +12,14 @@ import {
 import { APP_PATHS } from '../../../app-path.constants'
 import { useHostApp } from '../../../hooks/use-host-app'
 import { SidebarLabels } from '../../labels/components/sidebar-labels'
+import { SidebarProjects } from '../../projects/components/sidebar-projects'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { SidebarNavLink } from './sidebar-nav-link'
 
 interface ShellSidebarProps {
 	className?: string
 	activeLabelName?: string
+	activeProjectName?: string
 	onAddTask: () => void
 	onCollapse: () => void
 	onNavigate: () => void
@@ -28,6 +30,7 @@ interface ShellSidebarProps {
 export function ShellSidebar({
 	className,
 	activeLabelName,
+	activeProjectName,
 	onAddTask,
 	onCollapse,
 	onNavigate,
@@ -100,6 +103,11 @@ export function ShellSidebar({
 					Search
 				</button>
 			</nav>
+
+			<SidebarProjects
+				activeProjectName={activeProjectName}
+				onNavigate={onNavigate}
+			/>
 
 			<SidebarLabels
 				activeLabelName={activeLabelName}

@@ -34,6 +34,7 @@ import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteI
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
 import { Route as modulesBlogPresentationRoutesPostDotrouteRouteImport } from './modules/blog/presentation/routes/post.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
+import { Route as modulesProjectsPresentationRoutesProjectDotrouteRouteImport } from './modules/projects/presentation/routes/project.route'
 
 const modulesIdentityPresentationRoutesSessionDotrouteRoute =
   modulesIdentityPresentationRoutesSessionDotrouteRouteImport.update({
@@ -183,6 +184,12 @@ const modulesLabelsPresentationRoutesLabelDotrouteRoute =
     path: '/labels/$name',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
+const modulesProjectsPresentationRoutesProjectDotrouteRoute =
+  modulesProjectsPresentationRoutesProjectDotrouteRouteImport.update({
+    id: '/projects/$name',
+    path: '/projects/$name',
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/app/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 export interface FileRoutesByTo {
   '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
@@ -232,6 +240,7 @@ export interface FileRoutesByTo {
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/app/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -260,6 +269,7 @@ export interface FileRoutesById {
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/_site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/_session/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/_session/app/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/desktop/sign-in'
     | '/blog/$slug'
     | '/app/labels/$name'
+    | '/app/projects/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,6 +322,7 @@ export interface FileRouteTypes {
     | '/desktop/sign-in'
     | '/blog/$slug'
     | '/app/labels/$name'
+    | '/app/projects/$name'
   id:
     | '__root__'
     | '/_session'
@@ -338,6 +350,7 @@ export interface FileRouteTypes {
     | '/_session/desktop/sign-in'
     | '/_site/blog/$slug'
     | '/_session/app/labels/$name'
+    | '/_session/app/projects/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -528,6 +541,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
+    '/_session/app/projects/$name': {
+      id: '/_session/app/projects/$name'
+      path: '/projects/$name'
+      fullPath: '/app/projects/$name'
+      preLoaderRoute: typeof modulesProjectsPresentationRoutesProjectDotrouteRouteImport
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
+    }
   }
 }
 
@@ -538,6 +558,7 @@ interface modulesShellPresentationRoutesShellDotrouteRouteChildren {
   modulesTasksPresentationRoutesTodayDotrouteRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   modulesTodoistPresentationRoutesTodoistDotrouteRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   modulesLabelsPresentationRoutesLabelDotrouteRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  modulesProjectsPresentationRoutesProjectDotrouteRoute: typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 
 const modulesShellPresentationRoutesShellDotrouteRouteChildren: modulesShellPresentationRoutesShellDotrouteRouteChildren =
@@ -554,6 +575,8 @@ const modulesShellPresentationRoutesShellDotrouteRouteChildren: modulesShellPres
       modulesTodoistPresentationRoutesTodoistDotrouteRoute,
     modulesLabelsPresentationRoutesLabelDotrouteRoute:
       modulesLabelsPresentationRoutesLabelDotrouteRoute,
+    modulesProjectsPresentationRoutesProjectDotrouteRoute:
+      modulesProjectsPresentationRoutesProjectDotrouteRoute,
   }
 
 const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =

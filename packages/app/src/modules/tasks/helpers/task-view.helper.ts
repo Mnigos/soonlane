@@ -1,4 +1,4 @@
-/** Label names are unique per owner ignoring case, so a view's `$name` matches any casing. */
+/** Label and project names are unique per owner ignoring case, so a view's `$name` matches any casing. */
 export function isNamed(item: { name: string }, name: string | undefined) {
 	return name?.toLowerCase() === item.name.toLowerCase()
 }

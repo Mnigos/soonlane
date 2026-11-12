@@ -5,6 +5,7 @@ export type ComposerSource =
 	| 'day_row'
 	| 'inbox_view'
 	| 'label_view'
+	| 'project_view'
 	| 'quick_add'
 	| 'sidebar_dialog'
 	| 'task_row'

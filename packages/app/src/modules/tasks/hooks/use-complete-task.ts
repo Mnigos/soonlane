@@ -3,7 +3,6 @@ import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
-import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	addToCompleted,
@@ -12,6 +11,7 @@ import {
 	removeFromCompleted,
 } from '../helpers/task-completion.helper'
 import {
+	refreshTaskLists,
 	removeCachedTask,
 	restoreCachedTask,
 } from '../helpers/task-list.helper'
@@ -24,7 +24,7 @@ export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
 
 	async function refreshLists() {
-		await refreshTaskAndLabelLists(queryClient)
+		await refreshTaskLists(queryClient)
 	}
 
 	const uncomplete = useMutation(

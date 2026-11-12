@@ -4,10 +4,10 @@ import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '../../../rpc-query.client'
-import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
 import {
+	refreshTaskLists,
 	removeCachedTask,
 	restoreCachedTask,
 } from '../helpers/task-list.helper'
@@ -34,7 +34,7 @@ export function useDeleteTask(today: CalendarDate) {
 				if (deleted)
 					capture('task_deleted', getTaskEventProperties(deleted, today))
 			},
-			onSettled: async () => await refreshTaskAndLabelLists(queryClient),
+			onSettled: async () => await refreshTaskLists(queryClient),
 		})
 	)
 

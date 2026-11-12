@@ -137,6 +137,19 @@ export function withMovedTask(
 	return placement ? withTask(rest, placement) : rest
 }
 
+/** Task rows show label names and the sidebar counts open tasks per label and project, so all of these follow any change to them. */
+export async function refreshTaskLists(queryClient: QueryClient) {
+	await Promise.all([
+		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.list.key() }),
+		queryClient.invalidateQueries({
+			queryKey: orpcQuery.tasks.listCompleted.key(),
+		}),
+		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.search.key() }),
+		queryClient.invalidateQueries({ queryKey: orpcQuery.labels.list.key() }),
+		queryClient.invalidateQueries({ queryKey: orpcQuery.projects.list.key() }),
+	])
+}
+
 /** Takes a task out of every cached task list at once, returning where it sat for {@link restoreCachedTask}. */
 export async function removeCachedTask(queryClient: QueryClient, id: string) {
 	const queryKey = orpcQuery.tasks.list.key()

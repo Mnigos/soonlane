@@ -28,6 +28,7 @@ interface ShellProps extends PropsWithChildren {
 	/** The current pathname, which Recent compares with `APP_PATHS`. */
 	activePath: string
 	activeLabelName?: string
+	activeProjectName?: string
 	initialIsNoDateSectionOpen: boolean
 	initialSidebarPreference: SidebarPreference
 	user: SessionUser
@@ -42,6 +43,7 @@ interface ShellProps extends PropsWithChildren {
 export function Shell({
 	activePath,
 	activeLabelName,
+	activeProjectName,
 	children,
 	initialIsNoDateSectionOpen,
 	initialSidebarPreference,
@@ -121,6 +123,7 @@ export function Shell({
 
 			<ShellSidebar
 				activeLabelName={activeLabelName}
+				activeProjectName={activeProjectName}
 				className={cn(
 					isOverlayOpen ? 'flex' : 'hidden',
 					preference === 'full' ? 'xl:flex' : 'xl:hidden'
