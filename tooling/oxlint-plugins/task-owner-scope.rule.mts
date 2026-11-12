@@ -1,4 +1,9 @@
-import { defineRule, type ESTree } from '@oxlint/plugins'
+import {
+	defineRule,
+	type ESTree,
+	type Scope,
+	type Variable,
+} from '@oxlint/plugins'
 
 const DB_PACKAGE = '@soonlane/db'
 const TABLE = 'task'
@@ -26,6 +31,13 @@ function getPropertyName(node: ESTree.MemberExpression) {
 		return node.property.value
 }
 
+/** The variable `name` resolves to from `scope`, walking out through the enclosing scopes, so a shadowing parameter wins. */
+function lookup(scope: Scope | null, name: string): Variable | undefined {
+	if (!scope) return undefined
+
+	return scope.set.get(name) ?? lookup(scope.upper, name)
+}
+
 function getKeyName(property: ESTree.ObjectPattern['properties'][number]) {
 	if (property.type !== 'Property') return
 	if (!property.computed && property.key.type === 'Identifier')
@@ -41,7 +53,8 @@ function getKeyName(property: ESTree.ObjectPattern['properties'][number]) {
  * `sql`) is an error everywhere else, because it could leave the condition out; the few single statements that take
  * `ownedBy` instead run with `allowTableQueries`. Inserts stay allowed: the owner is a required column there, not a
  * filter. The table is recognised by its import from `@soonlane/db` (named, renamed or through a namespace import) and
- * by local aliases of it or of the namespace (`const t = task`, `const { task } = schema`, `const db = schema`).
+ * by local aliases of it or of the namespace (`const t = task`, `const { task } = schema`, `const db = schema`). Names are
+ * resolved through scopes, so a parameter or local that shadows `task` is not the table.
  */
 export const taskOwnerScopeRule = defineRule({
 	meta: {
@@ -71,19 +84,36 @@ export const taskOwnerScopeRule = defineRule({
 			options !== null &&
 			!Array.isArray(options) &&
 			options.allowTableQueries === true
-		const tableNames = new Set<string>()
-		const namespaces = new Set<string>()
+		const tables = new Set<Variable>()
+		const namespaces = new Set<Variable>()
 
-		function isTable(node: ESTree.Node | null | undefined) {
+		function resolve(node: ESTree.Node | null | undefined) {
+			if (node?.type !== 'Identifier') return undefined
+
+			return lookup(context.sourceCode.getScope(node), node.name)
+		}
+
+		function isIn(set: Set<Variable>, node: ESTree.Node | null | undefined) {
+			const variable = resolve(node)
+
+			return variable !== undefined && set.has(variable)
+		}
+
+		function addTo(set: Set<Variable>, node: ESTree.Node) {
+			const variable = resolve(node)
+
+			if (variable) set.add(variable)
+		}
+
+		function isTable(node: ESTree.Node | null | undefined): boolean {
 			if (!node) return false
-			if (node.type === 'Identifier') return tableNames.has(node.name)
+			if (node.type === 'Identifier') return isIn(tables, node)
 			if (node.type === 'TSNonNullExpression' || node.type === 'TSAsExpression')
 				return isTable(node.expression)
 
 			return (
 				node.type === 'MemberExpression' &&
-				node.object.type === 'Identifier' &&
-				namespaces.has(node.object.name) &&
+				isIn(namespaces, node.object) &&
 				getPropertyName(node) === TABLE
 			)
 		}
@@ -94,13 +124,13 @@ export const taskOwnerScopeRule = defineRule({
 
 				for (const specifier of node.specifiers) {
 					if (specifier.type === 'ImportNamespaceSpecifier')
-						namespaces.add(specifier.local.name)
+						addTo(namespaces, specifier.local)
 					if (
 						specifier.type === 'ImportSpecifier' &&
 						specifier.imported.type === 'Identifier' &&
 						specifier.imported.name === TABLE
 					)
-						tableNames.add(specifier.local.name)
+						addTo(tables, specifier.local)
 				}
 			},
 			MemberExpression(node) {
@@ -109,17 +139,12 @@ export const taskOwnerScopeRule = defineRule({
 			},
 			VariableDeclarator(node) {
 				if (node.id.type === 'Identifier' && isTable(node.init))
-					tableNames.add(node.id.name)
-				if (
-					node.id.type === 'Identifier' &&
-					node.init?.type === 'Identifier' &&
-					namespaces.has(node.init.name)
-				)
-					namespaces.add(node.id.name)
+					addTo(tables, node.id)
+				if (node.id.type === 'Identifier' && isIn(namespaces, node.init))
+					addTo(namespaces, node.id)
 				if (node.id.type !== 'ObjectPattern') return
 
-				const isNamespace =
-					node.init?.type === 'Identifier' && namespaces.has(node.init.name)
+				const isNamespace = isIn(namespaces, node.init)
 				const isTableInit = isTable(node.init)
 
 				for (const property of node.id.properties) {
@@ -133,7 +158,7 @@ export const taskOwnerScopeRule = defineRule({
 						property.type === 'Property' &&
 						property.value.type === 'Identifier'
 					)
-						tableNames.add(property.value.name)
+						addTo(tables, property.value)
 				}
 			},
 			TaggedTemplateExpression(node) {
