@@ -13,7 +13,6 @@ export interface ServerEvents {
 	todoist_imported: {
 		tasks: number
 		changedTasks: number
-		leftOut: number
 		newLabels: number
 		newProjects: number
 	}
@@ -27,7 +26,6 @@ type ListedServerWireKey =
 	| 'task_id'
 	| 'tasks'
 	| 'changed_tasks'
-	| 'left_out'
 	| 'new_labels'
 	| 'new_projects'
 	| 'app_version'

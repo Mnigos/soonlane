@@ -69,10 +69,6 @@ export const TODOIST_COUNT_COPY = {
 		one: '{count} task arrived with changes.',
 		other: '{count} tasks arrived with changes.',
 	},
-	leftOut: {
-		one: '{count} open task was left out.',
-		other: '{count} open tasks were left out.',
-	},
 } as const satisfies Record<string, PluralCopy>
 
 /** One line per change, in the order the preview lists them. */
@@ -81,11 +77,6 @@ export const TODOIST_CHANGE_COPY: Record<TodoistImportChange, PluralCopy> = {
 		one: '{count} repeating task will arrive as a one-off task on its next date, without repeating.',
 		other:
 			'{count} repeating tasks will arrive as one-off tasks on their next date, without repeating.',
-	},
-	noDate: {
-		one: '{count} task without a date cannot be imported yet and will be left out.',
-		other:
-			'{count} tasks without a date cannot be imported yet and will be left out.',
 	},
 	alreadyImported: {
 		one: '{count} task imported from Todoist before will be skipped this time.',
@@ -101,8 +92,8 @@ export const TODOIST_CHANGE_COPY: Record<TodoistImportChange, PluralCopy> = {
 		other: '{count} sections will be dropped, while their tasks stay.',
 	},
 	deadlines: {
-		one: '{count} deadline will be dropped, while the due date stays.',
-		other: '{count} deadlines will be dropped, while the due dates stay.',
+		one: '{count} deadline will be dropped, while the task stays.',
+		other: '{count} deadlines will be dropped, while the tasks stay.',
 	},
 	durations: {
 		one: '{count} duration will be dropped.',
