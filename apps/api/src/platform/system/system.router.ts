@@ -20,8 +20,8 @@ export const systemRouter = {
 				)
 			)
 
-		const { version, commit, maintenance } = yield* AppConfig
+		const { version, commit } = yield* AppConfig
 
-		return { ok: db === 'ok', db, maintenance, version, commit }
+		return { ok: db === 'ok', db, version, commit }
 	}),
 }

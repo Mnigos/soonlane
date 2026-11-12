@@ -2,7 +2,6 @@ import { oc } from '@orpc/contract'
 import { TODOIST_IMPORT_CHANGES } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import { query } from './read-only.base'
 
 const countSchema = z.int().nonnegative()
 
@@ -56,7 +55,7 @@ const readErrors = {
 }
 
 export const todoistContract = {
-	status: query.errors(authErrors).output(todoistStatusSchema),
+	status: oc.errors(authErrors).output(todoistStatusSchema),
 	/** Reads the connected account once; a failed read or an expired connection closes it. */
 	preview: oc.errors(readErrors).output(todoistPreviewSchema),
 	/** Reads the account again and saves its tasks, labels and projects in one transaction, with dates in `timeZone`; the connection closes either way. */

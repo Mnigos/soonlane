@@ -1,12 +1,10 @@
 import '@orpc/effect/extensions/effect'
 import { middlewareGen } from '@orpc/effect'
 import { implement } from '@orpc/server'
-import { contract, isReadOnly } from '@soonlane/contracts'
+import { contract } from '@soonlane/contracts'
 import { Cause, Effect } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
-import { AppConfig } from '../config/app.config'
 import { DbError } from '../db/db.errors'
-import { Maintenance } from '../system/maintenance.errors'
 import {
 	isBoundaryError,
 	toFailureDetails,
@@ -53,14 +51,4 @@ const mapDomainErrors = base.middleware(
 	})
 )
 
-const refuseWritesInMaintenance = base.middleware(
-	middlewareGen(function* refuseWritesInMaintenance({ next, procedure }) {
-		const { maintenance } = yield* AppConfig
-
-		if (maintenance && !isReadOnly(procedure)) return yield* new Maintenance()
-
-		return yield* next()
-	})
-)
-
-export const os = base.use(mapDomainErrors).use(refuseWritesInMaintenance)
+export const os = base.use(mapDomainErrors)

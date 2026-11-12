@@ -66,8 +66,6 @@ export interface CreateAuthOptions {
 	errorUrl: string
 	secret: string
 	allowedEmails: readonly string[]
-	/** Session lookups through `auth.api.getSession` neither refresh nor delete a session; set while the API refuses writes. */
-	readOnlySessions?: boolean
 	google: OAuthClientOptions
 	/** Unset, Todoist cannot be linked. */
 	todoist?: OAuthClientOptions
@@ -205,8 +203,6 @@ export function createAuth(options: CreateAuthOptions) {
 			google: { ...options.google, disableIdTokenSignIn: true },
 		},
 		user: { deleteUser: { enabled: true } },
-		// Deferred refresh makes a server-side (GET) lookup skip both writes; it changes nothing else in this setup.
-		session: { deferSessionRefresh: options.readOnlySessions },
 		// Todoist reports no verified email; its user info carries the linking user's own address.
 		account: {
 			encryptOAuthTokens: true,
