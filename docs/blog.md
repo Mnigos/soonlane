@@ -30,7 +30,7 @@ Put images in `apps/web/public/blog/<slug>/` and reference them as `/blog/<slug>
 
 ## Publish
 
-1. Open a pull request with the post as `draft: true`. The Vercel preview lists it at `/blog` with a Draft label, and its page carries `noindex`. Drafts never go in the sitemap.
+1. Open a pull request with the post as `draft: true`. Deploy the branch to staging (**Deploy staging**, [deploy-railway.md](deploy-railway.md#staging)) to read it there: staging lists it at `/blog` with a Draft label, and its page carries `noindex`. Drafts never go in the sitemap.
 2. When the text is final, set `draft: false` and `date` to the publish day.
 3. Merge with a `docs(blog): …` commit, so the post stays out of `CHANGELOG.md` (the release notes keep only `feat`, `fix` and `perf`).
 
@@ -38,6 +38,6 @@ Merging deploys production, and the post goes live at `/blog/<slug>`, in `/sitem
 
 ## How visibility works
 
-A post is published when `draft` is `false` and `date` is not after the build day (UTC). Production builds (`VERCEL_ENV=production`) leave unpublished posts out of the generated content entirely, so their text is not in any page, script, sitemap or feed. Every other build (previews, local) renders them with the Draft label.
+A post is published when `draft` is `false` and `date` is not after the build day (UTC). Production builds (`APP_ENV=production`) leave unpublished posts out of the generated content entirely, so their text is not in any page, script, sitemap or feed. Every other build (staging, local) renders them with the Draft label.
 
 There is no scheduled publishing: a post with a future `date` stays hidden until the first production deploy on or after that day.

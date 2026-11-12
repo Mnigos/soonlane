@@ -1,6 +1,6 @@
 # Deploy on Railway
 
-The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). It serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`). The web app still deploys on Vercel; its pages call this host from the browser with credentials and from SSR with the proxy secret ([deploy-vercel.md](deploy-vercel.md)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
+The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). It serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`). The web app (`apps/web`) is a Bun server whose pages call this host from the browser with credentials and from SSR with the proxy secret ([Web app](#web-app)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
 
 ## Configuration
 
@@ -29,7 +29,7 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 | `DATABASE_URL`    | Neon `main`, direct, entered by hand | `${{Postgres.DATABASE_URL}}` |
 | `AUTH_SECRET`          | secret, at least 32 characters | its own secret                 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | the same client           |
-| `API_PROXY_SECRET`     | secret, also on Vercel Production | its own secret, also on Vercel's `staging` branch |
+| `API_PROXY_SECRET`     | secret, the web server's too | its own secret, the web server's too |
 | `ALLOWED_EMAILS`       | optional                   | optional                           |
 | `POSTHOG_KEY`          | optional, the PostHog project key | optional                    |
 
@@ -37,11 +37,52 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 
 Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=8080`, `APP_ENV=development`, `API_URL=http://localhost:8080`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, `AUTH_COOKIE_PREFIX=soonlane-dev` and no `AUTH_COOKIE_DOMAIN` (localhost cookies reach every port), any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
 
+## Web app
+
+`apps/web` builds one Bun server for the landing, the blog, the changelog, the legal pages and the app under `/app`. `bun run --cwd apps/web build` writes it to `apps/web/.output` with Nitro's `bun` preset: `server/index.mjs` and `public/` (Vite's assets, the files of `apps/web/public` and the prerendered pages). `bun run --cwd apps/web start` runs `bun .output/server/index.mjs`, which listens on `PORT` (3000 without it). It needs Bun 1.4; Bun 1.3 cannot parse the bundled router. The build ends with `apps/web/scripts/check-server.ts`: it starts the built server from a copy outside the repo, so nothing resolves from the workspace's `node_modules`, and fails the build unless robots answer per host and gzipped, a prerendered page is read from disk and comes gzipped with `no-cache`, an existing asset comes as its brotli copy and immutable, a missing one is a 404 with `no-store`, and `/health` answers.
+
+What the server sends:
+
+- `/assets/*`: `cache-control: public, max-age=31536000, immutable` when the file exists; a missing file answers 404 with `no-store`, so neither a client holding an old chunk name nor Cloudflare keeps the miss.
+- Every other success, prerendered HTML included: `cache-control: no-cache`. Every error response: `no-store`.
+- Compression: the files Nitro lists at build time are stored gzip and brotli next to the originals; the server gzips the other text responses (prerendered pages, server-rendered pages, robots, the feeds) for clients that accept gzip.
+- `/health`: `{"ok":true,"environment":"<APP_ENV>","commit":"<short sha>"}`, without calling the API or the database.
+
+| Variable                  | Read at | Production                 | Staging                            | Local                   |
+| ------------------------- | ------- | -------------------------- | ---------------------------------- | ----------------------- |
+| `APP_ENV`                 | build   | `production`               | `staging`                          | unset (`development`)   |
+| `VITE_API_URL`            | build   | `https://api.soonlane.com` | `https://api.staging.soonlane.com` | `http://localhost:8080` |
+| `VITE_AUTH_COOKIE_PREFIX` | build   | `soonlane`                 | `soonlane-staging`                 | `soonlane-dev`          |
+| `VITE_POSTHOG_KEY`        | build   | optional, `phc_…`          | optional                           | optional                |
+| `API_INTERNAL_URL`        | run     | `http://api.railway.internal:8080` | `http://api.railway.internal:8080` | `http://localhost:8080` |
+| `API_PROXY_SECRET`        | run     | the `api` service's value  | the `api` service's value          | the local API's value   |
+| `PORT`                    | run     | set by the service         | set by the service                 | 3000                    |
+
+`APP_ENV` names the analytics `environment`, and a `production` build leaves drafts and future posts out of the blog ([blog.md](blog.md)). A `production` or `staging` build fails when `VITE_API_URL` or `VITE_AUTH_COOKIE_PREFIX` is missing, naming it: without them the pages call no API and look signed out. Development falls back to `soonlane-dev`, which matches no deployed environment. The `VITE_*` values are public and baked into the bundle, so a change needs a new build. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys, else from `APP_COMMIT` in `apps/web/commit.env`, which the staging workflow writes like the API's, else `dev`.
+
+`API_INTERNAL_URL` is where server rendering reaches the API, read per request, so the prerender needs neither it nor the secret; a missing one fails the first request that calls the API. It must be https, except on Railway's private network (a host ending in `.railway.internal`, plain http inside one environment) and in development. With `API_PROXY_SECRET` the API trusts the visitor IP the web server sends in `x-soonlane-visitor-ip`: Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge (`resolveEdgeIp`, the rule the API applies to its own requests, see [Client IP](#client-ip)). The `/ingest` proxy sends PostHog the same address.
+
+### Local environment
+
+```sh
+cp apps/web/.env.example apps/web/.env.local   # then fill it in
+bun run db:migrate
+bun run dev
+```
+
+`bun run dev` starts the web app on port 3000 and the API, which reads `apps/api/.env.local` ([Variables](#variables)); `API_PROXY_SECRET` must match in both files. `apps/web/.env.local` also holds `DATABASE_URL` and `DATABASE_URL_UNPOOLED` of the Neon `preview` branch for `bun run db:migrate` and `db:generate`. The files are git-ignored; never print them. Local sign-in uses the localhost redirect URI.
+
+Signed-in screenshots without Google: `bun run --cwd apps/api dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server. `dev:session --delete` removes the user with its sessions and tasks; the script refuses `APP_ENV=production` and `NODE_ENV=production`, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host) is set and absent from the database URLs.
+
+### Google OAuth
+
+Better Auth runs on the API with the API's origin as its base URL, so Google returns to the API host, which sets the session cookie on the environment's domain and redirects to the app. The OAuth client (type **Web application**) needs the redirect URIs `https://api.soonlane.com/api/auth/callback/google`, `https://api.staging.soonlane.com/api/auth/callback/google` and `http://localhost:8080/api/auth/callback/google`. The app sends absolute callback and error URLs on the page's own origin, which must be in the API's `TRUSTED_ORIGINS`; the API refuses relative ones, other hosts and its own.
+
 ## Migrations
 
 The pre-deploy command `bun packages/db/scripts/migrate.ts` applies the Drizzle migrations from `packages/db/migrations` to `DATABASE_URL_UNPOOLED`, or `DATABASE_URL` without it. It runs in the built image after the build and before the new deployment takes traffic, where the private network is reachable. When it fails, the deployment fails and the previous one keeps serving; the pending migrations run in one transaction, so a failure leaves none of them applied. A change under `packages/db` deploys production, so a merged migration reaches it.
 
-The web app's `staging` branch calls the staging API, so it uses staging's Postgres; other Vercel previews call no API. Nothing migrates the Neon `preview` branch, which only local development uses; run `bun run db:migrate` after a new migration ([deploy-vercel.md](deploy-vercel.md)).
+Staging's web server calls the staging API, so it uses staging's Postgres. Nothing migrates the Neon `preview` branch, which only local development uses; run `bun run db:migrate` after a new migration ([Local environment](#local-environment)).
 
 ## Client IP
 
@@ -72,7 +113,7 @@ A deploy replaces the API before the web app, so for a few minutes a page loaded
 
 ## Staging
 
-Staging has no repository connected, so a push deploys nothing. To deploy a branch, tag or commit, run the **Deploy staging** workflow (Actions, or `gh workflow run deploy-staging.yml -f ref=<ref>`). It checks out the ref, writes its commit into `apps/api/commit.env`, runs `railway up` with the `RAILWAY_TOKEN_STAGING` secret and waits until the deployment passes its health check. Then it force-pushes the same ref to the branch `staging`, which Vercel serves on https://staging.soonlane.com ([deploy-vercel.md](deploy-vercel.md)), so the API is always at least as new as the web app. Then:
+Staging has no repository connected, so a push deploys nothing. To deploy a branch, tag or commit, run the **Deploy staging** workflow (Actions, or `gh workflow run deploy-staging.yml -f ref=<ref>`). It checks out the ref, writes its commit into `apps/api/commit.env`, runs `railway up` with the `RAILWAY_TOKEN_STAGING` secret and waits until the deployment passes its health check. Then:
 
 ```sh
 curl https://api.staging.soonlane.com/health

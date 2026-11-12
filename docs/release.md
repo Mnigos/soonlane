@@ -22,11 +22,11 @@ Run **Actions → Release → Run workflow** on `main` with channel `stable`.
 
 Nightly and stable share a concurrency group, so they never run at the same time.
 
-`[skip ci]` only stops GitHub Actions. Vercel builds every push to `main` (the project has no Ignored Build Step), so the release commit deploys production and rebuilds `/changelog` from the new `CHANGELOG.md`. After the first stable release, check that the deployment for the release commit reached Ready.
+`[skip ci]` only stops GitHub Actions. Railway deploys `main` with Wait for CI, and the release commit changes watched paths of both services, so it should deploy production and rebuild `/changelog` from the new `CHANGELOG.md` ([deploy-railway.md](deploy-railway.md#production)). Railway does not document whether a commit with no check suite deploys at once or waits until its two-hour limit skips it, so after the first stable release check that the `web` deployment of the release commit went live; if it was skipped, deploy it with **Deploy Latest Commit** on the service.
 
 ## Version in the app
 
-The build reads `version.json` and `VERCEL_GIT_COMMIT_SHA` (`dev` locally). `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to that version's section on `/changelog` (GitHub Releases for prerelease versions).
+The build reads `version.json` and the commit: `RAILWAY_GIT_COMMIT_SHA` on Railway's GitHub deploys, `commit.env` on staging deploys, `dev` locally. `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to that version's section on `/changelog` (GitHub Releases for prerelease versions).
 
 `/changelog` is prerendered from `CHANGELOG.md` at build time; a line outside the format below fails the build. Nightlies are listed only on GitHub Releases.
 
