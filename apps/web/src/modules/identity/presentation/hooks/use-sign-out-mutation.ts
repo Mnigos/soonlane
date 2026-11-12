@@ -3,10 +3,12 @@ import { authClient } from '@soonlane/auth/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
+export const SIGN_OUT_FAILED = 'Sign-out failed. Try again.'
+
 async function signOut() {
 	const { error } = await authClient.signOut()
 
-	if (error) throw new Error('Sign-out failed. Try again.')
+	if (error) throw new Error(SIGN_OUT_FAILED, { cause: error })
 }
 
 export function useSignOutMutation() {

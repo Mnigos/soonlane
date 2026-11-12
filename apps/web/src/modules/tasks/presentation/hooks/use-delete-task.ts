@@ -4,6 +4,7 @@ import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
 import {
@@ -20,9 +21,9 @@ export function useDeleteTask(today: CalendarDate) {
 			onMutate: async ({ id }) => ({
 				removed: await removeCachedTask(queryClient, id),
 			}),
-			onError: (_error, _input, context) => {
+			onError: (error, _input, context) => {
 				restoreCachedTask(queryClient, context?.removed)
-				toast('Could not delete the task. Try again.')
+				toastFailure(error, 'Could not delete the task. Try again.')
 			},
 			onSuccess: (_output, { id }, context) => {
 				// Undo on this task's completion toast would fail once it is gone; a failed delete keeps it.

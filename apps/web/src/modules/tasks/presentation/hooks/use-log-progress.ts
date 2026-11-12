@@ -1,8 +1,8 @@
 import type { ListTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	announceCompletion,
@@ -56,7 +56,8 @@ export function useLogProgress(today: CalendarDate) {
 					})
 			},
 			// No snapshot to restore: it would drop newer logs; the refetch below brings the server's progress.
-			onError: () => toast('Could not log progress. Try again.'),
+			onError: error =>
+				toastFailure(error, 'Could not log progress. Try again.'),
 			onSuccess: ({ task, logged, completed }) => {
 				if (!completed) return
 

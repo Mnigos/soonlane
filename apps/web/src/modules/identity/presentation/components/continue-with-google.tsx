@@ -7,6 +7,7 @@ import { cn } from '@soonlane/ui/cn'
 import { Button, buttonVariants } from '@soonlane/ui/components/button'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { GoogleIcon } from './google-icon'
 
 export const SIGN_IN_FAILED = 'Sign-in failed. Try again.'
@@ -22,11 +23,14 @@ export function ContinueWithGoogle({
 	loginHint,
 	fresh = false,
 }: Readonly<ContinueWithGoogleProps>) {
-	const { mutate, isPending, isSuccess, isError } = useMutation({
+	const { mutate, isPending, isSuccess, error } = useMutation({
 		mutationFn: async () => {
-			const { error } = await signInWithGoogle(redirects, { loginHint, fresh })
+			const { error: signInError } = await signInWithGoogle(redirects, {
+				loginHint,
+				fresh,
+			})
 
-			if (error) throw new Error(SIGN_IN_FAILED)
+			if (signInError) throw new Error(SIGN_IN_FAILED, { cause: signInError })
 		},
 	})
 	const [hasOpenedBrowser, setHasOpenedBrowser] = useState(false)
@@ -69,9 +73,9 @@ export function ContinueWithGoogle({
 				</output>
 			)}
 
-			{isError && (
+			{error && (
 				<p className="text-sm font-medium text-danger" role="alert">
-					{SIGN_IN_FAILED}
+					{describeFailure(error.cause, SIGN_IN_FAILED)}
 				</p>
 			)}
 		</div>

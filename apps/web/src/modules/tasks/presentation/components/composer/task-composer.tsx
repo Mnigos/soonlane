@@ -8,6 +8,7 @@ import {
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
 	getChangedGoal,
@@ -100,7 +101,7 @@ export function TaskComposer({
 	const titleRef = useRef<HTMLInputElement>(null)
 	// isPending lags a render, so a quick second Enter would send the task twice.
 	const isSubmittingRef = useRef(false)
-	const { mutate, isPending, isError } = useCreateTaskMutation(source, today)
+	const { mutate, isPending, error } = useCreateTaskMutation(source, today)
 	const { updateTask } = useUpdateTask(today)
 	const canSubmit = savedTitle.trim() !== '' && !isPending
 
@@ -281,9 +282,9 @@ export function TaskComposer({
 				</div>
 			</div>
 
-			{isError && (
+			{error && (
 				<p className="pt-2 text-caption text-danger" role="alert">
-					Could not add the task. Try again.
+					{describeFailure(error, 'Could not add the task. Try again.')}
 				</p>
 			)}
 		</form>

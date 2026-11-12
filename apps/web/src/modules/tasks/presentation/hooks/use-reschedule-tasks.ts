@@ -3,7 +3,7 @@ import {
 	rescheduleTasksInputSchema,
 } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getListInput } from '../helpers/task-list-key.helper'
 import {
@@ -54,14 +54,14 @@ export function useRescheduleTasks() {
 				return { removed }
 			},
 			// Puts back only these tasks, so concurrent changes to the lists survive.
-			onError: (_error, { ids }, context) => {
+			onError: (error, { ids }, context) => {
 				for (const { key, placements } of context?.removed ?? [])
 					queryClient.setQueryData<ListTasksOutput>(
 						key,
 						list =>
 							list && placements.reduce(withTask, ids.reduce(withoutTask, list))
 					)
-				toast('Could not reschedule the tasks. Try again.')
+				toastFailure(error, 'Could not reschedule the tasks. Try again.')
 			},
 			onSettled: async () =>
 				await Promise.all([

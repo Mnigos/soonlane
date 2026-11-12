@@ -3,12 +3,14 @@ import { authClient } from '@soonlane/auth/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
+export const DELETE_ACCOUNT_FAILED = 'Could not delete the account. Try again.'
+
 /** Better Auth deletes only from a session younger than its freshAge (one day). */
 async function deleteAccount() {
 	const { error } = await authClient.deleteUser()
 
 	if (error?.code === 'SESSION_EXPIRED') return { needsFreshSignIn: true }
-	if (error) throw new Error('Could not delete the account. Try again.')
+	if (error) throw new Error(DELETE_ACCOUNT_FAILED, { cause: error })
 
 	return { needsFreshSignIn: false }
 }

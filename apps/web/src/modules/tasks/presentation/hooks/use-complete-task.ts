@@ -2,8 +2,8 @@ import { capture } from '@soonlane/analytics/client'
 import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	addToCompleted,
@@ -44,11 +44,11 @@ export function useCompleteTask(today: CalendarDate) {
 
 				return { removed }
 			},
-			onError: (_error, { id }, context) => {
+			onError: (error, { id }, context) => {
 				removeFromCompleted(queryClient, id)
 				restoreCachedTask(queryClient, context?.removed)
 				capture('task_completion_failed', { task_id: id, action: 'complete' })
-				toast('Could not complete the task. Try again.')
+				toastFailure(error, 'Could not complete the task. Try again.')
 			},
 			onSuccess: ({ task }, input, context) => {
 				const { dueDate: seenDueDate } = completeTaskInputSchema.parse(input)

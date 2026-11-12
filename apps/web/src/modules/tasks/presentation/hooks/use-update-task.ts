@@ -12,6 +12,7 @@ import {
 } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	announceCompletion,
@@ -131,7 +132,7 @@ export function useUpdateTask(today: CalendarDate) {
 				return { previous }
 			},
 			// Restores only this task, so concurrent changes to the lists survive.
-			onError: (_error, { id }, context) => {
+			onError: (error, { id }, context) => {
 				notifyManager.batch(() => {
 					for (const { key, placement } of context?.previous ?? [])
 						queryClient.setQueryData<ListTasksOutput>(
@@ -139,7 +140,7 @@ export function useUpdateTask(today: CalendarDate) {
 							list => list && withMovedTask(list, id, placement)
 						)
 				})
-				toast('Could not save the task. Try again.')
+				toastFailure(error, 'Could not save the task. Try again.')
 			},
 			onSuccess: ({ task, completed }) => {
 				if (!completed) return

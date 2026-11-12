@@ -5,6 +5,7 @@ import { Dialog } from '@soonlane/ui/components/dialog'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { CalendarLinkField } from './calendar-link-field'
 
@@ -125,8 +126,14 @@ export function CalendarSubscriptionDialog({
 				{(create.isError || revoke.isError) && (
 					<p className="text-sm font-medium text-danger" role="alert">
 						{create.isError
-							? 'Could not create the link. Try again.'
-							: 'Could not revoke the link. Try again.'}
+							? describeFailure(
+									create.error,
+									'Could not create the link. Try again.'
+								)
+							: describeFailure(
+									revoke.error,
+									'Could not revoke the link. Try again.'
+								)}
 					</p>
 				)}
 
