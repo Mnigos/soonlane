@@ -117,6 +117,17 @@ const FRONTEND_ROUTER_IMPORTS = {
 	],
 } as const satisfies ImportRestriction
 
+/** `@soonlane/app` renders inside every host app, so it never pulls in server code or the host's framework (ADR 0015). */
+const HOST_ONLY_IMPORTS = {
+	patterns: [
+		{
+			regex: String.raw`^(effect|@effect/|@tanstack/react-start)`,
+			message:
+				'@soonlane/app runs in every host app; Effect and TanStack Start stay in the apps (ADR 0015).',
+		},
+	],
+} as const satisfies ImportRestriction
+
 function toRestrictionEntries<TEntry extends RestrictedImportEntry>(
 	entries: readonly TEntry[] = []
 ) {
@@ -150,7 +161,12 @@ export const CONVENTION_RULES = {
 	'typescript/no-non-null-assertion': 'error',
 } satisfies OxlintOverride['rules']
 
-const FRONTEND_APPS = ['apps/web'] as const
+/** Workspaces that render React screens; `packages/app` also gets HOST_ONLY_IMPORTS. */
+const FRONTEND_WORKSPACES = ['apps/web', 'packages/app'] as const
+
+function getHostOnlyImports(workspace: string) {
+	return workspace === 'packages/app' ? [HOST_ONLY_IMPORTS] : []
+}
 
 /** The private `fromUtcDate` brands every date the domain computes; the domain's brand schemas brand parsed values with Zod's `.brand()`. */
 const BRAND_CAST_FILE = 'packages/domain/src/dates/calendar-date.helper.ts'
@@ -193,12 +209,13 @@ export const CONVENTION_OVERRIDES = [
 			),
 		},
 	})),
-	...FRONTEND_APPS.flatMap(app => [
+	...FRONTEND_WORKSPACES.flatMap(app => [
 		{
 			files: [`${app}/**`],
 			rules: {
 				'no-restricted-imports': restrictImports(
 					getCrossWorkspaceImports(app),
+					...getHostOnlyImports(app),
 					FRONTEND_QUERY_IMPORTS,
 					FRONTEND_EFFECT_IMPORTS,
 					TANSTACK_MUTATION_OPTIONS_IMPORT,
@@ -219,6 +236,7 @@ export const CONVENTION_OVERRIDES = [
 			rules: {
 				'no-restricted-imports': restrictImports(
 					getCrossWorkspaceImports(app),
+					...getHostOnlyImports(app),
 					FRONTEND_QUERY_IMPORTS,
 					TANSTACK_MUTATION_OPTIONS_IMPORT,
 					FRONTEND_ROUTER_IMPORTS
@@ -231,6 +249,7 @@ export const CONVENTION_OVERRIDES = [
 			rules: {
 				'no-restricted-imports': restrictImports(
 					getCrossWorkspaceImports(app),
+					...getHostOnlyImports(app),
 					FRONTEND_QUERY_IMPORTS,
 					FRONTEND_EFFECT_IMPORTS,
 					TANSTACK_MUTATION_OPTIONS_IMPORT
@@ -282,7 +301,7 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'promise/prefer-await-to-then': 'error' },
 	},
 	{
-		files: ['apps/web/**'],
+		files: ['apps/web/**', 'packages/app/**'],
 		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
 	{
