@@ -4,17 +4,17 @@ on:
   schedule:
     # Daily nightly check; minute 23 avoids the busy top of the hour.
     - cron: '23 4 * * *'
+  # A merged release PR changes version.json; stable publishes the release it pins.
+  push:
+    branches: [main]
+    paths: [version.json]
   workflow_dispatch:
     inputs:
       channel:
-        description: Release channel. Stable promotes the commit of the latest nightly.
+        description: Release channel. Stable publishes the release version.json pins, unless it is already published.
         type: choice
         options: [nightly, stable]
         default: nightly
-      version:
-        description: Stable only. Version override (X.Y.Z); defaults to the version the latest nightly previewed.
-        type: string
-        required: false
 
 # Nightly and stable share one group, so they never overlap; a running release is never canceled.
 concurrency:
@@ -70,51 +70,44 @@ jobs:
     name: Release stable
     if: |
       github.repository == 'Mnigos/soonlane' &&
-      github.event_name == 'workflow_dispatch' && inputs.channel == 'stable' && github.ref == 'refs/heads/main'
+      (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.channel == 'stable' && github.ref == 'refs/heads/main'))
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: write
     steps:
-      - name: Checkout main
+      - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: main
           fetch-depth: 0
       - name: Setup Bun
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
         with:
           bun-version-file: package.json
-      - name: Install
-        run: bun install --frozen-lockfile
-      - name: Compute version from the latest nightly
+      - name: Read the release version.json pins
         id: release
-        run: bun --no-env-file scripts/release.ts stable --version "$VERSION_INPUT" >> "$GITHUB_OUTPUT"
+        run: bun --no-env-file scripts/release.ts publish --notes "$RUNNER_TEMP/release-notes.md" >> "$GITHUB_OUTPUT"
         env:
-          VERSION_INPUT: ${{ inputs.version }}
-      - name: Write changelog and version file
+          GH_TOKEN: ${{ github.token }}
+      - name: Tag the nightly's commit
+        if: steps.release.outputs.released != 'true' && steps.release.outputs.tag_exists != 'true'
+        # GitHub refuses this push when main changed a workflow file after the nightly; docs/release.md has the fix.
         run: |
           echo "Promoting $NIGHTLY_TAG ($SOURCE) as $TAG"
           git tag "$TAG" "$SOURCE"
-          # Prepend only the new section: earlier sections and their hand-written summaries stay byte for byte.
-          bun git-cliff --latest --prepend CHANGELOG.md
-          bun git-cliff --latest --strip all --output "$RUNNER_TEMP/release-notes.md"
-          bun --no-env-file scripts/release.ts write-version "$VERSION"
+          git push origin "$TAG"
         env:
           NIGHTLY_TAG: ${{ steps.release.outputs.nightly_tag }}
           SOURCE: ${{ steps.release.outputs.source }}
           TAG: ${{ steps.release.outputs.tag }}
-          VERSION: ${{ steps.release.outputs.version }}
-      - name: Commit, tag and publish
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add CHANGELOG.md version.json
-          git commit -m "chore(release): $TAG" -m '[skip ci]'
-          git push origin HEAD:main
-          git push origin "$TAG"
-          gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag --latest
+      - name: Publish the release
+        if: steps.release.outputs.released != 'true'
+        run: gh release create "$TAG" --title "$TAG" --notes-file "$RUNNER_TEMP/release-notes.md" --verify-tag --latest
         env:
           GH_TOKEN: ${{ github.token }}
-          HUSKY: '0'
+          TAG: ${{ steps.release.outputs.tag }}
+      - name: Report already released
+        if: steps.release.outputs.released == 'true'
+        run: echo "$TAG is already released; nothing to publish."
+        env:
           TAG: ${{ steps.release.outputs.tag }}

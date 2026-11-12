@@ -1,15 +1,19 @@
+import { join, resolve } from 'node:path'
 import { $ } from 'bun'
 
-// Release helper for .github/workflows/release.yml. Prints key=value lines for GITHUB_OUTPUT.
-//   bun scripts/release.ts nightly                     nightly tag for HEAD, if it has changes since the last nightly
-//   bun scripts/release.ts stable [--version X.Y.Z]    promotes the latest nightly's commit
-//   bun scripts/release.ts write-version X.Y.Z         writes version.json (release workflow only)
+// Release helper for .github/workflows/release.yml and the release skill. Prints key=value lines for GITHUB_OUTPUT.
+//   bun scripts/release.ts nightly                                                nightly tag for HEAD, if it has changes since the last nightly
+//   bun scripts/release.ts stable [--version X.Y.Z]                               the next stable version and the latest nightly it promotes
+//   bun scripts/release.ts prepare --summary <file> [--version X.Y.Z] [--out <dir>]  writes CHANGELOG.md and version.json for that release
+//   bun scripts/release.ts publish --notes <file>                                 the release version.json pins, unless it is published
 
 const STABLE_TAG_PATTERN = /^v(\d+)\.(\d+)\.(\d+)$/u
 const VERSION_PATTERN = /^(\d+)\.(\d+)\.(\d+)$/u
 const NIGHTLY_TAG_PATTERN = /^v(\d+\.\d+\.\d+)-nightly\.(\d{8})\.(\d+)$/u
 const BREAKING_HEADER_PATTERN = /^[a-z]+(\([^)]*\))?!:/u
-const VERSION_FILE = new URL('../version.json', import.meta.url)
+const ROOT = resolve(import.meta.dir, '..')
+const VERSION_FILE = join(ROOT, 'version.json')
+const CHANGELOG_FILE = join(ROOT, 'CHANGELOG.md')
 
 type Bump = 'major' | 'minor' | 'patch'
 
@@ -101,17 +105,35 @@ async function findLatestStableTag(ref?: string) {
 
 async function readVersionFile() {
 	const content: unknown = await Bun.file(VERSION_FILE).json()
+	const isObject = typeof content === 'object' && content !== null
 	const version =
-		typeof content === 'object' &&
-		content !== null &&
-		'version' in content &&
-		typeof content.version === 'string'
+		isObject && 'version' in content && typeof content.version === 'string'
 			? parseVersion(content.version)
+			: undefined
+	const nightly =
+		isObject && 'nightly' in content && typeof content.nightly === 'string'
+			? content.nightly
 			: undefined
 
 	if (!version) throw new Error('version.json must hold { "version": "X.Y.Z" }')
 
-	return version
+	return { version, nightly }
+}
+
+/** `ownTag` is the release's own tag when it already exists; it may be the latest, nothing else may be newer. */
+async function assertNewerThanLatestStable(version: Version, ownTag?: string) {
+	const latest = await findLatestStableTag()
+
+	if (
+		latest &&
+		latest.tag !== ownTag &&
+		compareVersions(version, latest.version) <= 0
+	)
+		throw new Error(
+			`v${formatVersion(version)} is not newer than ${latest.tag}`
+		)
+
+	return latest
 }
 
 interface NightlyTag {
@@ -143,7 +165,11 @@ async function listNightlyTags(ref?: string) {
 async function findNextVersion(ref: string) {
 	const latest = await findLatestStableTag(ref)
 
-	if (!latest) return { version: await readVersionFile(), latest }
+	if (!latest) {
+		const { version } = await readVersionFile()
+
+		return { version, latest }
+	}
 
 	const messages = await readCommitMessages(`${latest.tag}..${ref}`)
 	const bump = getBump(messages, latest.version)
@@ -205,12 +231,7 @@ async function computeStable(override?: string) {
 
 	if (!version) throw new Error(`Invalid version override: ${override}`)
 
-	const latest = await findLatestStableTag()
-
-	if (latest && compareVersions(version, latest.version) <= 0)
-		throw new Error(
-			`v${formatVersion(version)} is not newer than ${latest.tag}; wait for the next nightly or pass a newer version`
-		)
+	const latest = await assertNewerThanLatestStable(version)
 
 	return {
 		version: formatVersion(version),
@@ -218,6 +239,95 @@ async function computeStable(override?: string) {
 		previous_tag: latest?.tag ?? '',
 		source: await resolveCommit(nightly.tag),
 		nightly_tag: nightly.tag,
+	}
+}
+
+const releaseHeading = (version: string) => `\n## [${version}](`
+
+/** Prepends the release's section to CHANGELOG.md in `outDir`: the summary, then git-cliff's list up to the nightly. */
+async function prepareRelease(
+	summaryFile: string,
+	outDir: string,
+	override?: string
+) {
+	const release = await computeStable(override)
+	const summary = await Bun.file(summaryFile).text()
+	const current = await Bun.file(CHANGELOG_FILE).text()
+	const changelog = resolve(outDir, 'CHANGELOG.md')
+	const range = release.previous_tag
+		? `${release.previous_tag}..${release.source}`
+		: release.source
+
+	if (current.includes(releaseHeading(release.version)))
+		throw new Error(`CHANGELOG.md already has a section for ${release.version}`)
+	if (changelog !== CHANGELOG_FILE) await Bun.write(changelog, current)
+
+	await $`bun git-cliff ${range} --tag ${release.tag} --prepend ${changelog}`
+		.cwd(ROOT)
+		.quiet()
+
+	const text = await Bun.file(changelog).text()
+	const headingEnd =
+		text.indexOf('\n', text.indexOf(releaseHeading(release.version)) + 1) + 1
+
+	await Bun.write(
+		changelog,
+		`${text.slice(0, headingEnd)}\n${summary.trim()}\n${text.slice(headingEnd)}`
+	)
+	await Bun.write(
+		resolve(outDir, 'version.json'),
+		`${JSON.stringify({ version: release.version, nightly: release.nightly_tag }, null, 2)}\n`
+	)
+
+	return release
+}
+
+/** Nothing once the GitHub Release exists; a tag already on the nightly's commit is kept, so a re-run can publish it. */
+async function computePublish(
+	notesFile: string
+): Promise<Record<string, string>> {
+	const { version, nightly } = await readVersionFile()
+	const tag = `v${formatVersion(version)}`
+	const { exitCode } = await $`gh release view ${tag} --json tagName`
+		.nothrow()
+		.quiet()
+
+	if (exitCode === 0) return { tag, released: 'true' }
+
+	const [nightlyTag] = nightly ? await listTags(nightly) : []
+
+	if (!nightlyTag)
+		throw new Error(
+			`version.json pins nightly "${nightly ?? ''}", which is not a tag`
+		)
+
+	const source = await resolveCommit(nightlyTag)
+	const [existingTag] = await listTags(tag)
+
+	if (existingTag && (await resolveCommit(existingTag)) !== source)
+		throw new Error(`${tag} exists but does not point at ${nightlyTag}`)
+
+	await assertNewerThanLatestStable(version, existingTag)
+
+	const changelog = await Bun.file(CHANGELOG_FILE).text()
+	const start = changelog.indexOf(releaseHeading(formatVersion(version)))
+
+	if (start === -1)
+		throw new Error(`CHANGELOG.md has no section for ${formatVersion(version)}`)
+
+	const end = changelog.indexOf('\n## [', start + 1)
+
+	await Bun.write(
+		notesFile,
+		`${changelog.slice(start, end === -1 ? undefined : end).trim()}\n`
+	)
+
+	return {
+		tag,
+		released: 'false',
+		tag_exists: String(Boolean(existingTag)),
+		source,
+		nightly_tag: nightlyTag,
 	}
 }
 
@@ -233,25 +343,26 @@ function printOutputs(outputs: Record<string, string>) {
 }
 
 async function main([command, ...args]: string[]) {
-	if (command === 'write-version') {
-		const version = args[0] ? parseVersion(args[0]) : undefined
-
-		if (!version) throw new Error('Usage: release.ts write-version X.Y.Z')
-
-		await Bun.write(
-			VERSION_FILE,
-			`${JSON.stringify({ version: formatVersion(version) }, null, 2)}\n`
-		)
-		return
-	}
+	const summary = readFlag(args, '--summary')
+	const notes = readFlag(args, '--notes')
 
 	if (command === 'nightly')
 		return printOutputs(await computeNightly(new Date()))
 	if (command === 'stable')
 		return printOutputs(await computeStable(readFlag(args, '--version')))
+	if (command === 'prepare' && summary)
+		return printOutputs(
+			await prepareRelease(
+				summary,
+				readFlag(args, '--out') ?? ROOT,
+				readFlag(args, '--version')
+			)
+		)
+	if (command === 'publish' && notes)
+		return printOutputs(await computePublish(notes))
 
 	throw new Error(
-		'Usage: release.ts nightly | stable [--version X.Y.Z] | write-version X.Y.Z'
+		'Usage: release.ts nightly | stable [--version X.Y.Z] | prepare --summary <file> [--version X.Y.Z] [--out <dir>] | publish --notes <file>'
 	)
 }
 
