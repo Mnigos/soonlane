@@ -41,7 +41,7 @@ function getKeyName(property: ESTree.ObjectPattern['properties'][number]) {
  * `sql`) is an error everywhere else, because it could leave the condition out; the few single statements that take
  * `ownedBy` instead run with `allowTableQueries`. Inserts stay allowed: the owner is a required column there, not a
  * filter. The table is recognised by its import from `@soonlane/db` (named, renamed or through a namespace import) and
- * by local aliases of it (`const t = task`, `const { task } = schema`).
+ * by local aliases of it or of the namespace (`const t = task`, `const { task } = schema`, `const db = schema`).
  */
 export const taskOwnerScopeRule = defineRule({
 	meta: {
@@ -110,6 +110,12 @@ export const taskOwnerScopeRule = defineRule({
 			VariableDeclarator(node) {
 				if (node.id.type === 'Identifier' && isTable(node.init))
 					tableNames.add(node.id.name)
+				if (
+					node.id.type === 'Identifier' &&
+					node.init?.type === 'Identifier' &&
+					namespaces.has(node.init.name)
+				)
+					namespaces.add(node.id.name)
 				if (node.id.type !== 'ObjectPattern') return
 
 				const isNamespace =
