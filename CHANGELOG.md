@@ -1,6 +1,6 @@
 # Changelog
 
-Each release opens with a summary written for users; the list of changes under it is written by the release workflow from conventional commits.
+Each release opens with a summary written for users, then the list of changes git-cliff builds from conventional commits. Both are added in the release pull request.
 
 ## [0.1.0](https://github.com/Mnigos/soonlane/releases/tag/v0.1.0) - 2026-11-11
 
