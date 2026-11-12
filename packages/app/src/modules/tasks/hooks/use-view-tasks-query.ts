@@ -1,12 +1,13 @@
 import { ORPCError } from '@orpc/client'
-import type { CalendarDate, LabelId } from '@soonlane/domain'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { ListTasksInput } from '@soonlane/contracts'
+import { type QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 
-export function useLabelTasksQuery(input: {
-	labelId: LabelId
-	today: CalendarDate
-}) {
+/** A view's tasks; NOT_FOUND means its label was deleted elsewhere, so refreshing `ownerListKey` lets the page show not-found. */
+export function useViewTasksQuery(
+	input: ListTasksInput,
+	ownerListKey: QueryKey
+) {
 	const queryClient = useQueryClient()
 	const options = orpcQuery.tasks.list.queryOptions({ input })
 
@@ -16,11 +17,8 @@ export function useLabelTasksQuery(input: {
 			try {
 				return await options.queryFn(context)
 			} catch (error) {
-				// The label was deleted elsewhere: refreshing the labels list lets the page show not-found.
 				if (error instanceof ORPCError && error.code === 'NOT_FOUND')
-					await queryClient.invalidateQueries({
-						queryKey: orpcQuery.labels.list.key(),
-					})
+					await queryClient.invalidateQueries({ queryKey: ownerListKey })
 
 				throw error
 			}

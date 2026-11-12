@@ -1,10 +1,11 @@
-import type { Label } from '@soonlane/contracts'
+import type { ListTasksInput } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
-import { useState } from 'react'
+import type { QueryKey } from '@tanstack/react-query'
+import { type ComponentProps, useState } from 'react'
 import { groupTasksByDay } from '../../helpers/task-list.helper'
 import { useCompleteTask } from '../../hooks/use-complete-task'
-import { useLabelTasksQuery } from '../../hooks/use-label-tasks-query'
 import { useOpenEditor } from '../../hooks/use-open-editor'
+import { useViewTasksQuery } from '../../hooks/use-view-tasks-query'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from '../list/add-task-row'
 import { DaySection } from '../list/day-section'
@@ -13,18 +14,36 @@ import { TaskListError } from '../list/task-list-error'
 import { TaskListSkeleton } from '../list/task-list.skeleton'
 import { UndatedSection } from '../list/undated-section'
 
-interface LabelTasksProps {
-	label: Label
+interface TaskViewProps {
+	/** The label's id, which also names the view's composer among the page's open editors. */
+	id: string
+	name: string
 	today: CalendarDate
+	filter: Pick<ListTasksInput, 'labelId'>
+	ownerListKey: QueryKey
+	emptyNote: string
+	composer: Pick<
+		ComponentProps<typeof TaskComposer>,
+		'defaultLabels' | 'source'
+	>
 }
 
-export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
+/** A label's open tasks: No date, Overdue, one section per day, and one Add task row at the bottom. */
+export function TaskView({
+	id,
+	name,
+	today,
+	filter,
+	ownerListKey,
+	emptyNote,
+	composer,
+}: Readonly<TaskViewProps>) {
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
-	const isAdding = openEditorId === label.id
+	const isAdding = openEditorId === id
 	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)
 
 	function openComposer() {
-		setOpenEditorId(label.id)
+		setOpenEditorId(id)
 		setShouldFocusAddTask(false)
 	}
 
@@ -32,10 +51,10 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 		setOpenEditorId(undefined)
 		setShouldFocusAddTask(true)
 	}
-	const { data, isPending, isError, refetch } = useLabelTasksQuery({
-		labelId: label.id,
-		today,
-	})
+	const { data, isPending, isError, refetch } = useViewTasksQuery(
+		{ ...filter, today },
+		ownerListKey
+	)
 	const { completeTask } = useCompleteTask(today)
 
 	if (isPending) return <TaskListSkeleton />
@@ -47,7 +66,7 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 	return (
 		<main className="mx-auto w-full max-w-3xl px-6 pb-24 md:px-10">
 			<header className="pt-1 md:pt-4">
-				<h1 className="ph-mask text-xl font-bold">{label.name}</h1>
+				<h1 className="ph-mask text-xl font-bold">{name}</h1>
 			</header>
 
 			{isError && <TaskListError onRetry={() => void refetch()} />}
@@ -85,17 +104,14 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 					undated.length === 0 &&
 					overdue.length === 0 &&
 					tasksByDay.size === 0 && (
-						<p className="pb-2 text-label text-faint-foreground">
-							No tasks with this label yet.
-						</p>
+						<p className="pb-2 text-label text-faint-foreground">{emptyNote}</p>
 					)}
 
 				{isAdding ? (
 					<TaskComposer
+						{...composer}
 						defaultDueDate={today}
-						defaultLabels={[label]}
 						onCancel={closeComposer}
-						source="label_view"
 						today={today}
 					/>
 				) : (
