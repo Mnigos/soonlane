@@ -218,6 +218,12 @@ export function createAuth(options: CreateAuthOptions) {
 				if (ctx.path === '/sign-in/social' && provider === TODOIST_PROVIDER_ID)
 					throw refuse('Todoist can only be linked to a signed-in account.')
 				if (ctx.path !== '/link-social') return
+				// Every before hook sees the request's own headers, so the lookup below would miss a bearer session; the desktop app links Todoist in the browser.
+				if (
+					ctx.request?.headers.has('authorization') ||
+					ctx.headers?.has('authorization')
+				)
+					throw refuse('Todoist can only be linked from the browser.')
 				if (provider !== TODOIST_PROVIDER_ID)
 					throw refuse('Only Todoist can be linked.')
 				if (
