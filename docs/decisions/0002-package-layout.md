@@ -38,6 +38,10 @@ The server code moved to `apps/api`, so Effect services, ports and layers now li
 
 `tooling/oxlint-plugins` is now `tooling/oxlint-plugin` (`@soonlane/oxlint-plugin`), because it holds one plugin. `soonlane.plugin.mts` stays at its root, the rules sit in `rules/` and their shared helpers in `helpers/`.
 
+## Update 2026-11-12 (SOON-144)
+
+`packages/app` (`@soonlane/app`) holds the screens both host apps render ([ADR 0015](0015-desktop-app-with-its-own-ui.md)); the desktop app is their second consumer. It depends on `contracts` and the oRPC client, and as screens move in, on `ui`, `domain` and `analytics`. Lint keeps Effect, TanStack Start, the database and Better Auth's server out of it. Tailwind scans it through its own `@source`.
+
 ## Related
 
 - `ARCHITECTURE.md`: Monorepo layout, Package layering
