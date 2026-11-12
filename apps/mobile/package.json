@@ -1,0 +1,27 @@
+{
+  "name": "@soonlane/mobile",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "main": "index.ts",
+  "scripts": {
+    "start": "expo start",
+    "ios": "expo run:ios",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@orpc/client": "catalog:",
+    "@soonlane/app": "workspace:*",
+    "@soonlane/contracts": "workspace:*",
+    "@soonlane/domain": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "expo": "58.0.25",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/react": "19.3.0",
+    "typescript": "6.0.3"
+  }
+}
