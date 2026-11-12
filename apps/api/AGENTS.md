@@ -9,5 +9,5 @@
 - Repository methods are verbs naming the query, never predicates. `find*` returns one row or `undefined`, `list*` an array, `count*` a number; `create`, `update`, `delete` and domain verbs (`assignLabel`, `setCompletion`) return the affected row or `undefined` when the owner has no such row. No `is*`, `has*` or `*Exists` methods: existence is what the service concludes from the returned row, and uniqueness comes from a constraint the service maps to a domain error (`isUniqueViolation` in `platform/db`).
 - Query pieces a repository shares live in `infrastructure/*.query.ts` and follow the repository rules (no catching); row to contract mappings live in `infrastructure/*.mapper.ts`.
 - Pure logic the web app also runs (dates, repeat rules) belongs in `@soonlane/domain`, not in a module's `domain/`.
-- No `.then`/`.catch` chains: `await` with `try`/`catch` outside Effect; inside Effect use `Effect.tryPromise` and `Effect.catch`.
+- No `.then`/`.catch` chains: `await` with `try`/`catch` outside Effect; inside Effect use `Effect.tryPromise` and `Effect.catch`. (lint-enforced)
 - JSDoc on a declaration says what it is for, its contract or a non-obvious why; `//` comments inside function bodies only for a quirk the reader would otherwise "fix" wrongly.

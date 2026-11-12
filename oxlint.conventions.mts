@@ -278,6 +278,10 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'soonlane/no-default-runtime': 'off' },
 	},
 	{
+		files: ['apps/api/**'],
+		rules: { 'promise/prefer-await-to-then': 'error' },
+	},
+	{
 		files: ['apps/web/**'],
 		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
