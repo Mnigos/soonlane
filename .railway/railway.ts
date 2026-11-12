@@ -115,6 +115,8 @@ export default defineRailway(ctx => {
 			API_PROXY_SECRET: preserve(),
 			ALLOWED_EMAILS: preserve(),
 			POSTHOG_KEY: preserve(),
+			TODOIST_CLIENT_ID: preserve(),
+			TODOIST_CLIENT_SECRET: preserve(),
 		},
 	})
 
