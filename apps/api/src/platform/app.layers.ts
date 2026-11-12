@@ -9,20 +9,32 @@ import { ProjectsServiceLive } from '@/modules/projects/application/projects.ser
 import { ProjectRepositoryLive } from '@/modules/projects/infrastructure/project.repository'
 import { TasksServiceLive } from '@/modules/tasks/application/tasks.service'
 import { TaskRepositoryLive } from '@/modules/tasks/infrastructure/task.repository'
+import { TodoistServiceLive } from '@/modules/todoist/application/todoist.service'
+import { HttpTodoistApiLive } from '@/modules/todoist/infrastructure/http-todoist-api.layer'
+import { TodoistAccountRepositoryLive } from '@/modules/todoist/infrastructure/todoist-account.repository'
 import { AppConfigLive } from './config/app.config'
 import { DbLive } from './db/db.layer'
 import { HttpServerLive } from './http/http-server.layer'
 
 /** Everything a request handler reaches: the services, the adapters behind their ports, the repositories and the shared infrastructure. */
 export const ServicesLive = Layer.mergeAll(
-	BetterAuthLive,
-	LabelsServiceLive.pipe(Layer.provide(LabelRepositoryLive)),
-	ProjectsServiceLive.pipe(Layer.provide(ProjectRepositoryLive)),
+	TodoistServiceLive.pipe(
+		Layer.provide(
+			Layer.merge(TodoistAccountRepositoryLive, HttpTodoistApiLive)
+		),
+		Layer.provideMerge(
+			Layer.merge(
+				LabelsServiceLive.pipe(Layer.provide(LabelRepositoryLive)),
+				ProjectsServiceLive.pipe(Layer.provide(ProjectRepositoryLive))
+			)
+		)
+	),
 	CalendarServiceLive.pipe(
 		Layer.provide(CalendarSubscriptionRepositoryLive),
 		Layer.provideMerge(TasksServiceLive.pipe(Layer.provide(TaskRepositoryLive)))
 	)
 ).pipe(
+	Layer.provideMerge(BetterAuthLive),
 	Layer.provideMerge(PostHogAnalyticsLive),
 	Layer.provideMerge(DbLive),
 	Layer.provideMerge(AppConfigLive)

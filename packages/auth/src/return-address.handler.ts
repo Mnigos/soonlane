@@ -7,8 +7,8 @@ const RETURN_ADDRESS_FIELDS = [
 	'newUserCallbackURL',
 	'redirectTo',
 ] as const
-/** Google sign-in without a body `callbackURL` would return to the API's own origin. */
-const SOCIAL_SIGN_IN_PATH = '/sign-in/social'
+/** A provider redirect started without a body `callbackURL` would return to the API's own origin. */
+const PROVIDER_REDIRECT_PATHS = ['/sign-in/social', '/link-social']
 
 /** better-call's media types, in its order: a JSON type wins over a `form` parameter. */
 const JSON_CONTENT_TYPE = /^application\/([a-z0-9.+-]*\+)?json/iu
@@ -59,7 +59,7 @@ function isReturnAddress(value: unknown, trustedOrigins: readonly string[]) {
 /**
  * Refuses with 400 any request whose return address (every body field Better
  * Auth redirects to, and each query `callbackURL`) is not an absolute URL on a
- * trusted web origin, and Google sign-in without a body `callbackURL`. It runs
+ * trusted web origin, and a provider sign-in or link without a body `callbackURL`. It runs
  * before Better Auth routes the request, so its own checks never answer first.
  */
 export function returnAddresses(trustedOrigins: readonly string[]) {
@@ -72,10 +72,11 @@ export function returnAddresses(trustedOrigins: readonly string[]) {
 				...RETURN_ADDRESS_FIELDS.flatMap(field => readField(body, field)),
 				...url.searchParams.getAll('callbackURL'),
 			]
+			const basePath = new URL(context.baseURL).pathname
 			const isMissingCallback =
-				url.pathname ===
-					`${new URL(context.baseURL).pathname}${SOCIAL_SIGN_IN_PATH}` &&
-				readField(body, 'callbackURL').length === 0
+				PROVIDER_REDIRECT_PATHS.some(
+					path => url.pathname === `${basePath}${path}`
+				) && readField(body, 'callbackURL').length === 0
 
 			if (
 				isMissingCallback ||

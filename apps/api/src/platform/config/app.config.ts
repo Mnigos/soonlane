@@ -59,6 +59,10 @@ export class AppConfig extends Context.Service<
 		readonly proxySecret: Redacted.Redacted
 		readonly posthogKey?: string
 		readonly maintenance: boolean
+		readonly todoist?: {
+			readonly clientId: string
+			readonly clientSecret: Redacted.Redacted
+		}
 	}
 >()('soonlane/AppConfig') {}
 
@@ -66,7 +70,24 @@ function originConfig(name: string) {
 	return Config.URL(name).pipe(Config.map(url => url.origin))
 }
 
-/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, `POSTHOG_KEY` and `MAINTENANCE_MODE` is required: a missing or malformed variable stops the start with its name. */
+const todoistClientConfig = Config.all({
+	clientId: Config.NonEmptyString('TODOIST_CLIENT_ID'),
+	clientSecret: Config.Redacted('TODOIST_CLIENT_SECRET'),
+})
+
+/** Both Todoist variables or neither: with one set, the other is read as required, so the start fails naming it. */
+const todoistConfig = Config.all({
+	clientId: Config.option(Config.NonEmptyString('TODOIST_CLIENT_ID')),
+	clientSecret: Config.option(Config.Redacted('TODOIST_CLIENT_SECRET')),
+}).pipe(
+	Config.flatMap(({ clientId, clientSecret }) =>
+		Option.isNone(clientId) && Option.isNone(clientSecret)
+			? Config.succeed(undefined)
+			: todoistClientConfig
+	)
+)
+
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, `POSTHOG_KEY`, `MAINTENANCE_MODE` and the Todoist pair is required: a missing or malformed variable stops the start with its name. */
 const appConfig = Config.all({
 	port: Config.Port('PORT'),
 	environment: Config.NonEmptyString('APP_ENV'),
@@ -100,6 +121,7 @@ const appConfig = Config.all({
 	maintenance: Config.Boolean('MAINTENANCE_MODE').pipe(
 		Config.withDefault(false)
 	),
+	todoist: todoistConfig,
 })
 
 /**
