@@ -10,7 +10,10 @@ import {
 	TODOIST_COUNT_COPY,
 } from '../helpers/todoist-copy.constants'
 
-/** The connection closes either way, so a failure refetches the status the page shows Connect again from. */
+/**
+ * The connection closes either way, so both outcomes refetch the status: a failure because the page shows Connect
+ * again from it, a success because the user menu reads it and must not lose its import entry meanwhile.
+ */
 export function useImportTodoistMutation() {
 	const queryClient = useQueryClient()
 	const navigate = useNavigate()
@@ -18,8 +21,11 @@ export function useImportTodoistMutation() {
 	return useMutation(
 		orpcQuery.todoist.import.mutationOptions({
 			onSuccess: async summary => {
-				queryClient.removeQueries({ queryKey: orpcQuery.todoist.key() })
+				queryClient.removeQueries({ queryKey: orpcQuery.todoist.preview.key() })
 				await Promise.all([
+					queryClient.invalidateQueries({
+						queryKey: orpcQuery.todoist.status.key(),
+					}),
 					refreshTaskAndLabelLists(queryClient),
 					queryClient.invalidateQueries({
 						queryKey: orpcQuery.projects.key(),
