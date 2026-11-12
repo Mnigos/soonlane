@@ -78,7 +78,9 @@ export function RepeatMenu({
 							if (choice === CUSTOM) setIsCustom(true)
 							else onChange({ unit: choice, interval: 1 })
 						}}
-						value={value?.interval === 1 ? value.unit : null}
+						value={
+							value?.interval === 1 && !value.fromCompletion ? value.unit : null
+						}
 					>
 						{PRESET_UNITS.map(unit => (
 							<MenuRadioItem key={unit} value={unit}>

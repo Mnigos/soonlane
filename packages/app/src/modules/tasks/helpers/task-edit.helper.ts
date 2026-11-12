@@ -1,4 +1,4 @@
-import type { GoalInput, Label, Task } from '@soonlane/contracts'
+import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	type TaskPriority,
@@ -21,6 +21,26 @@ export function getChangedGoal(task: Task, goal: GoalInput | undefined) {
 		return undefined
 
 	return goal ?? null
+}
+
+/** The rule an edit sends to keep the task's own, "every!" included. */
+export function toRepeatInput(task: Task | undefined): RepeatInput | undefined {
+	return (
+		task?.repeat && {
+			unit: task.repeat.unit,
+			interval: task.repeat.interval,
+			fromCompletion: task.repeat.fromCompletion,
+		}
+	)
+}
+
+/** Whether the edit's rule differs from the task's in unit, interval or "every!". */
+export function isRepeatChanged(task: Task, repeat: RepeatInput | undefined) {
+	return (
+		repeat?.unit !== task.repeat?.unit ||
+		repeat?.interval !== task.repeat?.interval ||
+		(repeat?.fromCompletion ?? false) !== (task.repeat?.fromCompletion ?? false)
+	)
 }
 
 /**
@@ -48,9 +68,7 @@ export function getMenuEdit(
 		dueDate,
 		dueTime: task.dueTime,
 		priority,
-		repeat: task.repeat
-			? { unit: task.repeat.unit, interval: task.repeat.interval }
-			: null,
+		repeat: toRepeatInput(task) ?? null,
 		today,
 	}
 }

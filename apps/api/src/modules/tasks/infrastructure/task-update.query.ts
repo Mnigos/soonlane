@@ -3,6 +3,7 @@ import { task, taskLabel } from '@soonlane/db'
 import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { and, eq, notInArray } from 'drizzle-orm'
 import { ownedBy, ownedTasks, type Queries } from './owned-tasks.query'
+import { toRepeatColumns } from './task.mapper'
 import type { TaskUpdate } from './task.repository.types'
 
 /** An absent goal keeps the columns (but the progress of a task that moves on); null clears them; a new target clamps the progress, or resets it when the task moves on. */
@@ -112,9 +113,7 @@ export async function updateTask(
 			dueDate: isAdvanced ? nextDueDate : dueDate,
 			dueTime: dueTime ?? null,
 			priority,
-			repeatUnit: repeat?.unit ?? null,
-			repeatInterval: repeat?.interval ?? null,
-			repeatAnchor: repeat?.anchor ?? null,
+			...toRepeatColumns(repeat),
 			completedAt: isCompleted && !isAdvanced ? editedAt : undefined,
 			...getGoalColumns(goal, previous.progress, isAdvanced),
 			projectId,
