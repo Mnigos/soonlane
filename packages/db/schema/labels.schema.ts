@@ -35,7 +35,6 @@ export const label = pgTable(
 		),
 	]
 )
-
 export type LabelRow = typeof label.$inferSelect
 
 export const taskLabel = pgTable(

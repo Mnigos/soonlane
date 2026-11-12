@@ -13,5 +13,4 @@ export const calendarSubscription = pgTable('calendar_subscription', {
 		.notNull()
 		.defaultNow(),
 })
-
 export type CalendarSubscriptionRow = typeof calendarSubscription.$inferSelect
