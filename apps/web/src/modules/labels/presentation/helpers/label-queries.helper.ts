@@ -13,9 +13,6 @@ export async function refreshTaskAndLabelLists(queryClient: QueryClient) {
 	await Promise.all([
 		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.list.key() }),
 		queryClient.invalidateQueries({
-			queryKey: orpcQuery.tasks.listByLabel.key(),
-		}),
-		queryClient.invalidateQueries({
 			queryKey: orpcQuery.tasks.listCompleted.key(),
 		}),
 		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.search.key() }),
@@ -33,10 +30,7 @@ export async function paintLabel(
 	color: LabelColor | undefined
 ) {
 	const labelsKey = orpcQuery.labels.list.key()
-	const taskListKeys = [
-		orpcQuery.tasks.list.key(),
-		orpcQuery.tasks.listByLabel.key(),
-	]
+	const taskListKey = orpcQuery.tasks.list.key()
 	const paint = <TLabel extends Label>(label: TLabel) =>
 		label.id === id ? { ...label, color } : label
 	const paintTasks = (tasks: Task[]) =>
@@ -47,7 +41,7 @@ export async function paintLabel(
 		)
 
 	await Promise.all(
-		[labelsKey, ...taskListKeys].map(
+		[labelsKey, taskListKey].map(
 			async queryKey => await queryClient.cancelQueries({ queryKey })
 		)
 	)
@@ -60,15 +54,14 @@ export async function paintLabel(
 		{ queryKey: labelsKey },
 		list => list && { labels: list.labels.map(paint) }
 	)
-	for (const queryKey of taskListKeys)
-		queryClient.setQueriesData<ListTasksOutput>(
-			{ queryKey },
-			list =>
-				list && {
-					overdue: paintTasks(list.overdue),
-					scheduled: paintTasks(list.scheduled),
-				}
-		)
+	queryClient.setQueriesData<ListTasksOutput>(
+		{ queryKey: taskListKey },
+		list =>
+			list && {
+				overdue: paintTasks(list.overdue),
+				scheduled: paintTasks(list.scheduled),
+			}
+	)
 	void queryClient.invalidateQueries({
 		queryKey: orpcQuery.tasks.search.key(),
 	})

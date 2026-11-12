@@ -22,6 +22,7 @@ import {
 	isNotNull,
 	isNull,
 	lt,
+	or,
 	sql,
 } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
@@ -39,8 +40,7 @@ import type {
 	DueDateAdvance,
 	MatchingTasks,
 	NewTask,
-	OpenTasksBefore,
-	OpenTasksBetween,
+	OpenTasks,
 	ProgressLog,
 	TaskCompletion,
 	TaskKey,
@@ -53,19 +53,7 @@ import type {
 export class TaskRepository extends Context.Service<
 	TaskRepository,
 	{
-		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
-		readonly listOpenBetween: (
-			params: OpenTasksBetween
-		) => Effect.Effect<Task[], DbError>
-		readonly listOpenBefore: (
-			params: OpenTasksBefore
-		) => Effect.Effect<Task[], DbError>
-		readonly listOpenWithLabel: (
-			label: Omit<TaskLabel, 'id'>
-		) => Effect.Effect<Task[], DbError>
-		readonly listOpenInProject: (
-			project: TaskProject
-		) => Effect.Effect<Task[], DbError>
+		readonly listOpen: (filter: OpenTasks) => Effect.Effect<Task[], DbError>
 		readonly listCompletedBetween: (
 			params: CompletedTasksBetween
 		) => Effect.Effect<Task[], DbError>
@@ -126,51 +114,28 @@ export const TaskRepositoryLive = Layer.effect(
 		const db = yield* Db
 
 		return TaskRepository.of({
-			listOpen: ownerId =>
+			listOpen: ({ ownerId, labelId, projectId, range }) =>
 				db.run(
 					'TaskRepository.listOpen',
-					async database =>
-						await ownedTasks(database, ownerId).list(isNull(task.completedAt))
-				),
-			listOpenBetween: ({ ownerId, from, to }) =>
-				db.run(
-					'TaskRepository.listOpenBetween',
-					async database =>
-						await ownedTasks(database, ownerId).list(
-							and(isNull(task.completedAt), between(task.dueDate, from, to))
-						)
-				),
-			listOpenBefore: ({ ownerId, before }) =>
-				db.run(
-					'TaskRepository.listOpenBefore',
-					async database =>
-						await ownedTasks(database, ownerId).list(
-							and(isNull(task.completedAt), lt(task.dueDate, before))
-						)
-				),
-			listOpenWithLabel: ({ ownerId, labelId }) =>
-				db.run(
-					'TaskRepository.listOpenWithLabel',
 					async database =>
 						await ownedTasks(database, ownerId).list(
 							and(
 								isNull(task.completedAt),
-								inArray(
-									task.id,
-									database
-										.select({ id: taskLabel.taskId })
-										.from(taskLabel)
-										.where(eq(taskLabel.labelId, labelId))
-								)
+								labelId &&
+									inArray(
+										task.id,
+										database
+											.select({ id: taskLabel.taskId })
+											.from(taskLabel)
+											.where(eq(taskLabel.labelId, labelId))
+									),
+								projectId && eq(task.projectId, projectId),
+								range &&
+									or(
+										lt(task.dueDate, range.before),
+										between(task.dueDate, range.from, range.to)
+									)
 							)
-						)
-				),
-			listOpenInProject: ({ ownerId, projectId }) =>
-				db.run(
-					'TaskRepository.listOpenInProject',
-					async database =>
-						await ownedTasks(database, ownerId).list(
-							and(isNull(task.completedAt), eq(task.projectId, projectId))
 						)
 				),
 			listCompletedBetween: ({ ownerId, from, to }) =>

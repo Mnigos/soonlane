@@ -12,15 +12,12 @@ import type {
 	UserId,
 } from '@soonlane/domain'
 
-export interface OpenTasksBetween {
+/** Every condition given applies; `range` keeps the tasks due before `before` or from `from` through `to`. */
+export interface OpenTasks {
 	ownerId: UserId
-	from: CalendarDate
-	to: CalendarDate
-}
-
-export interface OpenTasksBefore {
-	ownerId: UserId
-	before: CalendarDate
+	labelId?: LabelId
+	projectId?: ProjectId
+	range?: { before: CalendarDate; from: CalendarDate; to: CalendarDate }
 }
 
 export interface CompletedTasksBetween {

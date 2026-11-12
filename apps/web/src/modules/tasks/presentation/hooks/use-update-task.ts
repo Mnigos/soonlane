@@ -18,7 +18,7 @@ import {
 	announceCompletion,
 	getUndoCallbacks,
 } from '../helpers/task-completion.helper'
-import { getTaskListInput } from '../helpers/task-list-key.helper'
+import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
 	placeTask,
@@ -45,10 +45,7 @@ function getEditedGoal(
  */
 export function useUpdateTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const listKeys = [
-		orpcQuery.tasks.list.key(),
-		orpcQuery.tasks.listByLabel.key(),
-	]
+	const listKey = orpcQuery.tasks.list.key()
 	const uncomplete = useMutation(
 		orpcQuery.tasks.uncomplete.mutationOptions(
 			getUndoCallbacks(queryClient, today)
@@ -68,14 +65,10 @@ export function useUpdateTask(today: CalendarDate) {
 
 				// An Undo from an earlier completion would overwrite this edit's date.
 				toast.dismiss(id)
-				await Promise.all(
-					listKeys.map(
-						async queryKey => await queryClient.cancelQueries({ queryKey })
-					)
-				)
-				const lists = listKeys.flatMap(queryKey =>
-					queryClient.getQueriesData<ListTasksOutput>({ queryKey })
-				)
+				await queryClient.cancelQueries({ queryKey: listKey })
+				const lists = queryClient.getQueriesData<ListTasksOutput>({
+					queryKey: listKey,
+				})
 				const previous = lists.map(([key, list]) => ({
 					key,
 					placement: list && findTaskPlacement(list, id),
@@ -112,7 +105,7 @@ export function useUpdateTask(today: CalendarDate) {
 				// One render for every list (here and in the rollback), so a moved task never shows twice and its row can take focus there.
 				notifyManager.batch(() => {
 					for (const [key] of lists) {
-						const input = getTaskListInput(key)
+						const input = getListInput(key)
 
 						if (!input) continue
 

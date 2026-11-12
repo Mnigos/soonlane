@@ -1,8 +1,6 @@
 import type {
 	CreateTaskInput,
 	ListCompletedTasksInput,
-	ListTasksByLabelInput,
-	ListTasksByProjectInput,
 	ListTasksInput,
 	ListTasksOutput,
 	RescheduleTasksInput,
@@ -46,15 +44,10 @@ export class TasksService extends Context.Service<
 		readonly list: (
 			ownerId: UserId,
 			input: ListTasksInput
-		) => Effect.Effect<ListTasksOutput, DbError>
-		readonly listByLabel: (
-			ownerId: UserId,
-			input: ListTasksByLabelInput
-		) => Effect.Effect<ListTasksOutput, LabelNotFound | DbError>
-		readonly listByProject: (
-			ownerId: UserId,
-			input: ListTasksByProjectInput
-		) => Effect.Effect<ListTasksOutput, ProjectNotFound | DbError>
+		) => Effect.Effect<
+			ListTasksOutput,
+			LabelNotFound | ProjectNotFound | DbError
+		>
 		readonly listCompleted: (
 			ownerId: UserId,
 			input: ListCompletedTasksInput
@@ -134,40 +127,20 @@ export const TasksServiceLive = Layer.effect(
 		// "Today" comes from the client: the server cannot know the owner's time zone.
 		const list = Effect.fn('TasksService.list')(function* (
 			ownerId: UserId,
-			{ from, to, today }: ListTasksInput
+			{ today, from, to, labelId, projectId }: ListTasksInput
 		) {
-			const [overdue, scheduled] = yield* Effect.all(
-				[
-					repository.listOpenBefore({ ownerId, before: today }),
-					repository.listOpenBetween({ ownerId, from, to }),
-				],
-				{ concurrency: 2 }
-			)
+			if (labelId)
+				yield* requireLabel(yield* repository.findLabel({ ownerId, labelId }))
+			if (projectId) yield* requireProject(ownerId, projectId)
 
-			return { overdue, scheduled }
-		})
+			const tasks = yield* repository.listOpen({
+				ownerId,
+				labelId,
+				projectId,
+				range: from && to ? { before: today, from, to } : undefined,
+			})
 
-		const listByLabel = Effect.fn('TasksService.listByLabel')(function* (
-			ownerId: UserId,
-			{ labelId, today }: ListTasksByLabelInput
-		) {
-			const label = { ownerId, labelId }
-
-			yield* requireLabel(yield* repository.findLabel(label))
-
-			return splitAtToday(yield* repository.listOpenWithLabel(label), today)
-		})
-
-		const listByProject = Effect.fn('TasksService.listByProject')(function* (
-			ownerId: UserId,
-			{ projectId, today }: ListTasksByProjectInput
-		) {
-			yield* requireProject(ownerId, projectId)
-
-			return splitAtToday(
-				yield* repository.listOpenInProject({ ownerId, projectId }),
-				today
-			)
+			return splitAtToday(tasks, today)
 		})
 
 		// The bounds are the client's local midnights, since only it knows the owner's time zone.
@@ -197,7 +170,7 @@ export const TasksServiceLive = Layer.effect(
 		const listOpen = Effect.fn('TasksService.listOpen')(function* (
 			ownerId: UserId
 		) {
-			return yield* repository.listOpen(ownerId)
+			return yield* repository.listOpen({ ownerId })
 		})
 
 		const create = Effect.fn('TasksService.create')(function* (
@@ -360,8 +333,6 @@ export const TasksServiceLive = Layer.effect(
 
 		return TasksService.of({
 			list,
-			listByLabel,
-			listByProject,
 			listCompleted,
 			search,
 			listOpen,
