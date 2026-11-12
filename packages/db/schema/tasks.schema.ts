@@ -13,6 +13,7 @@ import {
 } from '@soonlane/domain'
 import { sql } from 'drizzle-orm'
 import {
+	boolean,
 	check,
 	date,
 	foreignKey,
@@ -60,6 +61,10 @@ export const task = pgTable(
 		repeatAnchor: date('repeat_anchor', {
 			mode: 'string',
 		}).$type<CalendarDate>(),
+		// "every!": the next due date counts from the day the task was completed.
+		repeatFromCompletion: boolean('repeat_from_completion')
+			.notNull()
+			.default(false),
 		goalTarget: integer('goal_target'),
 		goalUnit: text('goal_unit'),
 		// The current occurrence's progress, so repeating can reset it with the due date.
@@ -90,6 +95,10 @@ export const task = pgTable(
 		check(
 			'task_repeat_single_interval',
 			sql`${table.repeatUnit} not in (${toSqlList(SINGLE_INTERVAL_REPEAT_UNITS)}) or ${table.repeatInterval} = 1`
+		),
+		check(
+			'task_repeat_from_completion_rule',
+			sql`not ${table.repeatFromCompletion} or ${table.repeatUnit} is not null`
 		),
 		check(
 			'task_goal_target_range',
