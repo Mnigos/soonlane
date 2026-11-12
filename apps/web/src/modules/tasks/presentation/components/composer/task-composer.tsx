@@ -80,11 +80,14 @@ export function TaskComposer({
 		priority,
 		pickedLabels,
 		highlights,
+		dueDateWord,
 		changeTitle,
 		pickPriority,
+		pickDueDate,
+		dismissDueDateWord,
 		pickLabels,
 		reset,
-	} = useTypedTitle(task, defaultLabels)
+	} = useTypedTitle(task, today, defaultLabels)
 	const [description, setDescription] = useState(task?.description ?? '')
 	const [dueDate, setDueDate] = useState(defaultDueDate)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
@@ -92,7 +95,11 @@ export function TaskComposer({
 		task?.repeat && { unit: task.repeat.unit, interval: task.repeat.interval }
 	)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
-	const scheduledDate = getEditedDueDate(task, dueDate, repeat?.unit)
+	const scheduledDate = getEditedDueDate(
+		task,
+		dueDateWord?.date ?? dueDate,
+		repeat?.unit
+	)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
 	const savedRule = getSavedRule(task, scheduledDate, repeat)
 	const [goal, setGoal] = useState<GoalInput | undefined>(
@@ -194,8 +201,10 @@ export function TaskComposer({
 			<TitleField
 				autoFocus={autoFocus}
 				className={cn(FIELD_CLASS, 'text-base leading-6')}
+				dismissible={dueDateWord}
 				highlights={highlights}
 				inputRef={titleRef}
+				onDismiss={dismissDueDateWord}
 				onChange={changeTitle}
 				onKeyDown={handleFieldKeys}
 				onSuggestionsToggle={onSuggestionsToggle}
@@ -223,7 +232,10 @@ export function TaskComposer({
 				<DueDateChip
 					dueDate={scheduledDate}
 					dueTime={dueTime}
-					onDateChange={setDueDate}
+					onDateChange={date => {
+						setDueDate(date)
+						pickDueDate()
+					}}
 					onKeyDown={handleFieldKeys}
 					onRepeatChange={rule => {
 						// Keeps the date on the chip, which the old rule may have moved off the picked day.

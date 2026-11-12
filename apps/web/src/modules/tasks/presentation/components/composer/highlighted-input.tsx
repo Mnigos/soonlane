@@ -1,15 +1,30 @@
 import { cn } from '@soonlane/ui/cn'
-import { type ComponentProps, type SyntheticEvent, useRef } from 'react'
+import {
+	type ComponentProps,
+	type KeyboardEvent,
+	type MouseEvent,
+	type SyntheticEvent,
+	useRef,
+} from 'react'
+
+interface TextRange {
+	start: number
+	end: number
+}
 
 interface HighlightedInputProps extends ComponentProps<'input'> {
 	value: string
 	/** Non-overlapping character ranges of `value` to tint, e.g. the typed priority word. */
-	highlights: { start: number; end: number }[]
+	highlights: TextRange[]
+	/** One of `highlights` that Backspace right after it or a click on it turns off. */
+	dismissible?: TextRange
+	onDismiss?: () => void
 }
 
 function splitByRanges(
 	text: string,
-	ranges: HighlightedInputProps['highlights']
+	ranges: TextRange[],
+	dismissible?: TextRange
 ) {
 	const sorted = ranges.toSorted((a, b) => a.start - b.start)
 
@@ -18,6 +33,7 @@ function splitByRanges(
 			text.slice(sorted[index - 1]?.end ?? 0, range.start),
 			<span
 				className="-mx-0.5 rounded-sm bg-primary/40 px-0.5 py-0.5"
+				data-dismissible={range.start === dismissible?.start ? '' : undefined}
 				key={range.start}
 			>
 				{text.slice(range.start, range.end)}
@@ -35,8 +51,12 @@ function splitByRanges(
 export function HighlightedInput({
 	value,
 	highlights,
+	dismissible,
+	onDismiss,
 	className,
 	onSelect,
+	onKeyDown,
+	onClick,
 	...props
 }: Readonly<HighlightedInputProps>) {
 	const layerRef = useRef<HTMLSpanElement>(null)
@@ -46,6 +66,38 @@ export function HighlightedInput({
 			'transform',
 			`translateX(${-event.currentTarget.scrollLeft}px)`
 		)
+	}
+
+	function dismissOnBackspace(event: KeyboardEvent<HTMLInputElement>) {
+		const { selectionStart, selectionEnd } = event.currentTarget
+		const isDismissal =
+			event.key === 'Backspace' &&
+			!(event.altKey || event.ctrlKey || event.metaKey) &&
+			!event.nativeEvent.isComposing &&
+			selectionStart === selectionEnd &&
+			selectionEnd === dismissible?.end
+		if (!isDismissal) {
+			onKeyDown?.(event)
+			return
+		}
+
+		event.preventDefault()
+		onDismiss?.()
+	}
+
+	function dismissOnClick(event: MouseEvent<HTMLInputElement>) {
+		onClick?.(event)
+		const box = layerRef.current
+			?.querySelector('[data-dismissible]')
+			?.getBoundingClientRect()
+		const { selectionStart, selectionEnd } = event.currentTarget
+		if (
+			box &&
+			selectionStart === selectionEnd &&
+			event.clientX >= box.left &&
+			event.clientX <= box.right
+		)
+			onDismiss?.()
 	}
 
 	return (
@@ -58,13 +110,15 @@ export function HighlightedInput({
 				)}
 			>
 				<span className="whitespace-pre" ref={layerRef}>
-					{splitByRanges(value, highlights)}
+					{splitByRanges(value, highlights, dismissible)}
 				</span>
 			</div>
 
 			<input
 				{...props}
 				className={cn('relative', className)}
+				onClick={dismissOnClick}
+				onKeyDown={dismissOnBackspace}
 				onScroll={followScroll}
 				onSelect={event => {
 					followScroll(event)
