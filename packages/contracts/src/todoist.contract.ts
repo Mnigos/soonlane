@@ -24,11 +24,10 @@ export const todoistPreviewSchema = z.object({
 })
 export type TodoistPreview = z.infer<typeof todoistPreviewSchema>
 
-/** What the import ended with; tasks imported before and tasks still left out are not in `tasks`. */
+/** What the import ended with; tasks imported before are not in `tasks`. */
 export const todoistImportSummarySchema = z.object({
 	tasks: countSchema,
 	changedTasks: countSchema,
-	leftOut: countSchema,
 	newLabels: countSchema,
 	newProjects: countSchema,
 })

@@ -14,7 +14,7 @@ import { Db } from '@/platform/db/db.layer'
 import type { LabelDraft, TaskDraft } from '../domain/todoist-import.helper'
 
 export interface ImportedTask extends Omit<TaskDraft, 'due'> {
-	dueDate: CalendarDate
+	dueDate?: CalendarDate
 	dueTime?: string
 }
 
@@ -24,8 +24,6 @@ export interface TodoistImport {
 	newLabels: LabelDraft[]
 	newProjectNames: string[]
 }
-
-export type ImportedCounts = Omit<TodoistImportSummary, 'leftOut'>
 
 /** Keeps each insert under Postgres' 65,535 parameters and well inside the query timeout. */
 const ROWS_PER_INSERT = 1000
@@ -50,7 +48,7 @@ export class ImportedTodoistTaskRepository extends Context.Service<
 		/** Saves the tasks not imported before with their labels and projects, all or nothing. */
 		readonly create: (
 			todoistImport: TodoistImport
-		) => Effect.Effect<ImportedCounts, DbError>
+		) => Effect.Effect<TodoistImportSummary, DbError>
 	}
 >()('soonlane/ImportedTodoistTaskRepository') {}
 
@@ -144,7 +142,7 @@ export const ImportedTodoistTaskRepositoryLive = Layer.effect(
 										ownerId,
 										title: draft.title,
 										description: draft.description ?? null,
-										dueDate: draft.dueDate,
+										dueDate: draft.dueDate ?? null,
 										dueTime: draft.dueTime ?? null,
 										priority: draft.priority,
 										projectId: draft.projectName

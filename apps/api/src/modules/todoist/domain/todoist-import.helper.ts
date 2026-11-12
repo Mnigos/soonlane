@@ -27,7 +27,7 @@ export interface TaskDraft {
 	todoistId: string
 	title: string
 	description?: string
-	due: DraftDue
+	due?: DraftDue
 	priority: TaskPriority
 	labelNames: string[]
 	projectName?: string
@@ -65,11 +65,12 @@ function readDue(item: TodoistItem): DraftDue | undefined {
 	return { date: date.data, time: match?.[2], utc: match?.[3] === 'Z' }
 }
 
-/** The due date and time a task gets: a UTC time moves into `timeZone`, a date or a floating time stays as written. */
-export function toTaskDue({ date, time, utc }: DraftDue, timeZone: string) {
-	if (!(utc && time)) return { dueDate: date, dueTime: time }
+/** The due date and time a task gets: none without a due, a UTC time moves into `timeZone`, a date or a floating time stays as written. */
+export function toTaskDue(due: DraftDue | undefined, timeZone: string) {
+	if (!due) return {}
+	if (!(due.utc && due.time)) return { dueDate: due.date, dueTime: due.time }
 
-	const instant = new Date(`${date}T${time}Z`)
+	const instant = new Date(`${due.date}T${due.time}Z`)
 
 	return {
 		dueDate: getToday(instant, timeZone),
@@ -156,13 +157,7 @@ export function planTodoistImport(
 	const openItems = snapshot.items.filter(
 		item => !(item.checked || item.is_deleted)
 	)
-	const freshItems = openItems.filter(item => !imported.has(item.id))
-	const dated = freshItems.flatMap(item => {
-		const due = readDue(item)
-
-		return due ? [{ item, due }] : []
-	})
-	const items = dated.map(({ item }) => item)
+	const items = openItems.filter(item => !imported.has(item.id))
 	const inboxId = snapshot.user.inbox_project_id
 	const projectsById = new Map(
 		snapshot.projects
@@ -191,12 +186,12 @@ export function planTodoistImport(
 		items.filter(isChanged).length
 
 	return {
-		tasks: dated.map(({ item, due }) => ({
+		tasks: items.map(item => ({
 			todoistId: item.id,
 			title: cut(item.content, TASK_TITLE_MAX_LENGTH),
 			description:
 				cut(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH) || undefined,
-			due,
+			due: readDue(item),
 			priority: PRIORITY_FROM_TODOIST[item.priority] ?? DEFAULT_TASK_PRIORITY,
 			labelNames: toNames(item.labels, LABEL_NAME_MAX_LENGTH),
 			projectName:
@@ -227,8 +222,7 @@ export function planTodoistImport(
 			existingProjects,
 			changes: {
 				repeating: count(TASK_CHANGES.repeating),
-				noDate: freshItems.length - items.length,
-				alreadyImported: openItems.length - freshItems.length,
+				alreadyImported: openItems.length - items.length,
 				subtasks: count(TASK_CHANGES.subtasks),
 				sections: countDistinct(items.map(item => item.section_id)),
 				deadlines: count(TASK_CHANGES.deadlines),

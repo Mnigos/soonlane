@@ -186,22 +186,15 @@ export const TodoistServiceLive = Layer.effect(
 			const linked = yield* findLive(ownerId)
 			const summary = yield* plan(ownerId, linked).pipe(
 				Effect.flatMap(planned =>
-					importedRepository
-						.create({
-							ownerId,
-							tasks: planned.tasks.map(({ due, ...draft }) => ({
-								...draft,
-								...toTaskDue(due, timeZone),
-							})),
-							newLabels: planned.newLabels,
-							newProjectNames: planned.newProjectNames,
-						})
-						.pipe(
-							Effect.map(counts => ({
-								...counts,
-								leftOut: planned.preview.changes.noDate,
-							}))
-						)
+					importedRepository.create({
+						ownerId,
+						tasks: planned.tasks.map(({ due, ...draft }) => ({
+							...draft,
+							...toTaskDue(due, timeZone),
+						})),
+						newLabels: planned.newLabels,
+						newProjectNames: planned.newProjectNames,
+					})
 				),
 				Effect.onExit(exit =>
 					Exit.isFailure(exit) && Cause.hasInterruptsOnly(exit.cause)
@@ -213,7 +206,6 @@ export const TodoistServiceLive = Layer.effect(
 			yield* analytics.capture(ownerId, 'todoist_imported', {
 				tasks: summary.tasks,
 				changedTasks: summary.changedTasks,
-				leftOut: summary.leftOut,
 				newLabels: summary.newLabels,
 				newProjects: summary.newProjects,
 			})

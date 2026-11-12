@@ -40,8 +40,6 @@ export function useImportTodoistMutation() {
 									summary.changedTasks,
 									TODOIST_COUNT_COPY.importedWithChanges
 								),
-							summary.leftOut > 0 &&
-								formatCount(summary.leftOut, TODOIST_COUNT_COPY.leftOut),
 							TODOIST_COPY.accessClosed,
 						]
 							.filter(Boolean)
