@@ -2,6 +2,7 @@ import { type ErrorMap, oc } from '@orpc/contract'
 import {
 	calendarDateSchema,
 	labelIdSchema,
+	projectIdSchema,
 	REPEAT_INTERVAL_MAX,
 	REPEAT_UNITS,
 	SINGLE_INTERVAL_REPEAT_UNITS,
@@ -16,6 +17,7 @@ import {
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
 import { labelNotFound, labelSchema } from './labels.contract'
+import { projectNotFound, projectSchema } from './projects.contract'
 
 const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
 const prioritySchema = z.union(
@@ -37,6 +39,7 @@ export const taskSchema = z.object({
 	completedAt: z.date().optional(),
 	repeat: repeatSchema.extend({ anchor: storedCalendarDateSchema }).optional(),
 	labels: z.array(labelSchema),
+	project: projectSchema.optional(),
 	goal: z
 		.object({
 			target: z.int(),
@@ -67,6 +70,15 @@ export const listTasksByLabelInputSchema = z.object({
 })
 
 export type ListTasksByLabelInput = z.infer<typeof listTasksByLabelInputSchema>
+
+export const listTasksByProjectInputSchema = z.object({
+	projectId: projectIdSchema,
+	today: calendarDateSchema,
+})
+
+export type ListTasksByProjectInput = z.infer<
+	typeof listTasksByProjectInputSchema
+>
 
 export const listTasksOutputSchema = z.object({
 	overdue: z.array(taskSchema),
@@ -126,13 +138,15 @@ export const createTaskInputSchema = z.object({
 		})
 		.optional(),
 	goal: goalInputSchema.optional(),
+	projectId: projectIdSchema.optional(),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 /**
- * Replaces every field (an absent description or time clears it) but three that an absent value keeps for clients from before they could be edited:
- * the repeat rule and the goal (null clears them) and the labels (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels).
+ * Replaces every field (an absent description or time clears it) but four that an absent value keeps for clients from before they could be edited
+ * and for edits that do not show them: the repeat rule, the goal and the project (null clears them) and the labels (`labelIds`, `[]` included,
+ * replaces them, leaving out ids that are not the owner's labels). A `projectId` that is not the owner's project fails with NOT_FOUND.
  * A goal at or below the progress of an open task completes it like a log reaching the target; `today` places a repeating task's next occurrence.
  */
 export const updateTaskInputSchema = createTaskInputSchema.extend({
@@ -140,6 +154,7 @@ export const updateTaskInputSchema = createTaskInputSchema.extend({
 	priority: prioritySchema,
 	repeat: repeatInputSchema.nullable().optional(),
 	goal: goalInputSchema.nullable().optional(),
+	projectId: projectIdSchema.nullable().optional(),
 	today: calendarDateSchema.optional(),
 })
 
@@ -225,8 +240,12 @@ export const tasksContract = {
 		.errors({ ...authErrors, NOT_FOUND: labelNotFound })
 		.input(listTasksByLabelInputSchema)
 		.output(listTasksOutputSchema),
+	listByProject: oc
+		.errors({ ...authErrors, NOT_FOUND: projectNotFound })
+		.input(listTasksByProjectInputSchema)
+		.output(listTasksOutputSchema),
 	create: oc
-		.errors(authErrors)
+		.errors({ ...authErrors, NOT_FOUND: projectNotFound })
 		.input(createTaskInputSchema)
 		.output(z.object({ task: taskSchema })),
 	update: oc

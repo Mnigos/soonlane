@@ -5,6 +5,8 @@ import { CalendarSubscriptionRepositoryLive } from '@/modules/calendar/infrastru
 import { BetterAuthLive } from '@/modules/identity/infrastructure/better-auth.layer'
 import { LabelsServiceLive } from '@/modules/labels/application/labels.service'
 import { LabelRepositoryLive } from '@/modules/labels/infrastructure/label.repository'
+import { ProjectsServiceLive } from '@/modules/projects/application/projects.service'
+import { ProjectRepositoryLive } from '@/modules/projects/infrastructure/project.repository'
 import { TasksServiceLive } from '@/modules/tasks/application/tasks.service'
 import { TaskRepositoryLive } from '@/modules/tasks/infrastructure/task.repository'
 import { AppConfigLive } from './config/app.config'
@@ -15,6 +17,7 @@ import { HttpServerLive } from './http/http-server.layer'
 export const ServicesLive = Layer.mergeAll(
 	BetterAuthLive,
 	LabelsServiceLive.pipe(Layer.provide(LabelRepositoryLive)),
+	ProjectsServiceLive.pipe(Layer.provide(ProjectRepositoryLive)),
 	CalendarServiceLive.pipe(
 		Layer.provide(CalendarSubscriptionRepositoryLive),
 		Layer.provideMerge(TasksServiceLive.pipe(Layer.provide(TaskRepositoryLive)))

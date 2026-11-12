@@ -6,23 +6,33 @@ export class DbError extends Data.TaggedError('DbError')<{
 }> {}
 
 const UNIQUE_VIOLATION_CODE = '23505'
+const FOREIGN_KEY_VIOLATION_CODE = '23503'
 
-function hasUniqueViolation(cause: unknown, constraint: string): boolean {
+function hasViolation(
+	cause: unknown,
+	code: string,
+	constraint: string
+): boolean {
 	if (typeof cause !== 'object' || cause === null) return false
 	if (
 		'code' in cause &&
-		cause.code === UNIQUE_VIOLATION_CODE &&
+		cause.code === code &&
 		'constraint' in cause &&
 		cause.constraint === constraint
 	)
 		return true
 
-	return 'cause' in cause && hasUniqueViolation(cause.cause, constraint)
+	return 'cause' in cause && hasViolation(cause.cause, code, constraint)
 }
 
 /** Drizzle wraps the driver error, so the violated constraint can sit several causes deep. */
 export function isUniqueViolation(error: DbError, constraint: string) {
-	return hasUniqueViolation(error.cause, constraint)
+	return hasViolation(error.cause, UNIQUE_VIOLATION_CODE, constraint)
+}
+
+/** A write that references a row another transaction deleted in the meantime. */
+export function isForeignKeyViolation(error: DbError, constraint: string) {
+	return hasViolation(error.cause, FOREIGN_KEY_VIOLATION_CODE, constraint)
 }
 
 /** The first `code` down the cause chain: a Postgres SQLSTATE such as `42P01` or a Node code such as `ECONNREFUSED`. Drizzle wraps the driver error, so it can sit several causes deep. */

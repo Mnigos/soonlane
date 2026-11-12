@@ -6,6 +6,7 @@ import type {
 import type {
 	CalendarDate,
 	LabelId,
+	ProjectId,
 	RepeatRule,
 	TaskId,
 	UserId,
@@ -72,6 +73,11 @@ export interface TaskLabel {
 	ownerId: UserId
 	id: TaskId
 	labelId: LabelId
+}
+
+export interface TaskProject {
+	ownerId: UserId
+	projectId: ProjectId
 }
 
 export interface ProgressLog extends TaskKey {

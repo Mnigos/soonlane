@@ -187,6 +187,7 @@ const TASK_STATEMENT_FILES = [
 	`${TASKS_INFRASTRUCTURE}/task-progress.query.ts`,
 	`${TASKS_INFRASTRUCTURE}/task-update.query.ts`,
 	'apps/api/src/modules/labels/infrastructure/label.repository.ts',
+	'apps/api/src/modules/projects/infrastructure/project.repository.ts',
 ] as const
 
 const ROLE_NAMED_SOURCES = [
