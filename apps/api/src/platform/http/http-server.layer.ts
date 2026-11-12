@@ -57,7 +57,8 @@ export const HttpServerLive = Layer.effectDiscard(
 		const server = yield* Effect.acquireRelease(
 			Effect.sync(() =>
 				Bun.serve({
-					hostname: '0.0.0.0',
+					// Both stacks: Railway's private network resolves `api.railway.internal` to IPv6 too, and to IPv6 only in older environments.
+					hostname: '::',
 					port,
 					development: false,
 					routes: {
