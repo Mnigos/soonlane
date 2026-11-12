@@ -31,5 +31,4 @@ export const project = pgTable(
 		),
 	]
 )
-
 export type ProjectRow = typeof project.$inferSelect
