@@ -1,0 +1,95 @@
+---
+title: How to set up recurring tasks in your to-do list
+description: Set up recurring tasks in a to-do list (daily, weekdays, every few weeks, monthly) and learn what happens when you complete one early or late.
+date: '2026-11-12'
+draft: true
+---
+
+Some tasks come back. Rent on the 1st, bins on Tuesday, a weekly review on Friday, watering the plants every few days. Writing them down again each time is busywork, and forgetting to write them down is how the rent ends up late.
+
+A recurring task fixes both. You set it up once with a rule, and the list puts it on the right day every time. The examples below use Soonlane, but the ideas apply to any app with repeating tasks.
+
+## Which tasks should repeat
+
+A simple test: if you have added the same task three times, make it repeat.
+
+Good candidates have a fixed rhythm. Bills, rubbish collection, a weekly call, taking medication, backups, a monthly budget check. You know when the next one is due without thinking about it.
+
+Tasks with a loose rhythm work too, as long as you pick an interval. "Clean the fridge" does not need a day of the week. Every 3 weeks is close enough, and it is better than never.
+
+Do not repeat tasks that only look regular. If you go to the gym "about twice a week" on whatever days fit, a repeat rule will hand you a gym task on the wrong days. Plan those during your weekly planning instead.
+
+## Pick the right rule
+
+Most repeating tasks fit one of these rules.
+
+- Every day, for habits and daily checks.
+- Every weekday, Monday to Friday, for work routines you skip at the weekend.
+- Every week on one day, for bins, a weekly review or a class.
+- Every few days, weeks or months, for loose-rhythm tasks like the fridge.
+- Every month on one date, for rent and bills.
+- Every year on one date, for renewals and birthdays.
+
+Set the rule for the day you will act, which is not always the deadline. If rent is due on the 1st and you pay it on the 28th, set the task for the 28th of each month.
+
+## Setting a repeat in Soonlane
+
+In Soonlane the repeat lives in the date picker. Open a task with Edit, or start a new one, and click its date. Under the calendar there are two buttons, Time and Repeat.
+
+<img
+	src="/site/date-picker.webp"
+	alt="The Soonlane date picker reading fri as Fri 6 Nov, with quick picks for tomorrow, next week and next weekend, a calendar, and the Time and Repeat buttons at the bottom."
+	width={800}
+	height={710}
+/>
+
+Repeat opens a menu built from the task's due date. For a task due on Friday 6 November, it reads:
+
+- Every day
+- Every week on Friday
+- Every weekday (Mon - Fri)
+- Every month on the 6th
+- Every year on 6 November
+- Custom...
+
+Custom gives you "Every N days", "Every N weeks" or "Every N months", with N from 1 to 99. Every weekday and every year have no custom interval.
+
+Because the menu reads the due date, set the date first. To repeat every month on the 15th, pick the 15th, then choose "Every month on the 15th".
+
+Three edge cases are worth knowing. "Every weekday" on a Saturday or Sunday starts on the next Monday. A monthly task on the 31st lands on the last day of shorter months, like 30 April, and goes back to the 31st when the month has one. A yearly task on 29 February falls on 28 February in other years.
+
+Once a rule is set, the Repeat button shows it, and an X next to it clears it. In the list, a repeating task has a small repeat icon under its title.
+
+## What happens when you complete it
+
+When you complete a repeating task, it does not leave your list. It moves to its next date and stays open. It keeps its title, description, priority, labels and due time. A toast says "Task completed" with an Undo button, and Undo puts the task back on the date it had before.
+
+The next date counts from the due date, not from the day you clicked. That matters in two cases.
+
+If you complete it early, that counts as this occurrence. A weekly review due Friday 13 November that you finish on Wednesday moves to Friday 20 November, not to Friday 13 November again.
+
+If you complete it late, the schedule does not slide. Soonlane steps forward from the old due date until it reaches a date that is today or later. Some examples, completed on Thursday 12 November:
+
+- A task set to every 2 weeks on Monday, due Monday 2 November, moves to Monday 16 November.
+- A task set to every month on the 5th, due 5 October, skips 5 November, which has passed, and moves to 5 December.
+- A daily task due Monday 9 November moves to today, Thursday 12 November, because today is the first date in its schedule that has not passed.
+
+The last one is on purpose. If you missed three days of watering the plants, you do not owe three waterings. You owe today's.
+
+This means overdue repeating tasks never pile up as copies. There is only one task, with one date. [What to do with overdue tasks](/blog/what-to-do-with-overdue-tasks) covers clearing the rest of the Overdue section.
+
+## Moving a repeating task
+
+Sometimes you need to move one occurrence without changing the schedule. The two ways of moving a task in Soonlane behave differently here, so it helps to know which one you want.
+
+The Reschedule button on the Overdue section changes only the due date. The rule stays as it was. A task set to every week on Monday that you reschedule to Wednesday is done on Wednesday, and when you complete it, it goes back to the next Monday.
+
+Changing the date with Edit or from the Date row in the task's "…" menu moves the schedule with it. The same task moved to Wednesday that way becomes "Every week on Wednesday". Use this when the rhythm itself has changed, like a class that moved to another day.
+
+## Repeating tasks with a goal
+
+A Soonlane task can have a goal, like 50 push-ups or 8 glasses of water. You log progress from the task row. On a repeating task, reaching the goal counts as completing it. The task moves to its next date and the progress starts again from 0, so "50 push-ups, every day" works as a daily counter.
+
+## Try it
+
+Soonlane is a free, [open source Todoist alternative](/), and repeating tasks work the same for everyone with no paid plan. Pick one task you wrote down again this week and give it a rule. Next week it will already be on the right day.
