@@ -14,3 +14,20 @@ export const CODE_VERIFIER_PARAM = 'verifier'
 
 /** 32 bytes in base64url: a challenge from `toCodeChallenge`, and a verifier from `createCodeVerifier`. */
 export const CODE_CHALLENGE_PATTERN = /^[\w-]{43}$/u
+
+/**
+ * The port the desktop app listens on for the sign-in code (RFC 8252). With it,
+ * `/desktop/sign-in` hands the code to `http://127.0.0.1:<port>/callback?code=…`
+ * instead of a `soonlane://` link.
+ */
+export const LOOPBACK_PORT_PARAM = 'port'
+/** A literal address, never `localhost`, which a hosts file or DNS could point elsewhere. */
+export const LOOPBACK_HOST = '127.0.0.1'
+export const LOOPBACK_CALLBACK_PATH = '/callback'
+
+/**
+ * The `Origin` the desktop app's bundled page (Electrobun's `views://app`) sends.
+ * Any Electrobun app with a view of that name sends it too, so it only selects
+ * the API's CORS answer for bearer requests and never joins `TRUSTED_ORIGINS`.
+ */
+export const DESKTOP_PAGE_ORIGIN = 'views://app'

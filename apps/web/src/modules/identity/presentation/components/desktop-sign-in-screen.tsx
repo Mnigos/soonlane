@@ -2,6 +2,7 @@ import {
 	CODE_CHALLENGE_PARAM,
 	DESKTOP_SIGN_IN_PATH,
 	FRESH_SIGN_IN_PARAM,
+	LOOPBACK_PORT_PARAM,
 } from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
 import { DesktopHandOffScreen } from './desktop-hand-off-screen'
@@ -12,6 +13,8 @@ interface DesktopSignInScreenProps {
 	user: SessionUser | null
 	fresh?: boolean
 	oauthError?: string
+	/** The app's loopback port; unset, the code goes back through `soonlane://`. */
+	port?: number
 }
 
 /**
@@ -25,6 +28,7 @@ export function DesktopSignInScreen({
 	user,
 	fresh = false,
 	oauthError,
+	port,
 }: Readonly<DesktopSignInScreenProps>) {
 	if (!challenge)
 		return (
@@ -39,9 +43,14 @@ export function DesktopSignInScreen({
 		)
 
 	if (user && !fresh)
-		return <DesktopHandOffScreen challenge={challenge} user={user} />
+		return (
+			<DesktopHandOffScreen challenge={challenge} port={port} user={user} />
+		)
 
-	const returnUrl = `${DESKTOP_SIGN_IN_PATH}?${new URLSearchParams({ [CODE_CHALLENGE_PARAM]: challenge })}`
+	const returnUrl = `${DESKTOP_SIGN_IN_PATH}?${new URLSearchParams({
+		[CODE_CHALLENGE_PARAM]: challenge,
+		...(port && { [LOOPBACK_PORT_PARAM]: String(port) }),
+	})}`
 
 	return (
 		<SignInScreen

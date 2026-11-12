@@ -1,5 +1,6 @@
 import { COMMON_ERROR_STATUS_MAP } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
+import { DESKTOP_PAGE_ORIGIN } from '@soonlane/auth'
 import { MAINTENANCE_ERROR } from '@soonlane/contracts'
 import { RPC_PREFIX } from './rpc-prefix.constants'
 import type { RpcContext } from './rpc.context'
@@ -10,6 +11,20 @@ type ContextBuilder = (
 ) => Promise<{ context: RpcContext; setCookies: string[] }>
 
 type ErrorReporter = (error: unknown) => Promise<void>
+
+/**
+ * A web origin from `TRUSTED_ORIGINS`, or the desktop app's bundled page without a cookie: it
+ * authenticates with its bearer token only, so a session cookie never counts on its requests.
+ */
+function isAllowedOrigin(
+	origin: string,
+	headers: Headers,
+	trustedOrigins: readonly string[]
+) {
+	return origin === DESKTOP_PAGE_ORIGIN
+		? !headers.has('cookie')
+		: trustedOrigins.includes(origin)
+}
 
 export function createRpcHandler(
 	buildContext: ContextBuilder,
@@ -27,7 +42,7 @@ export function createRpcHandler(
 		const origin = request.headers.get('origin')
 
 		try {
-			if (origin && !trustedOrigins.includes(origin))
+			if (origin && !isAllowedOrigin(origin, request.headers, trustedOrigins))
 				return new Response('Forbidden', { status: 403 })
 
 			const { context, setCookies } = await buildContext(request)

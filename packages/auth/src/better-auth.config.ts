@@ -1,6 +1,6 @@
 import { account, rateLimit, session, user, verification } from '@soonlane/db'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
-import { betterAuth } from 'better-auth'
+import { type BetterAuthPlugin, betterAuth } from 'better-auth'
 import { drizzleAdapter } from 'better-auth/adapters/drizzle'
 import {
 	APIError,
@@ -9,9 +9,14 @@ import {
 	isAPIError,
 } from 'better-auth/api'
 import { symmetricDecrypt } from 'better-auth/crypto'
+import { bearer } from 'better-auth/plugins'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { canSignUp } from './auth-policy.helper'
-import { DESKTOP_EXCHANGE_PATH, desktopSignIn } from './desktop-sign-in.handler'
+import {
+	DESKTOP_EXCHANGE_PATH,
+	DESKTOP_TOKEN_PATH,
+	desktopSignIn,
+} from './desktop-sign-in.handler'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
@@ -126,6 +131,19 @@ function readBodyKeys(body: unknown) {
 	return typeof body === 'object' && body !== null ? Object.keys(body) : []
 }
 
+/**
+ * Better Auth's `bearer` without its after hook, which copies the session
+ * cookie of every response that sets one into a `set-auth-token` header it
+ * exposes to scripts, so the web app's HttpOnly cookie would reach page code.
+ * The desktop app gets its token from `/desktop-sign-in/token` instead.
+ * `requireSignature` refuses a bare session token, which would otherwise pass.
+ */
+function bearerSessions() {
+	const { id, hooks } = bearer({ requireSignature: true })
+
+	return { id, hooks: { before: hooks.before } } satisfies BetterAuthPlugin
+}
+
 function refuse(message: string) {
 	return new APIError('FORBIDDEN', { code: 'PROVIDER_NOT_ALLOWED', message })
 }
@@ -134,7 +152,7 @@ function refuse(message: string) {
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
  * signed-in hint cookie, the hand-off of a browser sign-in to the desktop
- * app and, when configured, linking Todoist for an import: Todoist is only
+ * app with the signed bearer token its session uses and, when configured, linking Todoist for an import: Todoist is only
  * linked, Google only signs in, and provider tokens are stored encrypted.
  */
 export function createAuth(options: CreateAuthOptions) {
@@ -176,7 +194,8 @@ export function createAuth(options: CreateAuthOptions) {
 				'/sign-in/social': SIGN_IN_RATE_LIMIT,
 				'/link-social': SIGN_IN_RATE_LIMIT,
 				'/desktop-sign-in/code': SIGN_IN_RATE_LIMIT,
-				'/desktop-sign-in/exchange': SIGN_IN_RATE_LIMIT,
+				[DESKTOP_EXCHANGE_PATH]: SIGN_IN_RATE_LIMIT,
+				[DESKTOP_TOKEN_PATH]: SIGN_IN_RATE_LIMIT,
 				'/delete-user': { window: 3600, max: 5 },
 			},
 		},
@@ -265,13 +284,17 @@ export function createAuth(options: CreateAuthOptions) {
 					after: async ({ userId }, context) =>
 						await options.events.sessionCreated(
 							userId,
-							context?.path === DESKTOP_EXCHANGE_PATH ? 'desktop' : 'google',
+							context?.path === DESKTOP_EXCHANGE_PATH ||
+								context?.path === DESKTOP_TOKEN_PATH
+								? 'desktop'
+								: 'google',
 							context?.headers
 						),
 				},
 			},
 		},
 		plugins: [
+			bearerSessions(),
 			desktopSignIn(),
 			returnAddresses(options.trustedOrigins),
 			...(options.todoist ? [todoistLink(options.todoist)] : []),

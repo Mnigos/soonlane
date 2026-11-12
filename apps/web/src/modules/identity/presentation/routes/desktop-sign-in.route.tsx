@@ -11,6 +11,7 @@ const desktopSignInSearchSchema = z.object({
 		.catch(undefined),
 	error: z.string().optional().catch(undefined),
 	fresh: z.boolean().optional().catch(undefined),
+	port: z.number().int().min(1).max(65_535).optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/_session/desktop/sign-in')({
@@ -21,13 +22,14 @@ export const Route = createFileRoute('/_session/desktop/sign-in')({
 
 function DesktopSignInRoute() {
 	const { me } = Route.useRouteContext()
-	const { challenge, error, fresh } = Route.useSearch()
+	const { challenge, error, fresh, port } = Route.useSearch()
 
 	return (
 		<DesktopSignInScreen
 			challenge={challenge}
 			fresh={fresh}
 			oauthError={error}
+			port={port}
 			user={me.user}
 		/>
 	)

@@ -1,14 +1,41 @@
+import { DESKTOP_PAGE_ORIGIN } from '@soonlane/auth'
 import { type Context, Effect } from 'effect'
 
 type RequestHandler = (request: Request) => Promise<Response>
 
 /** Chrome caps a cached preflight at two hours; Firefox keeps it up to a day. */
 const PREFLIGHT_MAX_AGE_S = 7200
-/** The browser's oRPC link and Better Auth client send only `content-type` beyond the safelisted headers. */
 const PREFLIGHT_HEADERS = {
 	'access-control-allow-methods': 'GET, POST',
-	'access-control-allow-headers': 'content-type',
 	'access-control-max-age': String(PREFLIGHT_MAX_AGE_S),
+}
+
+/**
+ * The CORS answer for an origin, or `undefined` to refuse it. A web origin from
+ * `TRUSTED_ORIGINS` gets credentials and only `content-type`, all the browser's
+ * oRPC link and Better Auth client send beyond the safelisted headers. The
+ * desktop app's bundled page gets no credentials, so no cookie ever rides on
+ * its requests, and may send `authorization` for its bearer token.
+ */
+function corsRuleFor(
+	origin: string,
+	trustedOrigins: readonly string[]
+): { headers: Record<string, string>; allowedHeaders: string } | undefined {
+	if (trustedOrigins.includes(origin))
+		return {
+			headers: {
+				'access-control-allow-origin': origin,
+				'access-control-allow-credentials': 'true',
+			},
+			allowedHeaders: 'content-type',
+		}
+	if (origin === DESKTOP_PAGE_ORIGIN)
+		return {
+			headers: { 'access-control-allow-origin': origin },
+			allowedHeaders: 'authorization, content-type',
+		}
+
+	return undefined
 }
 
 /** A thrown failure becomes an empty 500 logged by name only, so it still carries the CORS headers. */
@@ -36,11 +63,11 @@ function forbidden() {
 }
 
 /**
- * CORS for the browser's direct calls: only an exact origin from `TRUSTED_ORIGINS`, with credentials.
- * Answers every preflight itself and refuses any other `Origin` with 403, including other `soonlane.com`
- * hosts and the API's own. A request without `Origin` (SSR, Google's redirect back) goes on to the
- * handler, whose own origin checks stay on; a provider that returned with a `form_post` would carry
- * Google's origin and be refused.
+ * CORS for the browser's direct calls: an exact origin from `TRUSTED_ORIGINS` with credentials, and the
+ * desktop app's bundled page without (`corsRuleFor`). Answers every preflight itself and refuses any other
+ * `Origin` with 403, including other `soonlane.com` hosts and the API's own. A request without `Origin`
+ * (SSR, Google's redirect back, the desktop app's main process) goes on to the handler, whose own origin
+ * checks stay on; a provider that returned with a `form_post` would carry Google's origin and be refused.
  */
 export function withCors(
 	context: Context.Context<never>,
@@ -52,24 +79,27 @@ export function withCors(
 		const isPreflight = request.method === 'OPTIONS'
 
 		if (origin === null && !isPreflight) return await handle(request)
-		if (origin === null || !trustedOrigins.includes(origin)) return forbidden()
 
-		const corsHeaders = {
-			'access-control-allow-origin': origin,
-			'access-control-allow-credentials': 'true',
-		}
+		const rule =
+			origin === null ? undefined : corsRuleFor(origin, trustedOrigins)
 
+		if (!rule) return forbidden()
 		if (isPreflight)
 			return new Response(null, {
 				status: 204,
-				headers: { ...corsHeaders, ...PREFLIGHT_HEADERS, vary: 'Origin' },
+				headers: {
+					...rule.headers,
+					...PREFLIGHT_HEADERS,
+					'access-control-allow-headers': rule.allowedHeaders,
+					vary: 'Origin',
+				},
 			})
 
 		const response = await handleOrFail(context, handle, request)
 		// A fresh response: one from a redirect helper can have immutable headers.
 		const answer = new Response(response.body, response)
 
-		for (const [name, value] of Object.entries(corsHeaders))
+		for (const [name, value] of Object.entries(rule.headers))
 			answer.headers.set(name, value)
 		answer.headers.append('vary', 'Origin')
 
