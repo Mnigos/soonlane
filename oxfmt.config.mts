@@ -22,7 +22,7 @@ export default defineConfig({
 		'**/routeTree.gen.ts',
 		'**/modern-screenshot.umd.js',
 		'packages/db/migrations/**',
-		// Written by the release workflow from git-cliff.
+		// Written by git-cliff in the release PR.
 		'CHANGELOG.md',
 		'.agents/skills/impeccable/**',
 		'docs/**',

@@ -1,6 +1,6 @@
 # Releases
 
-The product version lives in `version.json`; the history in `CHANGELOG.md`. Only `.github/workflows/release.yml` writes `version.json` and the lists of changes in `CHANGELOG.md`, so a release never conflicts with a pull request. The one hand edit is the summary at the top of a released section (see Changelog format).
+The product version lives in `version.json`; the history in `CHANGELOG.md`. Only a release pull request edits them, prepared by the `release` skill (ADR 0012); feature PRs never touch them.
 
 ## Nightly
 
@@ -12,17 +12,17 @@ Runs every day at 04:23 UTC and on **Actions → Release → Run workflow** with
 
 ## Stable
 
-Run **Actions → Release → Run workflow** on `main` with channel `stable`.
+Ask an agent for a stable release; it runs the `release` skill locally (`--out <dir>` on `scripts/release.ts prepare` gives a dry run) and opens a release PR. Igor edits and merges it; agents never merge it.
 
-1. Stable promotes the commit of the latest nightly, not `main` HEAD: verify the nightly, then ship exactly that build. Merges after it wait for the next nightly.
-2. The version defaults to the one the nightly previewed (`0.2.0-nightly.*` ships as `0.2.0`); the `version` input overrides it and must be newer than the last stable tag.
-3. Version rules (before 1.0): `feat` or a breaking change bumps the minor, `fix` or `perf` the patch; other types never trigger a release. The first release uses `version.json` as is (0.1.0).
-4. git-cliff (`cliff.toml`) adds the new release's section at the top of `CHANGELOG.md` with `--latest --prepend`, and leaves every earlier section, summaries included, byte for byte. The section has one entry per `feat`, `fix` and `perf` commit with a product scope (`AGENTS.md`), grouped by type then scope, linked to its commit and PR. A release without product entries keeps its heading; `/changelog` shows it as "Improvements under the hood."
-5. The workflow makes one commit on `main` touching only `CHANGELOG.md` and `version.json` (`chore(release): vX.Y.Z`, `[skip ci]`), tags the nightly's commit `vX.Y.Z`, and publishes a GitHub Release marked latest whose notes are the new changelog section.
+1. Stable promotes the commit of the latest nightly, not `main` HEAD: verify the nightly, then ship exactly that build. The release PR pins that nightly in `version.json`, so a nightly that runs while the PR is open changes nothing.
+2. The version defaults to the one the nightly previewed (`0.2.0-nightly.*` ships as `0.2.0`); the skill's `--version` overrides it and must be newer than the last stable tag.
+3. Version rules (before 1.0): `feat` or a breaking change bumps the minor, `fix` or `perf` the patch; other types never trigger a release. The first release used `version.json` as is (0.1.0).
+4. The release PR (branch `release-vX.Y.Z`, title and commit `chore(release): vX.Y.Z`) touches only `CHANGELOG.md` and `version.json`. It adds one section at the top of `CHANGELOG.md`: the summary, drafted from the merged PRs and their Linear tickets, then git-cliff's list (`cliff.toml`) for the commits since the last stable tag up to the nightly's commit. The list has one entry per `feat`, `fix` and `perf` commit with a product scope (`AGENTS.md`), grouped by type then scope, linked to its commit and PR. Every earlier section stays byte for byte. `version.json` becomes `{ "version": "X.Y.Z", "nightly": "<nightly tag>" }`.
+5. Merging it pushes a change to `version.json` on `main`, which runs the stable job. If the GitHub Release `vX.Y.Z` already exists, the job does nothing. Otherwise it checks that the pinned nightly tag exists and that the version is newer than the last stable tag, then tags the nightly's commit `vX.Y.Z` and publishes a GitHub Release marked latest whose notes are the new `CHANGELOG.md` section, summary included. It never commits to `main`.
+6. **Actions → Release → Run workflow** on `main` with channel `stable` runs the same job, to publish again after a failed run. A tag `vX.Y.Z` that already points at the nightly's commit is kept, and the run publishes its release.
+7. GitHub refuses the workflow's tag push when a file under `.github/workflows` changed on `main` after the pinned nightly, since the workflow token may not create a ref that changes workflow files. Then push the tag yourself (`git push origin <nightly tag>^{commit}:refs/tags/vX.Y.Z`) and run step 6.
 
-Nightly and stable share a concurrency group, so they never run at the same time.
-
-`[skip ci]` only stops GitHub Actions. Railway deploys `main` with Wait for CI, and the release commit changes watched paths of both services, so it should deploy production and rebuild `/changelog` from the new `CHANGELOG.md` ([deploy-railway.md](deploy-railway.md#production)). Railway does not document whether a commit with no check suite deploys at once or waits until its two-hour limit skips it, so after the first stable release check that the `web` deployment of the release commit went live; if it was skipped, deploy it with **Deploy Latest Commit** on the service.
+Nightly and stable share a concurrency group, so they never run at the same time. The merge commit goes through CI like any other push, and Railway deploys it to production with the new `/changelog` ([deploy-railway.md](deploy-railway.md#production)).
 
 ## Version in the app
 
@@ -49,5 +49,5 @@ One or more short paragraphs for users. Each line is a paragraph.
 - The summary is optional: paragraph lines, then `### <feature area>` headings, each with `- ` entries. A paragraph line may not start like another markdown block (such as `#`, `-`, `*`, `>` or `1.`). Inline links must be `https`; other markdown stays literal text.
 - A heading with `›` is git-cliff's list. Everything after the first one belongs to the list, so the summary always goes above it, under the release heading.
 - `/changelog` shows the summary first and folds the list into a collapsed "All changes". A section without a summary shows the list as it is.
-- The summary is written after the release, by hand or in a release PR, using the product's words (`PRODUCT.md`, `UBIQUITOUS_LANGUAGE.md`) and leaving out internal work. GitHub Release notes carry only git-cliff's list.
+- The summary is written in the release PR, in the product's words (`PRODUCT.md`, `UBIQUITOUS_LANGUAGE.md`), leaving out internal work. GitHub Release notes carry the whole section.
 - `--prepend` removes `cliff.toml`'s `header` from the file before it writes the new section, so the header in `CHANGELOG.md` must match it exactly.

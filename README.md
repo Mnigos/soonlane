@@ -65,7 +65,7 @@ On your own open pull request, comment `/approve` or `/request-changes` on a lin
 
 ## Releases
 
-Versions, the changelog and GitHub Releases come from the release workflow; see [docs/release.md](docs/release.md).
+Versions and the changelog come from release pull requests, and GitHub Releases from the release workflow; see [docs/release.md](docs/release.md).
 
 ## Blog
 
