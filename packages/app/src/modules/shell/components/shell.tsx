@@ -1,25 +1,30 @@
 import type { ClientEvents } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
-import type { SessionUser } from '@soonlane/contracts'
+import type { SessionUser, Task } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Toaster } from '@soonlane/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
 import { AddTaskDialog } from '../../tasks/components/task/add-task-dialog'
+import { EditTaskDialog } from '../../tasks/components/task/edit-task-dialog'
 import { useDockBadgeQuery } from '../../tasks/hooks/use-dock-badge-query'
 import {
 	isWideViewport,
 	saveSidebarPreference,
 } from '../helpers/sidebar-preference.helper'
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts'
+import { useTrackRecentViews } from '../hooks/use-track-recent-views'
 import type { SidebarPreference } from '../sidebar-preference.types'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { KeyboardShortcutsDialog } from './keyboard-shortcuts-dialog'
+import { SearchPalette } from './search-palette'
 import { ShellRail } from './shell-rail'
 import { ShellSidebar } from './shell-sidebar'
 
 interface ShellProps extends PropsWithChildren {
+	/** The current pathname, which Recent compares with `APP_PATHS`. */
+	activePath: string
 	activeLabelName?: string
 	initialSidebarPreference: SidebarPreference
 	user: SessionUser
@@ -32,6 +37,7 @@ interface ShellProps extends PropsWithChildren {
  * and remembered; below xl the full sidebar opens over the content.
  */
 export function Shell({
+	activePath,
 	activeLabelName,
 	children,
 	initialSidebarPreference,
@@ -41,11 +47,15 @@ export function Shell({
 	const [isOverlayOpen, setIsOverlayOpen] = useState(false)
 	const [isAddingTask, setIsAddingTask] = useState(false)
 	const [isShowingShortcuts, setIsShowingShortcuts] = useState(false)
+	const [isSearching, setIsSearching] = useState(false)
+	const [editedTask, setEditedTask] = useState<Task>()
 	const showShortcuts = () => setIsShowingShortcuts(true)
 
 	useDockBadgeQuery()
+	useTrackRecentViews(activePath, activeLabelName)
 	useKeyboardShortcuts({
 		onAddTask: openAddTask,
+		onOpenSearch: openSearch,
 		onShowShortcuts: showShortcuts,
 	})
 
@@ -53,6 +63,11 @@ export function Shell({
 		setIsOverlayOpen(false)
 		setIsAddingTask(true)
 		capture('composer_opened', { source: 'sidebar_dialog' })
+	}
+
+	function openSearch() {
+		setIsOverlayOpen(false)
+		setIsSearching(true)
 	}
 
 	function changePreference(next: SidebarPreference) {
@@ -74,6 +89,7 @@ export function Shell({
 				className={cn('hidden md:flex', preference === 'full' && 'xl:hidden')}
 				onAddTask={openAddTask}
 				onExpand={() => toggleSidebar('expanded')}
+				onSearch={openSearch}
 				user={user}
 			/>
 
@@ -95,6 +111,7 @@ export function Shell({
 				onAddTask={openAddTask}
 				onCollapse={() => toggleSidebar('collapsed')}
 				onNavigate={() => setIsOverlayOpen(false)}
+				onSearch={openSearch}
 				onShowShortcuts={showShortcuts}
 			/>
 
@@ -117,6 +134,23 @@ export function Shell({
 
 			{isShowingShortcuts && (
 				<KeyboardShortcutsDialog onClose={() => setIsShowingShortcuts(false)} />
+			)}
+
+			{isSearching && (
+				<SearchPalette
+					onClose={() => setIsSearching(false)}
+					onEditTask={task => {
+						setIsSearching(false)
+						setEditedTask(task)
+					}}
+				/>
+			)}
+
+			{editedTask && (
+				<EditTaskDialog
+					onClose={() => setEditedTask(undefined)}
+					task={editedTask}
+				/>
 			)}
 
 			<Toaster />

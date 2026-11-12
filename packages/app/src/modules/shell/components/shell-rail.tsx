@@ -22,6 +22,7 @@ interface ShellRailProps {
 	user: SessionUser
 	onAddTask: () => void
 	onExpand: () => void
+	onSearch: () => void
 }
 
 export function ShellRail({
@@ -29,6 +30,7 @@ export function ShellRail({
 	user,
 	onAddTask,
 	onExpand,
+	onSearch,
 }: Readonly<ShellRailProps>) {
 	return (
 		<SidebarRail
@@ -83,7 +85,15 @@ export function ShellRail({
 
 				<RailNavLink icon={CalendarFold} label="Today" to={APP_PATHS.today} />
 
-				<RailNavLink icon={Search} label="Search" to={APP_PATHS.search} />
+				<button
+					aria-label="Search"
+					className={sidebarRailItemVariants()}
+					onClick={onSearch}
+					title="Search"
+					type="button"
+				>
+					<Search aria-hidden />
+				</button>
 			</nav>
 
 			<button

@@ -6,15 +6,15 @@ import {
 	focusTaskRow,
 	getFocusedTaskRow,
 } from '../../tasks/helpers/task-focus.helper'
+import { VIEW_SHORTCUTS } from '../keyboard-shortcuts.constants'
 
 /** How long after "g" its second key still counts. */
 const SEQUENCE_MS = 1000
 const SEQUENCE_VIEWS: Partial<
-	Record<string, typeof APP_PATHS.upcoming | typeof APP_PATHS.today>
-> = {
-	u: APP_PATHS.upcoming,
-	t: APP_PATHS.today,
-}
+	Record<string, (typeof VIEW_SHORTCUTS)[number]['view']>
+> = Object.fromEntries(
+	VIEW_SHORTCUTS.map(({ view, keys }) => [keys[1].toLowerCase(), view])
+)
 const ROW_STEPS: Partial<Record<string, 1 | -1>> = {
 	j: 1,
 	k: -1,
@@ -25,15 +25,18 @@ const getNothing = () => undefined
 
 interface KeyboardShortcutsOptions {
 	onAddTask: () => void
+	onOpenSearch: () => void
 	onShowShortcuts: () => void
 }
 
 /**
- * The app's shortcuts outside a task row: Add task, the shortcut list, "g" sequences to the views and
+ * The app's shortcuts outside a task row: Add task, search, the shortcut list, "g" sequences to the views and
  * moving between task rows. The arrows move only from a selected row, so they scroll the page otherwise.
+ * Mod+K works in text fields and popovers too, but not while a modal dialog is open, where it would stack the palette.
  */
 export function useKeyboardShortcuts({
 	onAddTask,
+	onOpenSearch,
 	onShowShortcuts,
 }: KeyboardShortcutsOptions) {
 	const navigate = useNavigate()
@@ -44,13 +47,22 @@ export function useKeyboardShortcuts({
 				event.timeStamp - sequenceStartRef.current < SEQUENCE_MS
 			sequenceStartRef.current = Number.NEGATIVE_INFINITY
 
-			if (!isShortcutKeydown(event)) return
-
 			const key = event.key.toLowerCase()
+			const isSearch =
+				(event.metaKey || event.ctrlKey) &&
+				!event.altKey &&
+				!event.shiftKey &&
+				!event.isComposing &&
+				key === 'k'
+
+			if (!isSearch && !isShortcutKeydown(event)) return
+
 			const view = isSequence ? SEQUENCE_VIEWS[key] : undefined
 			const step = ROW_STEPS[key]
 
-			if (view) void navigate({ to: view })
+			if (isSearch) {
+				if (!document.querySelector('[aria-modal="true"]')) onOpenSearch()
+			} else if (view) void navigate({ to: APP_PATHS[view] })
 			else if (key === 'g') sequenceStartRef.current = event.timeStamp
 			else if (key === 'q') onAddTask()
 			else if (key === '?') onShowShortcuts()
@@ -66,7 +78,7 @@ export function useKeyboardShortcuts({
 		document.addEventListener('keydown', handleKeyDown, true)
 
 		return () => document.removeEventListener('keydown', handleKeyDown, true)
-	}, [navigate, onAddTask, onShowShortcuts])
+	}, [navigate, onAddTask, onOpenSearch, onShowShortcuts])
 
 	useSyncExternalStore(subscribe, getNothing, getNothing)
 }

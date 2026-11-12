@@ -281,4 +281,8 @@ export const tasksContract = {
 		.errors(authErrors)
 		.input(searchTasksInputSchema)
 		.output(searchTasksOutputSchema),
+	get: query
+		.errors(taskErrors)
+		.input(taskIdInputSchema)
+		.output(z.object({ task: taskSchema })),
 }

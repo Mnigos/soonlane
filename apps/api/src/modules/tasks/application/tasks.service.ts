@@ -56,6 +56,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: SearchTasksInput
 		) => Effect.Effect<SearchTasksOutput, DbError>
+		readonly get: (
+			ownerId: UserId,
+			id: TaskId
+		) => Effect.Effect<Task, TaskNotFound | DbError>
 		/** Every open task with any due date, in day order. */
 		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
 		readonly create: (
@@ -165,6 +169,13 @@ export const TasksServiceLive = Layer.effect(
 				tasks: tasks.slice(0, SEARCH_RESULT_LIMIT),
 				hasMore: tasks.length > SEARCH_RESULT_LIMIT,
 			}
+		})
+
+		const get = Effect.fn('TasksService.get')(function* (
+			ownerId: UserId,
+			id: TaskId
+		) {
+			return yield* requireTask(yield* repository.find({ ownerId, id }))
 		})
 
 		const listOpen = Effect.fn('TasksService.listOpen')(function* (
@@ -335,6 +346,7 @@ export const TasksServiceLive = Layer.effect(
 			list,
 			listCompleted,
 			search,
+			get,
 			listOpen,
 			create,
 			update,

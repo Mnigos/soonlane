@@ -8,6 +8,12 @@ interface KeyboardShortcut {
 	joiner?: 'then' | 'or'
 }
 
+/** The views a "g" sequence opens, which the search palette lists with the same keys. */
+export const VIEW_SHORTCUTS = [
+	{ view: 'upcoming', name: 'Upcoming', keys: ['G', 'U'] },
+	{ view: 'today', name: 'Today', keys: ['G', 'T'] },
+] as const
+
 interface KeyboardShortcutGroup {
 	title: string
 	shortcuts: KeyboardShortcut[]
@@ -19,15 +25,17 @@ export const KEYBOARD_SHORTCUT_GROUPS: readonly KeyboardShortcutGroup[] = [
 		title: 'General',
 		shortcuts: [
 			{ action: 'Add task', keys: ['Q'] },
+			{ action: 'Open search', keys: [MOD_KEY, 'K'] },
 			{ action: 'Show keyboard shortcuts', keys: ['?'] },
 		],
 	},
 	{
 		title: 'Navigation',
-		shortcuts: [
-			{ action: 'Go to Upcoming', keys: ['G', 'U'], joiner: 'then' },
-			{ action: 'Go to Today', keys: ['G', 'T'], joiner: 'then' },
-		],
+		shortcuts: VIEW_SHORTCUTS.map(({ name, keys }) => ({
+			action: `Go to ${name}`,
+			keys: [...keys],
+			joiner: 'then',
+		})),
 	},
 	{
 		title: 'Task list',

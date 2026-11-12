@@ -27,6 +27,7 @@ interface TaskActionsMenuProps extends PropsWithChildren {
 	today: CalendarDate
 	className?: string
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
+	onDeleted?: () => void
 	autoFocus?: boolean
 	/** Filled with the "…" button, for a popover that opens from the menu. */
 	triggerRef?: RefObject<HTMLButtonElement | null>
@@ -41,6 +42,7 @@ export function TaskActionsMenu({
 	today,
 	className,
 	onKeyDown,
+	onDeleted,
 	children,
 	autoFocus,
 	triggerRef,
@@ -110,6 +112,7 @@ export function TaskActionsMenu({
 			{isDeleting && (
 				<DeleteTaskDialog
 					onClose={() => setIsDeleting(false)}
+					onDeleted={onDeleted}
 					task={task}
 					today={today}
 				/>

@@ -1,6 +1,6 @@
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
-import { Sidebar } from '@soonlane/ui/components/sidebar'
+import { Sidebar, sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import {
 	CalendarDays,
 	CalendarFold,
@@ -20,6 +20,7 @@ interface ShellSidebarProps {
 	onAddTask: () => void
 	onCollapse: () => void
 	onNavigate: () => void
+	onSearch: () => void
 	onShowShortcuts: () => void
 }
 
@@ -29,6 +30,7 @@ export function ShellSidebar({
 	onAddTask,
 	onCollapse,
 	onNavigate,
+	onSearch,
 	onShowShortcuts,
 }: Readonly<ShellSidebarProps>) {
 	const { renderUserMenu, appVersion, appCommit, releaseNotesUrl } =
@@ -81,12 +83,14 @@ export function ShellSidebar({
 					to={APP_PATHS.today}
 				/>
 
-				<SidebarNavLink
-					icon={Search}
-					label="Search"
-					onNavigate={onNavigate}
-					to={APP_PATHS.search}
-				/>
+				<button
+					className={cn(sidebarItemVariants(), 'cursor-pointer')}
+					onClick={onSearch}
+					type="button"
+				>
+					<Search aria-hidden />
+					Search
+				</button>
 			</nav>
 
 			<SidebarLabels

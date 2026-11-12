@@ -8,6 +8,7 @@ export function useSearchTasksQuery(query: string) {
 	const capturedQuery = useRef<string>(undefined)
 	const options = orpcQuery.tasks.search.queryOptions({
 		input: { query },
+		enabled: query !== '',
 		placeholderData: keepPreviousData,
 		// Every return to a query fetches, so each search is counted once.
 		staleTime: 0,

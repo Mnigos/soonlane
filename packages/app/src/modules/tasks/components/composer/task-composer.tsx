@@ -37,6 +37,8 @@ interface TaskComposerProps {
 	/** Edits this task in place instead of adding a new one. */
 	task?: Task
 	onSaved?: () => void
+	/** Closes an edit card in a dialog, which the deleted task's row cannot unmount. */
+	onDeleted?: () => void
 	/** Off in a dialog, which focuses the title itself and remembers its opener. */
 	autoFocus?: boolean
 	onSuggestionsToggle?: (isOpen: boolean) => void
@@ -71,6 +73,7 @@ export function TaskComposer({
 	onCreated,
 	task,
 	onSaved,
+	onDeleted,
 	autoFocus = true,
 	onSuggestionsToggle,
 	className,
@@ -260,6 +263,7 @@ export function TaskComposer({
 
 				<div className="ml-auto flex items-center gap-2">
 					<TaskActionsMenu
+						onDeleted={onDeleted}
 						onKeyDown={handleFieldKeys}
 						task={task}
 						today={today}
