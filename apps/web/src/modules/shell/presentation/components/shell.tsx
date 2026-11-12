@@ -12,8 +12,10 @@ import {
 	isWideViewport,
 	saveSidebarPreference,
 } from '../helpers/sidebar-preference.helper'
+import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts'
 import type { SidebarPreference } from '../sidebar-preference.types'
 import { DesktopDragRegion } from './desktop-drag-region'
+import { KeyboardShortcutsDialog } from './keyboard-shortcuts-dialog'
 import { ShellRail } from './shell-rail'
 import { ShellSidebar } from './shell-sidebar'
 
@@ -42,8 +44,14 @@ export function Shell({
 	const [preference, setPreference] = useState(initialSidebarPreference)
 	const [isOverlayOpen, setIsOverlayOpen] = useState(false)
 	const [isAddingTask, setIsAddingTask] = useState(false)
+	const [isShowingShortcuts, setIsShowingShortcuts] = useState(false)
+	const showShortcuts = () => setIsShowingShortcuts(true)
 
 	useDockBadgeQuery()
+	useKeyboardShortcuts({
+		onAddTask: openAddTask,
+		onShowShortcuts: showShortcuts,
+	})
 
 	function openAddTask() {
 		setIsOverlayOpen(false)
@@ -92,6 +100,7 @@ export function Shell({
 				onAddTask={openAddTask}
 				onCollapse={() => toggleSidebar('collapsed')}
 				onNavigate={() => setIsOverlayOpen(false)}
+				onShowShortcuts={showShortcuts}
 				reauthError={reauthError}
 				user={user}
 			/>
@@ -112,6 +121,10 @@ export function Shell({
 			{children}
 
 			{isAddingTask && <AddTaskDialog onClose={() => setIsAddingTask(false)} />}
+
+			{isShowingShortcuts && (
+				<KeyboardShortcutsDialog onClose={() => setIsShowingShortcuts(false)} />
+			)}
 
 			<Toaster />
 		</div>

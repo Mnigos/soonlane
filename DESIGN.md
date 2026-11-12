@@ -208,7 +208,7 @@ Sections stack in a 1120px column and are split by full-width `border` rules, ne
 
 ## 4. Elevation
 
-Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delete account dialog, the Calendar subscription dialog and the Delete task dialog (all over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
+Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delete account dialog, the Calendar subscription dialog, the Delete task dialog and the Keyboard shortcuts dialog (all over a 60% black backdrop), the sticky Upcoming header, which uses the page background and a bottom rule instead of a shadow, popovers and menus: `popover` grey, a `border` line, 8px radius and the one allowed shadow, `shadow-lg`, and tooltips: `tooltip` grey, 6px radius, 14px ink text, 6px above the trigger.
 
 ## 5. Components
 
@@ -255,6 +255,11 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delet
 - Controls Todoist has and Soonlist does not yet (the "+") keep their place for the layout: muted, `aria-disabled`, inert, with a "Coming soon" tooltip. There is no project chip, because Soonlist has no projects.
 - The date chip opens the date picker, Todoist's 248px popover centered over the chip, 2px away: a 40px text field with the current date (it reads "tom", "fri", "14 Nov", "next week"; Enter applies the match), then 32px quick date rows with 22px icons drawn in 1px lines, 13px medium labels and 13px hints in `secondary-foreground` (Today, Tomorrow, This weekend from Monday to Thursday, Next week on Monday, Next weekend on Saturday of next week; the chosen day is left out). Below them Todoist's scrolling calendar: a fixed header with the month at the top in 13px bold ("Nov 2026"), previous, this month (a small circle) and next, and the weekday initials; under it a year of months from today's week, each after the first headed by its short name ("Dec", "Jan 2027"). Days sit in 32px rows on 24px circles: today red with a small dot, the chosen day on a red circle, weekends in `secondary-foreground`, past days faint and inert. The arrows scroll to a month's first week; arrow keys step by day and week, Page Up and Page Down by month. At the bottom the full-width 32px "Time" and "Repeat" buttons; Repeat is a "Coming soon" placeholder. Picking a day closes the popover; the time stays open for editing and has a clear button. There is no "No Date", since a task needs a due date.
 
+### Keyboard
+
+- Single keys work the task list on a keyboard, never while typing in a field or inside an open menu, popover or dialog, and never with Cmd, Ctrl or Alt held. "J" and "K" (and the arrows once a row is selected) select the next and previous task row; the selected row is the one holding focus, also when focus is on its circle or "…", and it shows the 2px red focus outline offset by 2px and its row controls. On the selected row "E" completes, Enter edits, "T" opens the date picker under the "…" and "1" to "4" set the priority, each exactly as the circle or the "…" menu does.
+- The Keyboard shortcuts dialog ("?", or "Keyboard shortcuts" in the user menu, which phones and tablets without a mouse leave out): the delete dialogs' 448px box with the title, then "General", "Navigation" and "Task list" as 13px semibold `muted-foreground` headings over 32px rows, the action on the left and its keys on the right. Keys are small caps (20px high, `hover` grey, a `border` line, 4px radius, 12px `secondary-foreground` text); "then" and "or" between them in muted caption text. Save shows ⌘ on Apple devices and Ctrl elsewhere.
+
 ### Loading
 
 - Skeleton bars on the hover grey in the shape of the list, never spinners.
@@ -273,5 +278,5 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delet
 - **Don't** add cards, shadows or gradients.
 - **Don't** use red for anything that is not an action, the current day or overdue state.
 - **Don't** add blue outside the P3 priority color, the date picker's weekend couch and the owner's label colors; links and focus use red or neutrals.
-- **Don't** open a modal for a one- or two-field action; edit inline. There are four exceptions: the global "Add task" in the sidebar, which opens the task composer in a dialog; "Delete account" in the user menu, which asks for confirmation in a dialog with Cancel and a red "Delete account" button; and Delete in a task's "…" menu, which asks "Delete task?" the same way with a red "Delete"; and "Calendar link" in the user menu, whose dialog creates, shows once, replaces and revokes the private calendar link.
+- **Don't** open a modal for a one- or two-field action; edit inline. There are five exceptions: the global "Add task" in the sidebar, which opens the task composer in a dialog; "Delete account" in the user menu, which asks for confirmation in a dialog with Cancel and a red "Delete account" button; Delete in a task's "…" menu, which asks "Delete task?" the same way with a red "Delete"; "Calendar link" in the user menu, whose dialog creates, shows once, replaces and revokes the private calendar link; and the Keyboard shortcuts dialog, a read-only list opened with "?" or from the user menu.
 - **Don't** introduce projects, boards or team visuals.
