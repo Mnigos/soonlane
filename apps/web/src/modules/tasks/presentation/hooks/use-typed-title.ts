@@ -1,3 +1,4 @@
+import { usePickedLabels } from '@soonlane/app/labels/hooks/use-picked-labels'
 import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { Label, Task } from '@soonlane/contracts'
 import {
@@ -11,7 +12,6 @@ import {
 } from '@soonlane/domain'
 import { useQuery } from '@tanstack/react-query'
 import { type SetStateAction, useState } from 'react'
-import { usePickedLabels } from '@/modules/labels/presentation/hooks/use-picked-labels'
 
 const NO_LABELS: Label[] = []
 

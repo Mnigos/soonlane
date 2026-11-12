@@ -2,9 +2,9 @@ import { isDefinedError } from '@orpc/client'
 import type { Label } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Plus, Tag } from 'lucide-react'
-import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
-import type { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
-import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
+import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
+import type { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
+import { describeFailure } from '../../../shell/helpers/maintenance.helper'
 import {
 	CHIP_ICON_STROKE,
 	PICKER_NOTE_CLASS,

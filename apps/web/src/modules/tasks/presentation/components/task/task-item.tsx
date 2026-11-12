@@ -1,5 +1,6 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
+import { LABEL_COLOR_CLASSES } from '@soonlane/app/labels/helpers/label-color.constants'
 import type { Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -12,7 +13,6 @@ import {
 import { cn } from '@soonlane/ui/cn'
 import { Calendar, Check, Tag } from 'lucide-react'
 import { type KeyboardEvent, useId, useRef, useState } from 'react'
-import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
 import { isShortcutKeydown } from '@/utils/keyboard-shortcut.util'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { getMenuEdit } from '../../helpers/task-edit.helper'

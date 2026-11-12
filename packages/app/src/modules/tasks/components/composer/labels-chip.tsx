@@ -13,8 +13,8 @@ import {
 	useId,
 	useRef,
 } from 'react'
-import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
-import { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
+import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
+import { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
 import {
 	CHIP_ICON_STROKE,
 	COMPOSER_CHIP_CLASS,

@@ -1,4 +1,3 @@
-import { APP_PATHS } from '@soonlane/app/app-paths'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -14,6 +13,7 @@ import {
 	Search,
 	Tag,
 } from 'lucide-react'
+import { APP_PATHS } from '../../../app-path.constants'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { RailNavLink } from './rail-nav-link'
 

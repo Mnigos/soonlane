@@ -1,7 +1,7 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { Label } from '@soonlane/contracts'
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
+import { orpcQuery } from '../../../rpc-query.client'
 
 const NO_LABELS: Label[] = []
 

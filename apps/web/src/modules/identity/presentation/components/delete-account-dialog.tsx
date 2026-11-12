@@ -1,7 +1,7 @@
+import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { useRouter } from '@tanstack/react-router'
-import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import {
 	DELETE_ACCOUNT_FAILED,
 	useDeleteAccountMutation,

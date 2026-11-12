@@ -1,5 +1,3 @@
-import { APP_PATHS } from '@soonlane/app/app-paths'
-import { useHostApp } from '@soonlane/app/hooks/use-host-app'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Sidebar } from '@soonlane/ui/components/sidebar'
@@ -10,7 +8,9 @@ import {
 	Plus,
 	Search,
 } from 'lucide-react'
-import { SidebarLabels } from '@/modules/labels/presentation/components/sidebar-labels'
+import { APP_PATHS } from '../../../app-path.constants'
+import { useHostApp } from '../../../hooks/use-host-app'
+import { SidebarLabels } from '../../labels/components/sidebar-labels'
 import { DesktopDragRegion } from './desktop-drag-region'
 import { SidebarNavLink } from './sidebar-nav-link'
 

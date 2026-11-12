@@ -1,10 +1,10 @@
 import { orpcQuery } from '@soonlane/app/rpc-query'
+import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import {
 	type ListTasksOutput,
 	rescheduleTasksInputSchema,
 } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,

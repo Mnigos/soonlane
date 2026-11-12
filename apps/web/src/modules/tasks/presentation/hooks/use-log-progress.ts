@@ -1,9 +1,9 @@
+import { refreshTaskAndLabelLists } from '@soonlane/app/labels/helpers/label-queries.helper'
 import { orpcQuery } from '@soonlane/app/rpc-query'
+import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import type { ListTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
-import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import {
 	announceCompletion,
 	getUndoCallbacks,

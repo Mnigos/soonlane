@@ -1,4 +1,6 @@
 import type { ComposerSource } from '@soonlane/analytics'
+import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
+import { LabelsChip } from '@soonlane/app/tasks/components/composer/labels-chip'
 import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -8,7 +10,6 @@ import {
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
-import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
 	getChangedGoal,
@@ -21,7 +22,6 @@ import { TaskActionsMenu } from '../task/task-actions-menu'
 import { ComingSoonButton } from './coming-soon-button'
 import { DueDateChip } from './due-date-chip'
 import { GoalChip } from './goal-chip'
-import { LabelsChip } from './labels-chip'
 import { PriorityChip } from './priority-chip'
 import { TitleField } from './title-field'
 

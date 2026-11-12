@@ -1,7 +1,7 @@
 import { isDefinedError } from '@orpc/client'
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { orpcQuery } from '../../../rpc-query.client'
 import { refreshTaskAndLabelLists } from '../helpers/label-queries.helper'
 
 export function useUpdateLabelMutation() {

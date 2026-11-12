@@ -1,5 +1,6 @@
 import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
 import { CONSENT_COPY } from '@soonlane/analytics/consent-copy'
+import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -14,7 +15,6 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { CalendarSubscriptionDialog } from '@/modules/calendar/presentation/components/calendar-subscription-dialog'
-import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { TodoistMenuItem } from '@/modules/todoist/presentation/components/todoist-menu-item'
 import {
 	SIGN_OUT_FAILED,

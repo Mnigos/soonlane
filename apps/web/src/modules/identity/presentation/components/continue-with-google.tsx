@@ -1,3 +1,4 @@
+import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import { DESKTOP_SIGN_IN_PATH, FRESH_SIGN_IN_PARAM } from '@soonlane/auth'
 import {
 	type GoogleSignInRedirects,
@@ -7,7 +8,6 @@ import { cn } from '@soonlane/ui/cn'
 import { Button, buttonVariants } from '@soonlane/ui/components/button'
 import { useMutation } from '@tanstack/react-query'
 import { useState } from 'react'
-import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { GoogleIcon } from './google-icon'
 
 export const SIGN_IN_FAILED = 'Sign-in failed. Try again.'

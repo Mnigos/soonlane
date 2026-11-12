@@ -8,7 +8,14 @@
     "./app-paths": "./src/app-path.constants.ts",
     "./host-app": "./src/host-app.context.ts",
     "./hooks/*": "./src/hooks/*.ts",
-    "./rpc-query": "./src/rpc-query.client.ts"
+    "./rpc-query": "./src/rpc-query.client.ts",
+    "./labels/components/*": "./src/modules/labels/components/*.tsx",
+    "./labels/helpers/*": "./src/modules/labels/helpers/*.ts",
+    "./labels/hooks/*": "./src/modules/labels/hooks/*.ts",
+    "./shell/components/*": "./src/modules/shell/components/*.tsx",
+    "./shell/helpers/*": "./src/modules/shell/helpers/*.ts",
+    "./tasks/components/*": "./src/modules/tasks/components/*.tsx",
+    "./tasks/helpers/*": "./src/modules/tasks/helpers/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
@@ -17,7 +24,11 @@
     "@orpc/client": "catalog:",
     "@orpc/contract": "catalog:",
     "@orpc/tanstack-query": "catalog:",
-    "@soonlane/contracts": "workspace:*"
+    "@soonlane/contracts": "workspace:*",
+    "@soonlane/domain": "workspace:*",
+    "@soonlane/ui": "workspace:*",
+    "lucide-react": "^1.56.0",
+    "sonner": "2.0.8"
   },
   "devDependencies": {
     "@soonlane/typescript-config": "workspace:*",

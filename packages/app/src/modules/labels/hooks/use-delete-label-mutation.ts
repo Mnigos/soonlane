@@ -1,7 +1,7 @@
 import { isDefinedError } from '@orpc/client'
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
+import { orpcQuery } from '../../../rpc-query.client'
+import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { refreshTaskAndLabelLists } from '../helpers/label-queries.helper'
 
 export function useDeleteLabelMutation(onDeleted: () => void) {
