@@ -30,7 +30,7 @@ The `api` service:
 | `TRUSTED_ORIGINS` | `https://soonlane.com`     | `https://staging.soonlane.com`     |
 | `AUTH_COOKIE_PREFIX` | `soonlane`              | `soonlane-staging`                 |
 | `AUTH_COOKIE_DOMAIN` | `soonlane.com`          | `staging.soonlane.com`             |
-| `DATABASE_URL`    | Neon `main`, direct, entered by hand | `${{Postgres.DATABASE_URL}}` |
+| `DATABASE_URL`    | `${{Postgres.DATABASE_URL}}`, entered by hand | `${{Postgres.DATABASE_URL}}` |
 | `AUTH_SECRET`          | secret, at least 32 characters | its own secret                 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | the same client           |
 | `API_PROXY_SECRET`     | secret, the web server's too | its own secret, the web server's too |
@@ -72,14 +72,16 @@ What the server sends:
 ### Local environment
 
 ```sh
-cp apps/web/.env.example apps/web/.env.local   # then fill it in, and write apps/api/.env.local
+cp apps/api/.env.example apps/api/.env.local   # then fill in the secrets
+cp apps/web/.env.example apps/web/.env.local
+bun run db:up
 bun run db:migrate
 bun run dev
 ```
 
-`bun run dev` starts the web app on port 3000 and the API, which reads `apps/api/.env.local` ([Variables](#variables)); `API_PROXY_SECRET` must match in both files. The local database URL belongs in `apps/api/.env.local` only: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` of the Neon `preview` branch, read by the API and by `bun run db:migrate` and `db:generate`. The web app needs no database variable. The files are git-ignored; never print them. Local sign-in uses the localhost redirect URI. With the Todoist pair set, Todoist returns to `http://localhost:4000/api/auth/callback/todoist`, which the Todoist app lists next to the production and staging callbacks.
+`bun run dev` starts the web app on port 3000 and the API, which reads `apps/api/.env.local` ([Variables](#variables)); `API_PROXY_SECRET` must match in both files. `bun run db:up` starts Postgres 18 from `compose.yaml` in Docker, on `localhost:5433` with its data in the `postgres-data` volume; `docker compose down` stops it and keeps the data, `docker compose down -v` deletes it. Its URL belongs in `apps/api/.env.local` only (`DATABASE_URL`, already in the example), read by the API and by `bun run db:migrate` and `db:generate`. The web app needs no database variable. The files are git-ignored; never print them. Local sign-in uses the localhost redirect URI. With the Todoist pair set, Todoist returns to `http://localhost:4000/api/auth/callback/todoist`, which the Todoist app lists next to the production and staging callbacks.
 
-Signed-in screenshots without Google: `bun run --cwd apps/api dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server. `dev:session --delete` removes the user with its sessions and tasks; the script refuses `APP_ENV=production` and `NODE_ENV=production`, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host) is set and absent from the database URLs.
+Signed-in screenshots without Google: `bun run --cwd apps/api dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server. `dev:session --delete` removes the user with its sessions and tasks; the script refuses `APP_ENV=production` and `NODE_ENV=production`, and it refuses any database that is not on `localhost`, `127.0.0.1` or `::1`.
 
 ### Google OAuth
 
@@ -89,7 +91,7 @@ Better Auth runs on the API with the API's origin as its base URL, so Google ret
 
 The pre-deploy command `bun packages/db/scripts/migrate.ts` applies the Drizzle migrations from `packages/db/migrations` to `DATABASE_URL_UNPOOLED`, or `DATABASE_URL` without it. It runs in the built image after the build and before the new deployment takes traffic, where the private network is reachable. When it fails, the deployment fails and the previous one keeps serving; the pending migrations run in one transaction, so a failure leaves none of them applied. A change under `packages/db` deploys production, so a merged migration reaches it.
 
-Staging's web server calls the staging API, so it uses staging's Postgres. Nothing migrates the Neon `preview` branch, which only local development uses; run `bun run db:migrate` after a new migration ([Local environment](#local-environment)).
+Staging's web server calls the staging API, so it uses staging's Postgres. Nothing migrates the local database; run `bun run db:migrate` after a new migration ([Local environment](#local-environment)).
 
 ## Client IP
 

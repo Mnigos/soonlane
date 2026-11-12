@@ -16,8 +16,8 @@ const TOKEN_BYTES = 24
 const shouldDelete = process.argv.includes('--delete')
 const databaseUrl = process.env.DATABASE_URL
 const secret = process.env.AUTH_SECRET
-/** The production Neon endpoint comes from the environment, so the open-source script never names it. */
-const productionDatabaseHost = process.env.PRODUCTION_DATABASE_HOST?.trim()
+/** Only a database on this machine, so a copied production or staging URL is refused. */
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]'])
 
 function getHost(url: string | undefined) {
 	if (!url) return ''
@@ -34,20 +34,12 @@ if (
 	process.env.NODE_ENV === 'production'
 )
 	throw new Error('dev-session refuses to run in production')
-if (!productionDatabaseHost)
-	throw new Error(
-		'PRODUCTION_DATABASE_HOST must be set so dev-session can refuse the production database'
-	)
-if (
-	[databaseUrl, process.env.DATABASE_URL_UNPOOLED].some(url =>
-		getHost(url).includes(productionDatabaseHost)
-	)
-)
-	throw new Error('dev-session refuses to touch the production database')
 if (!(databaseUrl && secret))
 	throw new Error(
 		'DATABASE_URL and AUTH_SECRET must be set (bun run dev:session)'
 	)
+if (!LOCAL_HOSTS.has(getHost(databaseUrl)))
+	throw new Error('dev-session runs only against a database on localhost')
 
 const pool = new Pool({ connectionString: databaseUrl })
 

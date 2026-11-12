@@ -63,7 +63,7 @@ export default defineRailway(ctx => {
 
 	const hosts = HOSTS[environment]
 	const isProduction = environment === 'production'
-	// Production keeps Neon until its own Postgres takes over, so only staging declares one here.
+	// Production's Postgres was set up by hand (docs/railway-postgres.md), so only staging declares one here.
 	const database = isProduction
 		? undefined
 		: postgres('Postgres', { region: REGION })
@@ -106,7 +106,7 @@ export default defineRailway(ctx => {
 			TRUSTED_ORIGINS: hosts.trustedOrigins,
 			AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			AUTH_COOKIE_DOMAIN: hosts.cookieDomain,
-			// Production holds Neon's direct URL, entered by hand.
+			// Production holds `${{Postgres.DATABASE_URL}}`, entered by hand.
 			DATABASE_URL: database ? database.env.DATABASE_URL : preserve(),
 			// Secrets, entered by hand per environment.
 			AUTH_SECRET: preserve(),
