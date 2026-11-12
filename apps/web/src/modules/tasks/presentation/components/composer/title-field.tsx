@@ -17,6 +17,7 @@ import { flushSync } from 'react-dom'
 import { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { LABEL_ROW_CLASS } from '../../helpers/composer-chip.constants'
+import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import { searchLabels } from '../../helpers/label-search.helper'
 import { HighlightedInput } from './highlighted-input'
 import { CreateLabelOption, LabelListNotes, LabelOption } from './label-options'
@@ -153,7 +154,10 @@ export function TitleField({
 		if (event.key === 'ArrowDown' && count > 0) move((active + 1) % count)
 		else if (event.key === 'ArrowUp' && count > 0)
 			move((active - 1 + count) % count)
-		else if (event.key === 'Enter' || (event.key === 'Tab' && count > 0))
+		else if (
+			(event.key === 'Enter' && !isSaveShortcut(event)) ||
+			(event.key === 'Tab' && count > 0)
+		)
 			pick(active)
 		else if (event.key === 'Escape') {
 			event.stopPropagation()
