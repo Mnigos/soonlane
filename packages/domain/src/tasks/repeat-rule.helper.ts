@@ -12,7 +12,7 @@ import {
 	isBefore,
 	isWeekend,
 } from '../dates/calendar-date.helper'
-import type { CalendarDate } from '../dates/calendar-date.types'
+import type { CalendarDate } from '../dates/calendar-date.schema'
 import { DATE_LOCALE, DAYS_PER_WEEK } from '../dates/calendar.constants'
 import type { RepeatUnit } from './repeat-rule.constants'
 

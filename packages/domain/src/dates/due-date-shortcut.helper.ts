@@ -5,7 +5,7 @@ import {
 	getWeekStart,
 	getWeekdayIndex,
 } from './calendar-date.helper'
-import type { CalendarDate } from './calendar-date.types'
+import type { CalendarDate } from './calendar-date.schema'
 import { DAYS_PER_WEEK } from './calendar.constants'
 
 export type DueDateShortcutId =

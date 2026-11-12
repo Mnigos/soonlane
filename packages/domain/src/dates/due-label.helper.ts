@@ -4,7 +4,7 @@ import {
 	formatWeekday,
 	isBefore,
 } from './calendar-date.helper'
-import type { CalendarDate } from './calendar-date.types'
+import type { CalendarDate } from './calendar-date.schema'
 import { getRelativeDayName } from './day-label.helper'
 
 /** Todoist's due colors: overdue red, today green, tomorrow orange, the next 2 to 7 days violet, later uncolored. */

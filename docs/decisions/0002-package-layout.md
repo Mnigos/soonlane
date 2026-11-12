@@ -9,8 +9,8 @@ Soonlist starts as one TanStack Start app, but a desktop app is next and will ca
 
 ## Decision
 
-- `packages/contracts`: the oRPC contract and Zod schemas, the only API boundary. Browser-safe.
-- `packages/domain`: brands (`CalendarDate`, `UserId`), shared constants and pure domain logic both apps run (date helpers, repeat rules, the cookie reader; SOON-119). No workspace dependencies; `zod` only for the brand type (`import type`).
+- `packages/contracts`: the oRPC contract and Zod schemas, the only API boundary, composed from the domain's brand schemas. Browser-safe.
+- `packages/domain`: brands (`CalendarDate`, `UserId`), each a Zod schema with the type inferred from it, shared constants and pure domain logic both apps run (date helpers, repeat rules, the cookie reader; SOON-119). No workspace dependencies; `zod` only in the brand schema files.
 - `packages/ui`: app-agnostic React primitives and `cn`, consumed through an export map (`@soonlist/ui/components/*`, `@soonlist/ui/cn`) with no barrel. No router, data fetching or domain types.
 - `packages/db`: Drizzle schema, migrations and the migrator. Server-only.
 - `packages/auth`: the Better Auth factory (Google, owner-only hook, oAuthProxy) and the browser client. The web app wraps the server factory in an Effect layer; the package itself stays free of Effect so the desktop app's tooling can reuse it.

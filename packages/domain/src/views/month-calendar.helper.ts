@@ -9,7 +9,7 @@ import {
 	getWeekdayIndex,
 	isBefore,
 } from '../dates/calendar-date.helper'
-import type { CalendarDate } from '../dates/calendar-date.types'
+import type { CalendarDate } from '../dates/calendar-date.schema'
 import {
 	CALENDAR_HORIZON_MONTHS,
 	CALENDAR_MONTH_COUNT,

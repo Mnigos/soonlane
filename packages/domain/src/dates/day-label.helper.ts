@@ -1,5 +1,5 @@
 import { addDays, formatDayMonth, formatWeekday } from './calendar-date.helper'
-import type { CalendarDate } from './calendar-date.types'
+import type { CalendarDate } from './calendar-date.schema'
 
 const LABEL_SEPARATOR = ' · '
 
