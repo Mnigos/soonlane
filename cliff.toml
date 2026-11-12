@@ -1,11 +1,11 @@
-# git-cliff configuration. The stable release prepends one section to CHANGELOG.md (--prepend strips this exact
-# header from the file first, so keep it in step with CHANGELOG.md); summaries above each list are written by hand.
+# git-cliff configuration. The release PR prepends one section to CHANGELOG.md (--prepend strips this exact
+# header from the file first, so keep it in step with CHANGELOG.md); the summary above each list is written in that PR.
 
 [changelog]
 header = """
 # Changelog
 
-Each release opens with a summary written for users; the list of changes under it is written by the release workflow from conventional commits.
+Each release opens with a summary written for users, then the list of changes git-cliff builds from conventional commits. Both are added in the release pull request.
 
 """
 body = """
