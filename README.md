@@ -13,7 +13,7 @@ Production: https://soonlane.com
 | `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                           |
 | `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                       |
 | `packages/domain`           | Branded types and their Zod schemas, such as `CalendarDate`.                                      |
-| `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                                    |
+| `packages/db`               | Drizzle schema, migrations and the migrator for Postgres.                                         |
 | `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.              |
 | `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.           |
 | `tooling/typescript-config` | tsconfig presets every workspace extends.                                                         |

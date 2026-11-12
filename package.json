@@ -48,6 +48,7 @@
     "check:fix": "ultracite fix --unsafe",
     "prepare": "husky",
     "commit": "cz",
+    "db:up": "docker compose up -d --wait",
     "db:generate": "bun --filter @soonlane/db db:generate",
     "db:migrate": "bun --filter @soonlane/db db:migrate"
   },

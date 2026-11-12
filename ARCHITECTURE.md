@@ -126,7 +126,7 @@ With `TODOIST_CLIENT_ID` and `TODOIST_CLIENT_SECRET` set, a signed-in user can l
 
 ## Database
 
-Neon Postgres through `pg` and Drizzle. `Db` owns one pool per runtime (10 connections for the one long-lived process, 10 s `query_timeout`, an `error` listener) and closes it when the runtime is disposed; `Db.run` is the only place that creates `DbError`. Logs carry error names only, because driver errors embed SQL parameters such as session tokens. The API's `Bun.serve` answers any uncaught error with an empty 500 and logs only its name, for the same reason. The API's Railway pre-deploy runs the migrator before each deployment goes live; the web build never migrates ([docs/deploy-railway.md](docs/deploy-railway.md#migrations)).
+Railway Postgres 18 through `pg` and Drizzle ([docs/railway-postgres.md](docs/railway-postgres.md)); locally Postgres 18 from `compose.yaml`. `Db` owns one pool per runtime (10 connections for the one long-lived process, 10 s `query_timeout`, an `error` listener) and closes it when the runtime is disposed; `Db.run` is the only place that creates `DbError`. Logs carry error names only, because driver errors embed SQL parameters such as session tokens. The API's `Bun.serve` answers any uncaught error with an empty 500 and logs only its name, for the same reason. The API's Railway pre-deploy runs the migrator before each deployment goes live; the web build never migrates ([docs/deploy-railway.md](docs/deploy-railway.md#migrations)).
 
 ## Server boundary
 

@@ -14,13 +14,11 @@ Railway's own volume backups protect it. There is no copy outside Railway and no
 | Image | `ghcr.io/railwayapp-templates/postgres-ssl:18`, server PostgreSQL 18.6 on 2026-11-11 |
 | Region | Amsterdam, `europe-west4-drams3a` (service and volume) |
 | Volume | `postgres-data` (`cae64ef6-4471-4da0-9af9-58c3679e2945`), 50 GB, mounted at `/var/lib/postgresql/data` |
-| Database | `railway`, owner `postgres`, UTF8, `en_US.utf8`, empty |
+| Database | `railway`, owner `postgres`, UTF8, `en_US.utf8`; production's data since the move from Neon on 2026-11-12 ([neon-to-railway-move.md](neon-to-railway-move.md)) |
 | Private address | `postgres.railway.internal:5432`, reachable only from services in `production` |
 | Public TCP proxy | off |
 
 The image tag pins the major version (18), not the minor one, so a redeploy can pick up a newer 18.x. A move to 19 is a [major upgrade](https://docs.railway.com/databases/postgresql-major-upgrade) that someone starts on purpose.
-
-Neon's major version is not recorded in the repo. The Neon console shows it under the project's settings. `pg_restore` in SOON-123 needs Railway's major to be the same as Neon's or newer.
 
 ## Variables
 

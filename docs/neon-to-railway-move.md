@@ -1,6 +1,6 @@
 # Moving production data from Neon to Railway Postgres
 
-The runbook for SOON-123. Production's `api` reads and writes Neon today (`DATABASE_URL`, Neon `main`, direct). The move copies the data into the `railway` database of the `Postgres` service in `production` ([railway-postgres.md](railway-postgres.md)) during one short outage, then points `api` at it. Read it before the rehearsal and keep it open during the move. No value of a secret goes into a terminal echo, the repository, the ticket or a chat.
+The runbook for SOON-123. The move ran on 2026-11-12 between 22:04 and 22:14 UTC; since then production's `api` reads and writes Railway, and Neon was not kept as a way back, so the ways back below no longer apply. Before the move, `api` read and wrote Neon (`DATABASE_URL`, Neon `main`, direct). The move copies the data into the `railway` database of the `Postgres` service in `production` ([railway-postgres.md](railway-postgres.md)) during one short outage, then points `api` at it. Read it before the rehearsal and keep it open during the move. No value of a secret goes into a terminal echo, the repository, the ticket or a chat.
 
 ## How the outage works
 

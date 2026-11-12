@@ -54,5 +54,5 @@ The description is a guide for a reviewer, not a change log. A reviewer should a
 - Create no labels other than the risk labels `pr-risk` defines. The `* Priority` labels come from the Linear Priority Labels workflow, which reads the SOON ticket from the branch name.
 - Before creating a PR, run `git fetch origin <base>` and `git rebase origin/<base>`; after rebasing an already-pushed PR branch, push with `--force-with-lease`.
 - Use `gh` for GitHub operations.
-- Local development runs against the Neon `preview` branch, which nothing migrates on deploy; for a migration, say in `## Deploy` that `bun run db:migrate` has to run against it.
+- Local development runs against the Postgres from `compose.yaml`, which nothing migrates on deploy; for a migration, say in `## Deploy` that `bun run db:migrate` has to run against it.
 - Before editing files while preparing a PR, read at least 3 similar files.
