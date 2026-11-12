@@ -1,4 +1,3 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { Label } from '@soonlane/contracts'
 import {
 	Combobox,
@@ -9,7 +8,8 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { Check } from 'lucide-react'
 import { type Dispatch, type Ref, type SetStateAction, useState } from 'react'
-import type { useCreateLabelMutation } from '@/modules/labels/presentation/hooks/use-create-label-mutation'
+import { orpcQuery } from '../../../../rpc-query.client'
+import type { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
 import {
 	LABEL_ROW_CLASS,
 	PICKER_FIELD_CLASS,

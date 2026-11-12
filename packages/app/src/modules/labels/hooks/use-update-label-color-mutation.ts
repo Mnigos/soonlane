@@ -1,8 +1,8 @@
 import { isDefinedError } from '@orpc/client'
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import { updateLabelInputSchema } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
+import { orpcQuery } from '../../../rpc-query.client'
+import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	paintLabel,
 	refreshTaskAndLabelLists,

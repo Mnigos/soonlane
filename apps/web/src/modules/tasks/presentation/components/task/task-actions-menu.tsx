@@ -1,3 +1,4 @@
+import { CHIP_ICON_STROKE } from '@soonlane/app/tasks/helpers/composer-chip.constants'
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
@@ -17,7 +18,6 @@ import {
 	useCallback,
 	useState,
 } from 'react'
-import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { DeleteTaskDialog } from './delete-task-dialog'
 

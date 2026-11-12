@@ -1,3 +1,4 @@
+import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import {
 	DESKTOP_SIGN_IN_LINK_HOST,
 	DESKTOP_URL_SCHEME,
@@ -7,7 +8,6 @@ import { createDesktopSignInCode } from '@soonlane/auth/client'
 import type { SessionUser } from '@soonlane/contracts'
 import { Button } from '@soonlane/ui/components/button'
 import { useMutation } from '@tanstack/react-query'
-import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 
 const HAND_OFF_FAILED = 'Could not start the desktop sign-in. Try again.'
 

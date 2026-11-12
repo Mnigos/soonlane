@@ -1,4 +1,3 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import type {
 	Label,
 	ListedLabel,
@@ -7,6 +6,7 @@ import type {
 } from '@soonlane/contracts'
 import type { LabelColor, LabelId } from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
+import { orpcQuery } from '../../../rpc-query.client'
 
 /** Task rows show label names and the sidebar counts open tasks per label, so both lists follow either change. */
 export async function refreshTaskAndLabelLists(queryClient: QueryClient) {
