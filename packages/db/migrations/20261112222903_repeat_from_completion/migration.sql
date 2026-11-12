@@ -1,0 +1,2 @@
+ALTER TABLE "task" ADD COLUMN "repeat_from_completion" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "task" ADD CONSTRAINT "task_repeat_from_completion_rule" CHECK (not "repeat_from_completion" or "repeat_unit" is not null);
