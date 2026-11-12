@@ -13,6 +13,14 @@ export const todoistRouter = {
 
 		return yield* todoistService.preview(context.user.id)
 	}),
+	import: os.todoist.import.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const todoistService = yield* TodoistService
+
+		return yield* todoistService.import(context.user.id, input.timeZone)
+	}),
 	cancel: os.todoist.cancel.use(requireUser).effect(function* ({ context }) {
 		const todoistService = yield* TodoistService
 

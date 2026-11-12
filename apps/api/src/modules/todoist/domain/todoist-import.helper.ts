@@ -1,34 +1,47 @@
 import type { TodoistPreview } from '@soonlane/contracts'
 import {
+	type CalendarDate,
 	DEFAULT_TASK_PRIORITY,
+	getToday,
+	LABEL_COLORS,
 	LABEL_NAME_MAX_LENGTH,
+	type LabelColor,
 	PROJECT_NAME_MAX_LENGTH,
+	storedCalendarDateSchema,
 	TASK_DESCRIPTION_MAX_LENGTH,
 	TASK_TITLE_MAX_LENGTH,
 	type TaskPriority,
+	type TodoistImportChange,
 } from '@soonlane/domain'
 import type { TodoistItem, TodoistSnapshot } from './todoist-snapshot.schemas'
 
 /** A due date as Todoist keeps it; `utc` marks a time pinned to a zone, which the import moves into the browser's zone. */
 export interface DraftDue {
-	date: string
+	date: CalendarDate
 	time?: string
 	utc: boolean
 }
 
-/** One task the import would create; the next step inserts these. */
+/** One task the import creates; `changed` when it arrives differently from Todoist. */
 export interface TaskDraft {
+	todoistId: string
 	title: string
 	description?: string
 	due: DraftDue
 	priority: TaskPriority
 	labelNames: string[]
 	projectName?: string
+	changed: boolean
+}
+
+export interface LabelDraft {
+	name: string
+	color?: LabelColor
 }
 
 export interface TodoistImportPlan {
 	tasks: TaskDraft[]
-	newLabelNames: string[]
+	newLabels: LabelDraft[]
 	newProjectNames: string[]
 	preview: TodoistPreview
 }
@@ -45,10 +58,28 @@ const DUE_PATTERN =
 
 function readDue(item: TodoistItem): DraftDue | undefined {
 	const match = item.due ? DUE_PATTERN.exec(item.due.date) : null
+	const date = storedCalendarDateSchema.safeParse(match?.[1])
 
-	if (!match?.[1]) return undefined
+	if (!date.success) return undefined
 
-	return { date: match[1], time: match[2], utc: match[3] === 'Z' }
+	return { date: date.data, time: match?.[2], utc: match?.[3] === 'Z' }
+}
+
+/** The due date and time a task gets: a UTC time moves into `timeZone`, a date or a floating time stays as written. */
+export function toTaskDue({ date, time, utc }: DraftDue, timeZone: string) {
+	if (!(utc && time)) return { dueDate: date, dueTime: time }
+
+	const instant = new Date(`${date}T${time}Z`)
+
+	return {
+		dueDate: getToday(instant, timeZone),
+		dueTime: new Intl.DateTimeFormat('en-GB', {
+			timeZone,
+			hour: '2-digit',
+			minute: '2-digit',
+			hourCycle: 'h23',
+		}).format(instant),
+	}
 }
 
 function cut(text: string, maxLength: number) {
@@ -58,6 +89,17 @@ function cut(text: string, maxLength: number) {
 function isTooLong(text: string, maxLength: number) {
 	return text.trim().length > maxLength
 }
+
+/** The changes counted per imported task; any of them, or a section, makes the task arrive changed. */
+const TASK_CHANGES = {
+	repeating: item => item.due?.is_recurring === true,
+	subtasks: item => Boolean(item.parent_id),
+	deadlines: item => Boolean(item.deadline),
+	durations: item => Boolean(item.duration),
+	longTitles: item => isTooLong(item.content, TASK_TITLE_MAX_LENGTH),
+	longDescriptions: item =>
+		isTooLong(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH),
+} satisfies Partial<Record<TodoistImportChange, (item: TodoistItem) => boolean>>
 
 /** Label or project names as Soonlane would keep them: trimmed, cut to length and unique ignoring case, the first spelling winning. */
 function toNames(names: readonly string[], maxLength: number) {
@@ -96,16 +138,26 @@ function countDistinct(values: readonly (string | null | undefined)[]) {
 	return new Set(values.filter(Boolean)).size
 }
 
-/** Projects and sections count only when they hold an imported task; labels are the Todoist labels plus every name on an imported task (shared labels have no label object). */
+/** Todoist names its colors in snake case (`berry_red`), Soonlane in kebab case. */
+function toLabelColor(todoistColor: string | null | undefined) {
+	return LABEL_COLORS.find(
+		color => color === todoistColor?.replaceAll('_', '-')
+	)
+}
+
+/** Projects and sections count only when they hold an imported task; labels are the Todoist labels plus every name on an imported task (shared labels have no label object). Open tasks imported before are left out. */
 export function planTodoistImport(
 	snapshot: TodoistSnapshot,
 	existingLabelNames: readonly string[],
-	existingProjectNames: readonly string[]
+	existingProjectNames: readonly string[],
+	importedTodoistIds: readonly string[]
 ): TodoistImportPlan {
+	const imported = new Set(importedTodoistIds)
 	const openItems = snapshot.items.filter(
 		item => !(item.checked || item.is_deleted)
 	)
-	const dated = openItems.flatMap(item => {
+	const freshItems = openItems.filter(item => !imported.has(item.id))
+	const dated = freshItems.flatMap(item => {
 		const due = readDue(item)
 
 		return due ? [{ item, due }] : []
@@ -126,10 +178,9 @@ export function planTodoistImport(
 			toNames(projectSources, PROJECT_NAME_MAX_LENGTH),
 			existingProjectNames
 		)
+	const todoistLabels = snapshot.labels.filter(label => !label.is_deleted)
 	const labelSources = [
-		...snapshot.labels
-			.filter(label => !label.is_deleted)
-			.map(({ name }) => name),
+		...todoistLabels.map(({ name }) => name),
 		...items.flatMap(item => item.labels),
 	]
 	const { newNames: newLabelNames, existingCount: existingLabels } = matchNames(
@@ -141,6 +192,7 @@ export function planTodoistImport(
 
 	return {
 		tasks: dated.map(({ item, due }) => ({
+			todoistId: item.id,
 			title: cut(item.content, TASK_TITLE_MAX_LENGTH),
 			description:
 				cut(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH) || undefined,
@@ -152,8 +204,20 @@ export function planTodoistImport(
 					projectsById.get(item.project_id)?.name ?? '',
 					PROJECT_NAME_MAX_LENGTH
 				) || undefined,
+			changed:
+				Boolean(item.section_id) ||
+				Object.values(TASK_CHANGES).some(isChanged => isChanged(item)),
 		})),
-		newLabelNames,
+		newLabels: newLabelNames.map(name => ({
+			name,
+			color: toLabelColor(
+				todoistLabels.find(
+					label =>
+						cut(label.name, LABEL_NAME_MAX_LENGTH).toLowerCase() ===
+						name.toLowerCase()
+				)?.color
+			),
+		})),
 		newProjectNames,
 		preview: {
 			tasks: items.length,
@@ -162,18 +226,15 @@ export function planTodoistImport(
 			newProjects: newProjectNames.length,
 			existingProjects,
 			changes: {
-				repeating: count(item => item.due?.is_recurring === true),
-				noDate: openItems.length - items.length,
-				subtasks: count(item => Boolean(item.parent_id)),
+				repeating: count(TASK_CHANGES.repeating),
+				noDate: freshItems.length - items.length,
+				alreadyImported: openItems.length - freshItems.length,
+				subtasks: count(TASK_CHANGES.subtasks),
 				sections: countDistinct(items.map(item => item.section_id)),
-				deadlines: count(item => Boolean(item.deadline)),
-				durations: count(item => Boolean(item.duration)),
-				longTitles: count(item =>
-					isTooLong(item.content, TASK_TITLE_MAX_LENGTH)
-				),
-				longDescriptions: count(item =>
-					isTooLong(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH)
-				),
+				deadlines: count(TASK_CHANGES.deadlines),
+				durations: count(TASK_CHANGES.durations),
+				longTitles: count(TASK_CHANGES.longTitles),
+				longDescriptions: count(TASK_CHANGES.longDescriptions),
 				longLabelNames: countTooLong(labelSources, LABEL_NAME_MAX_LENGTH),
 				nestedProjects: projects.filter(project => Boolean(project.parent_id))
 					.length,

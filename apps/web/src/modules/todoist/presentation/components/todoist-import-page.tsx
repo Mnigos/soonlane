@@ -9,6 +9,7 @@ import { NotFound } from '@/components/not-found'
 import { TODOIST_COPY } from '../helpers/todoist-copy.constants'
 import { useCancelTodoistMutation } from '../hooks/use-cancel-todoist-mutation'
 import { useConnectTodoistMutation } from '../hooks/use-connect-todoist-mutation'
+import { useImportTodoistMutation } from '../hooks/use-import-todoist-mutation'
 import { TodoistPreviewSummary } from './todoist-preview-summary'
 
 const LINK_ERROR_COPY: Record<string, string> = {
@@ -35,9 +36,18 @@ export function TodoistImportPage({
 	)
 	const connect = useConnectTodoistMutation()
 	const cancel = useCancelTodoistMutation()
-	const isBusy = connect.isPending || connect.isSuccess || cancel.isPending
+	const importTodoist = useImportTodoistMutation()
+	const isBusy =
+		connect.isPending ||
+		connect.isSuccess ||
+		cancel.isPending ||
+		importTodoist.isPending ||
+		importTodoist.isSuccess
 	const previewErrorCode = isDefinedError(preview.error)
 		? preview.error.code
+		: undefined
+	const importErrorCode = isDefinedError(importTodoist.error)
+		? importTodoist.error.code
 		: undefined
 
 	if (status.data?.configured === false) return <NotFound />
@@ -56,6 +66,19 @@ export function TodoistImportPage({
 				<p className="text-sm text-danger" role="alert">
 					{describeFailure(status.error, TODOIST_COPY.statusFailed)}
 				</p>
+			)
+
+		if (importTodoist.isError)
+			return (
+				<>
+					<p className="text-sm text-danger" role="alert">
+						{importErrorCode === 'GONE'
+							? TODOIST_COPY.expired
+							: describeFailure(importTodoist.error, TODOIST_COPY.importFailed)}
+					</p>
+
+					{renderAction(TODOIST_COPY.connectAgain)}
+				</>
 			)
 
 		if (status.isPending || (isConnected && preview.isPending))
@@ -83,7 +106,26 @@ export function TodoistImportPage({
 			)
 
 		if (isConnected && preview.data)
-			return <TodoistPreviewSummary preview={preview.data} />
+			return (
+				<>
+					<TodoistPreviewSummary preview={preview.data} />
+
+					{preview.data.tasks > 0 && (
+						<Button
+							disabled={isBusy}
+							onClick={() =>
+								importTodoist.mutate({
+									timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+								})
+							}
+						>
+							{importTodoist.isPending
+								? TODOIST_COPY.importing
+								: TODOIST_COPY.confirm}
+						</Button>
+					)}
+				</>
+			)
 
 		if (isConnected && previewErrorCode === 'GONE')
 			return (

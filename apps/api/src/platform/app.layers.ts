@@ -11,6 +11,7 @@ import { TasksServiceLive } from '@/modules/tasks/application/tasks.service'
 import { TaskRepositoryLive } from '@/modules/tasks/infrastructure/task.repository'
 import { TodoistServiceLive } from '@/modules/todoist/application/todoist.service'
 import { HttpTodoistApiLive } from '@/modules/todoist/infrastructure/http-todoist-api.layer'
+import { ImportedTodoistTaskRepositoryLive } from '@/modules/todoist/infrastructure/imported-todoist-task.repository'
 import { TodoistAccountRepositoryLive } from '@/modules/todoist/infrastructure/todoist-account.repository'
 import { AppConfigLive } from './config/app.config'
 import { DbLive } from './db/db.layer'
@@ -20,7 +21,11 @@ import { HttpServerLive } from './http/http-server.layer'
 export const ServicesLive = Layer.mergeAll(
 	TodoistServiceLive.pipe(
 		Layer.provide(
-			Layer.merge(TodoistAccountRepositoryLive, HttpTodoistApiLive)
+			Layer.mergeAll(
+				TodoistAccountRepositoryLive,
+				ImportedTodoistTaskRepositoryLive,
+				HttpTodoistApiLive
+			)
 		),
 		Layer.provideMerge(
 			Layer.merge(

@@ -24,22 +24,47 @@ export const todoistPreviewSchema = z.object({
 })
 export type TodoistPreview = z.infer<typeof todoistPreviewSchema>
 
+/** What the import ended with; tasks imported before and tasks still left out are not in `tasks`. */
+export const todoistImportSummarySchema = z.object({
+	tasks: countSchema,
+	changedTasks: countSchema,
+	leftOut: countSchema,
+	newLabels: countSchema,
+	newProjects: countSchema,
+})
+export type TodoistImportSummary = z.infer<typeof todoistImportSummarySchema>
+
+const timeZoneSchema = z.string().refine(timeZone => {
+	try {
+		return Boolean(
+			new Intl.DateTimeFormat('en', { timeZone }).resolvedOptions().timeZone
+		)
+	} catch {
+		return false
+	}
+}, 'Unknown time zone.')
+
 const notConfigured = {
 	NOT_IMPLEMENTED: { message: 'Importing from Todoist is not set up.' },
+}
+/** A read of the connected account: missing, expired or failing connections. */
+const readErrors = {
+	...authErrors,
+	...notConfigured,
+	NOT_FOUND: { message: 'No Todoist account is connected.' },
+	GONE: { message: 'The Todoist connection expired.' },
+	BAD_GATEWAY: { message: 'Todoist could not be read.' },
 }
 
 export const todoistContract = {
 	status: query.errors(authErrors).output(todoistStatusSchema),
 	/** Reads the connected account once; a failed read or an expired connection closes it. */
-	preview: oc
-		.errors({
-			...authErrors,
-			...notConfigured,
-			NOT_FOUND: { message: 'No Todoist account is connected.' },
-			GONE: { message: 'The Todoist connection expired.' },
-			BAD_GATEWAY: { message: 'Todoist could not be read.' },
-		})
-		.output(todoistPreviewSchema),
+	preview: oc.errors(readErrors).output(todoistPreviewSchema),
+	/** Reads the account again and saves its tasks, labels and projects in one transaction, with dates in `timeZone`; the connection closes either way. */
+	import: oc
+		.errors(readErrors)
+		.input(z.object({ timeZone: timeZoneSchema }))
+		.output(todoistImportSummarySchema),
 	/** Revokes and removes the connection; without one it does nothing. Fails while Todoist has not confirmed a revocation, and the connection stays for the sweep. */
 	cancel: oc
 		.errors({
