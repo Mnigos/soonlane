@@ -134,9 +134,30 @@ curl https://staging.soonlane.com/robots.txt
 
 Production builds `main` through Railway's GitHub connection with **Wait for CI**: Railway holds each push to `main` until the CI workflow on that commit has finished, skips the deploy if it failed, and deploys a service only when one of its watched paths changed. `api` watches `apps/api`, the `analytics`, `auth`, `contracts`, `db` and `domain` packages, `version.json`, `tooling/typescript-config`, the root `package.json`, `bun.lock` and `bunfig.toml`. `web` watches `apps/web`, the `analytics`, `auth`, `contracts`, `domain` and `ui` packages, `tooling/tailwind-config`, `tooling/typescript-config`, `version.json`, `CHANGELOG.md`, the root `package.json`, `bun.lock` and `bunfig.toml`. A change to one app alone deploys only that service; a shared package deploys both, each on its own, so for a few minutes either may be newer than the other. Nothing else deploys production; never run `railway up` against it.
 
+Railway judges each push on its own: it waits for that commit's CI, skips the commit when CI was cancelled and no other workflow on it passed (on a push to `main` only CI runs), and matches the watched paths against that commit's changes, not against the commit the service runs. A push skipped for its CI is therefore never deployed by a later push that touches none of the service's paths. CI on `main` runs each push in its own concurrency group, so a later merge never cancels an earlier one's run; pull request runs still cancel their older runs.
+
+To see whether a service is behind `main`, compare the commit `/health` reports with the commits since then that touch its watched paths, and read the skip reason of each push:
+
+```sh
+git fetch origin main
+curl -s https://soonlane.com/health          # web: "commit":"<short sha>"
+curl -s https://api.soonlane.com/health      # api: "commit":"<sha>"
+git log --oneline <commit from /health>..origin/main -- <watched paths of the service>
+railway deployment list --service web --environment production --json \
+  | jq -r '.[] | [.createdAt, .status, .meta.commitHash[0:7], (.meta.skippedReason // "")] | @tsv'
+```
+
+A service is behind when that `git log` lists a commit. "No changes to watched files" is expected; "CI check suite failed" on a commit that touched the service's paths means that push was not deployed, and its change is missing as long as the `git log` lists it. Deploy the commit at the tip of `main` by hand, then check `/health` again:
+
+```sh
+railway redeploy --service web --environment production --commit <sha> --yes
+```
+
+`--commit` builds that commit of the connected repository once without pinning it, and the next push to `main` deploys as usual; `--from-source` deploys the latest commit of the connected branch. Without either flag, `redeploy` reruns the current build.
+
 ## DNS
 
-Records in Cloudflare (`soonlane.com` zone), with SSL mode Full (not Full (strict)) for the zone. The production hosts are proxied: Cloudflare flattens the apex CNAME, and its edge compresses and terminates TLS in front of Railway. The staging hosts stay DNS only, like `api.staging.soonlane.com`, which Cloudflare's universal certificate does not cover because it sits two levels deep. `www.soonlane.com` is not a Railway domain: a proxied record for `www` and a Cloudflare redirect rule send it to the apex, so no code handles it. Nothing depends on Railway's generated `*.up.railway.app` host: the deploy health check runs inside Railway and the staging workflow reads the deployment status.
+Records in Cloudflare (`soonlane.com` zone), with SSL mode Full (strict) for the zone, which Railway's certificates satisfy. The production hosts are proxied: Cloudflare flattens the apex CNAME, and its edge compresses and terminates TLS in front of Railway. The staging hosts stay DNS only, like `api.staging.soonlane.com`, which Cloudflare's universal certificate does not cover because it sits two levels deep. `www.soonlane.com` is not a Railway domain: a proxied record for `www` and a Cloudflare redirect rule send it to the apex, so no code handles it. Nothing depends on Railway's generated `*.up.railway.app` host: the deploy health check runs inside Railway and the staging workflow reads the deployment status.
 
 | Host                       | Type  | Name                          | Value                                                                  | Proxy     |
 | -------------------------- | ----- | ----------------------------- | ---------------------------------------------------------------------- | --------- |
@@ -160,10 +181,10 @@ Igor's steps, in order. Each one says how to check it. Variable and record value
 2. **Staging DNS**: the `staging` and `api.staging` CNAMEs and their `_railway-verify` TXT records from the table. Check: `railway domain status staging.soonlane.com` and `railway domain status api.staging.soonlane.com` report the domain verified and the certificate issued.
 3. **Staging deploy**: run **Deploy staging** with the ref to test. Check: the curl commands under [Staging](#staging), then sign in on https://staging.soonlane.com and open `/app`.
 4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (Neon `main`, direct), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
-5. **Production domain for the site**: `railway domain soonlane.com --service web --environment production --port 8080`, which prints the CNAME target and the TXT value.
-6. **The one apply**: `railway config apply --file .railway/railway.ts --environment production` after the PRs are on `main`. It sets the variables, the health checks and the GitHub source of `web`, and Railway then deploys `main`. Check: `railway config plan --environment production` reports the configuration up to date, and `railway deployment list --service web --environment production` and the same for `api` show a successful deployment.
-7. **Railway's GitHub app** must have access to `Mnigos/soonlane`, or step 6 creates a source that never deploys. Check: the deployments in step 6.
-8. **Production DNS**: the apex CNAME and its TXT, the `api` CNAME and its TXT from the table, the proxied `www` record and the redirect rule, SSL mode Full. Check:
+5. **The `web` service and the site's domain**: `web` does not exist in production before this step, and a domain needs its service. Apply a copy of `.railway/railway.ts` without the production `web` custom domain (`railway config apply --file <copy> --environment production`), which creates `web` with its variables, health check and GitHub source, and Railway deploys `main` to it. Then `railway domain soonlane.com --service web --environment production --port 8080`, which prints the CNAME target and the TXT value.
+6. **The final apply**: `railway config apply --file .railway/railway.ts --environment production` with the unmodified file from `main`, after the PRs are on `main`; the domain exists by now, so it changes nothing. Check: `railway config plan --file .railway/railway.ts --environment production` reports nothing to change, and `railway deployment list --service web --environment production` and the same for `api` show a successful deployment.
+7. **Railway's GitHub app** must have access to `Mnigos/soonlane`, or step 5 creates a source that never deploys. Check: the deployments in step 6.
+8. **Production DNS**: the apex CNAME and its TXT, the `api` CNAME and its TXT from the table, the proxied `www` record and the redirect rule, SSL mode Full (strict). Until Railway has verified a custom domain, its edge answers "Application not found" for that host, so these checks pass only once DNS points at Railway. Check:
 
 ```sh
 curl https://soonlane.com/health
@@ -180,4 +201,4 @@ curl https://api.soonlane.com/health
 
 Then sign in on https://soonlane.com, open `/app`, add and complete a task, and check that the Mac app still loads.
 
-**Going back**: point the apex and `www` records at Vercel again (the records Vercel's domain settings list, DNS only). Vercel still serves the build of `fcbd5f2`, and the Neon schema fits it as long as no migration has landed since; once one lands, this way back closes. Railway's services can keep running meanwhile.
+**Going back**: production runs on Railway behind Cloudflare's proxy (the apex and `www` CNAMEs proxied, the `www` redirect rule to the apex). To go back, replace the apex CNAME with the record Vercel's domain settings list, DNS only; the proxied `www` record and its redirect rule keep sending `www` to the apex. Vercel still serves the build of `fcbd5f2`, and the Neon schema fits it as long as no migration has landed since; once one lands, this way back closes. Railway's services can keep running meanwhile.
