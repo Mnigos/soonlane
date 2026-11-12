@@ -50,6 +50,15 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Calendar link         | "Calendar link", "Create link", "Create new link", "Revoke link" | `calendar.createSubscription`, `CalendarLinkField`            | The subscription's URL with its secret token; shown once after creating it, never again. Anyone who has it can read the open tasks.           |
 | Calendar feed         | "Subscribe in Calendar" (`webcal:`)                              | `/calendar/{$token}.ics` on the API host, `buildCalendarFeed` | The iCalendar text a calendar app fetches every 15 minutes from the API: one event per open task on its due date, all day or at its due time. |
 
+## todoist
+
+| Term               | UI label                                       | Code                                                        | Meaning                                                                                                                                                    |
+| ------------------ | ---------------------------------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Todoist import     | "Import from Todoist" in the user menu         | `/app/todoist`, `TodoistService`, `todoist.*`               | Bringing a user's open Todoist tasks, labels and projects into Soonlane; this version stops at the preview and saves nothing.                              |
+| Todoist connection | "Continue to Todoist", "Connect again", Cancel | `todoist` row of `account`, `linkTodoist`, `TodoistAccount` | A read-only link to the user's Todoist account for one import; it closes on cancel, on a failed read and 15 minutes after linking. Never a way to sign in. |
+| Import preview     | "Import preview"                               | `todoist.preview`, `TodoistPreview`, `planTodoistImport`    | What an import would create (tasks, new and matched labels and projects), read once from Todoist when the page opens.                                      |
+| Import change      | "What will change or be left out"              | `TODOIST_IMPORT_CHANGES`, `TodoistImportChange`             | One counted way a Todoist task arrives differently or not at all, such as a repeating task arriving once or a task without a date left out.                |
+
 ## Codebase
 
 | Term              | UI                         | Code                                            | Meaning                                                                                                                                                                                                                                                                                                 |
