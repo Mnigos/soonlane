@@ -96,14 +96,7 @@ function countDistinct(values: readonly (string | null | undefined)[]) {
 	return new Set(values.filter(Boolean)).size
 }
 
-/**
- * Maps one Todoist snapshot onto the tasks and labels an import would create,
- * and counts what changes on the way. Only open tasks count; the Inbox is not
- * a project. Projects and sections count only when they hold an imported task.
- * Labels are the owner's Todoist labels plus every name on an imported task
- * (shared labels have no label object), matched to `existingLabelNames`
- * ignoring case.
- */
+/** Projects and sections count only when they hold an imported task; labels are the Todoist labels plus every name on an imported task (shared labels have no label object). */
 export function planTodoistImport(
 	snapshot: TodoistSnapshot,
 	existingLabelNames: readonly string[],
