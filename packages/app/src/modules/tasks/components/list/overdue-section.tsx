@@ -1,4 +1,3 @@
-import { DueDatePicker } from '@soonlane/app/tasks/components/composer/due-date-picker'
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import {
@@ -9,6 +8,7 @@ import {
 import { useRef, useState } from 'react'
 import { useOpenEditor } from '../../hooks/use-open-editor'
 import { useRescheduleTasks } from '../../hooks/use-reschedule-tasks'
+import { DueDatePicker } from '../composer/due-date-picker'
 import { SectionToggle } from './section-toggle'
 import { TaskList } from './task-list'
 

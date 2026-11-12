@@ -1,18 +1,18 @@
-import { refreshTaskAndLabelLists } from '@soonlane/app/labels/helpers/label-queries.helper'
-import { orpcQuery } from '@soonlane/app/rpc-query'
-import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
+import type { ListTasksOutput, Task } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { orpcQuery } from '../../../rpc-query.client'
+import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
+import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	announceCompletion,
 	getUndoCallbacks,
-} from '@soonlane/app/tasks/helpers/task-completion.helper'
+} from '../helpers/task-completion.helper'
 import {
 	findTaskPlacement,
 	withoutTask,
 	withUpdatedTask,
-} from '@soonlane/app/tasks/helpers/task-list.helper'
-import type { ListTasksOutput, Task } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+} from '../helpers/task-list.helper'
 
 export function useLogProgress(today: CalendarDate) {
 	const queryClient = useQueryClient()
