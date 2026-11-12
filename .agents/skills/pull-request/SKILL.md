@@ -27,7 +27,7 @@ Use this skill when the user asks for a PR.
 The description is a guide for a reviewer, not a change log. A reviewer should absorb it in under a minute.
 
 - Open with 2–3 short sentences: what was wrong or missing, what this PR does, what it leaves out. No heading above them.
-- Then, in this order and only when non-empty: `## What changes`, `## How to review` (large PRs only: where to start, one sentence), `## Validation` (one sentence: what ran and the numbers), `## Deploy` (migrations, Vercel env, Google OAuth or manual steps), then `Closes #<issue>` when an issue exists.
+- Then, in this order and only when non-empty: `## What changes`, `## How to review` (large PRs only: where to start, one sentence), `## Validation` (one sentence: what ran and the numbers), `## Deploy` (migrations, Railway variables, Google OAuth or manual steps), then `Closes #<issue>` when an issue exists.
 - `What changes` is at most five bullets, each one line, each describing an effect a reviewer can see, not an internal mechanism.
 - Hard caps: 120 words for a small PR, 200 for a large one. At most one backticked name per bullet or sentence, and only when the reviewer has to open it. No file inventories, no env var lists, no decision essays, no review-round history, no tool attribution.
 - Anything longer belongs in the module README or an ADR; link it instead of repeating it.
@@ -53,5 +53,5 @@ The description is a guide for a reviewer, not a change log. A reviewer should a
 - Do not create new labels.
 - Before creating a PR, run `git fetch origin <base>` and `git rebase origin/<base>`; after rebasing an already-pushed PR branch, push with `--force-with-lease`.
 - Use `gh` for GitHub operations.
-- Vercel previews run against the Neon `preview` branch, which nothing migrates on deploy; for a migration, say in `## Deploy` that `bun run db:migrate` has to run against it.
+- Local development runs against the Neon `preview` branch, which nothing migrates on deploy; for a migration, say in `## Deploy` that `bun run db:migrate` has to run against it.
 - Before editing files while preparing a PR, read at least 3 similar files.

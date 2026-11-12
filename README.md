@@ -6,19 +6,19 @@ Production: https://soonlane.com
 
 ## Monorepo
 
-| Directory                   | Purpose and main technology                                                                  |
-| --------------------------- | -------------------------------------------------------------------------------------------- |
-| `apps/web`                  | Web app and API: TanStack Start (React 19, Router, Query), Effect 4, oRPC v2, Tailwind 4.    |
-| `apps/api`                  | API on Railway: a Bun server on Effect 4 ([docs/deploy-railway.md](docs/deploy-railway.md)). |
-| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                      |
-| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                  |
-| `packages/domain`           | Branded types and their Zod schemas, such as `CalendarDate`.                                 |
-| `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                               |
-| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.         |
-| `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.      |
-| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                    |
-| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                           |
-| `tooling/oxlint-plugins`    | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.         |
+| Directory                   | Purpose and main technology                                                                       |
+| --------------------------- | ------------------------------------------------------------------------------------------------- |
+| `apps/web`                  | Site and web app: TanStack Start (React 19, Router, Query), oRPC v2, Tailwind 4, as a Bun server. |
+| `apps/api`                  | API on Railway: a Bun server on Effect 4 ([docs/deploy-railway.md](docs/deploy-railway.md)).      |
+| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                           |
+| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                       |
+| `packages/domain`           | Branded types and their Zod schemas, such as `CalendarDate`.                                      |
+| `packages/db`               | Drizzle schema, migrations and the migrator for Neon Postgres.                                    |
+| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.              |
+| `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.           |
+| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                         |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                                |
+| `tooling/oxlint-plugins`    | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.              |
 
 Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Product and design: [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
@@ -28,7 +28,7 @@ Prerequisites: Bun **1.4.2** (pinned by `packageManager`). Node is not needed: `
 
 ```sh
 bun install
-bunx vercel@latest env pull apps/web/.env.local --environment=development --scope mnigos-projects --yes
+cp apps/web/.env.example apps/web/.env.local   # fill it in, and apps/api/.env.local (docs/deploy-railway.md)
 bun run db:migrate
 bun run dev
 ```
@@ -39,15 +39,15 @@ The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expec
 
 Run with `bun run <script>` from the root.
 
-| Script                | Purpose                                                    |
-| --------------------- | ---------------------------------------------------------- |
-| `dev`                 | Web development server on port 3000.                       |
-| `build`               | Production build for Vercel (`apps/web/.vercel/output`).   |
-| `typecheck`           | TypeScript in every package.                               |
-| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                        |
-| `commit`              | Commitizen prompt for a conventional commit.               |
-| `db:generate`         | Drizzle migration from `packages/db/schema`.               |
-| `db:migrate`          | Apply migrations to the database in `apps/web/.env.local`. |
+| Script                | Purpose                                                                                              |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| `dev`                 | Web development server on port 3000.                                                                 |
+| `build`               | Production build: the web server in `apps/web/.output`, checked after the build, and the API bundle. |
+| `typecheck`           | TypeScript in every package.                                                                         |
+| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                                                                  |
+| `commit`              | Commitizen prompt for a conventional commit.                                                         |
+| `db:generate`         | Drizzle migration from `packages/db/schema`.                                                         |
+| `db:migrate`          | Apply migrations to the database in `apps/web/.env.local`.                                           |
 
 ## Desktop
 
@@ -73,7 +73,7 @@ Posts are MDX files published by merging to `main`; see [docs/blog.md](docs/blog
 
 ## Deploy
 
-Vercel, Root Directory `apps/web`, Bun 1.4 function in `fra1`, previews enabled. Details: [docs/deploy-vercel.md](docs/deploy-vercel.md).
+Railway: the site and the API run as two services in Amsterdam, production from `main` after CI, staging on demand. Details: [docs/deploy-railway.md](docs/deploy-railway.md).
 
 ## License
 
