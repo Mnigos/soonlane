@@ -31,7 +31,7 @@ What Better Auth 1.7.18 offers (read from `node_modules/better-auth`, not from m
 
 ## Update 2026-11-12 (SOON-119)
 
-Better Auth runs on the API and reads the client IP only from `x-soonlane-client-ip`, which the API's HTTP entry sets and a client cannot: from the web server's `x-soonlane-visitor-ip` (taken from Vercel's `x-forwarded-for`) when `x-soonlane-proxy-secret` matches `API_PROXY_SECRET`, a wrong secret is refused with 403; otherwise from Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge. See `docs/deploy-railway.md`.
+Better Auth runs on the API and reads the client IP only from `x-soonlane-client-ip`, which the API's HTTP entry sets and a client cannot: from the web server's `x-soonlane-visitor-ip` (taken from Vercel's `x-forwarded-for`) when `x-soonlane-proxy-secret` matches `API_PROXY_SECRET`, a wrong secret is refused with 403; otherwise from Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge. See `docs/deploy-railway.md`. The signed-in hint is now `<prefix>.signed_in` on the environment's shared domain (ADR 0013).
 
 ## Related
 

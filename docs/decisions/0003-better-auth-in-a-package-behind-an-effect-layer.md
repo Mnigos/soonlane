@@ -24,7 +24,7 @@ Sign-in (PR 2) first lived entirely in `apps/web/src/modules/identity`: the Bett
 
 ## Update 2026-11-12 (SOON-119)
 
-The Effect layer moved to `apps/api/src/modules/identity/infrastructure/better-auth.layer.ts`. `oAuthProxy` and `tanstackStartCookies` are gone: previews no longer sign in, and the API carries the `Set-Cookie` values of a session refreshed during an RPC call (`getSession` with `returnHeaders`) on that response. The web app keeps `/api/auth/$` as a forwarder to the API.
+The Effect layer moved to `apps/api/src/modules/identity/infrastructure/better-auth.layer.ts`. `oAuthProxy` and `tanstackStartCookies` are gone: previews no longer sign in, and the API carries the `Set-Cookie` values of a session refreshed during an RPC call (`getSession` with `returnHeaders`) on that response. The browser calls Better Auth on the API host directly; the web app has no `/api/auth` route.
 
 ## Related
 

@@ -47,11 +47,11 @@ Signing in also creates short-lived records: a random sign-in state, valid for u
 
 These cookies are needed for Soonlane to work, so they do not ask for your consent:
 
-- **Session cookie** (`better-auth.session_token`, with a `__Secure-` prefix on HTTPS): keeps you signed in for the life of your session. Scripts on the page cannot read it.
-- **Signed-in hint** (`soonlane-signed-in`): holds `1` while you are signed in, so the public pages can show "Open app". It carries no user data and lasts as long as your session.
+- **Session cookie** (`soonlane.session_token`, with a `__Secure-` prefix on HTTPS): keeps you signed in for the life of your session. Scripts on the page cannot read it.
+- **Signed-in hint** (`soonlane.signed_in`): holds `1` while you are signed in, so the public pages can show "Open app". It carries no user data and lasts as long as your session.
 - **Sidebar preference** (`soonlane-sidebar`): remembers whether you keep the full sidebar or the narrow one. It lasts one year.
-- **Sign-in state** (`better-auth.state`, with the same prefix): protects the Google sign-in against forged requests. It lasts 5 minutes.
-- **Consent** (`soonlane-privacy`): remembers your analytics choice for every page on soonlane.com and its subdomains. An accepted choice is kept for 12 months and a rejected one for 6 months; then Soonlane asks again.
+- **Sign-in state** (`soonlane.state`, with the same prefix): protects the Google sign-in against forged requests. It lasts 5 minutes.
+- **Consent** (`soonlane.consent`): remembers your analytics choice for every page on soonlane.com and its subdomains. An accepted choice is kept for 12 months and a rejected one for 6 months; then Soonlane asks again.
 
 ### Analytics (optional)
 
@@ -69,11 +69,12 @@ Deleting your account does not yet remove analytics data from PostHog automatica
 
 ## Service providers and where your data is stored
 
-- **Vercel** hosts Soonlane. Its server functions run in Frankfurt, Germany. Vercel keeps request logs, including IP addresses, for a limited time.
+- **Vercel** hosts the Soonlane web app. Its server functions run in Frankfurt, Germany. Vercel keeps request logs, including IP addresses, for a limited time.
+- **Railway** hosts Soonlane's API at api.soonlane.com, which handles sign-in, your tasks and calendar links. It runs in Amsterdam, the Netherlands, and Railway keeps request logs, including IP addresses, for a limited time.
 - **Neon** hosts the database in Frankfurt, Germany (AWS `eu-central-1`).
 - **Google** provides sign-in.
 - **PostHog** provides analytics in its EU region, as described above.
-- **Cloudflare** provides DNS for soonlane.com only; your traffic does not pass through it.
+- **Cloudflare** provides DNS for soonlane.com and sits in front of the API: every request your browser sends to api.soonlane.com, including your IP address, passes through Cloudflare's network on its way to Railway. Traffic to soonlane.com itself does not pass through it.
 
 Some of these providers are based in the United States. When they handle data outside the European Union, they rely on the safeguards in their data processing terms.
 

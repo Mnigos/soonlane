@@ -1,6 +1,6 @@
 # Deploy on Railway
 
-The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). It serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`). The web app still deploys on Vercel and forwards `/api/auth` and `/api/rpc` here ([deploy-vercel.md](deploy-vercel.md)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
+The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). It serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`). The web app still deploys on Vercel; its pages call this host from the browser with credentials and from SSR with the proxy secret ([deploy-vercel.md](deploy-vercel.md)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
 
 ## Configuration
 
@@ -24,6 +24,8 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 | `API_URL`         | `https://api.soonlane.com` | `https://api.staging.soonlane.com` |
 | `APP_URL`              | `https://soonlane.com`     | `https://staging.soonlane.com`     |
 | `TRUSTED_ORIGINS` | `https://soonlane.com`     | `https://staging.soonlane.com`     |
+| `AUTH_COOKIE_PREFIX` | `soonlane`              | `soonlane-staging`                 |
+| `AUTH_COOKIE_DOMAIN` | `soonlane.com`          | `staging.soonlane.com`             |
 | `DATABASE_URL`    | Neon `main`, direct, entered by hand | `${{Postgres.DATABASE_URL}}` |
 | `AUTH_SECRET`          | secret, at least 32 characters | its own secret                 |
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | the same client           |
@@ -31,9 +33,9 @@ and the same for `production`. The file exports `partial = 'soonlane'`, so an ap
 | `ALLOWED_EMAILS`       | optional                   | optional                           |
 | `POSTHOG_KEY`          | optional, the PostHog project key | optional                    |
 
-`.railway/railway.ts` sets the plain values and marks the secrets `preserve()`, so an apply keeps what was entered by hand. `TRUSTED_ORIGINS` is a comma-separated list of origins that may call `/api/rpc` and Better Auth with an `Origin` header. `API_URL` is the API's public origin (calendar links); `APP_URL` is the web app's, which is Better Auth's base URL in this stage (Google returns there and the web app forwards the callback) and the target of the feed's event links. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
+`.railway/railway.ts` sets the plain values and marks the secrets `preserve()`, so an apply keeps what was entered by hand. `TRUSTED_ORIGINS` is a comma-separated list of exact origins that may call `/api/auth` and `/api/rpc` from the browser (CORS with credentials) and that sign-in may return to; any other `Origin` gets 403. `API_URL` is the API's public origin: Better Auth's base URL (Google returns to `<API_URL>/api/auth/callback/google`) and the host of calendar links. `APP_URL` is the web app's: Better Auth sends its errors to `<APP_URL>/login`, and the feed's events link there. `AUTH_COOKIE_PREFIX` names every cookie and must equal the web build's `VITE_AUTH_COOKIE_PREFIX`; `AUTH_COOKIE_DOMAIN` is the domain the cookies cover, so the web app's host receives them. Production's cookies cover `soonlane.com`, so the browser sends them to the staging hosts too: the staging API receives a production session token on every browser call from someone signed in to production. Staging's Better Auth ignores them, because its prefix and its `AUTH_SECRET` differ, and its web server forwards only `soonlane-staging.*` cookies, but only during server rendering; nothing filters the browser's direct calls. Code deployed to staging could copy that token, so staging runs only trusted refs, and the API never logs the cookie header. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
 
-Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=8080`, `APP_ENV=development`, `API_URL=http://localhost:8080`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
+Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=8080`, `APP_ENV=development`, `API_URL=http://localhost:8080`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, `AUTH_COOKIE_PREFIX=soonlane-dev` and no `AUTH_COOKIE_DOMAIN` (localhost cookies reach every port), any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
 
 ## Migrations
 
@@ -52,6 +54,21 @@ curl -s -o /dev/null -w '%{http_code}\n' -H 'x-soonlane-proxy-secret: wrong' htt
 # forged headers do not change the rate-limit key, which holds the caller's real IP (curl -4 ifconfig.me)
 curl -s -H 'X-Real-IP: 203.0.113.9' -H 'X-Forwarded-For: 203.0.113.9' -H 'CF-Connecting-IP: 203.0.113.9' https://api.staging.soonlane.com/api/auth/get-session
 ```
+
+## CORS and return addresses
+
+The browser calls `/api/auth` and `/api/rpc` directly. Checks on staging:
+
+```sh
+# a trusted origin's preflight: 204 with that exact origin, credentials, GET, POST, content-type, max-age 7200, Vary: Origin
+curl -si -X OPTIONS -H 'Origin: https://staging.soonlane.com' -H 'Access-Control-Request-Method: POST' https://api.staging.soonlane.com/api/rpc/identity/me
+# another subdomain, production's origin or the API's own: 403 for the preflight and the request
+curl -s -o /dev/null -w '%{http_code}\n' -X POST -H 'Origin: https://evil.staging.soonlane.com' -H 'content-type: application/json' -d '{"json":null}' https://api.staging.soonlane.com/api/rpc/identity/me
+# return addresses: a relative path, the API host or no body callbackURL is 400; a foreign host is Better Auth's 403
+curl -s -X POST -H 'Origin: https://staging.soonlane.com' -H 'content-type: application/json' -d '{"provider":"google","callbackURL":"/app"}' https://api.staging.soonlane.com/api/auth/sign-in/social
+```
+
+A deploy replaces the API before the web app, so for a few minutes a page loaded from the previous web build may call the new API: harmless while the cookie names and origins stay the same, but a change to either signs those tabs out until they reload. A cached preflight (2 hours in Chrome, up to a day in Firefox) can hide a CORS change; test in a fresh profile.
 
 ## Staging
 
