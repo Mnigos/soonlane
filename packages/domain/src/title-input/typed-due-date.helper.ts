@@ -1,21 +1,12 @@
 import type { CalendarDate } from '../dates/calendar-date.schema'
 import { parseDueDateText } from '../dates/due-date-text.helper'
 import { isInCalendar } from '../views/month-calendar.helper'
-import { findFreeWords } from './title-word.helper'
-
-interface TypedDueDate {
-	date: CalendarDate
-	text: string
-	start: number
-	end: number
-}
-
-type Word = ReturnType<typeof findFreeWords>[number]
+import { findFreeWords, readPhrases, type TitleWord } from './title-word.helper'
 
 const WORD_COUNTS = [3, 2, 1]
 
 /** The longest run of words from the first of `words` that the date grammar reads. */
-function readDate(title: string, words: Word[], today: CalendarDate) {
+function readDate(title: string, words: TitleWord[], today: CalendarDate) {
 	const [first] = words
 
 	return WORD_COUNTS.flatMap(count => {
@@ -30,27 +21,6 @@ function readDate(title: string, words: Word[], today: CalendarDate) {
 	}).at(0)
 }
 
-function readDates(
-	title: string,
-	words: Word[],
-	today: CalendarDate
-): TypedDueDate[] {
-	const [first, ...rest] = words
-	if (!first) return []
-
-	const match = readDate(title, words, today)
-	if (!match) return readDates(title, rest, today)
-
-	return [
-		match,
-		...readDates(
-			title,
-			words.filter(({ index }) => index >= match.end),
-			today
-		),
-	]
-}
-
 /**
  * Due dates typed as whole words in a task name, in typed order (the last one
  * wins): what the date picker reads, up to three words ("nov 14, 2027").
@@ -63,7 +33,9 @@ export function findTypedDueDates(
 	dismissedWords: readonly string[],
 	today: CalendarDate
 ) {
-	return readDates(title, findFreeWords(title, takenWords), today).filter(
+	return readPhrases(findFreeWords(title, takenWords), words =>
+		readDate(title, words, today)
+	).filter(
 		({ date, text }) =>
 			isInCalendar(date, today) && !dismissedWords.includes(text)
 	)

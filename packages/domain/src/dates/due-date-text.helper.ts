@@ -76,7 +76,10 @@ function fromDayMonth(
 	return date
 }
 
-function fromWeekday(word: string, today: CalendarDate) {
+/** A weekday or a prefix of one, at least three letters ("fri"): that day on or after today. */
+export function parseWeekdayText(word: string, today: CalendarDate) {
+	if (!/^[a-z]{3,}$/u.test(word)) return undefined
+
 	const weekday = findByPrefix(WEEKDAYS, word)
 	if (weekday === undefined) return undefined
 
@@ -123,5 +126,5 @@ export function parseDueDateText(
 			today
 		)
 
-	return /^[a-z]{3,}$/u.test(input) ? fromWeekday(input, today) : undefined
+	return parseWeekdayText(input, today)
 }
