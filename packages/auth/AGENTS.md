@@ -1,6 +1,7 @@
 # packages/auth agent rules
 
-- `@soonlane/auth/server` (`createAuth`) is server-only and imported only by `apps/api` (`createAuth` only in `modules/identity/infrastructure/better-auth.layer.ts`); `@soonlane/auth/client` is the browser client; the root exports the pure sign-up policy, the signed-in hint's name for a cookie prefix (`getSignedInHintCookie`) and the desktop sign-in contract (scheme, paths, parameters, PKCE helpers), which `apps/desktop` imports too.
+- `@soonlane/auth/server` (`createAuth`) is server-only and imported only by `apps/api` (`createAuth` only in `modules/identity/infrastructure/better-auth.layer.ts`); `@soonlane/auth/client` is the browser client; the root exports the pure sign-up policy, the signed-in hint's name for a cookie prefix (`getSignedInHintCookie`) and the desktop sign-in contract (scheme, loopback address, paths, parameters, PKCE helpers, the bundled page's origin), which `apps/desktop` and the API import too.
+- The desktop app's bearer token is the session token signed with the auth secret (`/desktop-sign-in/token`). Keep `bearer` at `requireSignature: true` and without its after hook, which would put the web session's cookie value in a header scripts can read.
 - No Effect here: configuration, the database and the logger arrive as arguments.
 - Every log argument goes through `redactLogArgument`; Drizzle errors embed session tokens.
 - Better Auth reads the client IP only from `CLIENT_IP_HEADER`, which the API's HTTP entry sets. Keep `AUTH_BASE_PATH`, the Google and Todoist redirect URIs (on the API host) and the API's `TRUSTED_ORIGINS` aligned.

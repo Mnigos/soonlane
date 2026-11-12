@@ -2,6 +2,8 @@ import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import {
 	DESKTOP_SIGN_IN_LINK_HOST,
 	DESKTOP_URL_SCHEME,
+	LOOPBACK_CALLBACK_PATH,
+	LOOPBACK_HOST,
 	SIGN_IN_CODE_PARAM,
 } from '@soonlane/auth'
 import { createDesktopSignInCode } from '@soonlane/auth/client'
@@ -11,12 +13,22 @@ import { useMutation } from '@tanstack/react-query'
 
 const HAND_OFF_FAILED = 'Could not start the desktop sign-in. Try again.'
 
-async function openDesktopApp(challenge: string) {
+interface HandOff {
+	challenge: string
+	port?: number
+}
+
+/** The app's loopback listener when it sent a port (RFC 8252), else its `soonlane://` link. */
+async function openDesktopApp({ challenge, port }: HandOff) {
 	const { data, error } = await createDesktopSignInCode(challenge)
 
 	if (error) throw new Error(HAND_OFF_FAILED, { cause: error })
 
-	const link = new URL(`${DESKTOP_URL_SCHEME}://${DESKTOP_SIGN_IN_LINK_HOST}`)
+	const link = new URL(
+		port
+			? `http://${LOOPBACK_HOST}:${port}${LOOPBACK_CALLBACK_PATH}`
+			: `${DESKTOP_URL_SCHEME}://${DESKTOP_SIGN_IN_LINK_HOST}`
+	)
 
 	link.searchParams.set(SIGN_IN_CODE_PARAM, data.code)
 	window.location.assign(link)
@@ -24,14 +36,14 @@ async function openDesktopApp(challenge: string) {
 	return link.href
 }
 
-interface DesktopHandOffScreenProps {
-	challenge: string
+interface DesktopHandOffScreenProps extends HandOff {
 	user: SessionUser
 }
 
 /** The browser half of the desktop sign-in: an explicit click sends a one-time code to the app that asked for it. */
 export function DesktopHandOffScreen({
 	challenge,
+	port,
 	user,
 }: Readonly<DesktopHandOffScreenProps>) {
 	const {
@@ -53,11 +65,16 @@ export function DesktopHandOffScreen({
 				</p>
 			</div>
 
-			<Button disabled={isPending} onClick={() => mutate(challenge)} size="lg">
+			<Button
+				disabled={isPending}
+				onClick={() => mutate({ challenge, port })}
+				size="lg"
+			>
 				{isPending ? 'Opening…' : 'Open the desktop app'}
 			</Button>
 
-			{link && (
+			{/* The loopback page replaces this one; only a `soonlane://` link leaves the tab here. */}
+			{link && !port && (
 				// The link carries a one-time code: session replay records a placeholder.
 				<output className="ph-no-capture flex flex-col gap-1 text-sm">
 					<p className="font-semibold">You can close this tab</p>
