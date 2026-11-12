@@ -8,8 +8,10 @@ on:
 permissions:
   contents: read
 
+# A pull request's new push cancels its older runs. Each push to main gets its own group
+# (the run id), because Railway skips the deploy of a commit whose run was cancelled.
 concurrency:
-  group: ci-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
 jobs:
