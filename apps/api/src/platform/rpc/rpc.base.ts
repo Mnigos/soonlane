@@ -1,7 +1,7 @@
 import '@orpc/effect/extensions/effect'
 import { middlewareGen } from '@orpc/effect'
 import { implement } from '@orpc/server'
-import { type Contract, contract } from '@soonlane/contracts'
+import { contract, isReadOnly } from '@soonlane/contracts'
 import { Cause, Effect } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { AppConfig } from '../config/app.config'
@@ -15,25 +15,6 @@ import {
 import type { RpcContext } from './rpc.context'
 
 const base = implement(contract).$context<RpcContext>()
-
-/** The procedures that only read. Every other one writes and is refused while maintenance is on, so a new procedure is refused until it is listed here. */
-const READ_PROCEDURES: {
-	readonly [
-		TNamespace in keyof Contract
-	]: readonly (keyof Contract[TNamespace])[]
-} = {
-	calendar: ['getSubscription'],
-	identity: ['me'],
-	labels: ['list'],
-	projects: ['list'],
-	system: ['health'],
-	tasks: ['list', 'listByLabel', 'listByProject', 'listCompleted'],
-}
-const READ_PATHS = new Set(
-	Object.entries(READ_PROCEDURES).flatMap(([namespace, names]) =>
-		names.map(name => `${namespace}.${name}`)
-	)
-)
 
 /** Interrupts and domain errors are part of normal use; a DbError the service did not handle is a fault even though the client gets a mapped response. */
 function isExpected(cause: Cause.Cause<unknown>) {
@@ -73,11 +54,10 @@ const mapDomainErrors = base.middleware(
 )
 
 const refuseWritesInMaintenance = base.middleware(
-	middlewareGen(function* refuseWritesInMaintenance({ next, path }) {
+	middlewareGen(function* refuseWritesInMaintenance({ next, procedure }) {
 		const { maintenance } = yield* AppConfig
 
-		if (maintenance && !READ_PATHS.has(path.join('.')))
-			return yield* new Maintenance()
+		if (maintenance && !isReadOnly(procedure)) return yield* new Maintenance()
 
 		return yield* next()
 	})

@@ -7,7 +7,7 @@ The runbook for SOON-123. Production's `api` reads and writes Neon today (`DATAB
 `MAINTENANCE_MODE=on` on the `api` service turns on the maintenance switch at the next deploy:
 
 - Reads keep working: task lists, labels, the session lookup, the calendar feed, health.
-- Every oRPC procedure that writes answers 503 with `{ "code": "MAINTENANCE" }`. The list of procedures that may run is in `apps/api/src/platform/rpc/rpc.base.ts`; anything else is refused.
+- Every oRPC procedure that writes answers 503 with `{ "code": "MAINTENANCE" }`. Only procedures the contract builds from `query` (`packages/contracts/src/read-only.base.ts`) may run; anything else is refused.
 - Every `/api/auth` request answers 503 with the same code before Better Auth runs: no sign-in, sign-out, desktop sign-in or account deletion, and no rate-limit counter.
 - The session lookup neither refreshes nor deletes a session.
 - The web app and the Mac app show "Changes and sign-in are paused for a few minutes during an update. Try again shortly." instead of an error. A change made on screen is rolled back.
