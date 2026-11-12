@@ -1,5 +1,9 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
 import { CHIP_ICON_STROKE } from '@soonlane/app/tasks/helpers/composer-chip.constants'
+import {
+	DUE_DATE_SHORTCUT_CHOICES,
+	DUE_DATE_SHORTCUT_ICONS,
+} from '@soonlane/app/tasks/helpers/due-date-shortcut.constants'
 import { type CalendarDate, getDueDateShortcuts } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import {
@@ -10,10 +14,6 @@ import {
 } from '@soonlane/ui/components/menu'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Ellipsis } from 'lucide-react'
-import {
-	DUE_DATE_SHORTCUT_CHOICES,
-	DUE_DATE_SHORTCUT_ICONS,
-} from '../../helpers/due-date-shortcut.constants'
 
 interface TaskMenuDateGroupProps {
 	today: CalendarDate

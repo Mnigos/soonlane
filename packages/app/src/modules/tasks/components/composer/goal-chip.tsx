@@ -1,8 +1,3 @@
-import {
-	CHIP_ICON_STROKE,
-	COMPOSER_CHIP_CLASS,
-	FOOTER_BUTTON_CLASS,
-} from '@soonlane/app/tasks/helpers/composer-chip.constants'
 import type { GoalInput } from '@soonlane/contracts'
 import { GOAL_TARGET_MAX, GOAL_UNIT_MAX_LENGTH } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
@@ -13,6 +8,11 @@ import {
 } from '@soonlane/ui/components/popover'
 import { Target } from 'lucide-react'
 import { type KeyboardEvent, type Ref, useId, useRef, useState } from 'react'
+import {
+	CHIP_ICON_STROKE,
+	COMPOSER_CHIP_CLASS,
+	FOOTER_BUTTON_CLASS,
+} from '../../helpers/composer-chip.constants'
 import { GoalField } from '../task/goal-field'
 
 type Goal = GoalInput | undefined

@@ -1,11 +1,11 @@
-import { APP_PATHS } from '@soonlane/app/app-paths'
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useRef, useSyncExternalStore } from 'react'
+import { APP_PATHS } from '../../../app-path.constants'
+import { isShortcutKeydown } from '../../../utils/keyboard-shortcut.util'
 import {
 	focusTaskRow,
 	getFocusedTaskRow,
-} from '@/modules/tasks/presentation/helpers/task-focus.helper'
-import { isShortcutKeydown } from '@/utils/keyboard-shortcut.util'
+} from '../../tasks/helpers/task-focus.helper'
 
 /** How long after "g" its second key still counts. */
 const SEQUENCE_MS = 1000

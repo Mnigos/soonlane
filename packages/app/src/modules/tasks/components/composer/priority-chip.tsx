@@ -1,5 +1,4 @@
 import { capture } from '@soonlane/analytics/client'
-import { COMPOSER_CHIP_CLASS } from '@soonlane/app/tasks/helpers/composer-chip.constants'
 import { TASK_PRIORITIES, type TaskPriority } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import {
@@ -10,6 +9,7 @@ import {
 	MenuTrigger,
 } from '@soonlane/ui/components/menu'
 import type { KeyboardEvent } from 'react'
+import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'
 import { PRIORITY_FLAG_CLASSES } from '../../helpers/task-priority.constants'
 import { PriorityFlagIcon } from './priority-flag-icon'
 

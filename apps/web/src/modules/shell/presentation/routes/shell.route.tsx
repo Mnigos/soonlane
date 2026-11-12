@@ -1,4 +1,6 @@
 import { HostAppContext } from '@soonlane/app/host-app'
+import { Shell } from '@soonlane/app/shell/components/shell'
+import { readSidebarPreference } from '@soonlane/app/shell/helpers/sidebar-preference.helper'
 import {
 	createFileRoute,
 	Outlet,
@@ -15,8 +17,6 @@ import {
 	APP_VERSION,
 	RELEASE_NOTES_URL,
 } from '../build-info.constants'
-import { Shell } from '../components/shell'
-import { readSidebarPreference } from '../helpers/sidebar-preference.helper'
 
 const getSidebarPreference = createIsomorphicFn()
 	.server(() => readSidebarPreference(getRequestHeader('cookie') ?? ''))

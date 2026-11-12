@@ -1,23 +1,23 @@
 import type { ClientEvents } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
-import { DesktopDragRegion } from '@soonlane/app/shell/components/desktop-drag-region'
-import { ShellRail } from '@soonlane/app/shell/components/shell-rail'
-import { ShellSidebar } from '@soonlane/app/shell/components/shell-sidebar'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Toaster } from '@soonlane/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useState } from 'react'
-import { AddTaskDialog } from '@/modules/tasks/presentation/components/task/add-task-dialog'
-import { useDockBadgeQuery } from '@/modules/tasks/presentation/hooks/use-dock-badge-query'
+import { AddTaskDialog } from '../../tasks/components/task/add-task-dialog'
+import { useDockBadgeQuery } from '../../tasks/hooks/use-dock-badge-query'
 import {
 	isWideViewport,
 	saveSidebarPreference,
 } from '../helpers/sidebar-preference.helper'
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts'
 import type { SidebarPreference } from '../sidebar-preference.types'
+import { DesktopDragRegion } from './desktop-drag-region'
 import { KeyboardShortcutsDialog } from './keyboard-shortcuts-dialog'
+import { ShellRail } from './shell-rail'
+import { ShellSidebar } from './shell-sidebar'
 
 interface ShellProps extends PropsWithChildren {
 	activeLabelName?: string

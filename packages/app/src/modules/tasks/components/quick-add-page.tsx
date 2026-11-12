@@ -1,6 +1,6 @@
-import { APP_PATHS } from '@soonlane/app/app-paths'
 import { useNavigate } from '@tanstack/react-router'
-import { sendToDesktopHost } from '@/modules/shell/presentation/helpers/desktop-host.helper'
+import { APP_PATHS } from '../../../app-path.constants'
+import { sendToDesktopHost } from '../../shell/helpers/desktop-host.helper'
 import { useDockBadgeQuery } from '../hooks/use-dock-badge-query'
 import { useToday } from '../hooks/use-today'
 import { TaskComposer } from './composer/task-composer'

@@ -1,9 +1,9 @@
 import type { ComposerSource } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
-import { refreshTaskAndLabelLists } from '@soonlane/app/labels/helpers/label-queries.helper'
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { orpcQuery } from '../../../rpc-query.client'
+import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
 
 /** Tracks the create here, not in mutate's callbacks, which are skipped once the composer closes. */

@@ -1,10 +1,10 @@
 import { capture } from '@soonlane/analytics/client'
+import { TaskComposer } from '@soonlane/app/tasks/components/composer/task-composer'
 import type { Task } from '@soonlane/contracts'
 import { type CalendarDate, getDayHeading } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { type Ref, useRef, useState } from 'react'
 import { useOpenEditor } from '../../hooks/use-open-editor'
-import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from './add-task-row'
 import { TaskList } from './task-list'
 

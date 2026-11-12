@@ -132,11 +132,13 @@
         "@orpc/client": "catalog:",
         "@orpc/contract": "catalog:",
         "@orpc/tanstack-query": "catalog:",
+        "@soonlane/analytics": "workspace:*",
         "@soonlane/contracts": "workspace:*",
         "@soonlane/domain": "workspace:*",
         "@soonlane/ui": "workspace:*",
         "lucide-react": "^1.56.0",
         "sonner": "2.0.8",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@soonlane/typescript-config": "workspace:*",

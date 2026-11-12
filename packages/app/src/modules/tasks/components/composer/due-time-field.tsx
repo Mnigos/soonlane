@@ -1,7 +1,7 @@
-import { FOOTER_BUTTON_CLASS } from '@soonlane/app/tasks/helpers/composer-chip.constants'
 import { Button } from '@soonlane/ui/components/button'
 import { Clock, X } from 'lucide-react'
 import { useState } from 'react'
+import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 
 interface DueTimeFieldProps {
 	value: string | undefined
