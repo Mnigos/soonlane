@@ -1,9 +1,9 @@
 import { safe } from '@orpc/client'
 import { isLabelNamed } from '@soonlane/app/labels/helpers/label-name.helper'
+import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { createFileRoute } from '@tanstack/react-router'
 import { LabelPage } from '@/modules/tasks/presentation/components/label/label-page'
 import { TaskListSkeleton } from '@/modules/tasks/presentation/components/list/task-list.skeleton'
-import { useToday } from '@/modules/tasks/presentation/hooks/use-today'
 
 export const Route = createFileRoute('/_session/app/labels/$name')({
 	loader: async ({ context }) => {

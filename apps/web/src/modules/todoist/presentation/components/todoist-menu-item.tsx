@@ -1,10 +1,10 @@
 import { orpcQuery } from '@soonlane/app/rpc-query'
+import { isDesktopShell } from '@soonlane/app/shell/helpers/desktop-host.helper'
 import { TODOIST_IMPORT_PATH } from '@soonlane/auth'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { Import } from 'lucide-react'
 import { toast } from 'sonner'
-import { isDesktopShell } from '@/modules/shell/presentation/helpers/desktop-host.helper'
 import { TODOIST_COPY } from '../helpers/todoist-copy.constants'
 
 interface TodoistMenuItemProps {

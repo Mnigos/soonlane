@@ -1,7 +1,7 @@
-import { COMING_SOON_CLASS } from '@soonlane/app/tasks/helpers/composer-chip.constants'
 import { cn } from '@soonlane/ui/cn'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import type { KeyboardEvent, PropsWithChildren } from 'react'
+import { COMING_SOON_CLASS } from '../../helpers/composer-chip.constants'
 
 interface ComingSoonButtonProps extends PropsWithChildren {
 	label: string

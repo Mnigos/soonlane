@@ -1,12 +1,3 @@
-import { useCreateLabelMutation } from '@soonlane/app/labels/hooks/use-create-label-mutation'
-import { orpcQuery } from '@soonlane/app/rpc-query'
-import {
-	CreateLabelOption,
-	LabelListNotes,
-	LabelOption,
-} from '@soonlane/app/tasks/components/composer/label-options'
-import { LABEL_ROW_CLASS } from '@soonlane/app/tasks/helpers/composer-chip.constants'
-import { searchLabels } from '@soonlane/app/tasks/helpers/label-search.helper'
 import { findLabelQuery } from '@soonlane/domain'
 /* oxlint-disable jsx-a11y/prefer-tag-over-role -- a styled text input as an ARIA combobox; select and datalist cannot show label rows */
 import { Popover, PopoverContent } from '@soonlane/ui/components/popover'
@@ -23,8 +14,13 @@ import {
 	useState,
 } from 'react'
 import { flushSync } from 'react-dom'
+import { orpcQuery } from '../../../../rpc-query.client'
+import { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
+import { LABEL_ROW_CLASS } from '../../helpers/composer-chip.constants'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
+import { searchLabels } from '../../helpers/label-search.helper'
 import { HighlightedInput } from './highlighted-input'
+import { CreateLabelOption, LabelListNotes, LabelOption } from './label-options'
 
 interface TitleFieldProps extends Pick<
 	ComponentProps<typeof HighlightedInput>,

@@ -1,11 +1,11 @@
 import { capture } from '@soonlane/analytics/client'
-import { refreshTaskAndLabelLists } from '@soonlane/app/labels/helpers/label-queries.helper'
-import { orpcQuery } from '@soonlane/app/rpc-query'
-import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
+import { orpcQuery } from '../../../rpc-query.client'
+import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
+import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
 import {
 	removeCachedTask,

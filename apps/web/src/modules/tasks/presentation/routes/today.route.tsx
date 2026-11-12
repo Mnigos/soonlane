@@ -1,7 +1,7 @@
+import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { createFileRoute } from '@tanstack/react-router'
 import { TaskListSkeleton } from '../components/list/task-list.skeleton'
 import { TodayPage } from '../components/today-page'
-import { useToday } from '../hooks/use-today'
 
 export const Route = createFileRoute('/_session/app/today')({
 	head: () => ({ meta: [{ title: 'Today · Soonlane' }] }),

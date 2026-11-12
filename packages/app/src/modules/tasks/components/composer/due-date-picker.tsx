@@ -1,10 +1,5 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
 import {
-	PICKER_FIELD_CLASS,
-	PICKER_FIELD_ROW_CLASS,
-	PICKER_NOTE_CLASS,
-} from '@soonlane/app/tasks/helpers/composer-chip.constants'
-import {
 	type CalendarDate,
 	formatWeekdayDayMonth,
 	parseDueDateText,
@@ -21,6 +16,11 @@ import {
 	useId,
 	useState,
 } from 'react'
+import {
+	PICKER_FIELD_CLASS,
+	PICKER_FIELD_ROW_CLASS,
+	PICKER_NOTE_CLASS,
+} from '../../helpers/composer-chip.constants'
 import { DUE_DATE_SHORTCUT_CHOICES } from '../../helpers/due-date-shortcut.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { DueDateShortcuts } from './due-date-shortcuts'

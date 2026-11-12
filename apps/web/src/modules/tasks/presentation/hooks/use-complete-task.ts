@@ -2,19 +2,19 @@ import { capture } from '@soonlane/analytics/client'
 import { refreshTaskAndLabelLists } from '@soonlane/app/labels/helpers/label-queries.helper'
 import { orpcQuery } from '@soonlane/app/rpc-query'
 import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
-import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import {
 	addToCompleted,
 	announceCompletion,
 	getUndoCallbacks,
 	removeFromCompleted,
-} from '../helpers/task-completion.helper'
+} from '@soonlane/app/tasks/helpers/task-completion.helper'
 import {
 	removeCachedTask,
 	restoreCachedTask,
-} from '../helpers/task-list.helper'
+} from '@soonlane/app/tasks/helpers/task-list.helper'
+import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 /** The goal progress each task showed when completed, for Undo; a search result is in no cached list to read it from. */
 const seenProgress = new Map<string, number | undefined>()

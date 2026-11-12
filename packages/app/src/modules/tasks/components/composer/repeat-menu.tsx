@@ -1,4 +1,3 @@
-import { FOOTER_BUTTON_CLASS } from '@soonlane/app/tasks/helpers/composer-chip.constants'
 import type { RepeatInput } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -17,6 +16,7 @@ import {
 } from '@soonlane/ui/components/menu'
 import { X } from 'lucide-react'
 import { useState } from 'react'
+import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
 import { RepeatIcon } from './date-picker-icons'
 import { RepeatCustomForm } from './repeat-custom-form'
 

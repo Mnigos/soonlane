@@ -1,6 +1,6 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
+import { orpcQuery } from '../../../rpc-query.client'
 
 type TaskBucket = keyof ListTasksOutput
 
