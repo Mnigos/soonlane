@@ -37,7 +37,7 @@ A Stripe customer is created only at your first checkout, so a free account send
 
 When you buy Soonlane Pro through Link, [Stripe collects](https://link.com/privacy-center#sold-through-link) your name, email address, billing address, payment method details and transaction data (amount, date and tax) at checkout. Stripe is a controller of the data it collects through Link, under the [Link Privacy Policy](https://link.com/privacy).
 
-[Stripe shares order information](https://link.com/privacy-center#sold-through-link) (contact details, billing address and order details) with Soonlane so the order can be fulfilled, and Soonlane keeps it under this policy. That information stays in Soonlane's account at Stripe, where I can see it. Soonlane's own database stores only your Stripe customer id and the subscription's state (plan, status and the current billing period). Soonlane never receives or stores your card details.
+[Stripe shares order information](https://link.com/privacy-center#sold-through-link) (which may include contact information, payment information, billing address and order details) with Soonlane so the order can be fulfilled, and Soonlane keeps it under this policy. That information stays in Soonlane's account at Stripe, where I can see it, including limited payment details such as the card brand and the last four digits, but never the full card number. Soonlane's own database stores only your Stripe customer id and the subscription's state (plan, status and the current billing period), and no payment details.
 
 If you [ask Stripe to delete your data](https://link.com/privacy-center#sold-through-link), Stripe cancels your subscriptions sold through Link and tells Soonlane.
 
@@ -83,7 +83,7 @@ Deleting your account does not yet remove analytics data from PostHog automatica
 - **Neon** hosts the database in Frankfurt, Germany (AWS `eu-central-1`).
 - **Google** provides sign-in.
 - **PostHog** provides analytics in its EU region, as described above.
-- **Stripe and Link** ([Sold through Link, LLC](https://stripe.com/legal/ssa-service-terms), a Stripe company) sell Soonlane Pro as the merchant of record and handle checkout, payments and tax, as described above; free accounts send nothing to Stripe.
+- **Stripe and Link** ([Sold through Link, LLC](https://stripe.com/legal/ssa-service-terms), a Stripe company) sell Soonlane Pro as the merchant of record and handle checkout and payments, as described above; free accounts send nothing to Stripe.
 - **Cloudflare** provides DNS for soonlane.com and sits in front of the website, the web app and the API: every request your browser sends to soonlane.com or api.soonlane.com, including your IP address, passes through Cloudflare's network on its way to Railway.
 
 Some of these providers are based in the United States. When they handle data outside the European Union, they rely on the safeguards in their data processing terms.
