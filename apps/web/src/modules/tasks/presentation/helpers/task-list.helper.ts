@@ -1,10 +1,5 @@
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import type {
-	ListTasksByLabelInput,
-	ListTasksInput,
-	ListTasksOutput,
-	Task,
-} from '@soonlane/contracts'
+import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
 
 type TaskBucket = keyof ListTasksOutput
@@ -89,18 +84,15 @@ export function withTask(
 	return { ...list, [bucket]: [...tasks, task].toSorted(compareTasks) }
 }
 
-/** Where a task belongs in a list loaded for this range or label, as the server would place it. */
+/** Where a task belongs in a list loaded with these filters, as the server would place it. */
 export function placeTask(
 	task: Task,
-	input: ListTasksInput | ListTasksByLabelInput
+	{ today, from, to, labelId, projectId }: ListTasksInput
 ): TaskPlacement | undefined {
-	if ('labelId' in input && !task.labels.some(({ id }) => id === input.labelId))
-		return undefined
-	if (task.dueDate < input.today) return { bucket: 'overdue', task }
-	if (
-		!('from' in input) ||
-		(input.from <= task.dueDate && task.dueDate <= input.to)
-	)
+	if (labelId && !task.labels.some(({ id }) => id === labelId)) return undefined
+	if (projectId && task.project?.id !== projectId) return undefined
+	if (task.dueDate < today) return { bucket: 'overdue', task }
+	if (!from || !to || (from <= task.dueDate && task.dueDate <= to))
 		return { bucket: 'scheduled', task }
 
 	return undefined
@@ -119,31 +111,21 @@ export function withMovedTask(
 
 /** Takes a task out of every cached task list at once, returning where it sat for {@link restoreCachedTask}. */
 export async function removeCachedTask(queryClient: QueryClient, id: string) {
-	const listKeys = [
-		orpcQuery.tasks.list.key(),
-		orpcQuery.tasks.listByLabel.key(),
-	]
+	const queryKey = orpcQuery.tasks.list.key()
 
-	await Promise.all(
-		listKeys.map(
-			async queryKey => await queryClient.cancelQueries({ queryKey })
-		)
-	)
-	const removed = listKeys
-		.flatMap(queryKey =>
-			queryClient.getQueriesData<ListTasksOutput>({ queryKey })
-		)
+	await queryClient.cancelQueries({ queryKey })
+	const removed = queryClient
+		.getQueriesData<ListTasksOutput>({ queryKey })
 		.flatMap(([key, list]): CachedPlacement[] => {
 			const placement = list && findTaskPlacement(list, id)
 
 			return placement ? [{ key, placement }] : []
 		})
 
-	for (const queryKey of listKeys)
-		queryClient.setQueriesData<ListTasksOutput>(
-			{ queryKey },
-			list => list && withoutTask(list, id)
-		)
+	queryClient.setQueriesData<ListTasksOutput>(
+		{ queryKey },
+		list => list && withoutTask(list, id)
+	)
 
 	return removed
 }

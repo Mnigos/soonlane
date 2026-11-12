@@ -1,11 +1,14 @@
 import { ORPCError } from '@orpc/client'
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import type { ListTasksByLabelInput } from '@soonlane/contracts'
+import type { CalendarDate, LabelId } from '@soonlane/domain'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 
-export function useLabelTasksQuery(input: ListTasksByLabelInput) {
+export function useLabelTasksQuery(input: {
+	labelId: LabelId
+	today: CalendarDate
+}) {
 	const queryClient = useQueryClient()
-	const options = orpcQuery.tasks.listByLabel.queryOptions({ input })
+	const options = orpcQuery.tasks.list.queryOptions({ input })
 
 	return useQuery({
 		...options,

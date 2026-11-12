@@ -17,7 +17,7 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import { labelNotFound, labelSchema } from './labels.contract'
+import { labelSchema } from './labels.contract'
 import { projectNotFound, projectSchema } from './projects.contract'
 import { query } from './read-only.base'
 
@@ -52,31 +52,28 @@ export const taskSchema = z.object({
 })
 export type Task = z.infer<typeof taskSchema>
 
+/**
+ * The open tasks of one view. `today` splits them; `from` and `to` (both or neither) limit the scheduled ones to a range, and without
+ * them every task due from `today` on is scheduled. `labelId` and `projectId` keep the tasks with that label or in that project, and
+ * each one that is not the owner's fails with NOT_FOUND. Every filter given applies.
+ */
 export const listTasksInputSchema = z
 	.object({
-		from: calendarDateSchema,
-		to: calendarDateSchema,
 		today: calendarDateSchema,
+		from: calendarDateSchema.optional(),
+		to: calendarDateSchema.optional(),
+		labelId: labelIdSchema.optional(),
+		projectId: projectIdSchema.optional(),
 	})
-	.refine(({ from, to }) => from <= to, {
+	.refine(({ from, to }) => (from === undefined) === (to === undefined), {
+		path: ['to'],
+		message: 'A range needs both its start and its end.',
+	})
+	.refine(({ from, to }) => !from || !to || from <= to, {
 		path: ['to'],
 		message: 'The range must end on or after its start.',
 	})
 export type ListTasksInput = z.infer<typeof listTasksInputSchema>
-
-export const listTasksByLabelInputSchema = z.object({
-	labelId: labelIdSchema,
-	today: calendarDateSchema,
-})
-export type ListTasksByLabelInput = z.infer<typeof listTasksByLabelInputSchema>
-
-export const listTasksByProjectInputSchema = z.object({
-	projectId: projectIdSchema,
-	today: calendarDateSchema,
-})
-export type ListTasksByProjectInput = z.infer<
-	typeof listTasksByProjectInputSchema
->
 
 export const listTasksOutputSchema = z.object({
 	overdue: z.array(taskSchema),
@@ -223,6 +220,11 @@ export const logProgressOutputSchema = z.object({
 })
 export type LogProgressOutput = z.infer<typeof logProgressOutputSchema>
 
+/** The server sends the label's or the project's own message. */
+const listFilterNotFound = {
+	message: 'This label or project no longer exists.',
+}
+
 const taskErrors = {
 	...authErrors,
 	NOT_FOUND: { message: 'This task no longer exists.' },
@@ -230,16 +232,8 @@ const taskErrors = {
 
 export const tasksContract = {
 	list: query
-		.errors(authErrors)
+		.errors({ ...authErrors, NOT_FOUND: listFilterNotFound })
 		.input(listTasksInputSchema)
-		.output(listTasksOutputSchema),
-	listByLabel: query
-		.errors({ ...authErrors, NOT_FOUND: labelNotFound })
-		.input(listTasksByLabelInputSchema)
-		.output(listTasksOutputSchema),
-	listByProject: query
-		.errors({ ...authErrors, NOT_FOUND: projectNotFound })
-		.input(listTasksByProjectInputSchema)
 		.output(listTasksOutputSchema),
 	create: oc
 		.errors({ ...authErrors, NOT_FOUND: projectNotFound })

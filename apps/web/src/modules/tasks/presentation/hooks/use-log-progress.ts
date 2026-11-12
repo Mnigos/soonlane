@@ -16,10 +16,7 @@ import {
 
 export function useLogProgress(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const listKeys = [
-		orpcQuery.tasks.list.key(),
-		orpcQuery.tasks.listByLabel.key(),
-	]
+	const listKey = orpcQuery.tasks.list.key()
 	const mutationKey = orpcQuery.tasks.logProgress.mutationKey()
 	const undoCallbacks = getUndoCallbacks(queryClient, today)
 	const uncomplete = useMutation(
@@ -32,14 +29,11 @@ export function useLogProgress(today: CalendarDate) {
 	const { mutate } = useMutation(
 		orpcQuery.tasks.logProgress.mutationOptions({
 			onMutate: async ({ id, amount }) => {
-				await Promise.all(
-					listKeys.map(
-						async queryKey => await queryClient.cancelQueries({ queryKey })
-					)
-				)
+				await queryClient.cancelQueries({ queryKey: listKey })
 
-				for (const queryKey of listKeys)
-					queryClient.setQueriesData<ListTasksOutput>({ queryKey }, list => {
+				queryClient.setQueriesData<ListTasksOutput>(
+					{ queryKey: listKey },
+					list => {
 						const task = list && findTaskPlacement(list, id)?.task
 
 						if (!list || !task?.goal) return list
@@ -53,7 +47,8 @@ export function useLogProgress(today: CalendarDate) {
 						return progress >= goal.target
 							? withoutTask(list, id)
 							: withUpdatedTask(list, { ...task, goal: { ...goal, progress } })
-					})
+					}
+				)
 			},
 			// No snapshot to restore: it would drop newer logs; the refetch below brings the server's progress.
 			onError: error =>

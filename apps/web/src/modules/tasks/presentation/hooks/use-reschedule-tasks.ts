@@ -8,6 +8,7 @@ import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.h
 import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
+	placeTask,
 	withoutTask,
 	withTask,
 } from '../helpers/task-list.helper'
@@ -38,16 +39,13 @@ export function useRescheduleTasks() {
 
 				for (const { key, list } of lists) {
 					const input = getListInput(key)
-					const shown =
-						input && input.from <= dueDate && dueDate <= input.to
-							? [...moved.values()]
-							: []
+					const shown = input
+						? [...moved.values()].flatMap(task => placeTask(task, input) ?? [])
+						: []
 
 					queryClient.setQueryData<ListTasksOutput>(
 						key,
-						shown
-							.map(task => ({ bucket: 'scheduled' as const, task }))
-							.reduce(withTask, ids.reduce(withoutTask, list))
+						shown.reduce(withTask, ids.reduce(withoutTask, list))
 					)
 				}
 
@@ -66,9 +64,6 @@ export function useRescheduleTasks() {
 			onSettled: async () =>
 				await Promise.all([
 					queryClient.invalidateQueries({ queryKey: listKey }),
-					queryClient.invalidateQueries({
-						queryKey: orpcQuery.tasks.listByLabel.key(),
-					}),
 					queryClient.invalidateQueries({
 						queryKey: orpcQuery.tasks.search.key(),
 					}),
