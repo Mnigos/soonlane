@@ -131,12 +131,8 @@ export default defineConfig({
 	},
 	overrides: [
 		{
-			// Brands are cast here and nowhere else (soonlane/no-brand-cast).
-			files: [
-				'packages/domain/src/**',
-				'packages/contracts/src/calendar-date.schemas.ts',
-				'packages/contracts/src/ids.schemas.ts',
-			],
+			// The one brand cast, in fromUtcDate (soonlane/no-brand-cast).
+			files: ['packages/domain/src/dates/calendar-date.helper.ts'],
 			rules: { 'typescript/no-unsafe-type-assertion': 'off' },
 		},
 		{

@@ -1,3 +1,3 @@
-import type { Brand } from '../shared/brand.types'
+import type { $brand } from 'zod'
 
-export type LabelId = Brand<string, 'label_id'>
+export type LabelId = string & $brand<'LabelId'>

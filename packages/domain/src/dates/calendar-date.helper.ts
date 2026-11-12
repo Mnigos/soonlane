@@ -1,4 +1,3 @@
-import { toCalendarDate } from './calendar-date-brand.helper'
 import type { CalendarDate } from './calendar-date.types'
 import {
 	DATE_LOCALE,
@@ -13,8 +12,21 @@ function toUtcDate(date: CalendarDate) {
 	return new Date(`${date}T00:00:00Z`)
 }
 
+/** The one place a string becomes a `CalendarDate` (soonlane/no-brand-cast): every date the package computes comes back through here. */
 function fromUtcDate(date: Date) {
-	return toCalendarDate(date.toISOString().slice(0, 10))
+	return date.toISOString().slice(0, 10) as CalendarDate
+}
+
+/** The day `day` of month `month` (0 for January) in `year`, overflowing into the next months like `Date.UTC`, but taking years 0 to 99 as written. */
+export function getCalendarDate(
+	year: number,
+	month: number,
+	day: number
+): CalendarDate {
+	const date = new Date(0)
+	date.setUTCFullYear(year, month, day)
+
+	return fromUtcDate(date)
 }
 
 function formatUtc(date: CalendarDate, options: Intl.DateTimeFormatOptions) {
@@ -35,7 +47,11 @@ export function getToday(now: Date, timeZone?: string): CalendarDate {
 	const part = (type: Intl.DateTimeFormatPartTypes) =>
 		parts.find(entry => entry.type === type)?.value ?? ''
 
-	return toCalendarDate(`${part('year')}-${part('month')}-${part('day')}`)
+	return getCalendarDate(
+		Number(part('year')),
+		Number(part('month')) - 1,
+		Number(part('day'))
+	)
 }
 
 /** The instant the day starts in the runtime's time zone (the browser's for the user). */
@@ -132,7 +148,7 @@ export function isWeekend(date: CalendarDate) {
 }
 
 export function getMonthStart(date: CalendarDate): CalendarDate {
-	return toCalendarDate(`${date.slice(0, 7)}-01`)
+	return addDays(date, 1 - getDayOfMonth(date))
 }
 
 export function addMonths(monthStart: CalendarDate, months: number) {

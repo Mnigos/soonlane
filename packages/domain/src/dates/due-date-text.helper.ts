@@ -1,6 +1,6 @@
-import { toCalendarDate } from './calendar-date-brand.helper'
 import {
 	addDays,
+	getCalendarDate,
 	getDaysInMonth,
 	getWeekdayIndex,
 	isBefore,
@@ -45,9 +45,7 @@ const SPACES_PATTERN = /\s+/gu
 function toDate(year: number, month: number, day: number) {
 	if (month < 0 || month >= MONTHS.length) return undefined
 
-	const monthStart = toCalendarDate(
-		`${year}-${String(month + 1).padStart(2, '0')}-01`
-	)
+	const monthStart = getCalendarDate(year, month, 1)
 	if (day < 1 || day > getDaysInMonth(monthStart)) return undefined
 
 	return addDays(monthStart, day - 1)
