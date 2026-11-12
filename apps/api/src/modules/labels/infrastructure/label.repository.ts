@@ -1,6 +1,7 @@
 import { label, task, taskLabel } from '@soonlane/db'
 import { and, count, eq, isNull } from 'drizzle-orm'
 import { Effect, Layer } from 'effect'
+import { ownedBy } from '@/modules/tasks/infrastructure/owned-tasks.query'
 import { Db } from '@/platform/db/db.layer'
 import { LabelRepository } from '../application/label-repository.port'
 import { labelOrder } from './label-order.query'
@@ -22,7 +23,7 @@ export const DrizzleLabelRepositoryLive = Layer.effect(
 							task,
 							and(
 								eq(task.id, taskLabel.taskId),
-								eq(task.ownerId, ownerId),
+								ownedBy(ownerId),
 								isNull(task.completedAt)
 							)
 						)

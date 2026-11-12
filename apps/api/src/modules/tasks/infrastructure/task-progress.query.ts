@@ -2,6 +2,7 @@ import { task } from '@soonlane/db'
 import { and, eq, getColumns, isNotNull, sql } from 'drizzle-orm'
 import type { Database } from '@/platform/db/db.layer'
 import type { ProgressLog } from '../application/task-repository.port'
+import { ownedBy } from './owned-tasks.query'
 
 /** One statement on the row locked as `before`: concurrent logs never lose an increment and `logged` is what this log applied. */
 export async function updateProgress(
@@ -17,13 +18,7 @@ export async function updateProgress(
 				completedAt: task.completedAt,
 			})
 			.from(task)
-			.where(
-				and(
-					eq(task.ownerId, ownerId),
-					eq(task.id, id),
-					isNotNull(task.goalTarget)
-				)
-			)
+			.where(and(ownedBy(ownerId), eq(task.id, id), isNotNull(task.goalTarget)))
 			.for('update')
 	)
 	const progress = sql<number>`least(greatest(${before.progress} + ${amount}, 0), ${task.goalTarget})`
@@ -49,9 +44,7 @@ export async function updateProgress(
 				end`,
 		})
 		.from(before)
-		.where(
-			and(eq(task.ownerId, ownerId), eq(task.id, id), eq(task.id, before.id))
-		)
+		.where(and(ownedBy(ownerId), eq(task.id, id), eq(task.id, before.id)))
 		.returning({
 			...getColumns(task),
 			logged: sql<number>`${progress} - ${before.progress}`,

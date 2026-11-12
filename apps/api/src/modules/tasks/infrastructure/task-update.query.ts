@@ -2,11 +2,8 @@ import type { GoalInput, UpdateTaskOutput } from '@soonlane/contracts'
 import { task, taskLabel } from '@soonlane/db'
 import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { and, eq, notInArray } from 'drizzle-orm'
-import type { Database } from '@/platform/db/db.layer'
 import type { TaskUpdate } from '../application/task-repository.port'
-import { assignLabels, withLabels } from './task-labels.query'
-
-type Transaction = Pick<Database, 'delete' | 'insert' | 'select' | 'update'>
+import { ownedBy, ownedTasks, type Queries } from './owned-tasks.query'
 
 /** An absent goal keeps the columns (but the progress of a task that moves on); null clears them; a new target clamps the progress, or resets it when the task moves on. */
 function getGoalColumns(
@@ -37,7 +34,7 @@ function isGoalReached(
 
 /** Replaces the task's labels with the owner's labels among `labelIds`. */
 async function replaceLabels(
-	transaction: Transaction,
+	transaction: Queries,
 	{
 		ownerId,
 		id,
@@ -49,7 +46,7 @@ async function replaceLabels(
 		.where(
 			and(eq(taskLabel.taskId, id), notInArray(taskLabel.labelId, labelIds))
 		)
-	await assignLabels(transaction, ownerId, id, labelIds)
+	await ownedTasks(transaction, ownerId).assignLabels(id, labelIds)
 }
 
 /** What Undo restores: the goal and progress before the edit, and the due date it completed on. */
@@ -73,7 +70,7 @@ function getCompleted(
  * progress, any other gets `completedAt`. So no open task sits at its target after an edit.
  */
 export async function updateTask(
-	transaction: Transaction,
+	transaction: Queries,
 	{
 		ownerId,
 		id,
@@ -89,7 +86,7 @@ export async function updateTask(
 		editedAt,
 	}: TaskUpdate
 ): Promise<UpdateTaskOutput | undefined> {
-	const where = and(eq(task.ownerId, ownerId), eq(task.id, id))
+	const where = and(ownedBy(ownerId), eq(task.id, id))
 	const [previous] = await transaction
 		.select({
 			progress: task.goalProgress,
@@ -126,7 +123,7 @@ export async function updateTask(
 	if (!row) return undefined
 	if (labelIds) await replaceLabels(transaction, { ownerId, id, labelIds })
 
-	const [updated] = await withLabels(transaction, ownerId, [row])
+	const [updated] = await ownedTasks(transaction, ownerId).withLabels([row])
 
 	return (
 		updated && {

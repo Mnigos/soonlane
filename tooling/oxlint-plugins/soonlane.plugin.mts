@@ -16,6 +16,7 @@ import { noLetRule } from './no-let.rule.mts'
 import { noRepositoryTryCatchRule } from './no-repository-try-catch.rule.mts'
 import { propsWithChildrenRule } from './props-with-children.rule.mts'
 import { redactedSecretConfigRule } from './redacted-secret-config.rule.mts'
+import { taskOwnerScopeRule } from './task-owner-scope.rule.mts'
 import { typeParamPrefixRule } from './type-param-prefix.rule.mts'
 
 export default definePlugin({
@@ -38,6 +39,7 @@ export default definePlugin({
 		'no-repository-try-catch': noRepositoryTryCatchRule,
 		'props-with-children': propsWithChildrenRule,
 		'redacted-secret-config': redactedSecretConfigRule,
+		'task-owner-scope': taskOwnerScopeRule,
 		'type-param-prefix': typeParamPrefixRule,
 	},
 })
