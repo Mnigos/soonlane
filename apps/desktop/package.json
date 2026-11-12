@@ -8,15 +8,31 @@
     "dev:applications": "APP_URL=http://localhost:3000 bunx --bun electrobun build --env=dev && rm -rf /Applications/Soonlane-dev.app && cp -R build/dev-macos-arm64/Soonlane-dev.app /Applications/ && /Applications/Soonlane-dev.app/Contents/MacOS/launcher",
     "package": ": \"${APP_URL:?set APP_URL to the web app URL the build should load}\" && bunx --bun electrobun build --env=stable",
     "sdk": "bunx --bun electrobun prepare",
-    "typecheck": "bun run sdk && tsc --noEmit"
+    "typecheck": "bun run sdk && tsc --noEmit",
+    "spike:view": "bun x --bun vite build --config spike/view/vite.config.ts",
+    "spike": "SPIKE_MAIN=1 bun x --bun electrobun dev"
   },
   "dependencies": {
     "@soonlane/auth": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
+    "@orpc/client": "catalog:",
+    "@soonlane/app": "workspace:*",
+    "@soonlane/domain": "workspace:*",
+    "@soonlane/tailwind-config": "workspace:*",
     "@soonlane/typescript-config": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "electrobun": "2.0.6",
-    "typescript": "catalog:"
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

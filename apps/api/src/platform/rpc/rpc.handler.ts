@@ -27,7 +27,14 @@ export function createRpcHandler(
 		const origin = request.headers.get('origin')
 
 		try {
-			if (origin && !trustedOrigins.includes(origin))
+			if (
+				origin &&
+				!trustedOrigins.includes(origin) &&
+				// SPIKE SOON-141: the bundled desktop page.
+				!(process.env.SPIKE_BUNDLED_ORIGINS ?? 'views://app')
+					.split(',')
+					.includes(origin)
+			)
 				return new Response('Forbidden', { status: 403 })
 
 			const { context, setCookies } = await buildContext(request)

@@ -9,6 +9,7 @@ import {
 	isAPIError,
 } from 'better-auth/api'
 import { symmetricDecrypt } from 'better-auth/crypto'
+import { bearer } from 'better-auth/plugins'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { canSignUp } from './auth-policy.helper'
 import { DESKTOP_EXCHANGE_PATH, desktopSignIn } from './desktop-sign-in.handler'
@@ -272,6 +273,8 @@ export function createAuth(options: CreateAuthOptions) {
 			},
 		},
 		plugins: [
+			// SPIKE SOON-141: SPIKE_BEARER_UNSIGNED=1 turns requireSignature off to compare.
+			bearer({ requireSignature: process.env.SPIKE_BEARER_UNSIGNED !== '1' }),
 			desktopSignIn(),
 			returnAddresses(options.trustedOrigins),
 			...(options.todoist ? [todoistLink(options.todoist)] : []),

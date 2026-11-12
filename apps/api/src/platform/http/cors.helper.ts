@@ -42,6 +42,16 @@ function forbidden() {
  * handler, whose own origin checks stay on; a provider that returned with a `form_post` would carry
  * Google's origin and be refused.
  */
+/** SPIKE SOON-141: origins of pages bundled in the desktop app; no credentials, `authorization` allowed. */
+const BUNDLED_ORIGINS = (
+	process.env.SPIKE_BUNDLED_ORIGINS ?? 'views://app'
+).split(',')
+const BUNDLED_PREFLIGHT_HEADERS = {
+	'access-control-allow-methods': 'GET, POST',
+	'access-control-allow-headers': 'authorization, content-type',
+	'access-control-max-age': String(PREFLIGHT_MAX_AGE_S),
+}
+
 export function withCors(
 	context: Context.Context<never>,
 	trustedOrigins: readonly string[],
@@ -50,6 +60,38 @@ export function withCors(
 	return async (request: Request) => {
 		const origin = request.headers.get('origin')
 		const isPreflight = request.method === 'OPTIONS'
+
+		console.log(
+			'[spike] %s %s origin=%s sec-fetch-site=%s authorization=%s cookie=%s acr-headers=%s',
+			request.method,
+			new URL(request.url).pathname,
+			JSON.stringify(origin),
+			request.headers.get('sec-fetch-site'),
+			request.headers.has('authorization'),
+			request.headers.has('cookie'),
+			request.headers.get('access-control-request-headers')
+		)
+
+		if (origin !== null && BUNDLED_ORIGINS.includes(origin)) {
+			const bundledHeaders = {
+				'access-control-allow-origin': origin,
+				vary: 'Origin',
+			}
+
+			if (isPreflight)
+				return new Response(null, {
+					status: 204,
+					headers: { ...bundledHeaders, ...BUNDLED_PREFLIGHT_HEADERS },
+				})
+
+			const response = await handleOrFail(context, handle, request)
+			const answer = new Response(response.body, response)
+
+			answer.headers.set('access-control-allow-origin', origin)
+			answer.headers.append('vary', 'Origin')
+
+			return answer
+		}
 
 		if (origin === null && !isPreflight) return await handle(request)
 		if (origin === null || !trustedOrigins.includes(origin)) return forbidden()

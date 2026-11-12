@@ -68,6 +68,9 @@ export default defineConfig({
 		'**/.output',
 		'**/routeTree.gen.ts',
 		'packages/db/migrations/**',
+		// SPIKE SOON-141: throwaway code on the spike branch only.
+		'apps/desktop/spike/**',
+		'apps/desktop/src/platform/electrobun/spike-main.ts',
 	],
 	jsPlugins: ['./tooling/oxlint-plugin/soonlane.plugin.mts'],
 	options: { typeAware: true },

@@ -52,7 +52,10 @@ export function withClientIp(
 			return reject(403)
 		}
 
-		const ip = secret === null ? resolveEdgeIp(headers) : visitorIp
+		// SPIKE SOON-141: no Railway edge locally.
+		const ip =
+			(secret === null ? resolveEdgeIp(headers) : visitorIp) ??
+			process.env.SPIKE_FALLBACK_IP
 
 		if (!ip) return reject(400)
 		headers.set(CLIENT_IP_HEADER, ip)
