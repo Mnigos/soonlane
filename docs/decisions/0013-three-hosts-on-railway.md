@@ -2,6 +2,7 @@
 
 **Status:** Proposed
 **Date:** 2026-11-11
+**Updated:** 2026-11-12
 
 ## Context
 
@@ -78,6 +79,18 @@ Stage 1 shipped the shared session as follows; it replaces the Session cookie, A
 - **API access.** The browser calls the API host directly (`VITE_API_URL`); the web app's `/api/auth` and `/api/rpc` forwarders are gone. The API's HTTP entry answers CORS for `/api/auth` and `/api/rpc` only for the exact origins in `TRUSTED_ORIGINS` and refuses every other `Origin` with 403, the API's own included. Google returns to `https://api.soonlane.com/api/auth/callback/google`. Return addresses must be absolute URLs on a trusted web origin, and `/sign-in/social` needs one in its body; Better Auth's errors go to the web `/login`.
 - **Staging trust boundary.** Production's cookies are set on `Domain=soonlane.com`, so the browser sends them to every staging host too: the staging API receives a production session token on every browser call from someone signed in to production. Staging's Better Auth cannot use it, since it has its own `AUTH_SECRET` and reads only cookies with its own prefix. The staging web server forwards only its own session and consent cookies (`soonlane-staging.<name>`, `__Secure-soonlane-staging.<name>`, by exact name) to the API, but that covers server rendering only, not the browser's direct calls. Code deployed to staging could copy the token and use it against production, so staging runs only trusted refs, deployed by the team, and the API never logs the cookie header. A staging page can also read production's non-HttpOnly hint and consent cookies in the browser, which is accepted on the same terms.
 - **No backward compatibility** (Igor, 2026-11-11). Old host-only cookies are not deleted; they expire on their own and no longer match any name the app reads. Everyone signs in once more and answers the consent banner again. Calendar links on `soonlane.com` stop working, and the old URLs get no redirect.
+
+## Update 2026-11-12 (SOON-124)
+
+Igor changed the order of stages 2 and 3 and the shape of stage 3 on 2026-11-12; this replaces the Stages list and the landing and robots points of the Consequences where they differ.
+
+- **The whole site moves before the data.** `apps/web` builds one Bun server for the landing, the blog, the changelog, the legal pages and the app under `/app`, and runs as the Railway service `web` on `soonlane.com` and `staging.soonlane.com`. The app keeps `/app` until it moves to `app.soonlane.com` ([SOON-126](https://linear.app/rigtch/issue/SOON-126)); a static landing ([SOON-128](https://linear.app/rigtch/issue/SOON-128)) becomes an optimisation, not a step out of Vercel.
+- **Vercel leaves the repository in the same change**, with no compatibility kept. Production switches once, the API and the site together, when Igor points DNS at Railway. Pointing DNS back at Vercel's last build is the way back while no migration lands.
+- **The database stays on Neon** until [SOON-123](https://linear.app/rigtch/issue/SOON-123); both services in Amsterdam query it in Frankfurt.
+- **The site keeps a server**, so `/robots.txt` stays rendered per request and `/ingest` stays on the web server.
+- **Build variables.** The environment name and the blog's draft filter come from `APP_ENV`, the commit from `RAILWAY_GIT_COMMIT_SHA` or, for `railway up`, from `commit.env`; a production build still leaves drafts out.
+- **Server rendering** calls the API on Railway's private network (`http://api.railway.internal:8080`), and the visitor IP it forwards follows the API's own rule: Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge. The API listens on both IP stacks.
+- **DNS.** `soonlane.com` is proxied by Cloudflare with SSL mode Full, like `api.soonlane.com`; `www.soonlane.com` reaches it through a Cloudflare redirect rule, not code.
 
 ## Options considered
 
