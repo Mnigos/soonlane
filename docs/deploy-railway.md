@@ -1,21 +1,25 @@
 # Deploy on Railway
 
-The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`, with one replica in Amsterdam (`europe-west4-drams3a`). Two environments: `production` at https://api.soonlane.com and `staging` at https://api.staging.soonlane.com ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). It serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`). The web app (`apps/web`) is a Bun server whose pages call this host from the browser with credentials and from SSR with the proxy secret ([Web app](#web-app)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
+Soonlane runs as two services in the Railway project `Soonlane`, each with one replica in Amsterdam (`europe-west4-drams3a`), in two environments ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). `api` (`apps/api`) serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`) at https://api.soonlane.com and https://api.staging.soonlane.com. `web` (`apps/web`) is a Bun server for the landing, the blog, the changelog, the legal pages and the app under `/app` at https://soonlane.com and https://staging.soonlane.com; its pages call the API from the browser with credentials and from server rendering over the private network with the proxy secret ([Web app](#web-app)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
 
 ## Configuration
 
-`.railway/railway.ts` defines the service for both environments: Railpack builds from the repository root (`bun install --frozen-lockfile`, Bun 1.4.2 from `packageManager`), runs `bun run --cwd apps/api build`, runs the migrator as the pre-deploy command (below) and starts `bun apps/api/dist/main.js`. Railway calls `GET /health` until it answers 2xx before it switches traffic, and gives the old deployment 30 seconds after SIGTERM: the API stops accepting requests, waits up to 15 seconds for those in flight, flushes queued analytics events and closes the database pool (`apps/api/src/main.ts`).
+`.railway/railway.ts` defines both services for both environments. For `api`, Railpack builds from the repository root (`bun install --frozen-lockfile`, Bun 1.4.2 from `packageManager`), runs `bun run --cwd apps/api build`, runs the migrator as the pre-deploy command (below) and starts `bun apps/api/dist/main.js`. Railway calls `GET /health` until it answers 2xx before it switches traffic, and gives the old deployment 30 seconds after SIGTERM: the API stops accepting requests, waits up to 15 seconds for those in flight, flushes queued analytics events and closes the database pool (`apps/api/src/main.ts`). The API listens on `::`, so the private network reaches it over IPv6 as well as IPv4.
 
-Railway reads the file only when someone applies it, never during a deploy. After changing it, from a directory linked to the project:
+For `web`, Railpack runs `bun run --cwd apps/web build`, which ends by checking the built server, and starts `bun apps/web/.output/server/index.mjs` with `CI` unset, because Railpack sets `CI=true` at run time and the server then skips its graceful shutdown. Railway calls its `GET /health`, which needs neither the API nor the database. On SIGTERM the server stops accepting connections and waits up to 15 seconds (`SERVER_SHUTDOWN_TIMEOUT`) for requests in flight, then closes them within 5 more; the 30 seconds of draining cover both.
+
+Railway reads the file only when someone applies it, never during a deploy. After changing it, from a directory linked to the project, with the CLI installed as `railway` (`bun add -g @railway/cli@5.71.0`):
 
 ```sh
-bunx @railway/cli config plan --file <repo>/.railway/railway.ts --environment staging
-bunx @railway/cli config apply --file <repo>/.railway/railway.ts --environment staging
+railway config plan --file <repo>/.railway/railway.ts --environment staging
+railway config apply --file <repo>/.railway/railway.ts --environment staging
 ```
 
-and the same for `production`. The file exports `partial = 'soonlane'`, so an apply touches only what the file declares: staging's Postgres, not production's, and nothing created by hand. Every variable of the service is managed by the file: a variable the file does not declare is deleted on apply, unless the file marks it `preserve()`. Custom domains must exist in Railway before the file can declare them (`railway domain <host> --port 8080`).
+and the same for `production`. Run the binary itself, not `bunx @railway/cli`: `railway/iac` checks the CLI version by running `$_ --version`, which under `bunx` is Bun, and refuses the file. The file exports `partial = 'soonlane'`, so an apply touches only what the file declares: staging's Postgres, not production's, and nothing created by hand. Every variable of the service is managed by the file: a variable the file does not declare is deleted on apply, unless the file marks it `preserve()`. Custom domains must exist in Railway before the file can declare them (`railway domain <host> --service <service> --environment <environment> --port 8080`), and a service must exist before its domain; both services exist in both environments now.
 
 ## Variables
+
+The `api` service:
 
 | Variable          | Production                 | Staging                            |
 | ----------------- | -------------------------- | ---------------------------------- |
@@ -59,6 +63,8 @@ What the server sends:
 | `PORT`                    | run     | set by the service         | set by the service                 | 3000                    |
 
 `APP_ENV` names the analytics `environment`, and a `production` build leaves drafts and future posts out of the blog ([blog.md](blog.md)). A `production` or `staging` build fails when `VITE_API_URL` or `VITE_AUTH_COOKIE_PREFIX` is missing, naming it: without them the pages call no API and look signed out. Development falls back to `soonlane-dev`, which matches no deployed environment. The `VITE_*` values are public and baked into the bundle, so a change needs a new build. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys, else from `APP_COMMIT` in `apps/web/commit.env`, which the staging workflow writes like the API's, else `dev`.
+
+`.railway/railway.ts` sets these too. `API_PROXY_SECRET` is a reference to the `api` service's variable, so each environment's secret is entered once, on `api`; `VITE_POSTHOG_KEY` is `preserve()`, entered by hand.
 
 `API_INTERNAL_URL` is where server rendering reaches the API, read per request, so the prerender needs neither it nor the secret; a missing one fails the first request that calls the API. It must be https, except on Railway's private network (a host ending in `.railway.internal`, plain http inside one environment) and in development. With `API_PROXY_SECRET` the API trusts the visitor IP the web server sends in `x-soonlane-visitor-ip`: Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge (`resolveEdgeIp`, the rule the API applies to its own requests, see [Client IP](#client-ip)). The `/ingest` proxy sends PostHog the same address.
 
@@ -113,20 +119,24 @@ A deploy replaces the API before the web app, so for a few minutes a page loaded
 
 ## Staging
 
-Staging has no repository connected, so a push deploys nothing. To deploy a branch, tag or commit, run the **Deploy staging** workflow (Actions, or `gh workflow run deploy-staging.yml -f ref=<ref>`). It checks out the ref, writes its commit into `apps/api/commit.env`, runs `railway up` with the `RAILWAY_TOKEN_STAGING` secret and waits until the deployment passes its health check. Then:
+Staging has no repository connected, so a push deploys nothing. To deploy a branch, tag or commit, run the **Deploy staging** workflow (Actions, or `gh workflow run deploy-staging.yml -f ref=<ref>`). It checks out the ref, writes its commit into `apps/api/commit.env` and `apps/web/commit.env`, and runs `railway up` with the `RAILWAY_TOKEN_STAGING` secret for `api`, then for `web`, waiting each time until the deployment passes its health check, so the web app never calls an API older than itself. Then:
 
 ```sh
 curl https://api.staging.soonlane.com/health
 # {"ok":true,"environment":"staging","commit":"<sha>"}
+curl https://staging.soonlane.com/health
+# {"ok":true,"environment":"staging","commit":"<short sha>"}
+curl https://staging.soonlane.com/robots.txt
+# User-agent: * and Disallow: /
 ```
 
 ## Production
 
-Production builds `main` through Railway's GitHub connection with **Wait for CI**: Railway holds each push to `main` until the CI workflow on that commit has finished, skips the deploy if it failed, and deploys only when a watched path changed (`apps/api`, the `analytics`, `auth`, `contracts`, `db` and `domain` packages, `version.json`, `tooling/typescript-config`, the root `package.json`, `bun.lock`, `bunfig.toml`). Nothing else deploys production; never run `railway up` against it.
+Production builds `main` through Railway's GitHub connection with **Wait for CI**: Railway holds each push to `main` until the CI workflow on that commit has finished, skips the deploy if it failed, and deploys a service only when one of its watched paths changed. `api` watches `apps/api`, the `analytics`, `auth`, `contracts`, `db` and `domain` packages, `version.json`, `tooling/typescript-config`, the root `package.json`, `bun.lock` and `bunfig.toml`. `web` watches `apps/web`, the `analytics`, `auth`, `contracts`, `domain` and `ui` packages, `tooling/tailwind-config`, `tooling/typescript-config`, `version.json`, `CHANGELOG.md`, the root `package.json`, `bun.lock` and `bunfig.toml`. A change to one app alone deploys only that service; a shared package deploys both, each on its own, so for a few minutes either may be newer than the other. Nothing else deploys production; never run `railway up` against it.
 
 ## DNS
 
-Records in Cloudflare (`soonlane.com` zone). `api.soonlane.com` is proxied, with SSL mode Full (not Full (strict)); `api.staging.soonlane.com` stays DNS only, since Cloudflare's universal certificate does not cover a host two levels deep. Nothing depends on Railway's generated `*.up.railway.app` host: the deploy health check runs inside Railway and the staging workflow reads the deployment status.
+Records in Cloudflare (`soonlane.com` zone), with SSL mode Full (not Full (strict)) for the zone. The production hosts are proxied: Cloudflare flattens the apex CNAME, and its edge compresses and terminates TLS in front of Railway. The staging hosts stay DNS only, like `api.staging.soonlane.com`, which Cloudflare's universal certificate does not cover because it sits two levels deep. `www.soonlane.com` is not a Railway domain: a proxied record for `www` and a Cloudflare redirect rule send it to the apex, so no code handles it. Nothing depends on Railway's generated `*.up.railway.app` host: the deploy health check runs inside Railway and the staging workflow reads the deployment status.
 
 | Host                       | Type  | Name                          | Value                                                                  | Proxy     |
 | -------------------------- | ----- | ----------------------------- | ---------------------------------------------------------------------- | --------- |
@@ -134,3 +144,40 @@ Records in Cloudflare (`soonlane.com` zone). `api.soonlane.com` is proxied, with
 | `api.soonlane.com`         | TXT   | `_railway-verify.api`         | `railway-verify=…` (`railway domain status api.soonlane.com`)          | DNS only  |
 | `api.staging.soonlane.com` | CNAME | `api.staging`                 | `8jedkcb7.up.railway.app`                                              | DNS only  |
 | `api.staging.soonlane.com` | TXT   | `_railway-verify.api.staging` | `railway-verify=…` (`railway domain status api.staging.soonlane.com`)  | DNS only  |
+| `soonlane.com`             | CNAME | `@`                           | the target `railway domain soonlane.com` prints                        | Proxied   |
+| `soonlane.com`             | TXT   | `_railway-verify`             | `railway-verify=…` (`railway domain status soonlane.com`)              | DNS only  |
+| `www.soonlane.com`         | CNAME | `www`                         | `soonlane.com`                                                         | Proxied   |
+| `staging.soonlane.com`     | CNAME | `staging`                     | `xb4shabo.up.railway.app`                                              | DNS only  |
+| `staging.soonlane.com`     | TXT   | `_railway-verify.staging`     | `railway-verify=…` (`railway domain status staging.soonlane.com`)      | DNS only  |
+
+The `www` redirect rule (Rules, Redirect Rules): when the hostname equals `www.soonlane.com`, redirect to the dynamic URL `concat("https://soonlane.com", http.request.uri.path)` with status 301, preserving the query string.
+
+## Cutover
+
+Igor's steps, in order. Each one says how to check it. Variable and record values never go into the repository, a ticket or a chat.
+
+1. **Staging secrets** on the `api` service in `staging`: `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: `railway variables --service api --environment staging --json | jq 'keys'` lists the names.
+2. **Staging DNS**: the `staging` and `api.staging` CNAMEs and their `_railway-verify` TXT records from the table. Check: `railway domain status staging.soonlane.com` and `railway domain status api.staging.soonlane.com` report the domain verified and the certificate issued.
+3. **Staging deploy**: run **Deploy staging** with the ref to test. Check: the curl commands under [Staging](#staging), then sign in on https://staging.soonlane.com and open `/app`.
+4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (Neon `main`, direct), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
+5. **Production domain for the site**: `railway domain soonlane.com --service web --environment production --port 8080`, which prints the CNAME target and the TXT value.
+6. **The one apply**: `railway config apply --file .railway/railway.ts --environment production` after the PRs are on `main`. It sets the variables, the health checks and the GitHub source of `web`, and Railway then deploys `main`. Check: `railway config plan --environment production` reports the configuration up to date, and `railway deployment list --service web --environment production` and the same for `api` show a successful deployment.
+7. **Railway's GitHub app** must have access to `Mnigos/soonlane`, or step 6 creates a source that never deploys. Check: the deployments in step 6.
+8. **Production DNS**: the apex CNAME and its TXT, the `api` CNAME and its TXT from the table, the proxied `www` record and the redirect rule, SSL mode Full. Check:
+
+```sh
+curl https://soonlane.com/health
+# {"ok":true,"environment":"production","commit":"<short sha>"}
+curl -sI https://soonlane.com/ | grep -i -E '^HTTP|^server|x-vercel-id'
+# 200, server: cloudflare, no x-vercel-id
+curl -sI https://www.soonlane.com/blog | grep -i -E '^HTTP|^location'
+# 301 to https://soonlane.com/blog
+curl https://soonlane.com/robots.txt
+# Allow: / and Sitemap: https://soonlane.com/sitemap.xml
+curl https://api.soonlane.com/health
+# {"ok":true,"environment":"production","commit":"<sha>"}
+```
+
+Then sign in on https://soonlane.com, open `/app`, add and complete a task, and check that the Mac app still loads.
+
+**Going back**: point the apex and `www` records at Vercel again (the records Vercel's domain settings list, DNS only). Vercel still serves the build of `fcbd5f2`, and the Neon schema fits it as long as no migration has landed since; once one lands, this way back closes. Railway's services can keep running meanwhile.
