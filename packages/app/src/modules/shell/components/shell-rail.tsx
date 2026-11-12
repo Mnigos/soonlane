@@ -8,6 +8,7 @@ import {
 import {
 	CalendarDays,
 	CalendarFold,
+	Hash,
 	Inbox,
 	PanelLeftOpen,
 	Plus,
@@ -98,6 +99,16 @@ export function ShellRail({
 					<Search aria-hidden />
 				</button>
 			</nav>
+
+			<button
+				aria-label="Projects"
+				className={sidebarRailItemVariants()}
+				onClick={onExpand}
+				title="Projects"
+				type="button"
+			>
+				<Hash aria-hidden />
+			</button>
 
 			<button
 				aria-label="Labels"

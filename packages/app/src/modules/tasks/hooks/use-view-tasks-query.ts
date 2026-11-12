@@ -3,7 +3,7 @@ import type { ListTasksInput } from '@soonlane/contracts'
 import { type QueryKey, useQuery, useQueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 
-/** A view's tasks; NOT_FOUND means its label was deleted elsewhere, so refreshing `ownerListKey` lets the page show not-found. */
+/** A view's tasks; NOT_FOUND means its label or project was deleted elsewhere, so refreshing `ownerListKey` lets the page show not-found. */
 export function useViewTasksQuery(
 	input: ListTasksInput,
 	ownerListKey: QueryKey

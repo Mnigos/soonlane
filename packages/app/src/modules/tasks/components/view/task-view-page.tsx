@@ -6,7 +6,7 @@ import { TaskListSkeleton } from '../list/task-list.skeleton'
 import { OpenEditorProvider } from '../open-editor-provider'
 
 interface TaskViewPageProps<TItem extends { id: string }> {
-	/** The query of the list the view's label is found in. */
+	/** The query of the list the view's label or project is found in. */
 	ownerList: { data: unknown; isError: boolean; refetch: () => unknown }
 	item: TItem | undefined
 	notFoundTitle: string

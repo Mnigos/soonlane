@@ -19,6 +19,10 @@ export const routes = rootRoute('routes/__root.tsx', [
 			route('/today', 'modules/tasks/presentation/routes/today.route.tsx'),
 			route('/search', 'modules/tasks/presentation/routes/search.route.tsx'),
 			route(
+				'/projects/$name',
+				'modules/projects/presentation/routes/project.route.tsx'
+			),
+			route(
 				'/labels/$name',
 				'modules/labels/presentation/routes/label.route.tsx'
 			),

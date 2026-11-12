@@ -26,7 +26,7 @@ export interface SidebarSaveCallbacks {
 interface SidebarListRowProps {
 	activeName?: string
 	item: { name: string; openTaskCount: number }
-	to: typeof APP_PATHS.label
+	to: typeof APP_PATHS.label | typeof APP_PATHS.project
 	nameField: SidebarNameFieldOptions
 	mutation: SidebarNameMutation
 	onRename: (name: string, callbacks: SidebarSaveCallbacks) => void

@@ -2,7 +2,6 @@ import type { ListTasksOutput, Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
-import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
 	announceCompletion,
@@ -10,6 +9,7 @@ import {
 } from '../helpers/task-completion.helper'
 import {
 	findTaskPlacement,
+	refreshTaskLists,
 	withoutTask,
 	withUpdatedTask,
 } from '../helpers/task-list.helper'
@@ -74,7 +74,7 @@ export function useLogProgress(today: CalendarDate) {
 			onSettled: () => {
 				setTimeout(() => {
 					if (!queryClient.isMutating({ mutationKey }))
-						void refreshTaskAndLabelLists(queryClient)
+						void refreshTaskLists(queryClient)
 				}, 0)
 			},
 		})

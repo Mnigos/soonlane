@@ -221,9 +221,10 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delet
 
 ### Sidebar
 
-- Full: 224px wide on `sidebar` grey. User row with the collapse button, then the red "Add task" action, nav items (32px rows, 18px icons: Inbox, Upcoming, Today, Search) and labelled sections such as "Labels".
+- Full: 224px wide on `sidebar` grey. User row with the collapse button, then the red "Add task" action, nav items (32px rows, 18px icons: Inbox, Upcoming, Today, Search) and the labelled sections "Projects" and "Labels".
+- Projects section, under the nav and above Labels (a task is in one project, labels cut across projects): built like the Labels section, with "Projects", "Add project" and a 16px hash icon (lucide `Hash`) in `muted-foreground` in place of the tag, and no Color item. The name field reads "Project name", a taken name says "A project with this name already exists.", and Delete asks "Delete project?" with `The "name" project will be permanently deleted. Its tasks will be kept without a project.`. With no projects it reads "No projects yet".
 - Labels section: the "Labels" heading in muted semibold with a chevron that collapses the list (kept while the app is open, also across full and rail), and a ghost "+" ("Add label") on the right. Rows are nav items with a 16px tag icon in the label's color (charcoal without one), the name, and on the right the count of open tasks in muted caption text, left out at 0; sorted by name. On hover or keyboard focus a 24px "…" button takes the count's place (always shown beside it on touch screens) and opens a menu with Rename, Color and a coral Delete. Color has a chevron and opens a submenu beside it: the 20 colors in Todoist's order, each a 16px tag icon in the color and its name, the current one (Charcoal without a color) with a red check; it scrolls when the screen is too short. Picking a color closes the menus and shows it at once everywhere the label appears; if saving fails the old color comes back with "Could not change the label's color. Try again." "+" and Rename turn into an inline field, a 32px box with a `border-strong` line holding the tag icon and the name: Enter saves, Escape or an empty name cancels, and a taken name says "A label with this name already exists." under it. Delete asks first in a dialog, "Delete label?" with `The "name" label will be permanently deleted and removed from its tasks.`, Cancel and a red Delete. With no labels it reads "No labels yet".
-- Rail: 56px of icon buttons (avatar, expand, Add task, Inbox, Upcoming, Today, Search, Labels), each with `aria-label` and a tooltip.
+- Rail: 56px of icon buttons (avatar, expand, Add task, Inbox, Upcoming, Today, Search, Projects, Labels; Projects and Labels expand the sidebar), each with `aria-label` and a tooltip.
 - Active item: red wash background with coral text. Inactive: ink text, hover background.
 - The sidebar never moves the content: from `md` the page keeps a rail-wide gutter and the column is centered in the rest. From `xl` (1280px) the owner's choice, full or rail, is docked and remembered in a cookie; between `md` and `xl` the rail is docked and the full sidebar opens over the content; below `md` it is a drawer opened from the top-left button.
 
@@ -242,6 +243,10 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delet
 
 - The label's name as the page title, then No date and Overdue (each only when it has tasks) and a section for each day from today that has tasks, with the day headings of Upcoming and no Add task row of their own. One "+ Add task" row at the bottom opens the composer due today with the label already chosen; it stays chosen for the next task. With no open tasks a faint "No tasks with this label yet." sits above the row.
 - An unknown name reads "Label not found" with "It may have been renamed or deleted." and a "Back to Upcoming" link.
+
+### Project view
+
+- The label view's layout for a project's open tasks. Its "+ Add task" row opens the composer due today and puts every task it adds in the project, again after each task. With no open tasks it reads "No tasks in this project yet."; an unknown name reads "Project not found".
 
 ### Week strip
 

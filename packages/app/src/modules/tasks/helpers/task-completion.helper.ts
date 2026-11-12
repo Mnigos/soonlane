@@ -9,9 +9,9 @@ import {
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '../../../rpc-query.client'
-import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.helper'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from './task-event.helper'
+import { refreshTaskLists } from './task-list.helper'
 
 const COMPLETED_ORDER_COMPARATORS: Record<
 	TaskCompletedOrderKey,
@@ -112,6 +112,6 @@ export function getUndoCallbacks(
 				completedVia: uncompletedVia,
 			})
 		},
-		onSettled: async () => await refreshTaskAndLabelLists(queryClient),
+		onSettled: async () => await refreshTaskLists(queryClient),
 	}
 }

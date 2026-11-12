@@ -57,6 +57,10 @@ function ShellRoute() {
 		from: '/_session/app/labels/$name',
 		shouldThrow: false,
 	})
+	const projectMatch = useMatch({
+		from: '/_session/app/projects/$name',
+		shouldThrow: false,
+	})
 
 	return (
 		<HostAppContext
@@ -78,6 +82,7 @@ function ShellRoute() {
 			<Shell
 				activeLabelName={labelMatch?.params.name}
 				activePath={activePath}
+				activeProjectName={projectMatch?.params.name}
 				initialIsNoDateSectionOpen={isNoDateSectionOpen}
 				initialSidebarPreference={sidebarPreference}
 				user={user}

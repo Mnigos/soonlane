@@ -15,20 +15,20 @@ import { TaskListSkeleton } from '../list/task-list.skeleton'
 import { UndatedSection } from '../list/undated-section'
 
 interface TaskViewProps {
-	/** The label's id, which also names the view's composer among the page's open editors. */
+	/** The label's or project's id, which also names the view's composer among the page's open editors. */
 	id: string
 	name: string
 	today: CalendarDate
-	filter: Pick<ListTasksInput, 'labelId'>
+	filter: Pick<ListTasksInput, 'labelId' | 'projectId'>
 	ownerListKey: QueryKey
 	emptyNote: string
 	composer: Pick<
 		ComponentProps<typeof TaskComposer>,
-		'defaultLabels' | 'source'
+		'defaultLabels' | 'defaultProject' | 'source'
 	>
 }
 
-/** A label's open tasks: No date, Overdue, one section per day, and one Add task row at the bottom. */
+/** A label's or project's open tasks: No date, Overdue, one section per day, and one Add task row at the bottom. */
 export function TaskView({
 	id,
 	name,
