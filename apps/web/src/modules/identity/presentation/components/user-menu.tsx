@@ -15,6 +15,7 @@ import {
 import { useState } from 'react'
 import { CalendarSubscriptionDialog } from '@/modules/calendar/presentation/components/calendar-subscription-dialog'
 import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
+import { TodoistMenuItem } from '@/modules/todoist/presentation/components/todoist-menu-item'
 import {
 	SIGN_OUT_FAILED,
 	useSignOutMutation,
@@ -100,6 +101,8 @@ export function UserMenu({
 						/>
 						Calendar link
 					</button>
+
+					<TodoistMenuItem className={MENU_ITEM_CLASS} />
 
 					{/* Phones have no keyboard to use the shortcuts with. */}
 					<button

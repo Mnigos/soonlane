@@ -27,6 +27,7 @@ import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
+import { Route as modulesTodoistPresentationRoutesTodoistDotrouteRouteImport } from './modules/todoist/presentation/routes/todoist.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
 import { Route as modulesBlogPresentationRoutesPostDotrouteRouteImport } from './modules/blog/presentation/routes/post.route'
@@ -138,6 +139,12 @@ const modulesTasksPresentationRoutesTodayDotrouteRoute =
     path: '/today',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
+const modulesTodoistPresentationRoutesTodoistDotrouteRoute =
+  modulesTodoistPresentationRoutesTodoistDotrouteRouteImport.update({
+    id: '/todoist',
+    path: '/todoist',
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
+  } as any)
 const modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute =
   modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport.update({
     id: '/desktop/callback',
@@ -180,6 +187,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
@@ -201,6 +209,7 @@ export interface FileRoutesByTo {
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
@@ -226,6 +235,7 @@ export interface FileRoutesById {
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/_session/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/_site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
@@ -250,6 +260,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/quick-add'
     | '/app/today'
+    | '/app/todoist'
     | '/desktop/callback'
     | '/desktop/sign-in'
     | '/blog/$slug'
@@ -271,6 +282,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/quick-add'
     | '/app/today'
+    | '/app/todoist'
     | '/desktop/callback'
     | '/desktop/sign-in'
     | '/blog/$slug'
@@ -295,6 +307,7 @@ export interface FileRouteTypes {
     | '/_session/app/'
     | '/_session/app/quick-add'
     | '/_session/app/today'
+    | '/_session/app/todoist'
     | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
     | '/_site/blog/$slug'
@@ -440,6 +453,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
+    '/_session/app/todoist': {
+      id: '/_session/app/todoist'
+      path: '/todoist'
+      fullPath: '/app/todoist'
+      preLoaderRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRouteImport
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
+    }
     '/_session/desktop/callback': {
       id: '/_session/desktop/callback'
       path: '/desktop/callback'
@@ -474,6 +494,7 @@ declare module '@tanstack/react-router' {
 interface modulesShellPresentationRoutesShellDotrouteRouteChildren {
   modulesTasksPresentationRoutesUpcomingDotrouteRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   modulesTasksPresentationRoutesTodayDotrouteRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  modulesTodoistPresentationRoutesTodoistDotrouteRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   modulesLabelsPresentationRoutesLabelDotrouteRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
 }
 
@@ -483,6 +504,8 @@ const modulesShellPresentationRoutesShellDotrouteRouteChildren: modulesShellPres
       modulesTasksPresentationRoutesUpcomingDotrouteRoute,
     modulesTasksPresentationRoutesTodayDotrouteRoute:
       modulesTasksPresentationRoutesTodayDotrouteRoute,
+    modulesTodoistPresentationRoutesTodoistDotrouteRoute:
+      modulesTodoistPresentationRoutesTodoistDotrouteRoute,
     modulesLabelsPresentationRoutesLabelDotrouteRoute:
       modulesLabelsPresentationRoutesLabelDotrouteRoute,
   }
