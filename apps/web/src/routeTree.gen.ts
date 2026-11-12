@@ -26,6 +26,7 @@ import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './
 import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
+import { Route as modulesTasksPresentationRoutesSearchDotrouteRouteImport } from './modules/tasks/presentation/routes/search.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesTodoistPresentationRoutesTodoistDotrouteRouteImport } from './modules/todoist/presentation/routes/todoist.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
@@ -133,6 +134,12 @@ const modulesTasksPresentationRoutesQuickAddDotrouteRoute =
     path: '/app/quick-add',
     getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
+const modulesTasksPresentationRoutesSearchDotrouteRoute =
+  modulesTasksPresentationRoutesSearchDotrouteRouteImport.update({
+    id: '/search',
+    path: '/search',
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
+  } as any)
 const modulesTasksPresentationRoutesTodayDotrouteRoute =
   modulesTasksPresentationRoutesTodayDotrouteRouteImport.update({
     id: '/today',
@@ -186,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
+  '/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -208,6 +216,7 @@ export interface FileRoutesByTo {
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
+  '/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -234,6 +243,7 @@ export interface FileRoutesById {
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
+  '/_session/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/ingest/$'
     | '/app/'
     | '/app/quick-add'
+    | '/app/search'
     | '/app/today'
     | '/app/todoist'
     | '/desktop/callback'
@@ -281,6 +292,7 @@ export interface FileRouteTypes {
     | '/ingest/$'
     | '/app'
     | '/app/quick-add'
+    | '/app/search'
     | '/app/today'
     | '/app/todoist'
     | '/desktop/callback'
@@ -306,6 +318,7 @@ export interface FileRouteTypes {
     | '/ingest/$'
     | '/_session/app/'
     | '/_session/app/quick-add'
+    | '/_session/app/search'
     | '/_session/app/today'
     | '/_session/app/todoist'
     | '/_session/desktop/callback'
@@ -446,6 +459,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
+    '/_session/app/search': {
+      id: '/_session/app/search'
+      path: '/search'
+      fullPath: '/app/search'
+      preLoaderRoute: typeof modulesTasksPresentationRoutesSearchDotrouteRouteImport
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
+    }
     '/_session/app/today': {
       id: '/_session/app/today'
       path: '/today'
@@ -493,6 +513,7 @@ declare module '@tanstack/react-router' {
 
 interface modulesShellPresentationRoutesShellDotrouteRouteChildren {
   modulesTasksPresentationRoutesUpcomingDotrouteRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  modulesTasksPresentationRoutesSearchDotrouteRoute: typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   modulesTasksPresentationRoutesTodayDotrouteRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   modulesTodoistPresentationRoutesTodoistDotrouteRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   modulesLabelsPresentationRoutesLabelDotrouteRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -502,6 +523,8 @@ const modulesShellPresentationRoutesShellDotrouteRouteChildren: modulesShellPres
   {
     modulesTasksPresentationRoutesUpcomingDotrouteRoute:
       modulesTasksPresentationRoutesUpcomingDotrouteRoute,
+    modulesTasksPresentationRoutesSearchDotrouteRoute:
+      modulesTasksPresentationRoutesSearchDotrouteRoute,
     modulesTasksPresentationRoutesTodayDotrouteRoute:
       modulesTasksPresentationRoutesTodayDotrouteRoute,
     modulesTodoistPresentationRoutesTodoistDotrouteRoute:

@@ -16,6 +16,9 @@ import {
 	restoreCachedTask,
 } from '../helpers/task-list.helper'
 
+/** The goal progress each task showed when completed, for Undo; a search result is in no cached list to read it from. */
+const seenProgress = new Map<string, number | undefined>()
+
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
@@ -50,12 +53,12 @@ export function useCompleteTask(today: CalendarDate) {
 				capture('task_completion_failed', { task_id: id, action: 'complete' })
 				toastFailure(error, 'Could not complete the task. Try again.')
 			},
-			onSuccess: ({ task }, input, context) => {
+			onSuccess: ({ task }, input) => {
 				const { dueDate: seenDueDate } = completeTaskInputSchema.parse(input)
 				// A repeating task moved on; Undo puts back the due date and goal progress it had before.
 				const restored = task.repeat && {
 					dueDate: seenDueDate,
-					progress: context?.removed[0]?.placement.task.goal?.progress,
+					progress: seenProgress.get(task.id),
 				}
 
 				announceCompletion(
@@ -70,11 +73,13 @@ export function useCompleteTask(today: CalendarDate) {
 	)
 
 	return {
-		completeTask: (task: Task) =>
+		completeTask: (task: Task) => {
+			seenProgress.set(task.id, task.goal?.progress)
 			complete.mutate({
 				id: task.id,
 				today,
 				dueDate: task.repeat ? task.dueDate : undefined,
-			}),
+			})
+		},
 	}
 }

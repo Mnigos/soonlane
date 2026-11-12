@@ -69,6 +69,9 @@ export function useRescheduleTasks() {
 					queryClient.invalidateQueries({
 						queryKey: orpcQuery.tasks.listByLabel.key(),
 					}),
+					queryClient.invalidateQueries({
+						queryKey: orpcQuery.tasks.search.key(),
+					}),
 				]),
 		})
 	)

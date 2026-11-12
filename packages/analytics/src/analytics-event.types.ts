@@ -65,6 +65,7 @@ export interface ClientEvents {
 	consent_updated: { analytics: ConsentChoice; source: ConsentSource }
 	calendar_subscription_created: { replaced: boolean }
 	calendar_subscription_revoked: Record<string, never>
+	tasks_searched: { result_count: number }
 }
 
 export interface SuperProperties {

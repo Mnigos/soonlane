@@ -8,6 +8,8 @@ interface TaskListProps {
 	today: CalendarDate
 	isLoading: boolean
 	onComplete: (task: Task) => void
+	/** Names each task's due day, for a list without day headings. */
+	showsDueDay?: boolean
 }
 
 export function TaskList({
@@ -15,6 +17,7 @@ export function TaskList({
 	today,
 	isLoading,
 	onComplete,
+	showsDueDay,
 }: Readonly<TaskListProps>) {
 	if (isLoading)
 		return (
@@ -31,6 +34,7 @@ export function TaskList({
 				<TaskItem
 					key={task.id}
 					onComplete={onComplete}
+					showsDueDay={showsDueDay}
 					task={task}
 					today={today}
 				/>

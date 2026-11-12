@@ -11,6 +11,7 @@ import {
 	CalendarFold,
 	PanelLeftOpen,
 	Plus,
+	Search,
 	Tag,
 } from 'lucide-react'
 import { DesktopDragRegion } from './desktop-drag-region'
@@ -81,6 +82,8 @@ export function ShellRail({
 				/>
 
 				<RailNavLink icon={CalendarFold} label="Today" to={APP_PATHS.today} />
+
+				<RailNavLink icon={Search} label="Search" to={APP_PATHS.search} />
 			</nav>
 
 			<button

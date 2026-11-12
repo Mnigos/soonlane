@@ -16,7 +16,7 @@ export type Queries = Pick<
 >
 
 /** Keep in sync with compareTasks in task-list.helper.ts. */
-const DAY_ORDER = [
+export const DAY_ORDER = [
 	asc(task.dueDate),
 	sql`${task.dueTime} asc nulls last`,
 	asc(task.priority),
@@ -93,8 +93,13 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 	return {
 		withLabelsAndProject,
 		/** The owner's tasks matching `where`, with their labels, in day order unless `order` says otherwise. */
-		list: async (where?: SQL, order: SQL[] = DAY_ORDER) =>
-			await withLabelsAndProject(await select(where).orderBy(...order)),
+		list: async (where?: SQL, order: SQL[] = DAY_ORDER, limit?: number) => {
+			const ordered = select(where).orderBy(...order)
+
+			return await withLabelsAndProject(
+				await (limit === undefined ? ordered : ordered.limit(limit))
+			)
+		},
 		find: async (id: TaskId) => {
 			const [found] = await withLabelsAndProject(await select(eq(task.id, id)))
 

@@ -67,7 +67,7 @@ function getDueDateName(dueDate: CalendarDate, today: CalendarDate) {
 	return formatDueDate(dueDate, today)
 }
 
-/** The date chip of the task composer, e.g. "Today", "Monday", "14 Nov" or "Tomorrow 11:30". */
+/** A due date named without a day heading (the composer's date chip, search results), e.g. "Today", "Monday", "14 Nov" or "Tomorrow 11:30". */
 export function getDueChipLabel(
 	dueDate: CalendarDate,
 	dueTime: string | undefined,

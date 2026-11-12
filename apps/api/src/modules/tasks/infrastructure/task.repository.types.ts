@@ -29,6 +29,12 @@ export interface CompletedTasksBetween {
 	to: Date
 }
 
+export interface MatchingTasks {
+	ownerId: UserId
+	query: string
+	limit: number
+}
+
 export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
 	ownerId: UserId
 	repeat?: RepeatRule
