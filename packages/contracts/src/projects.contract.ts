@@ -9,28 +9,23 @@ export const projectSchema = z.object({
 	id: projectIdSchema,
 	name: z.string(),
 })
-
 export type Project = z.infer<typeof projectSchema>
 
 export const listedProjectSchema = projectSchema.extend({
 	openTaskCount: z.number().int().nonnegative(),
 })
-
 export type ListedProject = z.infer<typeof listedProjectSchema>
 
 export const createProjectInputSchema = z.object({ name: projectNameSchema })
-
 export type CreateProjectInput = z.infer<typeof createProjectInputSchema>
 
 export const updateProjectInputSchema = z.object({
 	id: projectIdSchema,
 	name: projectNameSchema,
 })
-
 export type UpdateProjectInput = z.infer<typeof updateProjectInputSchema>
 
 export const projectIdInputSchema = z.object({ id: projectIdSchema })
-
 export type ProjectIdInput = z.infer<typeof projectIdInputSchema>
 
 export const projectNotFound = { message: 'This project no longer exists.' }

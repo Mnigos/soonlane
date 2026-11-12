@@ -75,7 +75,6 @@ export const listTasksByProjectInputSchema = z.object({
 	projectId: projectIdSchema,
 	today: calendarDateSchema,
 })
-
 export type ListTasksByProjectInput = z.infer<
 	typeof listTasksByProjectInputSchema
 >
