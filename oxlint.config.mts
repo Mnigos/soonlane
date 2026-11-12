@@ -18,8 +18,6 @@ const DISABLED_RULES = {
 		'positional groups are clearer in short regexes',
 	'require-await':
 		'conflicts with typescript/promise-function-async on pass-through promise callbacks',
-	'import/consistent-type-specifier-style':
-		'inline type specifiers are allowed in mixed imports',
 	'node/callback-return':
 		'oRPC and Effect middleware yield next(), not Node-style callbacks',
 	'promise/prefer-await-to-callbacks': 'React callbacks',
@@ -82,6 +80,11 @@ export default defineConfig({
 		),
 		curly: 'off',
 		'func-style': ['error', 'declaration', { allowArrowFunctions: true }],
+		'import/consistent-type-specifier-style': [
+			'error',
+			'prefer-top-level-if-only-type-imports',
+		],
+		'import/no-duplicates': ['error', { preferInline: true }],
 		'no-nested-ternary': 'off',
 		'no-undef': 'error',
 		'no-use-before-define': [
@@ -100,7 +103,7 @@ export default defineConfig({
 		'react/jsx-no-useless-fragment': ['error', { allowExpressions: true }],
 		'typescript/consistent-type-imports': [
 			'error',
-			{ disallowTypeAnnotations: false },
+			{ disallowTypeAnnotations: false, fixStyle: 'inline-type-imports' },
 		],
 		'typescript/no-misused-promises': [
 			'error',

@@ -1,5 +1,4 @@
 import { MIN_SECRET_LENGTH, parseAllowedEmails } from '@soonlane/auth'
-import type { Redacted } from 'effect'
 import {
 	Config,
 	ConfigProvider,
@@ -7,6 +6,7 @@ import {
 	Effect,
 	Layer,
 	Option,
+	type Redacted,
 	Schema,
 	SchemaTransformation,
 } from 'effect'
