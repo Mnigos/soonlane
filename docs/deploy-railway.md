@@ -71,12 +71,12 @@ What the server sends:
 ### Local environment
 
 ```sh
-cp apps/web/.env.example apps/web/.env.local   # then fill it in
+cp apps/web/.env.example apps/web/.env.local   # then fill it in, and write apps/api/.env.local
 bun run db:migrate
 bun run dev
 ```
 
-`bun run dev` starts the web app on port 3000 and the API, which reads `apps/api/.env.local` ([Variables](#variables)); `API_PROXY_SECRET` must match in both files. `apps/web/.env.local` also holds `DATABASE_URL` and `DATABASE_URL_UNPOOLED` of the Neon `preview` branch for `bun run db:migrate` and `db:generate`. The files are git-ignored; never print them. Local sign-in uses the localhost redirect URI.
+`bun run dev` starts the web app on port 3000 and the API, which reads `apps/api/.env.local` ([Variables](#variables)); `API_PROXY_SECRET` must match in both files. The local database URL belongs in `apps/api/.env.local` only: `DATABASE_URL` and `DATABASE_URL_UNPOOLED` of the Neon `preview` branch, read by the API and by `bun run db:migrate` and `db:generate`. The web app needs no database variable. The files are git-ignored; never print them. Local sign-in uses the localhost redirect URI.
 
 Signed-in screenshots without Google: `bun run --cwd apps/api dev:session` upserts "Sample User" (`sample@soonlane.test`) with a session in the development database and prints the session cookie; send that cookie to the dev server. `dev:session --delete` removes the user with its sessions and tasks; the script refuses `APP_ENV=production` and `NODE_ENV=production`, and it refuses to run unless `PRODUCTION_DATABASE_HOST` (the production Neon endpoint host) is set and absent from the database URLs.
 
