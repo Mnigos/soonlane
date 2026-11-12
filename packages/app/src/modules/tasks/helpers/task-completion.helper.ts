@@ -5,11 +5,16 @@ import {
 	TASK_COMPLETED_ORDER,
 	type TaskCompletedOrderKey,
 } from '@soonlane/domain'
-import type { QueryClient } from '@tanstack/react-query'
+import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query'
 import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import { getTaskEventProperties } from './task-event.helper'
 import { refreshTaskLists } from './task-list.helper'
+
+/** Today's Completed section caches one list; the Completed view caches its pages. */
+type CompletedCache =
+	| ListCompletedTasksOutput
+	| InfiniteData<ListCompletedTasksOutput>
 
 /** The variables a task mutation sends, before the API parses the id. */
 interface TaskVariables {
@@ -21,9 +26,10 @@ interface TaskResult {
 	task: Task
 }
 
-/** What reopening keeps to put the task back in Completed when the change fails. */
+/** The reopened task and the Completed lists that held it, to put it back when the change fails. */
 interface ReopenContext {
 	reopened?: Task
+	queryKeys: QueryKey[]
 }
 
 const COMPLETED_ORDER_COMPARATORS: Record<
@@ -42,35 +48,81 @@ function compareCompleted(a: Task, b: Task) {
 	)
 }
 
-/** Shows a task in every cached Completed list where the server would place it; one without `completedAt` counts as completed now. */
+function getPages(data: CompletedCache) {
+	return 'pages' in data ? data.pages : [data]
+}
+
+function updatePages(
+	data: CompletedCache,
+	update: (pages: ListCompletedTasksOutput[]) => ListCompletedTasksOutput[]
+) {
+	const pages = update(getPages(data))
+
+	return 'pages' in data ? { ...data, pages } : (pages[0] ?? data)
+}
+
+function withoutCompleted(pages: ListCompletedTasksOutput[], id: string) {
+	return pages.map(page => ({
+		...page,
+		tasks: page.tasks.filter(task => task.id !== id),
+	}))
+}
+
+/** Puts a task in its sorted place, in the first page that reaches back to it. */
+function withCompleted(data: CompletedCache, completed: Task) {
+	return updatePages(data, pages => {
+		const kept = withoutCompleted(pages, completed.id)
+		const index = kept.findIndex(({ tasks }) => {
+			const oldest = tasks.at(-1)
+
+			return oldest !== undefined && compareCompleted(completed, oldest) <= 0
+		})
+		const target = index === -1 ? kept.length - 1 : index
+
+		return kept.map((page, pageIndex) =>
+			pageIndex === target
+				? {
+						...page,
+						tasks: [...page.tasks, completed].toSorted(compareCompleted),
+					}
+				: page
+		)
+	})
+}
+
+/** Shows a task in every cached Completed list; one without `completedAt` counts as completed now. */
 export function addToCompleted(queryClient: QueryClient, task: Task) {
 	const completed = { ...task, completedAt: task.completedAt ?? new Date() }
 
-	queryClient.setQueriesData<ListCompletedTasksOutput>(
+	queryClient.setQueriesData<CompletedCache>(
 		{ queryKey: orpcQuery.tasks.listCompleted.key() },
-		list =>
-			list && {
-				tasks: [
-					...list.tasks.filter(({ id }) => id !== task.id),
-					completed,
-				].toSorted(compareCompleted),
-			}
+		data => data && withCompleted(data, completed)
 	)
 }
 
-/** Hides a task from every cached Completed list and returns it, so a failed change can put it back. */
-export function removeFromCompleted(queryClient: QueryClient, id: string) {
+/** Hides a task from every cached Completed list and returns it with the lists that held it, so a failed change can put it back. */
+export function removeFromCompleted(
+	queryClient: QueryClient,
+	id: string
+): ReopenContext {
 	const queryKey = orpcQuery.tasks.listCompleted.key()
-	const [removed] = queryClient
-		.getQueriesData<ListCompletedTasksOutput>({ queryKey })
-		.flatMap(([, list]) => list?.tasks.filter(task => task.id === id) ?? [])
+	const holding = queryClient
+		.getQueriesData<CompletedCache>({ queryKey })
+		.flatMap(([key, data]) =>
+			(data ? getPages(data) : []).flatMap(({ tasks }) =>
+				tasks.filter(task => task.id === id).map(task => ({ key, task }))
+			)
+		)
 
-	queryClient.setQueriesData<ListCompletedTasksOutput>(
+	queryClient.setQueriesData<CompletedCache>(
 		{ queryKey },
-		list => list && { tasks: list.tasks.filter(task => task.id !== id) }
+		data => data && updatePages(data, pages => withoutCompleted(pages, id))
 	)
 
-	return removed
+	return {
+		reopened: holding[0]?.task,
+		queryKeys: holding.map(({ key }) => key),
+	}
 }
 
 export function announceCompletion(
@@ -108,14 +160,21 @@ export function getUndoCallbacks(
 				queryKey: orpcQuery.tasks.listCompleted.key(),
 			})
 
-			return { reopened: removeFromCompleted(queryClient, id) }
+			return removeFromCompleted(queryClient, id)
 		},
 		onError: (
 			_error: unknown,
 			{ id }: TaskVariables,
 			context?: ReopenContext
 		) => {
-			if (context?.reopened) addToCompleted(queryClient, context.reopened)
+			const reopened = context?.reopened
+
+			if (reopened)
+				for (const queryKey of context.queryKeys)
+					queryClient.setQueryData<CompletedCache>(
+						queryKey,
+						data => data && withCompleted(data, reopened)
+					)
 			capture('task_completion_failed', { taskId: id, action: 'uncomplete' })
 			showToast('Could not restore the task. Try again.')
 		},

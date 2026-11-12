@@ -95,8 +95,10 @@ export type ListCompletedTasksInput = z.infer<
 	typeof listCompletedTasksInputSchema
 >
 
+/** `earlierCompletedAt` is the latest completion before `from`, absent when there is none. */
 export const listCompletedTasksOutputSchema = z.object({
 	tasks: z.array(taskSchema),
+	earlierCompletedAt: z.date().optional(),
 })
 export type ListCompletedTasksOutput = z.infer<
 	typeof listCompletedTasksOutputSchema

@@ -4,6 +4,7 @@ export const APP_PATHS = {
 	upcoming: '/app',
 	today: '/app/today',
 	search: '/app/search',
+	completed: '/app/completed',
 	label: '/app/labels/$name',
 	project: '/app/projects/$name',
 	quickAdd: '/app/quick-add',

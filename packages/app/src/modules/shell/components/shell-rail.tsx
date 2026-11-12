@@ -8,6 +8,7 @@ import {
 import {
 	CalendarDays,
 	CalendarFold,
+	CircleCheckBig,
 	Hash,
 	Inbox,
 	PanelLeftOpen,
@@ -98,6 +99,12 @@ export function ShellRail({
 				>
 					<Search aria-hidden />
 				</button>
+
+				<RailNavLink
+					icon={CircleCheckBig}
+					label="Completed"
+					to={APP_PATHS.completed}
+				/>
 			</nav>
 
 			<button

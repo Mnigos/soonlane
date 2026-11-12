@@ -10,7 +10,17 @@ import {
 	type TaskId,
 	type UserId,
 } from '@soonlane/domain'
-import { and, asc, desc, eq, inArray, type SQL, sql } from 'drizzle-orm'
+import {
+	and,
+	asc,
+	desc,
+	eq,
+	inArray,
+	lt,
+	max,
+	type SQL,
+	sql,
+} from 'drizzle-orm'
 import type { PgUpdateSetSource } from 'drizzle-orm/pg-core'
 import { labelOrder } from '@/modules/labels/infrastructure/label-order.query'
 import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
@@ -123,6 +133,14 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 			return found
 		},
 		count: async () => await database.$count(task, owned),
+		latestCompletedBefore: async (before: Date) => {
+			const [row] = await database
+				.select({ completedAt: max(task.completedAt) })
+				.from(task)
+				.where(and(owned, lt(task.completedAt, before)))
+
+			return row?.completedAt ?? undefined
+		},
 		/** An `UPDATE` of the owner's tasks matching `where`; the caller picks what it returns. */
 		update: (set: PgUpdateSetSource<typeof task>, where: SQL | undefined) =>
 			database.update(task).set(set).where(and(owned, where)),

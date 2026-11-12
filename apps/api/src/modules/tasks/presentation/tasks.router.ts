@@ -14,7 +14,7 @@ export const tasksRouter = {
 	}) {
 		const tasksService = yield* TasksService
 
-		return { tasks: yield* tasksService.listCompleted(context.user.id, input) }
+		return yield* tasksService.listCompleted(context.user.id, input)
 	}),
 	search: os.tasks.search.use(requireUser).effect(function* ({
 		context,
