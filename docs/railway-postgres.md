@@ -69,7 +69,7 @@ The only way to notice is to look. The Backups tab should show all three schedul
 
 Postgres has no public address. A task that runs from a laptop, such as `pg_dump`, `pg_restore` or `psql`, opens the TCP proxy for the length of the task and closes it afterwards. Traffic through the proxy counts as egress.
 
-The commands use the Railway CLI, logged in as a member of the workspace, and psql 18 or newer (`brew install libpq`, then add `/opt/homebrew/opt/libpq/bin` to `PATH`). In zsh or bash:
+The commands use the Railway CLI, logged in as a member of the workspace, and psql 18 or newer (`brew install libpq`, then add `/opt/homebrew/opt/libpq/bin` to `PATH`). A Homebrew `railway` 4.x knows neither `tcp-proxy` nor `-p`, so the function below runs the current CLI through Bun. In zsh or bash:
 
 ```sh
 railway() { bun x @railway/cli "$@"; }
