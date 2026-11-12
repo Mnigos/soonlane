@@ -1,33 +1,10 @@
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { BlockList, isIP } from 'node:net'
+import { resolveEdgeIp, toSingleIp } from '@soonlane/auth/client-ip'
 import { CLIENT_IP_HEADER } from '@soonlane/auth/server'
 import { PROXY_SECRET_HEADER, VISITOR_IP_HEADER } from '@soonlane/contracts'
 import { type Context, Effect } from 'effect'
-import { CLOUDFLARE_IP_RANGES } from './cloudflare-ip-ranges.constants'
 
 type RequestHandler = (request: Request) => Promise<Response>
-
-/** Railway's edge overwrites it with the address that connected to Railway. */
-const RAILWAY_IP_HEADER = 'x-real-ip'
-const CLOUDFLARE_IP_HEADER = 'cf-connecting-ip'
-
-function toFamily(ip: string) {
-	return isIP(ip) === 6 ? 'ipv6' : 'ipv4'
-}
-
-const cloudflareRanges = new BlockList()
-
-for (const range of CLOUDFLARE_IP_RANGES) {
-	const [network = '', prefix] = range.split('/')
-
-	cloudflareRanges.addSubnet(network, Number(prefix), toFamily(network))
-}
-
-function toSingleIp(value: string | null) {
-	const ip = value?.trim()
-
-	return ip && isIP(ip) ? ip : undefined
-}
 
 function digest(value: string) {
 	return createHash('sha256').update(value).digest()
@@ -40,16 +17,6 @@ function isProxySecret(candidate: string, secret: string) {
 
 function reject(status: 400 | 403) {
 	return new Response(null, { status })
-}
-
-/** Without the proxy secret: Railway's header, or `CF-Connecting-IP` when that address is a Cloudflare edge (the proxied production host). */
-function resolveDirectIp(headers: Headers) {
-	const railwayIp = toSingleIp(headers.get(RAILWAY_IP_HEADER))
-
-	if (!railwayIp) return undefined
-	if (!cloudflareRanges.check(railwayIp, toFamily(railwayIp))) return railwayIp
-
-	return toSingleIp(headers.get(CLOUDFLARE_IP_HEADER))
 }
 
 /**
@@ -85,7 +52,7 @@ export function withClientIp(
 			return reject(403)
 		}
 
-		const ip = secret === null ? resolveDirectIp(headers) : visitorIp
+		const ip = secret === null ? resolveEdgeIp(headers) : visitorIp
 
 		if (!ip) return reject(400)
 		headers.set(CLIENT_IP_HEADER, ip)
