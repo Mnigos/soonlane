@@ -161,6 +161,18 @@ const DEFAULT_RUNTIME_FILES = [
 	'apps/desktop/src/main.ts',
 ] as const
 
+const TASKS_INFRASTRUCTURE = 'apps/api/src/modules/tasks/infrastructure'
+
+/** Where ownedTasks and ownedBy are defined: the only file that reads task.ownerId. */
+const TASK_OWNER_SCOPE_FILE = `${TASKS_INFRASTRUCTURE}/owned-tasks.query.ts`
+
+/** Single statements on the task table that take the owner condition from ownedBy instead of going through ownedTasks. */
+const TASK_STATEMENT_FILES = [
+	`${TASKS_INFRASTRUCTURE}/task-progress.query.ts`,
+	`${TASKS_INFRASTRUCTURE}/task-update.query.ts`,
+	'apps/api/src/modules/labels/infrastructure/label.repository.ts',
+] as const
+
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
 	'apps/api/src/**',
@@ -268,6 +280,20 @@ export const CONVENTION_OVERRIDES = [
 	{
 		files: ['apps/web/**'],
 		rules: { 'soonlane/no-api-only-import': 'error' },
+	},
+	{
+		files: ['apps/**', 'packages/**'],
+		rules: { 'soonlane/task-owner-scope': 'error' },
+	},
+	{
+		files: [...TASK_STATEMENT_FILES],
+		rules: {
+			'soonlane/task-owner-scope': ['error', { allowTableQueries: true }],
+		},
+	},
+	{
+		files: [TASK_OWNER_SCOPE_FILE],
+		rules: { 'soonlane/task-owner-scope': 'off' },
 	},
 	{
 		files: [
