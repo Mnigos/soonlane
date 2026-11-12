@@ -70,6 +70,15 @@ Each stage ends in a state that can stay in production for weeks.
   - The cutover could lose rows. The write freeze and row counts on both sides guard against it, and Neon is the way back.
   - Calendar apps may not follow a permanent redirect on a subscribed feed. Then the old path proxies to the API.
 
+## Update 2026-11-12 (SOON-119)
+
+Stage 1 shipped the shared session as follows; it replaces the Session cookie, API access and Old URLs points where they differ.
+
+- **Cookie names.** Better Auth's base URL is the API's origin. Its `cookiePrefix` is `soonlane` in production and `soonlane-staging` on staging (`AUTH_COOKIE_PREFIX`), with `crossSubDomainCookies` on `soonlane.com` or `staging.soonlane.com` (`AUTH_COOKIE_DOMAIN`). The session cookie is `__Secure-soonlane.session_token`. The signed-in hint is `<prefix>.signed_in` (it was `soonlane-signed-in`) and copies the session cookie's attributes, so it shares its domain. The consent cookie is `<prefix>.consent` on the same domain (it was `soonlane-privacy`). The web learns the prefix at build time from `VITE_AUTH_COOKIE_PREFIX`.
+- **API access.** The browser calls the API host directly (`VITE_API_URL`); the web app's `/api/auth` and `/api/rpc` forwarders are gone. The API's HTTP entry answers CORS for `/api/auth` and `/api/rpc` only for the exact origins in `TRUSTED_ORIGINS` and refuses every other `Origin` with 403, the API's own included. Google returns to `https://api.soonlane.com/api/auth/callback/google`. Return addresses must be absolute URLs on a trusted web origin, and `/sign-in/social` needs one in its body; Better Auth's errors go to the web `/login`.
+- **Staging trust boundary.** Production's cookies are set on `Domain=soonlane.com`, so the browser sends them to every staging host too: the staging API receives a production session token on every browser call from someone signed in to production. Staging's Better Auth cannot use it, since it has its own `AUTH_SECRET` and reads only cookies with its own prefix. The staging web server forwards only its own session and consent cookies (`soonlane-staging.<name>`, `__Secure-soonlane-staging.<name>`, by exact name) to the API, but that covers server rendering only, not the browser's direct calls. Code deployed to staging could copy the token and use it against production, so staging runs only trusted refs, deployed by the team, and the API never logs the cookie header. A staging page can also read production's non-HttpOnly hint and consent cookies in the browser, which is accepted on the same terms.
+- **No backward compatibility** (Igor, 2026-11-11). Old host-only cookies are not deleted; they expire on their own and no longer match any name the app reads. Everyone signs in once more and answers the consent banner again. Calendar links on `soonlane.com` stop working, and the old URLs get no redirect.
+
 ## Options considered
 
 - **Stay on Vercel and add a separate API.** The app would keep the function model it works around today, and the product would run on two platforms. Igor chose to leave Vercel.

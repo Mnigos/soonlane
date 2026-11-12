@@ -18,7 +18,7 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 - `apps/api/src/modules/<module>/` (server) and `apps/web/src/modules/<module>/` (UI): `domain/` is pure (no Effect services, framework, ORM or RPC); `application/` holds ports and services (`Context.Service`, `*Live` layer, `Effect.fn('Service.method')`); `infrastructure/` implements ports (repositories run queries through `Db.run` and never catch); `presentation/` holds routers, middleware, components, hooks, routes.
 - `apps/desktop/src/` uses the same `platform/` and `modules/<module>/{domain,application,infrastructure}` split; Electrobun is imported only in `infrastructure/`, `platform/electrobun/` and `main.ts`.
 - `apps/api/src/platform/`: config, `AppLive`, the single `ManagedRuntime`, the HTTP entry (client IP), oRPC wiring. Tagged errors (`Data.TaggedError` with `code`) become oRPC errors only in `platform/rpc/rpc.base.ts`. Only the API reaches the database and Better Auth's server.
-- `apps/web/src/platform/`: the forwarder to the API (`api/api-proxy.handler.ts`) and the oRPC client; no Effect runtime. The web app never imports `@soonlane/db`, `@soonlane/auth/server`, `pg`, `drizzle-orm` or `effect`.
+- `apps/web/src/platform/`: the oRPC client (the browser calls the API host, SSR adds the visitor headers); no Effect runtime. The web app never imports `@soonlane/db`, `@soonlane/auth/server`, `pg`, `drizzle-orm` or `effect`.
 - Web server-only: `platform/`, `infrastructure/`, `*.handler.ts`, `*.server.*`, `routes/api.*`. The client may import only the four browser-safe oRPC files in `platform/rpc` (`rpc.client.ts`, `rpc-query.client.ts`, `rpc-prefix.constants.ts`, `rpc-serializer.constants.ts`). Import protection fails the build otherwise.
 
 ## Code
