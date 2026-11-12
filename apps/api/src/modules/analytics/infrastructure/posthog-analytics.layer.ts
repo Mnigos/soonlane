@@ -6,7 +6,12 @@ import { Analytics, AnalyticsConsent } from '../application/analytics.port'
 import type { ServerEvents } from '../domain/analytics-event.types'
 
 const POSTHOG_HOST = 'https://eu.i.posthog.com'
+const FLUSH_AT = 20
+const FLUSH_INTERVAL_MS = 5000
 const REQUEST_TIMEOUT_MS = 3000
+const FETCH_RETRY_COUNT = 1
+/** Bounds the final flush; with the server's drain it has to fit in Railway's `drainingSeconds`. */
+const SHUTDOWN_TIMEOUT_MS = 10_000
 
 const disabledAnalytics = Analytics.of({
 	capture: () => Effect.void,
@@ -34,13 +39,10 @@ function toSafeError(error: unknown) {
 	return safe
 }
 
-function deliver(send: () => Promise<void>) {
-	return Effect.tryPromise({ try: send, catch: toErrorName }).pipe(
-		Effect.catch(error => Effect.logWarning('PostHog capture failed', error))
-	)
-}
-
-/** Sends each event before the request ends, so a deploy's shutdown loses none; a no-op without a key. Exceptions need no consent. */
+/**
+ * Queues events and sends them in batches every few seconds, so no request waits for PostHog; a no-op without a key.
+ * Releasing the layer (`runtime.dispose()` on SIGTERM) flushes the queue before the process exits. Exceptions need no consent.
+ */
 export const PostHogAnalyticsLive = Layer.effect(
 	Analytics,
 	Effect.gen(function* () {
@@ -48,19 +50,31 @@ export const PostHogAnalyticsLive = Layer.effect(
 
 		if (!posthogKey) return disabledAnalytics
 
+		const context = yield* Effect.context()
 		const buildProperties = { app_version: version, commit, environment }
 		const client = yield* Effect.acquireRelease(
-			Effect.sync(
-				() =>
-					new PostHog(posthogKey, {
-						host: POSTHOG_HOST,
-						flushAt: 1,
-						flushInterval: 0,
-						requestTimeout: REQUEST_TIMEOUT_MS,
-						fetchRetryCount: 0,
-					})
-			),
-			created => Effect.promise(async () => await created.shutdown())
+			Effect.sync(() => {
+				const created = new PostHog(posthogKey, {
+					host: POSTHOG_HOST,
+					flushAt: FLUSH_AT,
+					flushInterval: FLUSH_INTERVAL_MS,
+					requestTimeout: REQUEST_TIMEOUT_MS,
+					fetchRetryCount: FETCH_RETRY_COUNT,
+				})
+
+				// A failed batch surfaces only here; capture itself never throws.
+				created.on('error', error =>
+					Effect.runSyncWith(context)(
+						Effect.logWarning('PostHog batch failed', toErrorName(error))
+					)
+				)
+
+				return created
+			}),
+			created =>
+				Effect.promise(
+					async () => await created.shutdown(SHUTDOWN_TIMEOUT_MS)
+				).pipe(Effect.andThen(Effect.logInfo('PostHog queue flushed')))
 		)
 
 		const capture = Effect.fn('Analytics.capture')(function* (
@@ -70,29 +84,22 @@ export const PostHogAnalyticsLive = Layer.effect(
 		) {
 			if (!(yield* AnalyticsConsent)) return
 
-			yield* deliver(
-				async () =>
-					await client.captureImmediate({
-						distinctId: userId,
-						event,
-						properties: { ...buildProperties, ...properties },
-					})
-			)
+			client.capture({
+				distinctId: userId,
+				event,
+				properties: { ...buildProperties, ...properties },
+			})
 		})
 
-		const captureException = Effect.fn('Analytics.captureException')(function* (
-			error: unknown,
-			userId?: UserId,
-			details?: Record<string, string>
-		) {
-			yield* deliver(
-				async () =>
-					await client.captureExceptionImmediate(toSafeError(error), userId, {
+		const captureException = Effect.fn('Analytics.captureException')(
+			(error: unknown, userId?: UserId, details?: Record<string, string>) =>
+				Effect.sync(() =>
+					client.captureException(toSafeError(error), userId, {
 						...buildProperties,
 						...details,
 					})
-			)
-		})
+				)
+		)
 
 		return Analytics.of({ capture, captureException })
 	})

@@ -4,7 +4,7 @@ The API (`apps/api`) runs as the service `api` in the Railway project `Soonlane`
 
 ## Configuration
 
-`.railway/railway.ts` defines the service for both environments: Railpack builds from the repository root (`bun install --frozen-lockfile`, Bun 1.4.2 from `packageManager`), runs `bun run --cwd apps/api build`, runs the migrator as the pre-deploy command (below) and starts `bun apps/api/dist/main.js`. Railway calls `GET /health` until it answers 2xx before it switches traffic, and gives the old deployment 10 seconds to finish its requests after SIGTERM.
+`.railway/railway.ts` defines the service for both environments: Railpack builds from the repository root (`bun install --frozen-lockfile`, Bun 1.4.2 from `packageManager`), runs `bun run --cwd apps/api build`, runs the migrator as the pre-deploy command (below) and starts `bun apps/api/dist/main.js`. Railway calls `GET /health` until it answers 2xx before it switches traffic, and gives the old deployment 30 seconds after SIGTERM: the API stops accepting requests, waits up to 15 seconds for those in flight, flushes queued analytics events and closes the database pool (`apps/api/src/main.ts`).
 
 Railway reads the file only when someone applies it, never during a deploy. After changing it, from a directory linked to the project:
 

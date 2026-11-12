@@ -50,7 +50,10 @@ export const DbLive = Layer.effect(
 
 				return createdPool
 			}),
-			createdPool => Effect.promise(async () => await createdPool.end())
+			createdPool =>
+				Effect.promise(async () => await createdPool.end()).pipe(
+					Effect.andThen(Effect.logInfo('Postgres pool closed'))
+				)
 		)
 		const database = createDatabase(pool)
 

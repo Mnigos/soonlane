@@ -75,7 +75,8 @@ export default defineRailway(ctx => {
 		preDeploy: 'bun packages/db/scripts/migrate.ts',
 		start: 'bun apps/api/dist/main.js',
 		healthcheck: '/health',
-		deploy: { drainingSeconds: 10 },
+		// Covers the server's 15 s drain plus PostHog's final flush (`posthog-analytics.layer.ts`) before SIGKILL.
+		deploy: { drainingSeconds: 30 },
 		regions: { [REGION]: 1 },
 		domains: [{ domain: hosts.api, port: PORT }],
 		env: {
