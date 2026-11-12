@@ -23,12 +23,12 @@ interface LandingQuestion {
 /** Aimed at the search phrase "open source Todoist alternative"; blog posts link home with it. */
 export const LANDING_TITLE = 'Soonlane: a free, open source Todoist alternative'
 export const LANDING_DESCRIPTION =
-	'A free, open source Todoist alternative built around your days: overdue, today and every day after in one list, with labels and repeating tasks.'
+	'An open source Todoist alternative with a free task list. Overdue, today and every day after in one list, with labels and repeating tasks.'
 
 export const LANDING_HERO = {
 	headline: 'Your days, in order.',
 	subline:
-		'Overdue, today and every day after, in one scrolling list. A free, open source Todoist alternative.',
+		'Overdue, today and every day after, in one scrolling list. An open source Todoist alternative with a free task list.',
 	githubLabel: 'View on GitHub',
 	desktopImage: {
 		src: '/site/upcoming-desktop.webp',
@@ -78,9 +78,9 @@ export const LANDING_FEATURES: readonly LandingFeature[] = [
 ]
 
 export const LANDING_OPEN_SOURCE = {
-	title: 'Free, and yours to read.',
+	title: 'Open source, and yours to read.',
 	paragraphs: [
-		'Soonlane is free to use. The code is open source under AGPL-3.0, so you can read everything that happens to your tasks.',
+		'The task list is free to use, with a paid Pro plan coming for integrations. The code is open source under AGPL-3.0, so you can read everything that happens to your tasks.',
 		'It runs on TanStack Start, React, Effect and Drizzle, hosted on Railway in Amsterdam with Neon Postgres in Frankfurt.',
 		'A Mac app is in the works.',
 	],
@@ -93,7 +93,7 @@ export const LANDING_FAQ = {
 		{
 			question: 'Is Soonlane free?',
 			answer:
-				'Yes. Every feature is free to use; sign in with Google to get your own list.',
+				'The task list is free, including Upcoming, Today, labels and the Mac app. Sign in with Google to get your own list. Integrations, starting with the calendar link, will move to the paid Pro plan when it launches.',
 		},
 		{
 			question: 'What happens to my tasks?',
