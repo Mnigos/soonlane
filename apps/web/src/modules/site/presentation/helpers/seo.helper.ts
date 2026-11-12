@@ -1,4 +1,4 @@
-import type { Thing, WithContext } from 'schema-dts'
+import type { FAQPage, Thing, WithContext } from 'schema-dts'
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from '../site.constants'
 
 interface PageHeadInput {
@@ -59,5 +59,27 @@ export function jsonLdScript(data: WithContext<Thing>) {
 	return {
 		type: 'application/ld+json',
 		children: JSON.stringify(data).replaceAll('<', String.raw`\u003c`),
+	}
+}
+
+interface FaqItem {
+	question: string
+	answer: string
+}
+
+/** FAQPage data for questions shown on the page at `path`; answers are plain text, in display order. */
+export function buildFaqPageJsonLd(
+	path: string,
+	items: readonly FaqItem[]
+): WithContext<FAQPage> {
+	return {
+		'@context': 'https://schema.org',
+		'@type': 'FAQPage',
+		url: toSiteUrl(path),
+		mainEntity: items.map(({ question, answer }) => ({
+			'@type': 'Question',
+			name: question,
+			acceptedAnswer: { '@type': 'Answer', text: answer },
+		})),
 	}
 }

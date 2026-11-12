@@ -4,9 +4,14 @@ import { FeatureRow } from '../components/feature-row'
 import { LandingFaq } from '../components/landing-faq'
 import { LandingHero } from '../components/landing-hero'
 import { OpenSourceSection } from '../components/open-source-section'
-import { buildPageHead, jsonLdScript } from '../helpers/seo.helper'
+import {
+	buildFaqPageJsonLd,
+	buildPageHead,
+	jsonLdScript,
+} from '../helpers/seo.helper'
 import {
 	LANDING_DESCRIPTION,
+	LANDING_FAQ,
 	LANDING_FEATURES,
 	LANDING_HERO,
 	LANDING_TITLE,
@@ -43,7 +48,16 @@ export const Route = createFileRoute('/_site/')({
 					url: 'https://github.com/Mnigos',
 				},
 				screenshot: new URL(LANDING_HERO.desktopImage.src, SITE_URL).href,
+				featureList: [
+					'Upcoming view with every day in one list',
+					'Today view with overdue tasks on top',
+					'Repeating tasks',
+					'Labels',
+					'Goals with progress',
+					'Calendar subscription for Apple Calendar and Google Calendar',
+				],
 			}),
+			jsonLdScript(buildFaqPageJsonLd('/', LANDING_FAQ.items)),
 		],
 	}),
 	component: HomeRoute,
