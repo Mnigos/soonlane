@@ -11,6 +11,7 @@ const dueSchema = Schema.Struct({
 })
 
 const itemSchema = Schema.Struct({
+	id: Schema.String,
 	content: Schema.String,
 	description: nullable(Schema.String),
 	project_id: Schema.String,
@@ -40,6 +41,7 @@ export const todoistSnapshotSchema = Schema.Struct({
 	labels: Schema.Array(
 		Schema.Struct({
 			name: Schema.String,
+			color: nullable(Schema.String),
 			is_deleted: Schema.optionalKey(Schema.Boolean),
 		})
 	),

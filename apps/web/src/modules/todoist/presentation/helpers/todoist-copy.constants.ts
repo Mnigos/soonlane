@@ -16,7 +16,13 @@ export const TODOIST_COPY = {
 		'Comments, attachments, reminders, and completed tasks stay in Todoist.',
 	nothing: 'There are no open tasks to import.',
 	nextStep:
-		'Importing arrives in a later update, and this connection will close on its own in 15 minutes or when you cancel.',
+		'Nothing is saved until you import, and this connection will close on its own after 15 minutes or when you cancel.',
+	confirm: 'Import into Soonlane',
+	importing: 'Importing...',
+	accessClosed: 'Access to Todoist is now closed.',
+	nothingNew: 'No new tasks to import from Todoist',
+	importFailed:
+		'Soonlane could not complete the import. Nothing was saved and access to Todoist is closed. Connect again to retry.',
 	cancelled: 'Cancelled. Nothing was saved and access to Todoist is closed.',
 	readFailed:
 		'Soonlane could not read your Todoist account. Nothing was saved, and the connection will be removed within an hour.',
@@ -55,6 +61,18 @@ export const TODOIST_COUNT_COPY = {
 		one: '{count} project matched to an existing project',
 		other: '{count} projects matched to existing projects',
 	},
+	importedTitle: {
+		one: 'Imported {count} task from Todoist',
+		other: 'Imported {count} tasks from Todoist',
+	},
+	importedWithChanges: {
+		one: '{count} task arrived with changes.',
+		other: '{count} tasks arrived with changes.',
+	},
+	leftOut: {
+		one: '{count} open task was left out.',
+		other: '{count} open tasks were left out.',
+	},
 } as const satisfies Record<string, PluralCopy>
 
 /** One line per change, in the order the preview lists them. */
@@ -68,6 +86,11 @@ export const TODOIST_CHANGE_COPY: Record<TodoistImportChange, PluralCopy> = {
 		one: '{count} task without a date cannot be imported yet and will be left out.',
 		other:
 			'{count} tasks without a date cannot be imported yet and will be left out.',
+	},
+	alreadyImported: {
+		one: '{count} task imported from Todoist before will be skipped this time.',
+		other:
+			'{count} tasks imported from Todoist before will be skipped this time.',
 	},
 	subtasks: {
 		one: '{count} subtask will arrive as a separate task.',
