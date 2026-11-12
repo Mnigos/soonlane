@@ -15,7 +15,6 @@ import {
 import {
 	and,
 	between,
-	desc,
 	eq,
 	gte,
 	inArray,
@@ -30,7 +29,7 @@ import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
 import { toProject } from '@/modules/projects/infrastructure/project.mapper'
 import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
-import { ownedTasks } from './owned-tasks.query'
+import { COMPLETED_ORDER, ownedTasks } from './owned-tasks.query'
 import { updateProgress } from './task-progress.query'
 import { matchesEveryWord, SEARCH_ORDER } from './task-search.query'
 import { updateTask } from './task-update.query'
@@ -144,8 +143,7 @@ export const TaskRepositoryLive = Layer.effect(
 					async database =>
 						await ownedTasks(database, ownerId).list(
 							and(gte(task.completedAt, from), lt(task.completedAt, to)),
-							// Keep in sync with compareCompleted in task-completion.helper.ts.
-							[desc(task.completedAt), desc(task.createdAt)]
+							COMPLETED_ORDER
 						)
 				),
 			listMatching: ({ ownerId, query, limit }) =>

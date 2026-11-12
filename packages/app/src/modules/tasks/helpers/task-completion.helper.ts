@@ -1,7 +1,11 @@
 import type { ClientEvents } from '@soonlane/analytics'
 import { capture } from '@soonlane/analytics/client'
 import type { ListCompletedTasksOutput, Task } from '@soonlane/contracts'
-import type { CalendarDate } from '@soonlane/domain'
+import {
+	type CalendarDate,
+	TASK_COMPLETED_ORDER,
+	type TaskCompletedOrderKey,
+} from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { orpcQuery } from '../../../rpc-query.client'
@@ -9,11 +13,19 @@ import { refreshTaskAndLabelLists } from '../../labels/helpers/label-queries.hel
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from './task-event.helper'
 
-/** Keep in sync with the order of listCompletedBetween in task.repository.ts. */
+const COMPLETED_ORDER_COMPARATORS: Record<
+	TaskCompletedOrderKey,
+	(a: Task, b: Task) => number
+> = {
+	completedAt: (a, b) =>
+		(b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0),
+	createdAt: (a, b) => b.createdAt.getTime() - a.createdAt.getTime(),
+}
+
 function compareCompleted(a: Task, b: Task) {
-	return (
-		(b.completedAt?.getTime() ?? 0) - (a.completedAt?.getTime() ?? 0) ||
-		b.createdAt.getTime() - a.createdAt.getTime()
+	return TASK_COMPLETED_ORDER.reduce(
+		(result, key) => result || COMPLETED_ORDER_COMPARATORS[key](a, b),
+		0
 	)
 }
 

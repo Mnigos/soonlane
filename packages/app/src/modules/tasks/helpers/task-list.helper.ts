@@ -1,4 +1,5 @@
 import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
+import { TASK_DAY_ORDER, type TaskDayOrderKey } from '@soonlane/domain'
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 
@@ -28,13 +29,20 @@ export function groupTasksByDay(tasks: Task[]) {
 /** Sorts after every HH:MM due time, so untimed tasks come last like on the server. */
 const UNTIMED = '24:00'
 
-/** Keep in sync with DAY_ORDER in task.repository.ts. */
+const DAY_ORDER_COMPARATORS: Record<
+	TaskDayOrderKey,
+	(a: Task, b: Task) => number
+> = {
+	dueDate: (a, b) => a.dueDate.localeCompare(b.dueDate),
+	dueTime: (a, b) => (a.dueTime ?? UNTIMED).localeCompare(b.dueTime ?? UNTIMED),
+	priority: (a, b) => a.priority - b.priority,
+	createdAt: (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
+}
+
 function compareTasks(a: Task, b: Task) {
-	return (
-		a.dueDate.localeCompare(b.dueDate) ||
-		(a.dueTime ?? UNTIMED).localeCompare(b.dueTime ?? UNTIMED) ||
-		a.priority - b.priority ||
-		a.createdAt.getTime() - b.createdAt.getTime()
+	return TASK_DAY_ORDER.reduce(
+		(result, key) => result || DAY_ORDER_COMPARATORS[key](a, b),
+		0
 	)
 }
 
