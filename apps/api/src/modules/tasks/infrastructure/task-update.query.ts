@@ -2,8 +2,8 @@ import type { GoalInput, UpdateTaskOutput } from '@soonlane/contracts'
 import { task, taskLabel } from '@soonlane/db'
 import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
 import { and, eq, notInArray } from 'drizzle-orm'
-import type { TaskUpdate } from '../application/task-repository.port'
 import { ownedBy, ownedTasks, type Queries } from './owned-tasks.query'
+import type { TaskUpdate } from './task.repository.types'
 
 /** An absent goal keeps the columns (but the progress of a task that moves on); null clears them; a new target clamps the progress, or resets it when the task moves on. */
 function getGoalColumns(

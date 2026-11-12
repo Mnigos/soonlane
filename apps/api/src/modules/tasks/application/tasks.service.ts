@@ -27,7 +27,7 @@ import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import type { DbError } from '@/platform/db/db.errors'
 import { TaskNotFound } from '../domain/task.errors'
-import { TaskRepository } from './task-repository.port'
+import { TaskRepository } from '../infrastructure/task.repository'
 
 export class TasksService extends Context.Service<
 	TasksService,

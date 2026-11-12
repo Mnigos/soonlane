@@ -1,6 +1,16 @@
-import type { GoalInput } from '@soonlane/contracts'
+import type {
+	GoalInput,
+	Label,
+	LogProgressOutput,
+	Task,
+	UpdateTaskOutput,
+} from '@soonlane/contracts'
 import { label, task, taskLabel } from '@soonlane/db'
-import { DEFAULT_TASK_PRIORITY } from '@soonlane/domain'
+import {
+	DEFAULT_TASK_PRIORITY,
+	type TaskId,
+	type UserId,
+} from '@soonlane/domain'
 import {
 	and,
 	between,
@@ -13,14 +23,76 @@ import {
 	lt,
 	sql,
 } from 'drizzle-orm'
-import { Effect, Layer } from 'effect'
+import { Context, Effect, Layer } from 'effect'
 import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
+import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
-import { TaskRepository } from '../application/task-repository.port'
 import { ownedTasks } from './owned-tasks.query'
 import { updateProgress } from './task-progress.query'
 import { updateTask } from './task-update.query'
 import { toTask } from './task.mapper'
+import type {
+	CompletedTasksBetween,
+	DueDateAdvance,
+	NewTask,
+	OpenTasksBefore,
+	OpenTasksBetween,
+	ProgressLog,
+	TaskCompletion,
+	TaskKey,
+	TaskLabel,
+	TaskReschedule,
+	TaskUpdate,
+} from './task.repository.types'
+
+export class TaskRepository extends Context.Service<
+	TaskRepository,
+	{
+		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
+		readonly listOpenBetween: (
+			params: OpenTasksBetween
+		) => Effect.Effect<Task[], DbError>
+		readonly listOpenBefore: (
+			params: OpenTasksBefore
+		) => Effect.Effect<Task[], DbError>
+		readonly listOpenWithLabel: (
+			label: Omit<TaskLabel, 'id'>
+		) => Effect.Effect<Task[], DbError>
+		readonly listCompletedBetween: (
+			params: CompletedTasksBetween
+		) => Effect.Effect<Task[], DbError>
+		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
+		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
+		readonly update: (
+			update: TaskUpdate
+		) => Effect.Effect<UpdateTaskOutput | undefined, DbError>
+		readonly delete: (
+			key: TaskKey
+		) => Effect.Effect<TaskId | undefined, DbError>
+		readonly count: (ownerId: UserId) => Effect.Effect<number, DbError>
+		readonly setCompletion: (
+			completion: TaskCompletion
+		) => Effect.Effect<Task | undefined, DbError>
+		readonly advanceDueDate: (
+			advance: DueDateAdvance
+		) => Effect.Effect<Task | undefined, DbError>
+		readonly rescheduleOpen: (
+			reschedule: TaskReschedule
+		) => Effect.Effect<Task[], DbError>
+		readonly findLabel: (
+			label: Omit<TaskLabel, 'id'>
+		) => Effect.Effect<Label | undefined, DbError>
+		readonly assignLabel: (
+			taskLabel: TaskLabel
+		) => Effect.Effect<Task | undefined, DbError>
+		readonly unassignLabel: (
+			taskLabel: TaskLabel
+		) => Effect.Effect<Task | undefined, DbError>
+		readonly logProgress: (
+			log: ProgressLog
+		) => Effect.Effect<LogProgressOutput | undefined, DbError>
+	}
+>()('soonlane/TaskRepository') {}
 
 /** Clamped to the restored goal's target, or to the stored one; a task without a goal keeps 0, which its check requires. */
 function getRestoredProgress(
@@ -34,7 +106,7 @@ function getRestoredProgress(
 	return sql`least(${progress}, coalesce(${task.goalTarget}, 0))`
 }
 
-export const DrizzleTaskRepositoryLive = Layer.effect(
+export const TaskRepositoryLive = Layer.effect(
 	TaskRepository,
 	Effect.gen(function* () {
 		const db = yield* Db

@@ -1,6 +1,6 @@
 import { defineRule } from '@oxlint/plugins'
 import {
-	getRoleSuffix,
+	getRoleSuffixes,
 	hasSegment,
 	type RoleSuffix,
 	toFilePath,
@@ -33,7 +33,8 @@ function isFolderBoundRole(role: string | undefined): role is FolderBoundRole {
 /**
  * Warns when a role-suffixed file sits outside the layer that owns the role,
  * e.g. a `.repository.ts` outside `infrastructure/` or a `.port.ts` outside
- * `application/`.
+ * `application/`. Both roles of a two-role name count, so
+ * `task.repository.types.ts` also belongs in `infrastructure/`.
  */
 export const fileRoleFolderRule = defineRule({
 	meta: {
@@ -48,24 +49,24 @@ export const fileRoleFolderRule = defineRule({
 	},
 	create(context) {
 		const file = toFilePath(context.filename)
-		const role = getRoleSuffix(file)
+		const roles = getRoleSuffixes(file).filter(isFolderBoundRole)
 
 		return {
 			Program(node) {
-				if (!isFolderBoundRole(role)) return
+				for (const role of roles) {
+					const folders: readonly string[] = ROLE_FOLDERS[role]
 
-				const folders: readonly string[] = ROLE_FOLDERS[role]
+					if (folders.some(folder => hasSegment(file, folder))) continue
 
-				if (folders.some(folder => hasSegment(file, folder))) return
-
-				context.report({
-					node,
-					messageId: 'wrongFolder',
-					data: {
-						role,
-						folders: folders.map(folder => `${folder}/`).join(' or '),
-					},
-				})
+					context.report({
+						node,
+						messageId: 'wrongFolder',
+						data: {
+							role,
+							folders: folders.map(folder => `${folder}/`).join(' or '),
+						},
+					})
+				}
 			},
 		}
 	},

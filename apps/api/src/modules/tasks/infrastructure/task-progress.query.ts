@@ -1,8 +1,8 @@
 import { task } from '@soonlane/db'
 import { and, eq, getColumns, isNotNull, sql } from 'drizzle-orm'
 import type { Database } from '@/platform/db/db.layer'
-import type { ProgressLog } from '../application/task-repository.port'
 import { ownedBy } from './owned-tasks.query'
+import type { ProgressLog } from './task.repository.types'
 
 /** One statement on the row locked as `before`: concurrent logs never lose an increment and `logged` is what this log applied. */
 export async function updateProgress(

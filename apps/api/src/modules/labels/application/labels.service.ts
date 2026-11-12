@@ -4,7 +4,10 @@ import type { LabelId, UserId } from '@soonlane/domain'
 import { Context, Effect, Layer } from 'effect'
 import { type DbError, isUniqueViolation } from '@/platform/db/db.errors'
 import { LabelNameTaken, LabelNotFound } from '../domain/label.errors'
-import { type LabelChanges, LabelRepository } from './label-repository.port'
+import {
+	type LabelChanges,
+	LabelRepository,
+} from '../infrastructure/label.repository'
 
 export class LabelsService extends Context.Service<
 	LabelsService,

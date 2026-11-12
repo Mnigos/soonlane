@@ -9,7 +9,7 @@ import { TasksService } from '@/modules/tasks/application/tasks.service'
 import { AppConfig } from '@/platform/config/app.config'
 import type { DbError } from '@/platform/db/db.errors'
 import { buildCalendarFeed } from '../domain/calendar-feed.helper'
-import { CalendarSubscriptionRepository } from './calendar-subscription-repository.port'
+import { CalendarSubscriptionRepository } from '../infrastructure/calendar-subscription.repository'
 
 export class CalendarService extends Context.Service<
 	CalendarService,
