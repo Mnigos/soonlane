@@ -153,10 +153,8 @@ export const CONVENTION_RULES = {
 const FRONTEND_APPS = ['apps/web'] as const
 
 /** The only files that cast a plain string to a branded id or calendar date. */
-const BRAND_CAST_FILES = [
-	'packages/contracts/src/*.schemas.ts',
-	'packages/domain/**',
-] as const
+/** The private `fromUtcDate` brands every date the domain computes; contract schemas brand with Zod's `.brand()`. */
+const BRAND_CAST_FILE = 'packages/domain/src/dates/calendar-date.helper.ts'
 
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
@@ -248,7 +246,7 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'soonlane/no-brand-cast': 'error' },
 	},
 	{
-		files: [...BRAND_CAST_FILES],
+		files: [BRAND_CAST_FILE],
 		rules: { 'soonlane/no-brand-cast': 'off' },
 	},
 	{

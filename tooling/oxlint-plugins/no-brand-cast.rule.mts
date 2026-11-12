@@ -7,7 +7,7 @@ function getTypeName({ typeName }: ESTree.TSTypeReference) {
 	if (typeName.type === 'TSQualifiedName') return typeName.right.name
 }
 
-/** The brand a type names, also inside a union, intersection, array, type argument, `readonly` or parentheses (`as TaskId | undefined`, `as Array<TaskId>`). */
+/** The brand a type names, also inside a union, intersection, array, type argument, `readonly` or parentheses (`TaskId | undefined`, `Array<TaskId>`). */
 function findBrand(type: ESTree.TSType): string | undefined {
 	switch (type.type) {
 		case 'TSTypeReference': {
@@ -31,11 +31,12 @@ function findBrand(type: ESTree.TSType): string | undefined {
 }
 
 /**
- * Forbids type assertions (`as TaskId`, `<TaskId>value`) to the id and
- * calendar date brands. Contract schemas brand ids and calendar dates at the
- * API boundary and Drizzle brands rows, so app code receives branded values;
- * only `packages/contracts/src/*.schemas.ts` and `packages/domain` cast, and
- * `oxlint.conventions.mts` turns the rule off there.
+ * Forbids type assertions (`value as` or `<TaskId>value`) to the id and
+ * calendar date brands, also inside a Zod `.transform()`. Contract schemas
+ * brand with Zod's `.brand()` and Drizzle brands rows, so code receives
+ * branded values; the one cast is the private `fromUtcDate` in
+ * `packages/domain/src/dates/calendar-date.helper.ts`, the file
+ * `oxlint.conventions.mts` exempts.
  */
 export const noBrandCastRule = defineRule({
 	meta: {

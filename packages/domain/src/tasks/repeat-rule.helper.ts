@@ -1,9 +1,9 @@
-import { toCalendarDate } from '../dates/calendar-date-brand.helper'
 import {
 	addDays,
 	addMonths,
 	formatDayLongMonth,
 	formatWeekday,
+	getCalendarDate,
 	getDayOfMonth,
 	getDaysInMonth,
 	getMonthStart,
@@ -60,7 +60,11 @@ function getNextOccurrence(
 
 	return onAnchorDay(
 		addMonths(
-			toCalendarDate(`${date.slice(0, 4)}-${anchor.slice(5, 7)}-01`),
+			getCalendarDate(
+				Number(date.slice(0, 4)),
+				Number(anchor.slice(5, 7)) - 1,
+				1
+			),
 			MONTHS_PER_YEAR
 		),
 		anchor
