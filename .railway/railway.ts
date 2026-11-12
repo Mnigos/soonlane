@@ -28,6 +28,27 @@ const HOSTS = {
 } as const
 const PORT = 8080
 const REGION = 'europe-west4-drams3a'
+/** What the web build reads besides its own app; a change elsewhere, such as `apps/api` or `packages/db`, leaves the site alone. */
+const WEB_WATCH_PATTERNS = [
+	'/apps/web/**',
+	'/packages/analytics/**',
+	'/packages/auth/**',
+	'/packages/contracts/**',
+	'/packages/domain/**',
+	'/packages/ui/**',
+	'/tooling/tailwind-config/**',
+	'/tooling/typescript-config/**',
+	'/version.json',
+	'/CHANGELOG.md',
+	'/package.json',
+	'/bun.lock',
+	'/bunfig.toml',
+]
+/** The GitHub source of production; staging has none, so only `railway up` from the deploy workflow deploys it. */
+const PRODUCTION_SOURCE = github('Mnigos/soonlane', {
+	branch: 'main',
+	checkSuites: true,
+})
 
 function isKnownEnvironment(name: string): name is keyof typeof HOSTS {
 	return Object.hasOwn(HOSTS, name)
@@ -47,10 +68,7 @@ export default defineRailway(ctx => {
 		: postgres('Postgres', { region: REGION })
 
 	const api = service('api', {
-		// Staging has no source, so only `railway up` from the deploy workflow deploys it.
-		source: isProduction
-			? github('Mnigos/soonlane', { branch: 'main', checkSuites: true })
-			: undefined,
+		source: isProduction ? PRODUCTION_SOURCE : undefined,
 		build: {
 			builder: 'RAILPACK',
 			buildCommand: 'bun run --cwd apps/api build',
@@ -99,7 +117,36 @@ export default defineRailway(ctx => {
 		},
 	})
 
+	const web = service('web', {
+		source: isProduction ? PRODUCTION_SOURCE : undefined,
+		build: {
+			builder: 'RAILPACK',
+			// Ends by starting the built server and checking it (`apps/web/scripts/check-server.ts`).
+			buildCommand: 'bun run --cwd apps/web build',
+			watchPatterns: isProduction ? WEB_WATCH_PATTERNS : null,
+		},
+		// Railpack sets CI=true at run time, which turns off the server's graceful shutdown.
+		start: 'env -u CI bun apps/web/.output/server/index.mjs',
+		healthcheck: '/health',
+		// Covers the server's 15 s graceful close (SERVER_SHUTDOWN_TIMEOUT) and its 5 s forced close before SIGKILL.
+		deploy: { drainingSeconds: 30 },
+		regions: { [REGION]: 1 },
+		domains: [{ domain: new URL(hosts.app).host, port: PORT }],
+		env: {
+			PORT: String(PORT),
+			SERVER_SHUTDOWN_TIMEOUT: '15',
+			// Read at build time: the analytics environment, the blog's draft filter and the browser's API.
+			APP_ENV: environment,
+			VITE_API_URL: `https://${hosts.api}`,
+			VITE_AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
+			// Server rendering reaches the API inside the environment, over plain http.
+			API_INTERNAL_URL: `http://api.railway.internal:${PORT}`,
+			API_PROXY_SECRET: api.env.API_PROXY_SECRET,
+			VITE_POSTHOG_KEY: preserve(),
+		},
+	})
+
 	return project('Soonlane', {
-		resources: database ? [database, api] : [api],
+		resources: database ? [database, api, web] : [api, web],
 	})
 })
