@@ -5,7 +5,7 @@ import {
 	hasSegment,
 	ROLE_SUFFIXES,
 	toFilePath,
-} from './file-role.helper.mts'
+} from '../helpers/file-role.helper.mts'
 
 const COMPONENT_FILE_PATTERN =
 	/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.(?:route|skeleton))?\.tsx$/u

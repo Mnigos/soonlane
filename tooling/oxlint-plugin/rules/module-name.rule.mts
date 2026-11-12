@@ -1,7 +1,7 @@
 import { readdirSync } from 'node:fs'
 import { posix } from 'node:path'
 import { defineRule, type ESTree } from '@oxlint/plugins'
-import { getRoleSuffix, toFilePath } from './file-role.helper.mts'
+import { getRoleSuffix, toFilePath } from '../helpers/file-role.helper.mts'
 
 const MODULE_FILE_PATTERN =
 	/^(.*\/)?apps\/(?:web|api)\/src\/modules\/([^/]+)\//u

@@ -1,5 +1,5 @@
 {
-  "name": "@soonlane/oxlint-plugins",
+  "name": "@soonlane/oxlint-plugin",
   "private": true,
   "license": "AGPL-3.0-only",
   "type": "module",

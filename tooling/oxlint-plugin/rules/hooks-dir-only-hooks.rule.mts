@@ -1,5 +1,5 @@
 import { defineRule } from '@oxlint/plugins'
-import { hasSegment, toFilePath } from './file-role.helper.mts'
+import { hasSegment, toFilePath } from '../helpers/file-role.helper.mts'
 
 const HOOK_FILE_PATTERN = /^use-[a-z0-9]+(?:-[a-z0-9]+)*\.tsx?$/u
 

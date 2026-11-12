@@ -2,7 +2,7 @@
 
 **Status:** Accepted
 **Date:** 2026-11-05
-**Updated:** 2026-11-06
+**Updated:** 2026-11-12
 
 ## Context
 
@@ -21,6 +21,10 @@ Soonlist starts from the conventions of `vinyl-wishlist`, where modules grew wit
 - A file's role and allowed folder are readable from its name, and lint fails on drift instead of review catching it.
 - The default import protection rule for `**/*.client.*` is disabled, because `.client.ts` here means an HTTP client, not a browser-only module.
 - Renaming a role or folder now means updating the lint rules in `tooling/oxlint-plugins` along with the files.
+
+## Update 2026-11-12 (SOON-137)
+
+The lint rules moved to `tooling/oxlint-plugin/rules`, so renaming a role or folder now means updating the rules there.
 
 ## Related
 

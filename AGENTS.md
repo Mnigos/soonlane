@@ -42,7 +42,7 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 - No comment narrates history ("previously", "now") or explains React, TanStack or Effect basics.
 - Consecutive single-line module-level `const` declarations stay together without blank lines. (lint-enforced)
 - Never edit generated migrations; change `packages/db/schema` and run `bun run db:generate`.
-- Run `bun run check:fix`; the `soonlane/*` rules in `tooling/oxlint-plugins` enforce the remaining style.
+- Run `bun run check:fix`; the `soonlane/*` rules in `tooling/oxlint-plugin` enforce the remaining style.
 
 ## Skills
 

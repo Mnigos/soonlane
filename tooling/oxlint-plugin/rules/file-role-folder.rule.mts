@@ -4,7 +4,7 @@ import {
 	hasSegment,
 	type RoleSuffix,
 	toFilePath,
-} from './file-role.helper.mts'
+} from '../helpers/file-role.helper.mts'
 
 const ROLE_FOLDERS = {
 	repository: ['infrastructure'],
