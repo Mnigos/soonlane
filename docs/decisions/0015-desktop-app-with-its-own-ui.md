@@ -37,6 +37,18 @@ Igor decided on 2026-11-12:
 - `UBIQUITOUS_LANGUAGE.md`, `ARCHITECTURE.md`'s layout and the agent rules gain the package and the host app terms in the PR that creates the package (SOON-144), and the token terms in the sign-in PR (SOON-148).
 - Rejected: keeping the hosted page and adding only native features (no offline, a network round trip per window); Electron (Chromium in every download, a Node main process); a SwiftUI UI (nothing shared with the web app); putting the shared screens in `@soonlane/ui` (breaks its no-router, no-data rule); importing `apps/web` from the desktop app (an app never imports another app); a local server inside the app that serves the page on a domain the cookie covers (fragile and harder to secure); registering `soonlane://` on Windows ourselves (a registry entry plus single-instance forwarding outside Electrobun; offered upstream instead, SOON-143).
 
+## Update 2026-11-12 (SOON-141)
+
+The spike loaded a bundled page from `views://probe/index.html` in the Electrobun 2.0.6 window (WKWebView, macOS) and called a local server with `fetch`:
+
+- **Origin.** The page sends `Origin: views://<view name>` (here `views://probe`) with `Sec-Fetch-Site: cross-site`, on the preflight and on the request. It is not the opaque origin `null` assumed above, so the API's rule for the bundled page matches that exact string, e.g. `views://app`. Any Electrobun app with a view of the same name sends the same origin, so the origin only selects the CORS answer; the bearer token is what authenticates.
+- **CORS.** A preflight that answers the exact origin and allows `authorization, content-type`, without `access-control-allow-credentials`, lets the page send `Authorization: Bearer`. A request with `credentials: 'include'` fails against that answer, which is the intended result.
+- **Bearer plugin.** Better Auth 1.7.18's `bearer` turns the header into the session cookie in a `before` hook and returns `set-auth-token` after a response that sets the session cookie, so `getSession` in the RPC handler needs no change. Without `requireSignature: true` it also accepts the unsigned session token, so the desktop sign-in turns that option on. The cookie path and `TRUSTED_ORIGINS` stay as they are.
+- **Token to the page.** Electrobun's typed RPC (`BrowserView.defineRPC` in the main process, `Electroview` in the page) runs over a loopback WebSocket whose messages carry per-webview AES-GCM encryption. The page asks the main process for the token at startup, keeps it in memory and gives the API link an `authorization` header; `@soonlane/app` receives that link through `provideRpcLink`.
+- **Local day.** The page reports a secure context and the system's time zone (`Europe/Warsaw`) and local date, so `useToday` works unchanged; without SSR it has a date after the first render.
+
+Not covered: the Today list from the real API with a real desktop session, which needs the API running with a database. SOON-148 checks it end to end before the sign-in change is reviewed.
+
 ## Related
 
 - [ADR 0002](0002-package-layout.md), [ADR 0004](0004-desktop-shell-with-electrobun.md), [ADR 0007](0007-desktop-sign-in-through-the-system-browser.md) (its `soonlane://` return is replaced), [ADR 0010](0010-desktop-quick-add-and-dock-badge.md), [ADR 0013](0013-three-hosts-on-railway.md)
