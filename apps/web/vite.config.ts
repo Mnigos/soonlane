@@ -109,7 +109,7 @@ export default defineConfig({
 				id === CHANGELOG_MODULE ? `\0${CHANGELOG_MODULE}` : undefined,
 			load: id =>
 				id === `\0${CHANGELOG_MODULE}`
-					? `export default ${JSON.stringify(CHANGELOG)}`
+					? `export const changelog = ${JSON.stringify(CHANGELOG)}`
 					: undefined,
 		},
 		tailwindcss(),
