@@ -10,18 +10,19 @@ Anyone with a Google account, each planning their own days in a private list. Th
 
 ## Product Purpose
 
-Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist the owner actually uses (Upcoming, Today, Overdue, labels) and drops the rest. Success means the owner trusts it as the one place for "what do I have to do and when", opens it without friction, and never fights it for features meant for teams.
+Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist the owner actually uses (Upcoming, Today, Overdue, labels, projects) and drops the rest. Success means the owner trusts it as the one place for "what do I have to do and when", opens it without friction, and never fights it for features meant for teams.
 
 ### Scope
 
 - **Upcoming** (default view at `/app`): the week strip, the Overdue section, then one section per day with an "Add task" row.
 - **Today** (`/app/today`): Overdue and today's tasks.
 - **Labels**: tags on tasks, listed in the sidebar; each label's view (`/app/labels/$name`) lists its open tasks by day.
+- **Projects**: named lists, listed in the sidebar; a task belongs to at most one project and keeps its labels; each project's view (`/app/projects/$name`) lists its open tasks by day. A task without a project is the normal case, so there is no Inbox and no "no project" view. Projects are free on every plan. Deleting a project keeps its tasks; they only lose the project.
 - **Calendar subscription** (Pro): one private, read-only link per account that shows open tasks on their days in Apple Calendar or any calendar app; replaced or revoked from the user menu.
 - **Sign in with Google**; anyone can sign up, and anyone can delete their account with all its tasks.
-- **Plans**: Free and Pro. The task list (Upcoming, Today, labels, the Mac app) is free; integrations, starting with the calendar subscription, need Pro.
+- **Plans**: Free and Pro. The task list (Upcoming, Today, labels, projects, the Mac app) is free; integrations, starting with the calendar subscription, need Pro.
 
-Out of scope: projects, Inbox, filters, reporting, sharing, collaboration, comments, reminders by email.
+Out of scope: Inbox, filters, reporting, sharing, collaboration, comments, reminders by email.
 
 ## Brand Personality
 
