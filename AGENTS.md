@@ -46,4 +46,4 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 ## Skills
 
-`domain-model` (boundaries, glossary in `UBIQUITOUS_LANGUAGE.md`), `adr-authoring` (`docs/decisions`), `impeccable` (UI and design), `pull-request`.
+`domain-model` (boundaries, glossary in `UBIQUITOUS_LANGUAGE.md`), `adr-authoring` (`docs/decisions`), `impeccable` (UI and design), `pull-request`, `pr-risk` (risk labels on PRs).

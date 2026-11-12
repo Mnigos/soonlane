@@ -20,7 +20,8 @@ Use this skill when the user asks for a PR.
 5. Open a ready-for-review PR unless the user says otherwise. Dependent PRs form a native GitHub stack; never fake a stack with chained bases alone.
 6. Write the description with the format below; include validation, important risks, and the linked issue when discoverable.
 7. For UI changes, upload and embed screenshots in the PR description using the rules below.
-8. Before reporting the PR as ready, verify it on GitHub, not locally: `gh pr view --json mergeable,mergeStateStatus` shows `MERGEABLE`, `gh pr checks` has no failing or pending check for the current head, and the UI screenshot checklist below is complete. A local rebase or a green local check is not evidence; if anything is red, pending, or conflicting, say so instead of calling the PR ready.
+8. Rate the PR with the `pr-risk` skill: risk label, `## Risk rating` section and its comment. Rate again after a push that changes what the PR does.
+9. Before reporting the PR as ready, verify it on GitHub, not locally: `gh pr view --json mergeable,mergeStateStatus` shows `MERGEABLE`, `gh pr checks` has no failing or pending check for the current head, and the UI screenshot checklist below is complete. A local rebase or a green local check is not evidence; if anything is red, pending, or conflicting, say so instead of calling the PR ready.
 
 ## Description Format
 
@@ -49,8 +50,8 @@ The description is a guide for a reviewer, not a change log. A reviewer should a
 - Always open ready-for-review PRs unless the user says otherwise.
 - A PR request authorizes scoped commits, push, and PR creation without separate permission.
 - Do not prefix branches with `codex/`, `claude/` or `t3code/`.
-- Do not create GitHub comments or discussions unless explicitly asked.
-- Do not create new labels.
+- Do not create GitHub comments or discussions unless explicitly asked; the `pr-risk` comment is the one exception.
+- Create no labels other than the risk labels `pr-risk` defines. The `* Priority` labels come from the Linear Priority Labels workflow, which reads the SOON ticket from the branch name.
 - Before creating a PR, run `git fetch origin <base>` and `git rebase origin/<base>`; after rebasing an already-pushed PR branch, push with `--force-with-lease`.
 - Use `gh` for GitHub operations.
 - Local development runs against the Neon `preview` branch, which nothing migrates on deploy; for a migration, say in `## Deploy` that `bun run db:migrate` has to run against it.
