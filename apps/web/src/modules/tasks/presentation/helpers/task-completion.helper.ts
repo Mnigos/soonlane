@@ -5,6 +5,7 @@ import type { CalendarDate } from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { refreshTaskAndLabelLists } from '@/modules/labels/presentation/helpers/label-queries.helper'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { getTaskEventProperties } from './task-event.helper'
 
@@ -82,13 +83,13 @@ export function getUndoCallbacks(
 			return { reopened: removeFromCompleted(queryClient, id) }
 		},
 		onError: (
-			_error: unknown,
+			error: unknown,
 			{ id }: { id: string },
 			context?: { reopened?: Task }
 		) => {
 			if (context?.reopened) addToCompleted(queryClient, context.reopened)
 			capture('task_completion_failed', { task_id: id, action: 'uncomplete' })
-			toast('Could not restore the task. Try again.')
+			toastFailure(error, 'Could not restore the task. Try again.')
 		},
 		onSuccess: ({ task }: { task: Task }) => {
 			const properties = getTaskEventProperties(task, today)

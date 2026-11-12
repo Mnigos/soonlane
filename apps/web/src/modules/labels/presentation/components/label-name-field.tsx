@@ -4,6 +4,7 @@ import { cn } from '@soonlane/ui/cn'
 import type { UseMutationResult } from '@tanstack/react-query'
 import { Tag } from 'lucide-react'
 import { useId, useRef, useState } from 'react'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { LABEL_COLOR_CLASSES } from '../helpers/label-color.constants'
 
 interface LabelNameFieldProps {
@@ -87,7 +88,10 @@ export function LabelNameField({
 				<p className="px-2 text-caption text-danger" role="alert">
 					{isDefinedError(mutation.error)
 						? mutation.error.message
-						: 'Could not save the label. Try again.'}
+						: describeFailure(
+								mutation.error,
+								'Could not save the label. Try again.'
+							)}
 				</p>
 			)}
 		</form>

@@ -1,7 +1,7 @@
 import { isDefinedError } from '@orpc/client'
 import { updateLabelInputSchema } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import {
 	paintLabel,
@@ -31,7 +31,8 @@ export function useUpdateLabelColorMutation() {
 				}
 			},
 			onError: async (error, _variables, context) => {
-				toast(
+				toastFailure(
+					error,
 					isDefinedError(error)
 						? error.message
 						: "Could not change the label's color. Try again."

@@ -1,7 +1,11 @@
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { useRouter } from '@tanstack/react-router'
-import { useDeleteAccountMutation } from '../hooks/use-delete-account-mutation'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
+import {
+	DELETE_ACCOUNT_FAILED,
+	useDeleteAccountMutation,
+} from '../hooks/use-delete-account-mutation'
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 
 interface DeleteAccountDialogProps {
@@ -16,7 +20,7 @@ export function DeleteAccountDialog({
 	reauthError,
 }: Readonly<DeleteAccountDialogProps>) {
 	const router = useRouter()
-	const { mutate, data, isPending, isError } = useDeleteAccountMutation()
+	const { mutate, data, isPending, error } = useDeleteAccountMutation()
 	const reopenURL = router.buildLocation({
 		to: '.',
 		search: { deleteAccount: true },
@@ -58,9 +62,9 @@ export function DeleteAccountDialog({
 					</p>
 				)}
 
-				{isError && (
+				{error && (
 					<p className="text-sm font-medium text-danger" role="alert">
-						Could not delete the account. Try again.
+						{describeFailure(error.cause, DELETE_ACCOUNT_FAILED)}
 					</p>
 				)}
 

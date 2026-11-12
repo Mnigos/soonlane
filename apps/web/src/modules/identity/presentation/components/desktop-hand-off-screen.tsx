@@ -7,13 +7,14 @@ import { createDesktopSignInCode } from '@soonlane/auth/client'
 import type { SessionUser } from '@soonlane/contracts'
 import { Button } from '@soonlane/ui/components/button'
 import { useMutation } from '@tanstack/react-query'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 
 const HAND_OFF_FAILED = 'Could not start the desktop sign-in. Try again.'
 
 async function openDesktopApp(challenge: string) {
 	const { data, error } = await createDesktopSignInCode(challenge)
 
-	if (error) throw new Error(HAND_OFF_FAILED)
+	if (error) throw new Error(HAND_OFF_FAILED, { cause: error })
 
 	const link = new URL(`${DESKTOP_URL_SCHEME}://${DESKTOP_SIGN_IN_LINK_HOST}`)
 
@@ -37,7 +38,7 @@ export function DesktopHandOffScreen({
 		mutate,
 		data: link,
 		isPending,
-		isError,
+		error,
 	} = useMutation({ mutationFn: openDesktopApp })
 
 	return (
@@ -75,9 +76,9 @@ export function DesktopHandOffScreen({
 				</output>
 			)}
 
-			{isError && (
+			{error && (
 				<p className="text-sm font-medium text-danger" role="alert">
-					{HAND_OFF_FAILED}
+					{describeFailure(error.cause, HAND_OFF_FAILED)}
 				</p>
 			)}
 		</main>

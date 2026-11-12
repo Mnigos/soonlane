@@ -13,7 +13,11 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { CalendarSubscriptionDialog } from '@/modules/calendar/presentation/components/calendar-subscription-dialog'
-import { useSignOutMutation } from '../hooks/use-sign-out-mutation'
+import { describeFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
+import {
+	SIGN_OUT_FAILED,
+	useSignOutMutation,
+} from '../hooks/use-sign-out-mutation'
 import { DeleteAccountDialog } from './delete-account-dialog'
 
 const MENU_ITEM_CLASS =
@@ -33,7 +37,7 @@ export function UserMenu({
 	const [isOpen, setIsOpen] = useState(false)
 	const [isSubscribingCalendar, setIsSubscribingCalendar] = useState(false)
 	const navigate = useNavigate()
-	const { mutate: signOut, isPending, isError } = useSignOutMutation()
+	const { mutate: signOut, isPending, error } = useSignOutMutation()
 
 	function setDeleting(deleteAccount: boolean) {
 		void navigate({
@@ -113,9 +117,9 @@ export function UserMenu({
 						Delete account
 					</button>
 
-					{isError && (
+					{error && (
 						<p className="px-2 text-caption text-danger" role="alert">
-							Sign-out failed. Try again.
+							{describeFailure(error.cause, SIGN_OUT_FAILED)}
 						</p>
 					)}
 				</div>

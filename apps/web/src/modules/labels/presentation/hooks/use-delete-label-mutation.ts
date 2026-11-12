@@ -1,6 +1,6 @@
 import { isDefinedError } from '@orpc/client'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toastFailure } from '@/modules/shell/presentation/helpers/maintenance.helper'
 import { orpcQuery } from '@/platform/rpc/rpc-query.client'
 import { refreshTaskAndLabelLists } from '../helpers/label-queries.helper'
 
@@ -11,7 +11,8 @@ export function useDeleteLabelMutation(onDeleted: () => void) {
 		orpcQuery.labels.delete.mutationOptions({
 			onSuccess: onDeleted,
 			onError: error =>
-				toast(
+				toastFailure(
+					error,
 					isDefinedError(error)
 						? error.message
 						: 'Could not delete the label. Try again.'
