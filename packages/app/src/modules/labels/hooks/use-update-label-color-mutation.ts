@@ -1,8 +1,8 @@
 import { isDefinedError } from '@orpc/client'
 import { updateLabelInputSchema } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { refreshTaskLists } from '../../tasks/helpers/task-list.helper'
 import { paintLabel } from '../helpers/label-queries.helper'
 
@@ -13,6 +13,7 @@ import { paintLabel } from '../helpers/label-queries.helper'
  */
 export function useUpdateLabelColorMutation() {
 	const queryClient = useQueryClient()
+	const { showToast } = getHostPorts()
 	const isLastUpdate = () =>
 		queryClient.isMutating({
 			mutationKey: orpcQuery.labels.update.mutationKey(),
@@ -29,8 +30,7 @@ export function useUpdateLabelColorMutation() {
 				}
 			},
 			onError: async (error, _variables, context) => {
-				toastFailure(
-					error,
+				showToast(
 					isDefinedError(error)
 						? error.message
 						: "Could not change the label's color. Try again."

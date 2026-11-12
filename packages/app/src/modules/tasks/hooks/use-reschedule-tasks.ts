@@ -3,8 +3,8 @@ import {
 	rescheduleTasksInputSchema,
 } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getListInput } from '../helpers/task-list-key.helper'
 import {
 	findTaskPlacement,
@@ -16,6 +16,7 @@ import {
 /** Moves tasks to another day at once (optimistically), keeping their due times. */
 export function useRescheduleTasks() {
 	const queryClient = useQueryClient()
+	const { showToast } = getHostPorts()
 	const listKey = orpcQuery.tasks.list.key()
 
 	const reschedule = useMutation(
@@ -52,14 +53,14 @@ export function useRescheduleTasks() {
 				return { removed }
 			},
 			// Puts back only these tasks, so concurrent changes to the lists survive.
-			onError: (error, { ids }, context) => {
+			onError: (_error, { ids }, context) => {
 				for (const { key, placements } of context?.removed ?? [])
 					queryClient.setQueryData<ListTasksOutput>(
 						key,
 						list =>
 							list && placements.reduce(withTask, ids.reduce(withoutTask, list))
 					)
-				toastFailure(error, 'Could not reschedule the tasks. Try again.')
+				showToast('Could not reschedule the tasks. Try again.')
 			},
 			onSettled: async () =>
 				await Promise.all([

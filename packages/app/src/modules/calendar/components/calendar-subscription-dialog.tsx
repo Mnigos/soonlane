@@ -6,7 +6,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
-import { describeFailure } from '../../shell/helpers/maintenance.helper'
 import { CalendarLinkField } from './calendar-link-field'
 
 const createdDate = new Intl.DateTimeFormat(DATE_LOCALE, {
@@ -127,14 +126,8 @@ export function CalendarSubscriptionDialog({
 				{(create.isError || revoke.isError) && (
 					<p className="text-sm font-medium text-danger" role="alert">
 						{create.isError
-							? describeFailure(
-									create.error,
-									'Could not create the link. Try again.'
-								)
-							: describeFailure(
-									revoke.error,
-									'Could not revoke the link. Try again.'
-								)}
+							? 'Could not create the link. Try again.'
+							: 'Could not revoke the link. Try again.'}
 					</p>
 				)}
 

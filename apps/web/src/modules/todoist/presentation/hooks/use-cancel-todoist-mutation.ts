@@ -1,6 +1,5 @@
 import { APP_PATHS } from '@soonlane/app/app-paths'
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { toast } from 'sonner'
@@ -21,7 +20,7 @@ export function useCancelTodoistMutation() {
 				toast(TODOIST_COPY.cancelled)
 				await navigate({ to: APP_PATHS.upcoming })
 			},
-			onError: error => toastFailure(error, TODOIST_COPY.cancelFailed),
+			onError: () => toast(TODOIST_COPY.cancelFailed),
 		})
 	)
 }

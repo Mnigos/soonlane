@@ -1,6 +1,5 @@
 import { isDefinedError } from '@orpc/client'
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import { TODOIST_LINK_ERRORS } from '@soonlane/auth'
 import { Button } from '@soonlane/ui/components/button'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
@@ -64,7 +63,7 @@ export function TodoistImportPage({
 		if (status.isError)
 			return (
 				<p className="text-sm text-danger" role="alert">
-					{describeFailure(status.error, TODOIST_COPY.statusFailed)}
+					{TODOIST_COPY.statusFailed}
 				</p>
 			)
 
@@ -74,7 +73,7 @@ export function TodoistImportPage({
 					<p className="text-sm text-danger" role="alert">
 						{importErrorCode === 'GONE'
 							? TODOIST_COPY.expired
-							: describeFailure(importTodoist.error, TODOIST_COPY.importFailed)}
+							: TODOIST_COPY.importFailed}
 					</p>
 
 					{renderAction(TODOIST_COPY.connectAgain)}
@@ -143,7 +142,7 @@ export function TodoistImportPage({
 			return (
 				<>
 					<p className="text-sm text-danger" role="alert">
-						{describeFailure(preview.error, TODOIST_COPY.readFailed)}
+						{TODOIST_COPY.readFailed}
 					</p>
 
 					{renderAction(TODOIST_COPY.retry)}
@@ -171,7 +170,7 @@ export function TodoistImportPage({
 
 			{connect.error && (
 				<p className="text-sm text-danger" role="alert">
-					{describeFailure(connect.error.cause, connect.error.message)}
+					{connect.error.message}
 				</p>
 			)}
 

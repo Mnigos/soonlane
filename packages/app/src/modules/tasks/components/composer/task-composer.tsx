@@ -14,7 +14,6 @@ import {
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
-import { describeFailure } from '../../../shell/helpers/maintenance.helper'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
 	getChanged,
@@ -323,7 +322,7 @@ export function TaskComposer({
 
 			{error && (
 				<p className="pt-2 text-caption text-danger" role="alert">
-					{describeFailure(error, 'Could not add the task. Try again.')}
+					Could not add the task. Try again.
 				</p>
 			)}
 		</form>

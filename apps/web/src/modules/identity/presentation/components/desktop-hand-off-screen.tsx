@@ -1,4 +1,3 @@
-import { describeFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
 import {
 	DESKTOP_SIGN_IN_LINK_HOST,
 	DESKTOP_URL_SCHEME,
@@ -95,7 +94,7 @@ export function DesktopHandOffScreen({
 
 			{error && (
 				<p className="text-sm font-medium text-danger" role="alert">
-					{describeFailure(error.cause, HAND_OFF_FAILED)}
+					{HAND_OFF_FAILED}
 				</p>
 			)}
 		</main>
