@@ -8,6 +8,7 @@ import {
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
+import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
 	getChangedGoal,
 	getChangedLabelIds,
@@ -54,7 +55,8 @@ function getSavedRule(
 }
 
 /**
- * Todoist's task card: title, description and a row of chips. Enter submits,
+ * Todoist's task card: title, description and a row of chips. Enter submits
+ * from the text fields, Cmd+Enter or Ctrl+Enter from anywhere in the card,
  * Escape cancels. Adding keeps the card open for the next task; saving an
  * edit closes it.
  */
@@ -166,7 +168,13 @@ export function TaskComposer({
 		)
 	}
 
-	function cancelOnEscape(event: KeyboardEvent<HTMLElement>) {
+	/** Every field and chip has it; a popover's own fields do not, so their Enter keeps applying the popover. */
+	function handleFieldKeys(event: KeyboardEvent<HTMLElement>) {
+		if (isSaveShortcut(event) && !event.nativeEvent.isComposing) {
+			event.preventDefault()
+			event.currentTarget.closest('form')?.requestSubmit()
+			return
+		}
 		if (event.key !== 'Escape') return
 
 		event.preventDefault()
@@ -188,7 +196,7 @@ export function TaskComposer({
 				highlights={highlights}
 				inputRef={titleRef}
 				onChange={changeTitle}
-				onKeyDown={cancelOnEscape}
+				onKeyDown={handleFieldKeys}
 				onSuggestionsToggle={onSuggestionsToggle}
 				value={title}
 			/>
@@ -197,7 +205,7 @@ export function TaskComposer({
 				aria-label="Description"
 				className={cn(FIELD_CLASS, 'text-label leading-5')}
 				onChange={event => setDescription(event.target.value)}
-				onKeyDown={cancelOnEscape}
+				onKeyDown={handleFieldKeys}
 				placeholder="Description"
 				value={description}
 			/>
@@ -206,7 +214,7 @@ export function TaskComposer({
 				<ComingSoonButton
 					className="inline-flex size-7 items-center justify-center rounded-md bg-control"
 					label="More actions"
-					onKeyDown={cancelOnEscape}
+					onKeyDown={handleFieldKeys}
 				>
 					<Plus aria-hidden className="size-5" strokeWidth={1.25} />
 				</ComingSoonButton>
@@ -215,7 +223,7 @@ export function TaskComposer({
 					dueDate={scheduledDate}
 					dueTime={dueTime}
 					onDateChange={setDueDate}
-					onKeyDown={cancelOnEscape}
+					onKeyDown={handleFieldKeys}
 					onRepeatChange={rule => {
 						// Keeps the date on the chip, which the old rule may have moved off the picked day.
 						setDueDate(scheduledDate)
@@ -228,21 +236,21 @@ export function TaskComposer({
 
 				<PriorityChip
 					onChange={pickPriority}
-					onKeyDown={cancelOnEscape}
+					onKeyDown={handleFieldKeys}
 					value={priority}
 				/>
 
-				<GoalChip onChange={setGoal} onKeyDown={cancelOnEscape} value={goal} />
+				<GoalChip onChange={setGoal} onKeyDown={handleFieldKeys} value={goal} />
 
 				<LabelsChip
 					onChange={pickLabels}
-					onKeyDown={cancelOnEscape}
+					onKeyDown={handleFieldKeys}
 					value={pickedLabels}
 				/>
 
 				<div className="ml-auto flex items-center gap-2">
 					<TaskActionsMenu
-						onKeyDown={cancelOnEscape}
+						onKeyDown={handleFieldKeys}
 						task={task}
 						today={today}
 					/>
@@ -251,7 +259,7 @@ export function TaskComposer({
 						aria-label="Cancel"
 						className="flex size-8 cursor-pointer items-center justify-center rounded-md text-secondary-foreground transition-colors hover:bg-hover focus-visible:outline-2 focus-visible:outline-primary"
 						onClick={onCancel}
-						onKeyDown={cancelOnEscape}
+						onKeyDown={handleFieldKeys}
 						type="button"
 					>
 						<X aria-hidden className="size-7" strokeWidth={0.9} />
@@ -261,7 +269,7 @@ export function TaskComposer({
 						aria-disabled={!canSubmit}
 						aria-label={task ? 'Save task' : 'Add task'}
 						className="flex size-8 cursor-pointer items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-						onKeyDown={cancelOnEscape}
+						onKeyDown={handleFieldKeys}
 						type="submit"
 					>
 						{task ? (
