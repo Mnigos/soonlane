@@ -39,7 +39,7 @@ Run all of this from the repository root, in zsh or bash.
    ```
 
 4. **How the dump reaches Railway.** The `Postgres` service has no public address. The dump goes from Neon to a file on the laptop, and `pg_restore` sends it to Railway through the TCP proxy. That is the route the SOON-122 drill used and documented, and it needs no extra service. The proxy is open only for the restore and its checks. Turn it off with `railway tcp-proxy delete <proxy-id> --yes -p "$P" -e production -s Postgres` and check that `railway tcp-proxy list -p "$P" -e production -s Postgres` lists none. The dump file holds every user's data. Keep it in a directory only you can read and delete it at the end.
-5. **Versions.** `psql "$NEON_URL" -Atc 'show server_version'` must be 18 or lower; Railway runs 18 (`rpg -Atc 'show server_version'` with the proxy open). `pg_restore` cannot restore into an older major version. Write Neon's major in the ticket: it also decides the way back after the line, which restores a dump of Railway's 18 into Neon. If Neon is older than 18, that way back needs a Neon project on 18.
+5. **Versions.** `psql "$NEON_URL" -Atc 'show server_version'` must be 18 or lower; Railway runs 18 (`rpg -Atc 'show server_version'` with the proxy open). Write Neon's major in the ticket. The way back after the line restores a dump of Railway's 18 into Neon; the 2026-11-12 rehearsal restored one into Neon 17 without an error and with equal tables, so the way back uses the same Neon project.
 6. **The freeze is allowed.** `psql "$NEON_URL" -Atc "select pg_get_userbyid(datdba) = current_user from pg_database where datname = current_database()"` prints `t`. Only the database's owner can freeze it.
 7. **One database variable.** `railway variables -p "$P" -s api -e production --json | jq 'has("DATABASE_URL_UNPOOLED")'` prints `false`. The migrator prefers `DATABASE_URL_UNPOOLED` (`packages/db/migrator.helper.ts`), so if it exists, step 8 of the move would leave the pre-deploy migrator on Neon. Remove it before the window.
 8. **Check files.** Save these three next to the dump.
@@ -93,9 +93,9 @@ A dump of Neon production restored into a scratch database on Railway, never int
    ```
 
    Neon keeps taking writes during the rehearsal, so `public.session`, `public.rate_limit` or `public.verification` may differ, and a task table if someone used the app since the dump. During the move the freeze makes the first diff empty. The migration diff must be empty.
-6. Try the switches on staging, with staging's own data (staging runs the same code once this PR is on `main`). On `api` in `staging`: set `MAINTENANCE_MODE=on`, time the redeploy until health shows `"maintenance":true`, check `refused` against the staging host, then set `DATABASE_URL` to a scratch database on staging's `Postgres` and back to `${{Postgres.DATABASE_URL}}`, checking health after each, then set `MAINTENANCE_MODE=off`. That is the way back from step 8 of the move, and it gives the redeploy times.
+6. Try the switches on staging, with staging's own data (staging runs the same code once this PR is on `main`). On `api` in `staging`: set `MAINTENANCE_MODE=on`, time the redeploy until health shows `"maintenance":true`, check `refused` against the staging host, then set `DATABASE_URL` to a scratch database on staging's `Postgres` (`postgresql://${{Postgres.PGUSER}}:${{Postgres.PGPASSWORD}}@${{Postgres.RAILWAY_PRIVATE_DOMAIN}}:5432/scratch`; open staging's proxy to create it first and close it afterwards) and back to `${{Postgres.DATABASE_URL}}`, checking health after each, then set `MAINTENANCE_MODE=off`. That is the way back from step 8 of the move, and it gives the redeploy times.
 7. Try the freeze on the Neon `preview` branch, not `main`, with that branch's direct URL in place of `$NEON_URL`: the two statements and the role check from "Freeze Neon" below, a write that fails with `cannot execute ... in a read-only transaction`, then the statement from "Way back" that lifts it.
-8. Try the way back after the line: dump `rehearsal` from Railway as in "Way back" step 2 (with `-d rehearsal`), restore it into a scratch database on a Neon branch of the major chosen in "Before the rehearsal" step 5, compare `every-table.sql` on both sides, time it, drop the scratch database and `rm back.dump`. Write in the ticket which Neon project and branch the way back uses.
+8. Try the way back after the line: dump `rehearsal` from Railway as in "Way back" step 2 (with `-d rehearsal`), restore it into a scratch database on a Neon branch other than `main`, compare `every-table.sql` on both sides, time it, drop the scratch database and `rm back.dump`. Write in the ticket which Neon project and branch the way back uses.
 9. Clean up: `rpg -d postgres -c 'drop database rehearsal with (force)'`, close the proxy and check none is left, `rm rehearsal.dump neon-tables.txt rehearsal-tables.txt`.
 10. Fill in the Rehearsal column of the timings table and post it in the ticket.
 
@@ -145,11 +145,11 @@ Pick a quiet hour. Keep a log with the UTC time of each step.
 **Before the line** (maintenance still on, no write has reached Railway): lift the freeze, then set the one variable back.
 
 ```sh
-printf '%s\n' 'set default_transaction_read_only = off' "select format('alter database %I reset default_transaction_read_only', current_database())" '\gexec' | psql "$NEON_URL" -v ON_ERROR_STOP=1
+printf '%s\n' 'set default_transaction_read_only = off;' "select format('alter database %I reset default_transaction_read_only', current_database())" '\gexec' | psql "$NEON_URL" -v ON_ERROR_STOP=1
 psql "$NEON_URL" -Atc 'show default_transaction_read_only'
 ```
 
-The first `set` matters: a new session on the frozen database is read-only too, and Postgres refuses `ALTER DATABASE` in a read-only transaction. The last command opens a fresh session and must print `off`.
+The first `set` matters, and so does its semicolon: without it psql joins it to the next line, fails with a syntax error, and the database stays frozen. A new session on the frozen database is read-only too, and Postgres refuses `ALTER DATABASE` in a read-only transaction. The last command opens a fresh session and must print `off`.
 
 Then set `DATABASE_URL` on `api` back to Neon's direct URL, the value in `$NEON_URL`, in the dashboard (**api → Variables**), and wait for the redeploy. Check `health` (`"db":"ok"`), then turn maintenance off as in step 10. Railway's `railway` database can stay as it is; drop it before the next attempt with `rpg -d postgres -c 'drop database railway with (force)' -c 'create database railway owner postgres'`.
 
@@ -157,7 +157,7 @@ Then set `DATABASE_URL` on `api` back to Neon's direct URL, the value in `$NEON_
 
 1. Maintenance on (step 3).
 2. Open the proxy and dump Railway: `railway run -p "$P" -e production -s Postgres -- sh -c 'PGHOST="$RAILWAY_TCP_PROXY_DOMAIN" PGPORT="$RAILWAY_TCP_PROXY_PORT" PGSSLMODE=require exec pg_dump --format=custom --no-privileges --file=back.dump'`.
-3. In the Neon console create an empty database `soonlane_back` on the project and branch the rehearsal used for this route (on 18 if the original Neon is older) and load its direct URL with `read -rs NEON_BACK_URL && export NEON_BACK_URL`. Check: `psql "$NEON_BACK_URL" -Atc 'show server_version'` prints 18 or newer. The freeze belongs to the old database only.
+3. In the Neon console create an empty database `soonlane_back` on the project and branch the rehearsal used for this route and load its direct URL with `read -rs NEON_BACK_URL && export NEON_BACK_URL`. The freeze belongs to the old database only.
 4. `pg_restore --no-owner --no-privileges --exit-on-error --single-transaction -d "$NEON_BACK_URL" back.dump`, then compare `every-table.sql` on both sides as in step 7.
 5. Close the proxy and check none is left.
 6. Point `DATABASE_URL` at `soonlane_back`, check `health`, maintenance off. `rm back.dump`.
