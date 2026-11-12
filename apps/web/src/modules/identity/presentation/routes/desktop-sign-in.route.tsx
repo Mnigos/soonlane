@@ -11,7 +11,8 @@ const desktopSignInSearchSchema = z.object({
 		.catch(undefined),
 	error: z.string().optional().catch(undefined),
 	fresh: z.boolean().optional().catch(undefined),
-	port: z.number().int().min(1).max(65_535).optional().catch(undefined),
+	// Unprivileged ports only: a crafted link cannot aim the hand-off at a system service.
+	port: z.number().int().min(1024).max(65_535).optional().catch(undefined),
 })
 
 export const Route = createFileRoute('/_session/desktop/sign-in')({
