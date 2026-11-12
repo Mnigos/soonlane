@@ -25,7 +25,7 @@ Judge the diff, not the title, the size or the folder. A color change in `packag
 ### Blocks
 
 - A waiting block: the PR is stacked on a parent that has not merged, or a required check is red or never ran on the head commit. It clears on its own, and the level stays.
-- A defect block: the PR breaks a hard repo rule and must change. It edits a generated migration, edits `CHANGELOG.md` or `version.json`, or commits a secret.
+- A defect block: the PR breaks a hard repo rule and must change. It edits a generated migration, edits `CHANGELOG.md` or `version.json` outside a release PR (`release` skill), or commits a secret.
 
 ### Critical areas
 

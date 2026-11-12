@@ -13,7 +13,7 @@ const SHORT_SHA_LENGTH = 7
 const APP_ENVIRONMENTS = ['production', 'staging', 'development'] as const
 /** Written by the staging deploy, since `railway up` uploads no git metadata; GitHub deploys on Railway set RAILWAY_GIT_COMMIT_SHA. */
 const COMMIT_FILE = new URL('commit.env', import.meta.url)
-/** The deployed commit, 'dev' locally; the product version comes from version.json (written by the release workflow). */
+/** The deployed commit, 'dev' locally; the product version comes from version.json (written by the release PR). */
 const APP_COMMIT = (
 	process.env.RAILWAY_GIT_COMMIT_SHA ||
 	(existsSync(COMMIT_FILE)

@@ -6,9 +6,9 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 - Never read `.env` files or print secrets.
 - Commit only when asked. Conventional commits (commitlint runs in the hook and CI); never `--no-verify`. No AI attribution anywhere: no `Co-Authored-By`, no "Generated with".
-- Product scopes (`tasks`, `labels`, `shell`, `desktop`, `identity`, `site`, `blog`, `changelog`, `consent`) on `feat`/`fix`/`perf` mark a change a user notices, and only those reach `CHANGELOG.md`; write the subject as a user-facing sentence, since it is the changelog entry.
+- Product scopes (`tasks`, `labels`, `shell`, `desktop`, `identity`, `site`, `blog`, `changelog`, `consent`) on `feat`/`fix`/`perf` mark a change a user notices, and only those reach the list of changes in `CHANGELOG.md`; write the subject as a plain sentence a user can read. The release summary tells the story of a feature, so one subject need not explain it alone.
 - Internal work in those areas uses `refactor`/`chore`/`build`/`ci`, or an infra scope (`auth`, `db`, `ui`, `web`, `release`, `analytics`, ...).
-- Never edit `version.json` or the lists of changes in `CHANGELOG.md` in a PR; only the release workflow writes them. The one hand edit to `CHANGELOG.md` is the summary at the top of a released section, made in its own PR or a release PR (`docs/release.md`).
+- Never edit `CHANGELOG.md` or `version.json` in a feature PR; only the release PR the `release` skill prepares writes them (`docs/release.md`).
 - No unit tests and no test frameworks. The gates are `bun run check`, `bun run typecheck` and `bun run build`.
 - "Today" is the user's local day, read in the browser (`useToday`). Never derive it from the server clock.
 
@@ -46,4 +46,4 @@ Todoist-like personal task list: anyone can sign up with Google and gets their o
 
 ## Skills
 
-`domain-model` (boundaries, glossary in `UBIQUITOUS_LANGUAGE.md`), `adr-authoring` (`docs/decisions`), `impeccable` (UI and design), `pull-request`, `pr-risk` (risk labels on PRs).
+`domain-model` (boundaries, glossary in `UBIQUITOUS_LANGUAGE.md`), `adr-authoring` (`docs/decisions`), `impeccable` (UI and design), `pull-request`, `pr-risk` (risk labels on PRs), `release` (the stable release PR).
