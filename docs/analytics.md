@@ -26,6 +26,7 @@ Each event has one source. The server sends what only the database knows; the br
 | `user_signed_in`         | Better Auth creates a session                                                                            | server | `method`: `google` \| `desktop`                                                                |
 | `user_signed_out`        | sign-out succeeds, before `reset()`                                                                      | client | none                                                                                           |
 | `first_task_created`     | a user's first task is inserted                                                                          | server | `task_id`                                                                                      |
+| `todoist_imported`       | an import from Todoist commits                                                                           | server | `tasks`, `changed_tasks`, `left_out`, `new_labels`, `new_projects` (counts only)                |
 | `desktop_shell_opened`   | the web app loads inside the desktop window                                                              | client | none (`app_version` comes with every event)                                                    |
 | `task_created`           | the create mutation succeeds                                                                             | client | `task_id`, `source`, `has_description`, `has_time`, `priority`, `due_in_days`, `is_overdue`    |
 | `task_completed`         | the complete mutation succeeds (not the optimistic removal), or a log reaches a goal's target            | client | `task_id`, `priority`, `due_in_days`, `was_overdue`, `completed_via`: `circle` \| `goal`       |
@@ -48,8 +49,9 @@ Each event has one source. The server sends what only the database knows; the br
 
 Details:
 
-- The three server events are identified, so the server sends them only when that request carries the granted consent cookie; without it they are not sent at all ([Consent](#consent)).
+- The four server events are identified, so the server sends them only when that request carries the granted consent cookie; without it they are not sent at all ([Consent](#consent)).
 - `user_signed_in` with `method: desktop` is the desktop sign-in completing: the desktop window exchanged its one-time code for a session (`/desktop/callback`). The system browser's own Google sign-in before it counts as `method: google`. A sign-up is followed by its `user_signed_in`.
+- `todoist_imported` counts what the import saved: `tasks` created (tasks imported before are skipped), `changed_tasks` among them that arrived changed, `left_out` open tasks without a date, and the labels and projects it created. Never a name, a text or a Todoist id.
 - `first_task_created` fires when the user's task count right after the insert is 1. Two first creates that commit at the same moment both count 2, so neither fires; this is accepted, not locked against.
 - `source` is `day_row` (Add task under a day in Today or Upcoming), `label_view` (Add task in a label's view), `quick_add` (the desktop Quick Add window, opened with ⌥Space or from the File menu), `sidebar_dialog` (Add task in the rail or the sidebar, which opens the dialog) or `task_row` (Edit in a task's "…" menu, which edits it in place; an edit never sends `task_created`).
 - `composer_cancelled` fires for the X button, Escape and the dialog's own dismissal (backdrop, Escape). The dialog closing because a task was created is not a cancel, nor is an inline composer closing because another composer or edit card opened on the page. The composer under a day stays open after a create, so its later dismissal counts only if nothing was created since it opened.
@@ -89,7 +91,7 @@ Every event the app captures carries `app_version` (`version.json`), `commit`, `
 | `$pageview`, `$pageleave` | none | yes | anonymous, cookieless |
 | Session replay | none | masked | none |
 | Browser exceptions | none | identified when signed in | anonymous, cookieless |
-| Server events (`user_signed_up`, `user_signed_in`, `first_task_created`) | none | yes | none |
+| Server events (`user_signed_up`, `user_signed_in`, `first_task_created`, `todoist_imported`) | none | yes | none |
 | Server exceptions | always, with the user id when signed in | same | same |
 | Cookies and storage | the essential cookies only | posthog-js keys in localStorage and sessionStorage (`ph_<key>_posthog`, `ph_<key>_window_id`, `ph_<key>_session_registered_properties`, `ph_<key>_primary_window_exists`, `__ph_opt_in_out_<key>`), no PostHog cookies | the essential cookies only; nothing of PostHog's is kept (see Legal reasoning) |
 
