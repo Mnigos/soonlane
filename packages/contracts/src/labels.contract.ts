@@ -6,7 +6,6 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import { query } from './read-only.base'
 
 const labelNameSchema = z.string().trim().min(1).max(LABEL_NAME_MAX_LENGTH)
 const labelColorSchema = z.enum(LABEL_COLORS)
@@ -47,7 +46,7 @@ export const labelNotFound = { message: 'This label no longer exists.' }
 const labelNameTaken = { message: 'A label with this name already exists.' }
 
 export const labelsContract = {
-	list: query
+	list: oc
 		.errors(authErrors)
 		.output(z.object({ labels: z.array(listedLabelSchema) })),
 	create: oc

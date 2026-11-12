@@ -58,7 +58,6 @@ export class AppConfig extends Context.Service<
 		readonly googleClientSecret: Redacted.Redacted
 		readonly proxySecret: Redacted.Redacted
 		readonly posthogKey?: string
-		readonly maintenance: boolean
 		readonly todoist?: {
 			readonly clientId: string
 			readonly clientSecret: Redacted.Redacted
@@ -87,7 +86,7 @@ const todoistConfig = Config.all({
 	)
 )
 
-/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, `POSTHOG_KEY`, `MAINTENANCE_MODE` and the Todoist pair is required: a missing or malformed variable stops the start with its name. */
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, `POSTHOG_KEY` and the Todoist pair is required: a missing or malformed variable stops the start with its name. */
 const appConfig = Config.all({
 	port: Config.Port('PORT'),
 	environment: Config.NonEmptyString('APP_ENV'),
@@ -116,10 +115,6 @@ const appConfig = Config.all({
 	proxySecret: Config.Redacted('API_PROXY_SECRET'),
 	posthogKey: Config.option(Config.NonEmptyString('POSTHOG_KEY')).pipe(
 		Config.map(Option.getOrUndefined)
-	),
-	// Refuses every write and keeps reads working while data moves between databases (docs/neon-to-railway-move.md).
-	maintenance: Config.Boolean('MAINTENANCE_MODE').pipe(
-		Config.withDefault(false)
 	),
 	todoist: todoistConfig,
 })

@@ -72,7 +72,7 @@ function ageOf(linked: TodoistAccount) {
 export const TodoistServiceLive = Layer.effect(
 	TodoistService,
 	Effect.gen(function* () {
-		const { todoist, maintenance } = yield* AppConfig
+		const { todoist } = yield* AppConfig
 		const repository = yield* TodoistAccountRepository
 		const importedRepository = yield* ImportedTodoistTaskRepository
 		const analytics = yield* Analytics
@@ -238,8 +238,7 @@ export const TodoistServiceLive = Layer.effect(
 			yield* Effect.forEach(expired, disconnect, { discard: true })
 		})
 
-		// Maintenance refuses every write, so the sweep waits for the next start.
-		if (todoist && !maintenance)
+		if (todoist)
 			yield* sweep().pipe(
 				Effect.catchCause(cause =>
 					Effect.logError(

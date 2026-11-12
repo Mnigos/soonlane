@@ -20,7 +20,6 @@ import { z } from 'zod'
 import { authErrors } from './auth.errors'
 import { labelSchema } from './labels.contract'
 import { projectNotFound, projectSchema } from './projects.contract'
-import { query } from './read-only.base'
 
 const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
 const prioritySchema = z.union(
@@ -288,7 +287,7 @@ const taskErrors = {
 } as const satisfies ErrorMap
 
 export const tasksContract = {
-	list: query
+	list: oc
 		.errors({ ...authErrors, NOT_FOUND: listFilterNotFound })
 		.input(listTasksInputSchema)
 		.output(listTasksOutputSchema),
@@ -329,15 +328,15 @@ export const tasksContract = {
 		.errors(taskErrors)
 		.input(logProgressInputSchema)
 		.output(logProgressOutputSchema),
-	listCompleted: query
+	listCompleted: oc
 		.errors(authErrors)
 		.input(listCompletedTasksInputSchema)
 		.output(listCompletedTasksOutputSchema),
-	search: query
+	search: oc
 		.errors(authErrors)
 		.input(searchTasksInputSchema)
 		.output(searchTasksOutputSchema),
-	get: query
+	get: oc
 		.errors(taskErrors)
 		.input(taskIdInputSchema)
 		.output(z.object({ task: taskSchema })),
