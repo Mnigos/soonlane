@@ -24,7 +24,7 @@ export function SiteFooter() {
 						</p>
 
 						<p className="text-sm text-muted-foreground">
-							Your tasks, from today onwards.
+							A free, open source Todoist alternative.
 						</p>
 					</div>
 

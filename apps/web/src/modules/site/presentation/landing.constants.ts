@@ -20,15 +20,15 @@ interface LandingQuestion {
 	link?: { label: string; href: string }
 }
 
-export const LANDING_TITLE =
-	'Soonlane: an open source, Upcoming-first to-do list'
+/** Aimed at the search phrase "open source Todoist alternative"; blog posts link home with it. */
+export const LANDING_TITLE = 'Soonlane: a free, open source Todoist alternative'
 export const LANDING_DESCRIPTION =
-	'Plan your days in one list: overdue, today and every day after. A free, open source to-do list shaped like Todoist. Sign in with Google.'
+	'A free, open source Todoist alternative built around your days: overdue, today and every day after in one list, with labels and repeating tasks.'
 
 export const LANDING_HERO = {
 	headline: 'Your days, in order.',
 	subline:
-		'Overdue, today and every day after, in one scrolling list. Free, open source and shaped like Todoist.',
+		'Overdue, today and every day after, in one scrolling list. A free, open source Todoist alternative.',
 	githubLabel: 'View on GitHub',
 	desktopImage: {
 		src: '/site/upcoming-desktop.webp',
