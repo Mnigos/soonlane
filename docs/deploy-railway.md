@@ -64,7 +64,7 @@ The browser calls `/api/auth` and `/api/rpc` directly. Checks on staging:
 curl -si -X OPTIONS -H 'Origin: https://staging.soonlane.com' -H 'Access-Control-Request-Method: POST' https://api.staging.soonlane.com/api/rpc/identity/me
 # another subdomain, production's origin or the API's own: 403 for the preflight and the request
 curl -s -o /dev/null -w '%{http_code}\n' -X POST -H 'Origin: https://evil.staging.soonlane.com' -H 'content-type: application/json' -d '{"json":null}' https://api.staging.soonlane.com/api/rpc/identity/me
-# return addresses: a relative path, the API host or no body callbackURL is 400; a foreign host is Better Auth's 403
+# return addresses: a foreign host, a relative path, the API host or no body callbackURL is 400
 curl -s -X POST -H 'Origin: https://staging.soonlane.com' -H 'content-type: application/json' -d '{"provider":"google","callbackURL":"/app"}' https://api.staging.soonlane.com/api/auth/sign-in/social
 ```
 
