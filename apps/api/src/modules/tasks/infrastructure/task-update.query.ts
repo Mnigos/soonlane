@@ -53,12 +53,12 @@ async function replaceLabels(
 /** What Undo restores: the goal and progress before the edit, and the due date it completed on. */
 function getCompleted(
 	previous: { progress: number; target: number | null; unit: string | null },
-	dueDate: CalendarDate
+	dueDate: CalendarDate | null
 ): UpdateTaskOutput['completed'] {
 	if (previous.target === null) return undefined
 
 	return {
-		dueDate,
+		dueDate: dueDate ?? undefined,
 		progress: previous.progress,
 		goal: { target: previous.target, unit: previous.unit ?? undefined },
 	}

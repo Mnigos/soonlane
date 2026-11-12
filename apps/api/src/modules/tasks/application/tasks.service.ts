@@ -16,10 +16,7 @@ import {
 	type ProjectId,
 	type TaskId,
 	type UserId,
-	getEditedDueDate,
-	getEditedRule,
 	getFirstOccurrence,
-	getNextDueDate,
 } from '@soonlane/domain'
 import { Clock, Context, Effect, Layer } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
@@ -33,6 +30,7 @@ import {
 	type RestoredOccurrence,
 	failDeletedProject,
 	getAdvance,
+	getEditedSchedule,
 	requireLabel,
 	requireTask,
 	splitAtToday,
@@ -60,7 +58,7 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			id: TaskId
 		) => Effect.Effect<Task, TaskNotFound | DbError>
-		/** Every open task with any due date, in day order. */
+		/** Every open task, with or without a due date, in day order. */
 		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
 		readonly create: (
 			ownerId: UserId,
@@ -190,13 +188,15 @@ export const TasksServiceLive = Layer.effect(
 		) {
 			if (input.projectId) yield* requireProject(ownerId, input.projectId)
 
-			const dueDate = getFirstOccurrence(input.dueDate, input.repeat?.unit)
+			const dueDate =
+				input.dueDate && getFirstOccurrence(input.dueDate, input.repeat?.unit)
 			const task = yield* repository
 				.create({
 					...input,
 					ownerId,
 					dueDate,
-					repeat: input.repeat && { ...input.repeat, anchor: dueDate },
+					repeat: dueDate &&
+						input.repeat && { ...input.repeat, anchor: dueDate },
 				})
 				.pipe(Effect.catchTag('DbError', failDeletedProject))
 			// The task is saved: a failed count skips the event instead of failing the request.
@@ -223,12 +223,6 @@ export const TasksServiceLive = Layer.effect(
 
 			if (input.projectId) yield* requireProject(ownerId, input.projectId)
 
-			const repeat =
-				input.repeat === undefined
-					? current.repeat
-					: (input.repeat ?? undefined)
-			const dueDate = getEditedDueDate(current, input.dueDate, repeat?.unit)
-			const rule = getEditedRule(current, dueDate, repeat)
 			const editedAt = new Date(yield* Clock.currentTimeMillis)
 
 			return yield* requireTask(
@@ -237,9 +231,7 @@ export const TasksServiceLive = Layer.effect(
 						...input,
 						ownerId,
 						id,
-						dueDate,
-						repeat: rule,
-						nextDueDate: rule && getNextDueDate(dueDate, rule, today),
+						...getEditedSchedule(current, input, today),
 						editedAt,
 					})
 					.pipe(Effect.catchTag('DbError', failDeletedProject))
@@ -260,8 +252,9 @@ export const TasksServiceLive = Layer.effect(
 			seen: CompletionDates
 		) {
 			const task = yield* requireTask(yield* repository.find({ ownerId, id }))
+			const advance = getAdvance(task, seen)
 
-			if (!task.repeat) {
+			if (!advance) {
 				const completedAt = new Date(yield* Clock.currentTimeMillis)
 
 				return yield* requireTask(
@@ -272,7 +265,7 @@ export const TasksServiceLive = Layer.effect(
 			const advanced = yield* repository.advanceDueDate({
 				ownerId,
 				id,
-				...getAdvance(task.dueDate, task.repeat, seen),
+				...advance,
 			})
 
 			return (
@@ -337,7 +330,7 @@ export const TasksServiceLive = Layer.effect(
 					id,
 					amount,
 					loggedAt,
-					advance: task.repeat && getAdvance(task.dueDate, task.repeat, seen),
+					advance: getAdvance(task, seen),
 				})
 			)
 		})

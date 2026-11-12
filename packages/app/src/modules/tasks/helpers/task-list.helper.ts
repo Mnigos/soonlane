@@ -1,9 +1,20 @@
-import type { ListTasksInput, ListTasksOutput, Task } from '@soonlane/contracts'
-import { TASK_DAY_ORDER, type TaskDayOrderKey } from '@soonlane/domain'
+import {
+	type ListTasksInput,
+	type ListTasksOutput,
+	listTasksOutputSchema,
+	type Task,
+} from '@soonlane/contracts'
+import {
+	type CalendarDate,
+	TASK_DAY_ORDER,
+	type TaskDayOrderKey,
+} from '@soonlane/domain'
 import type { QueryClient, QueryKey } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 
 type TaskBucket = keyof ListTasksOutput
+
+const TASK_BUCKETS = listTasksOutputSchema.keyof().options
 
 /** Where a task sits in one cached list, so a failed change can put it back. */
 interface TaskPlacement {
@@ -18,22 +29,25 @@ interface CachedPlacement {
 
 /** Scheduled tasks grouped by due date; the server already orders them within a day. */
 export function groupTasksByDay(tasks: Task[]) {
-	const days = new Map<Task['dueDate'], Task[]>()
+	const days = new Map<CalendarDate, Task[]>()
 
 	for (const task of tasks)
-		days.set(task.dueDate, [...(days.get(task.dueDate) ?? []), task])
+		if (task.dueDate)
+			days.set(task.dueDate, [...(days.get(task.dueDate) ?? []), task])
 
 	return days
 }
 
 /** Sorts after every HH:MM due time, so untimed tasks come last like on the server. */
 const UNTIMED = '24:00'
+/** Sorts after every date, so tasks without one come last like the SQL's `asc` (nulls last). */
+const UNDATED = '9999-12-31'
 
 const DAY_ORDER_COMPARATORS: Record<
 	TaskDayOrderKey,
 	(a: Task, b: Task) => number
 > = {
-	dueDate: (a, b) => a.dueDate.localeCompare(b.dueDate),
+	dueDate: (a, b) => (a.dueDate ?? UNDATED).localeCompare(b.dueDate ?? UNDATED),
 	dueTime: (a, b) => (a.dueTime ?? UNTIMED).localeCompare(b.dueTime ?? UNTIMED),
 	priority: (a, b) => a.priority - b.priority,
 	createdAt: (a, b) => a.createdAt.getTime() - b.createdAt.getTime(),
@@ -50,7 +64,7 @@ export function findTaskPlacement(
 	list: ListTasksOutput,
 	id: string
 ): TaskPlacement | undefined {
-	for (const bucket of ['overdue', 'scheduled'] as const) {
+	for (const bucket of TASK_BUCKETS) {
 		const task = list[bucket].find(item => item.id === id)
 
 		if (task) return { bucket, task }
@@ -59,25 +73,27 @@ export function findTaskPlacement(
 	return undefined
 }
 
-/** The cached list without one task, for the optimistic update when it is completed. */
-export function withoutTask(
+/** The same change in every bucket; the literal fails to compile when the contract gains a bucket. */
+function mapTaskBuckets(
 	list: ListTasksOutput,
-	id: string
+	change: (tasks: Task[]) => Task[]
 ): ListTasksOutput {
 	return {
-		overdue: list.overdue.filter(task => task.id !== id),
-		scheduled: list.scheduled.filter(task => task.id !== id),
+		undated: change(list.undated),
+		overdue: change(list.overdue),
+		scheduled: change(list.scheduled),
 	}
 }
 
-export function withUpdatedTask(
-	list: ListTasksOutput,
-	task: Task
-): ListTasksOutput {
-	const update = (tasks: Task[]) =>
-		tasks.map(item => (item.id === task.id ? task : item))
+/** The cached list without one task, for the optimistic update when it is completed. */
+export function withoutTask(list: ListTasksOutput, id: string) {
+	return mapTaskBuckets(list, tasks => tasks.filter(task => task.id !== id))
+}
 
-	return { overdue: update(list.overdue), scheduled: update(list.scheduled) }
+export function withUpdatedTask(list: ListTasksOutput, task: Task) {
+	return mapTaskBuckets(list, tasks =>
+		tasks.map(item => (item.id === task.id ? task : item))
+	)
 }
 
 /** The cached list with a task back in its place, keeping every other change to the list. */
@@ -99,6 +115,7 @@ export function placeTask(
 ): TaskPlacement | undefined {
 	if (labelId && !task.labels.some(({ id }) => id === labelId)) return undefined
 	if (projectId && task.project?.id !== projectId) return undefined
+	if (task.dueDate === undefined) return { bucket: 'undated', task }
 	if (task.dueDate < today) return { bucket: 'overdue', task }
 	if (!from || !to || (from <= task.dueDate && task.dueDate <= to))
 		return { bucket: 'scheduled', task }

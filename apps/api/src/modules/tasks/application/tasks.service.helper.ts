@@ -3,9 +3,15 @@ import type {
 	Label,
 	ListTasksOutput,
 	Task,
+	UpdateTaskInput,
 } from '@soonlane/contracts'
 import { TASK_PROJECT_FOREIGN_KEY } from '@soonlane/db'
-import { type CalendarDate, getNextDueDate } from '@soonlane/domain'
+import {
+	type CalendarDate,
+	getEditedDueDate,
+	getEditedRule,
+	getNextDueDate,
+} from '@soonlane/domain'
 import { Effect } from 'effect'
 import { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import { ProjectNotFound } from '@/modules/projects/domain/project.errors'
@@ -24,15 +30,37 @@ export interface RestoredOccurrence {
 	goal?: GoalInput
 }
 
-/** From the date the client saw, so a stale list cannot advance the task twice. */
+/** From the date the client saw, so a stale list cannot advance the task twice; `undefined` for a task that does not repeat. */
 export function getAdvance(
-	storedDueDate: CalendarDate,
-	repeat: NonNullable<Task['repeat']>,
+	{ dueDate: storedDueDate, repeat }: Task,
 	{ today, dueDate }: CompletionDates
 ) {
+	if (!repeat || storedDueDate === undefined) return undefined
+
 	const from = dueDate ?? storedDueDate
 
 	return { from, to: getNextDueDate(from, repeat, today) }
+}
+
+/** A task without a due date keeps no repeat rule, even when the edit leaves `repeat` out to keep the stored one. */
+export function getEditedSchedule(
+	current: Task,
+	{ dueDate: editedDate, repeat: editedRepeat }: UpdateTaskInput,
+	today: CalendarDate | undefined
+) {
+	if (editedDate === undefined)
+		return { dueDate: null, repeat: undefined, nextDueDate: undefined }
+
+	const repeat =
+		editedRepeat === undefined ? current.repeat : (editedRepeat ?? undefined)
+	const dueDate = getEditedDueDate(current, editedDate, repeat?.unit)
+	const rule = getEditedRule(current, dueDate, repeat)
+
+	return {
+		dueDate,
+		repeat: rule,
+		nextDueDate: rule && getNextDueDate(dueDate, rule, today),
+	}
 }
 
 export function requireTask<T>(task: T | undefined) {
@@ -52,13 +80,18 @@ export function failDeletedProject(error: DbError) {
 	)
 }
 
-/** A view's open tasks, split at the client's today. */
+/** A view's open tasks: those without a due date, then the rest split at the client's today. */
 export function splitAtToday(
 	tasks: Task[],
 	today: CalendarDate
 ): ListTasksOutput {
 	return {
-		overdue: tasks.filter(({ dueDate }) => dueDate < today),
-		scheduled: tasks.filter(({ dueDate }) => dueDate >= today),
+		undated: tasks.filter(({ dueDate }) => dueDate === undefined),
+		overdue: tasks.filter(
+			({ dueDate }) => dueDate !== undefined && dueDate < today
+		),
+		scheduled: tasks.filter(
+			({ dueDate }) => dueDate !== undefined && dueDate >= today
+		),
 	}
 }

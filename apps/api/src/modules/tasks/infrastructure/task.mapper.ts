@@ -16,7 +16,7 @@ export function toTask(row: TaskRow, labels: Label[], project?: Project): Task {
 		id: row.id,
 		title: row.title,
 		description: row.description ?? undefined,
-		dueDate: row.dueDate,
+		dueDate: row.dueDate ?? undefined,
 		dueTime: row.dueTime?.slice(0, DUE_TIME_LENGTH),
 		priority: row.priority,
 		createdAt: row.createdAt,

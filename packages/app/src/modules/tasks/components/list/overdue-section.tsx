@@ -6,10 +6,10 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { useRef, useState } from 'react'
-import { useOpenEditor } from '../../hooks/use-open-editor'
+import { useCloseEditCard } from '../../hooks/use-close-edit-card'
 import { useRescheduleTasks } from '../../hooks/use-reschedule-tasks'
 import { DueDatePicker } from '../composer/due-date-picker'
-import { SectionToggle } from './section-toggle'
+import { CollapsibleTaskSection } from './collapsible-task-section'
 import { TaskList } from './task-list'
 
 interface OverdueSectionProps {
@@ -29,29 +29,11 @@ export function OverdueSection({
 	const [isPickerOpen, setIsPickerOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const { rescheduleTasks } = useRescheduleTasks()
-	const { openEditorId, setOpenEditorId } = useOpenEditor()
-
-	/** An edit card whose row is hidden or moved away would reopen wherever the task shows up next. */
-	function closeEditCard() {
-		if (tasks.some(({ id }) => id === openEditorId)) setOpenEditorId(undefined)
-	}
+	const closeEditCard = useCloseEditCard(tasks)
 
 	return (
-		<section aria-labelledby="overdue-heading" className="pt-4">
-			<div className="flex items-center justify-between gap-4 border-b pb-2">
-				<h2 className="text-sm font-semibold" id="overdue-heading">
-					<SectionToggle
-						controls="overdue-tasks"
-						isOpen={isOpen}
-						onToggle={() => {
-							closeEditCard()
-							setIsOpen(open => !open)
-						}}
-					>
-						Overdue
-					</SectionToggle>
-				</h2>
-
+		<CollapsibleTaskSection
+			action={
 				<Popover onOpenChange={setIsPickerOpen} open={isPickerOpen}>
 					<PopoverTrigger
 						className="cursor-pointer text-sm font-medium text-danger hover:underline disabled:cursor-default disabled:opacity-50 disabled:hover:no-underline"
@@ -77,24 +59,23 @@ export function OverdueSection({
 						/>
 					</PopoverContent>
 				</Popover>
-			</div>
-
-			{isOpen && (
-				<div id="overdue-tasks">
-					{!isLoading && tasks.length === 0 ? (
-						<p className="py-3 text-sm text-faint-foreground">
-							Nothing overdue.
-						</p>
-					) : (
-						<TaskList
-							isLoading={isLoading}
-							onComplete={onComplete}
-							tasks={tasks}
-							today={today}
-						/>
-					)}
-				</div>
+			}
+			heading="Overdue"
+			id="overdue"
+			isOpen={isOpen}
+			onToggle={() => setIsOpen(open => !open)}
+			tasks={tasks}
+		>
+			{!isLoading && tasks.length === 0 ? (
+				<p className="py-3 text-sm text-faint-foreground">Nothing overdue.</p>
+			) : (
+				<TaskList
+					isLoading={isLoading}
+					onComplete={onComplete}
+					tasks={tasks}
+					today={today}
+				/>
 			)}
-		</section>
+		</CollapsibleTaskSection>
 	)
 }

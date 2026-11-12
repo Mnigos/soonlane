@@ -14,10 +14,11 @@ Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist 
 
 ### Scope
 
-- **Upcoming** (default view at `/app`): the week strip, the Overdue section, then one section per day with an "Add task" row.
-- **Today** (`/app/today`): Overdue and today's tasks.
-- **Labels**: tags on tasks, listed in the sidebar; each label's view (`/app/labels/$name`) lists its open tasks by day.
-- **Projects**: named lists, listed in the sidebar; a task belongs to at most one project and keeps its labels; each project's view (`/app/projects/$name`) lists its open tasks by day. A task without a project is the normal case, so there is no Inbox and no "no project" view. Projects are free on every plan. Deleting a project keeps its tasks; they only lose the project.
+- **Upcoming** (default view at `/app`): the week strip, the No date section, the Overdue section, then one section per day with an "Add task" row.
+- **Today** (`/app/today`): No date, Overdue and today's tasks.
+- **Tasks without a date**: "No date" in the date picker or a task's "…" menu removes the due date, with its time and repeat rule. Such tasks sit in a "No date" section above Overdue, collapsible and remembered on the device; they are never overdue, never counted in the Dock badge and never in the calendar feed.
+- **Labels**: tags on tasks, listed in the sidebar; each label's view (`/app/labels/$name`) lists its open tasks without a date, then by day.
+- **Projects**: named lists, listed in the sidebar; a task belongs to at most one project and keeps its labels; each project's view (`/app/projects/$name`) lists its open tasks without a date, then by day. A task without a project is the normal case, so there is no Inbox and no "no project" view. Projects are free on every plan. Deleting a project keeps its tasks; they only lose the project.
 - **Calendar subscription** (Pro): one private, read-only link per account that shows open tasks on their days in Apple Calendar or any calendar app; replaced or revoked from the user menu.
 - **Sign in with Google**; anyone can sign up, and anyone can delete their account with all its tasks.
 - **Plans**: Free and Pro. The task list (Upcoming, Today, labels, projects, the Mac app) is free; integrations, starting with the calendar subscription, need Pro.

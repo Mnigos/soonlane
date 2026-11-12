@@ -13,11 +13,15 @@ import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import {
 	DUE_DATE_SHORTCUT_CHOICES,
 	DUE_DATE_SHORTCUT_ICONS,
+	NO_DATE_ICON,
 } from '../../helpers/due-date-shortcut.constants'
 
 interface TaskMenuDateGroupProps {
 	today: CalendarDate
 	onDateChange: (date: CalendarDate, choice: DatePickerChoice) => void
+	/** Adds "No date" after the quick dates. */
+	onNoDate?: () => void
+	noDateHint?: string
 	onMoreDates: () => void
 }
 
@@ -25,11 +29,14 @@ interface TaskMenuDateGroupProps {
 export function TaskMenuDateGroup({
 	today,
 	onDateChange,
+	onNoDate,
+	noDateHint,
 	onMoreDates,
 }: Readonly<TaskMenuDateGroupProps>) {
 	const shortcuts = getDueDateShortcuts(today).filter(
 		({ id }) => id !== 'next-weekend'
 	)
+	const { icon: NoDateIcon } = NO_DATE_ICON
 
 	return (
 		<MenuGroup>
@@ -69,6 +76,30 @@ export function TaskMenuDateGroup({
 						</Tooltip>
 					)
 				})}
+
+				{onNoDate && (
+					<Tooltip
+						label={
+							<>
+								No date{' '}
+								<span className="text-muted-foreground">{noDateHint}</span>
+							</>
+						}
+						sharesEscape
+					>
+						<MenuIconItem
+							aria-label={noDateHint ? `No date, ${noDateHint}` : 'No date'}
+							label="No date"
+							onClick={onNoDate}
+						>
+							<NoDateIcon
+								aria-hidden
+								className={cn('size-5.5', NO_DATE_ICON.className)}
+								strokeWidth={NO_DATE_ICON.strokeWidth}
+							/>
+						</MenuIconItem>
+					</Tooltip>
+				)}
 
 				<Tooltip label="More dates" sharesEscape>
 					<MenuIconItem

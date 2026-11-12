@@ -1,11 +1,11 @@
 import { saveCookie } from '@soonlane/analytics/cookie'
 import { readCookie } from '@soonlane/domain'
 import type { SidebarPreference } from '../sidebar-preference.types'
+import { PREFERENCE_COOKIE_MAX_AGE_MS } from './preference-cookie.constants'
 
 const SIDEBAR_COOKIE = 'soonlane-sidebar'
 /** Set before the rename to Soonlane; read until the owner saves the preference again. */
 const LEGACY_SIDEBAR_COOKIE = 'soonlist-sidebar'
-const COOKIE_MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
 /** Tailwind's xl breakpoint. */
 const WIDE_VIEWPORT_QUERY = '(min-width: 80rem)'
 
@@ -22,7 +22,7 @@ export function readSidebarPreference(cookieHeader: string) {
 
 /** Remembers the choice for the next SSR render. */
 export async function saveSidebarPreference(preference: SidebarPreference) {
-	await saveCookie(SIDEBAR_COOKIE, preference, COOKIE_MAX_AGE_MS)
+	await saveCookie(SIDEBAR_COOKIE, preference, PREFERENCE_COOKIE_MAX_AGE_MS)
 }
 
 /** Wide screens keep a docked sidebar; narrower ones show the full sidebar as a temporary overlay. */

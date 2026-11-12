@@ -58,6 +58,7 @@ export async function paintLabel(
 		{ queryKey: taskListKey },
 		list =>
 			list && {
+				undated: paintTasks(list.undated),
 				overdue: paintTasks(list.overdue),
 				scheduled: paintTasks(list.scheduled),
 			}

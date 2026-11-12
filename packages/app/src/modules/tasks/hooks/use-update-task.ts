@@ -83,22 +83,25 @@ export function useUpdateTask(today: CalendarDate) {
 				const knownLabels =
 					queryClient.getQueryData(orpcQuery.labels.list.queryKey())?.labels ??
 					current.labels
-				// Like the server, an absent description or time clears it; an absent rule stays and null clears it.
+				// Like the server, an absent description, date or time clears it; an absent rule stays and null clears it, and no date clears it too.
 				const task = {
 					...current,
 					description: undefined,
+					dueDate: undefined,
 					dueTime: undefined,
 					...changes,
 					labels: labelIds
 						? knownLabels.filter(label => labelIds.includes(label.id))
 						: current.labels,
-					repeat: getEditedRule(
-						current,
-						changes.dueDate,
-						changes.repeat === undefined
-							? current.repeat
-							: (changes.repeat ?? undefined)
-					),
+					repeat:
+						changes.dueDate &&
+						getEditedRule(
+							current,
+							changes.dueDate,
+							changes.repeat === undefined
+								? current.repeat
+								: (changes.repeat ?? undefined)
+						),
 					goal: editedGoal,
 				}
 

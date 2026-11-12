@@ -131,6 +131,7 @@ export const TaskRepositoryLive = Layer.effect(
 								projectId && eq(task.projectId, projectId),
 								range &&
 									or(
+										isNull(task.dueDate),
 										lt(task.dueDate, range.before),
 										between(task.dueDate, range.from, range.to)
 									)
@@ -325,7 +326,7 @@ export const TaskRepositoryLive = Layer.effect(
 							).withLabelsAndProject([row])
 							const completed = row.completed
 								? {
-										dueDate: row.previousDueDate,
+										dueDate: row.previousDueDate ?? undefined,
 										progress: row.previousProgress,
 									}
 								: undefined

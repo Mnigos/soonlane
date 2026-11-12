@@ -8,6 +8,7 @@ import { useOpenEditor } from '../../hooks/use-open-editor'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from '../list/add-task-row'
 import { DaySection } from '../list/day-section'
+import { NoDateSection } from '../list/no-date-section'
 import { OverdueSection } from '../list/overdue-section'
 import { TaskListError } from '../list/task-list-error'
 import { TaskListSkeleton } from '../list/task-list.skeleton'
@@ -39,6 +40,7 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 
 	if (isPending) return <TaskListSkeleton />
 
+	const undated = data?.undated ?? []
 	const overdue = data?.overdue ?? []
 	const tasksByDay = groupTasksByDay(data?.scheduled ?? [])
 
@@ -49,6 +51,8 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 			</header>
 
 			{isError && <TaskListError onRetry={() => void refetch()} />}
+
+			<NoDateSection onComplete={completeTask} tasks={undated} today={today} />
 
 			{overdue.length > 0 && (
 				<OverdueSection
@@ -72,11 +76,14 @@ export function LabelTasks({ label, today }: Readonly<LabelTasksProps>) {
 			))}
 
 			<div className="pt-4">
-				{data && overdue.length === 0 && tasksByDay.size === 0 && (
-					<p className="pb-2 text-label text-faint-foreground">
-						No tasks with this label yet.
-					</p>
-				)}
+				{data &&
+					undated.length === 0 &&
+					overdue.length === 0 &&
+					tasksByDay.size === 0 && (
+						<p className="pb-2 text-label text-faint-foreground">
+							No tasks with this label yet.
+						</p>
+					)}
 
 				{isAdding ? (
 					<TaskComposer

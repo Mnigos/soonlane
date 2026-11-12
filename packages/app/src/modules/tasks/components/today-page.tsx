@@ -9,6 +9,7 @@ import { useCompletedTasksQuery } from '../hooks/use-completed-tasks-query'
 import { useTasksQuery } from '../hooks/use-tasks-query'
 import { CompletedSection } from './list/completed-section'
 import { DaySection } from './list/day-section'
+import { NoDateSection } from './list/no-date-section'
 import { OverdueSection } from './list/overdue-section'
 import { TaskListError } from './list/task-list-error'
 import { OpenEditorProvider } from './open-editor-provider'
@@ -40,6 +41,12 @@ export function TodayPage({ today }: Readonly<TodayPageProps>) {
 				{completed.length > 0 && (
 					<CompletedSection tasks={completed} today={today} />
 				)}
+
+				<NoDateSection
+					onComplete={completeTask}
+					tasks={data?.undated ?? []}
+					today={today}
+				/>
 
 				<OverdueSection
 					isLoading={isPending}
