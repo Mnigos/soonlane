@@ -10,28 +10,29 @@ const PREFLIGHT_HEADERS = {
 	'access-control-max-age': String(PREFLIGHT_MAX_AGE_S),
 }
 
+interface CorsRule {
+	/** Without credentials the response also loses any `Set-Cookie`, so the caller never stores a cookie. */
+	credentials: boolean
+	allowedHeaders: string
+}
+
 /**
  * The CORS answer for an origin, or `undefined` to refuse it. A web origin from
  * `TRUSTED_ORIGINS` gets credentials and only `content-type`, all the browser's
  * oRPC link and Better Auth client send beyond the safelisted headers. The
- * desktop app's bundled page gets no credentials, so no cookie ever rides on
- * its requests, and may send `authorization` for its bearer token.
+ * desktop app's bundled page gets no credentials and may send `authorization`
+ * for its bearer token; a refreshed session's cookie never reaches its webview,
+ * where the API would refuse it on the next request.
  */
 function corsRuleFor(
 	origin: string,
 	trustedOrigins: readonly string[]
-): { headers: Record<string, string>; allowedHeaders: string } | undefined {
+): CorsRule | undefined {
 	if (trustedOrigins.includes(origin))
-		return {
-			headers: {
-				'access-control-allow-origin': origin,
-				'access-control-allow-credentials': 'true',
-			},
-			allowedHeaders: 'content-type',
-		}
+		return { credentials: true, allowedHeaders: 'content-type' }
 	if (origin === DESKTOP_PAGE_ORIGIN)
 		return {
-			headers: { 'access-control-allow-origin': origin },
+			credentials: false,
 			allowedHeaders: 'authorization, content-type',
 		}
 
@@ -78,17 +79,23 @@ export function withCors(
 		const origin = request.headers.get('origin')
 		const isPreflight = request.method === 'OPTIONS'
 
-		if (origin === null && !isPreflight) return await handle(request)
+		if (origin === null)
+			return isPreflight ? forbidden() : await handle(request)
 
-		const rule =
-			origin === null ? undefined : corsRuleFor(origin, trustedOrigins)
+		const rule = corsRuleFor(origin, trustedOrigins)
 
 		if (!rule) return forbidden()
+
+		const corsHeaders = {
+			'access-control-allow-origin': origin,
+			...(rule.credentials && { 'access-control-allow-credentials': 'true' }),
+		}
+
 		if (isPreflight)
 			return new Response(null, {
 				status: 204,
 				headers: {
-					...rule.headers,
+					...corsHeaders,
 					...PREFLIGHT_HEADERS,
 					'access-control-allow-headers': rule.allowedHeaders,
 					vary: 'Origin',
@@ -99,8 +106,9 @@ export function withCors(
 		// A fresh response: one from a redirect helper can have immutable headers.
 		const answer = new Response(response.body, response)
 
-		for (const [name, value] of Object.entries(rule.headers))
+		for (const [name, value] of Object.entries(corsHeaders))
 			answer.headers.set(name, value)
+		if (!rule.credentials) answer.headers.delete('set-cookie')
 		answer.headers.append('vary', 'Origin')
 
 		return answer
