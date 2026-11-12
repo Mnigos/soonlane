@@ -83,6 +83,7 @@ export default defineConfig({
 			'error',
 			'prefer-top-level-if-only-type-imports',
 		],
+		'import/no-default-export': 'error',
 		'import/no-duplicates': ['error', { preferInline: true }],
 		'no-nested-ternary': 'off',
 		'no-undef': 'error',
@@ -132,6 +133,21 @@ export default defineConfig({
 		...CONVENTION_RULES,
 	},
 	overrides: [
+		{
+			// Their tool loads them only through the default export: Vite, content-collections, Drizzle Kit, Electrobun, commitlint, oxlint (config and plugin), oxfmt and Railway.
+			files: [
+				'apps/web/vite.config.ts',
+				'apps/web/content-collections.ts',
+				'packages/db/drizzle.config.ts',
+				'apps/desktop/electrobun.config.ts',
+				'commitlint.config.ts',
+				'oxlint.config.mts',
+				'oxfmt.config.mts',
+				'.railway/railway.ts',
+				'tooling/oxlint-plugins/soonlane.plugin.mts',
+			],
+			rules: { 'import/no-default-export': 'off' },
+		},
 		{
 			// The one brand cast, in fromUtcDate (soonlane/no-brand-cast).
 			files: ['packages/domain/src/dates/calendar-date.helper.ts'],
