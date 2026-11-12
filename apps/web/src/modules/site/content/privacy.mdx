@@ -25,6 +25,14 @@ Soonlane does not sell Google user data, does not use it for advertising, and do
 
 Soonlane's use and transfer of information received from Google APIs to any other app will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.
 
+## Data from Todoist
+
+This section applies only if you start an import from Todoist. Soonlane asks Todoist for read-only access using the `data:read` scope. It receives your Todoist user ID, name, and email address, and reads your open tasks, projects, sections, and labels to show you a preview.
+
+Soonlane stores your Todoist account ID and encrypted access and refresh tokens until the preview ends. It revokes and deletes the tokens when you cancel, when reading fails, after 15 minutes, or after the import finishes. In this release, task data is read only to build the preview and is not stored. Nothing is written back to Todoist.
+
+Todoist is a separate service with its own privacy policy. Soonlane is not created by, affiliated with, or supported by Todoist.
+
 ## Your tasks
 
 Soonlane stores the tasks you create: the title, description, due date and time, priority, when you created the task and when you completed it. Each task belongs to your account, and the app shows it only to you. Your tasks are used for nothing else. I do not read them unless you ask me for help with your data or the law requires it.
@@ -60,7 +68,7 @@ These cookies are needed for Soonlane to work, so they do not ask for your conse
 - **Session cookie** (`soonlane.session_token`, with a `__Secure-` prefix on HTTPS): keeps you signed in for the life of your session. Scripts on the page cannot read it.
 - **Signed-in hint** (`soonlane.signed_in`): holds `1` while you are signed in, so the public pages can show "Open app". It carries no user data and lasts as long as your session.
 - **Sidebar preference** (`soonlane-sidebar`): remembers whether you keep the full sidebar or the narrow one. It lasts one year.
-- **Sign-in state** (`soonlane.state`, with the same prefix): protects the Google sign-in against forged requests. It lasts 5 minutes.
+- **Sign-in state** (`soonlane.state`, with the same prefix): protects Google sign-in and Todoist connections against forged requests. It lasts 5 minutes.
 - **Consent** (`soonlane.consent`): remembers your analytics choice for every page on soonlane.com and its subdomains. An accepted choice is kept for 12 months and a rejected one for 6 months; then Soonlane asks again.
 
 ### Analytics (optional)
@@ -82,6 +90,7 @@ Deleting your account does not yet remove analytics data from PostHog automatica
 - **Railway** hosts Soonlane: the website and the web app at soonlane.com, and the API at api.soonlane.com, which handles sign-in, your tasks and calendar links. Both run in Amsterdam, the Netherlands, and Railway keeps request logs, including IP addresses, for a limited time.
 - **Neon** hosts the database in Frankfurt, Germany (AWS `eu-central-1`).
 - **Google** provides sign-in.
+- **Todoist** provides the data for an import, only when you start one.
 - **PostHog** provides analytics in its EU region, as described above.
 - **Stripe and Link** ([Sold through Link, LLC](https://stripe.com/legal/ssa-service-terms), a Stripe company) sell Soonlane Pro as the merchant of record and handle checkout and payments, as described above; free accounts send nothing to Stripe.
 - **Cloudflare** provides DNS for soonlane.com and sits in front of the website, the web app and the API: every request your browser sends to soonlane.com or api.soonlane.com, including your IP address, passes through Cloudflare's network on its way to Railway.
@@ -92,7 +101,7 @@ Some of these providers are based in the United States. When they handle data ou
 
 Your account, your Google data and tokens, and your tasks are kept until you delete your account. A calendar link works until you revoke it or create a new one in the account menu, or until you delete your account. If you have subscribed to Soonlane Pro, deleting your account also deletes Soonlane's copy of your Stripe customer id and subscription state, while Stripe keeps its own records under the [Link Privacy Policy](https://link.com/privacy).
 
-To delete your account, open the account menu in the app and choose "Delete account". If your last Google sign-in is more than a day old, Soonlane asks you to sign in with Google again first. Deletion removes your account, all your sessions, the stored Google tokens, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
+To delete your account, open the account menu in the app and choose "Delete account". If your last Google sign-in is more than a day old, Soonlane asks you to sign in with Google again first. Deletion removes your account, all your sessions, any stored Google and Todoist tokens, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
 
 Neon keeps the database's history for point-in-time restore. Deleted data can stay in that history for up to 6 hours, then it is gone.
 
