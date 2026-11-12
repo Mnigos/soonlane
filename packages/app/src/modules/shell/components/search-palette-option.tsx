@@ -35,7 +35,10 @@ export function SearchPaletteOption({
 					<span className="ph-mask truncate text-sm">{item.task.title}</span>
 
 					<TaskMeta
-						due={getDueChipLabel(item.task.dueDate, item.task.dueTime, today)}
+						due={
+							item.task.dueDate &&
+							getDueChipLabel(item.task.dueDate, item.task.dueTime, today)
+						}
 						task={item.task}
 					/>
 				</div>

@@ -10,6 +10,9 @@ export function getTaskEventProperties(
 	return {
 		task_id: task.id,
 		priority: task.priority,
-		due_in_days: getDaysBetween(today, task.dueDate),
+		due_in_days:
+			task.dueDate === undefined
+				? undefined
+				: getDaysBetween(today, task.dueDate),
 	}
 }

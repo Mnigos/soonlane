@@ -45,10 +45,8 @@ export const task = pgTable(
 			.references(() => user.id, { onDelete: 'cascade' }),
 		title: text('title').notNull(),
 		description: text('description'),
-		// A calendar day without a time zone: the owner's local day when the task was planned.
-		dueDate: date('due_date', { mode: 'string' })
-			.notNull()
-			.$type<CalendarDate>(),
+		// A calendar day without a time zone: the owner's local day when the task was planned; null for a task without a date.
+		dueDate: date('due_date', { mode: 'string' }).$type<CalendarDate>(),
 		dueTime: time('due_time', { precision: 0 }),
 		priority: smallint('priority').notNull().default(4).$type<TaskPriority>(),
 		createdAt: timestamp('created_at', { withTimezone: true })

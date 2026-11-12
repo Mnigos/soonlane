@@ -37,10 +37,14 @@ export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
 	repeat?: RepeatRule
 }
 
-/** `nextDueDate` is where the edited rule moves the task when its new goal completes it. */
-export interface TaskUpdate extends Omit<UpdateTaskInput, 'repeat' | 'today'> {
+/** `dueDate` null clears it; `nextDueDate` is where the edited rule moves the task when its new goal completes it. */
+export interface TaskUpdate extends Omit<
+	UpdateTaskInput,
+	'dueDate' | 'repeat' | 'today'
+> {
 	ownerId: UserId
 	id: TaskId
+	dueDate: CalendarDate | null
 	repeat?: RepeatRule
 	nextDueDate?: CalendarDate
 	editedAt: Date

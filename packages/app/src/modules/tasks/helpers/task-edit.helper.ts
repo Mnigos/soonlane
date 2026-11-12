@@ -43,19 +43,29 @@ export function isRepeatChanged(task: Task, repeat: RepeatInput | undefined) {
 	)
 }
 
+/** What choosing No date also removes, shown next to the option; undefined when the task has neither. */
+export function getNoDateHint(dueTime: string | undefined, hasRepeat: boolean) {
+	if (dueTime && hasRepeat) return 'Removes time and repeat'
+	if (dueTime) return 'Removes time'
+	if (hasRepeat) return 'Removes repeat'
+
+	return undefined
+}
+
 /**
  * The `tasks.update` input of a task's "…" menu: the edit card's save with only the due date or the
  * priority changed, so a weekday rule moves a weekend pick to Monday and the goal and labels stay.
- * Undefined when the choice is what the task already has.
+ * No date also drops the due time and the repeat rule. Undefined when the choice is what the task already has.
  */
 export function getMenuEdit(
 	task: Task,
 	today: CalendarDate,
-	change: { dueDate: CalendarDate } | { priority: TaskPriority }
+	change: { dueDate: CalendarDate | undefined } | { priority: TaskPriority }
 ) {
 	const dueDate =
 		'dueDate' in change
-			? getEditedDueDate(task, change.dueDate, task.repeat?.unit)
+			? change.dueDate &&
+				getEditedDueDate(task, change.dueDate, task.repeat?.unit)
 			: task.dueDate
 	const priority = 'priority' in change ? change.priority : task.priority
 
@@ -66,9 +76,9 @@ export function getMenuEdit(
 		title: task.title,
 		description: task.description,
 		dueDate,
-		dueTime: task.dueTime,
+		dueTime: dueDate === undefined ? undefined : task.dueTime,
 		priority,
-		repeat: toRepeatInput(task) ?? null,
+		repeat: dueDate === undefined ? null : (toRepeatInput(task) ?? null),
 		today,
 	}
 }

@@ -30,6 +30,9 @@ interface DueDatePickerProps extends PropsWithChildren {
 	dueDate?: CalendarDate
 	today: CalendarDate
 	onDateChange: (date: CalendarDate, choice: DatePickerChoice) => void
+	/** Offers "No date" while a date is set; Overdue's Reschedule leaves it out. */
+	onNoDate?: () => void
+	noDateHint?: string
 	inputRef: Ref<HTMLInputElement>
 }
 
@@ -38,6 +41,8 @@ export function DueDatePicker({
 	dueDate,
 	today,
 	onDateChange,
+	onNoDate,
+	noDateHint,
 	inputRef,
 	children,
 }: Readonly<DueDatePickerProps>) {
@@ -100,6 +105,8 @@ export function DueDatePicker({
 			{/* Only the dates scroll on a short screen, so the text field and footer stay in view. */}
 			<div className="min-h-0 overflow-y-auto overscroll-contain">
 				<DueDateShortcuts
+					noDateHint={noDateHint}
+					onNoDate={onNoDate}
 					onSelect={(date, id) =>
 						onDateChange(date, DUE_DATE_SHORTCUT_CHOICES[id])
 					}

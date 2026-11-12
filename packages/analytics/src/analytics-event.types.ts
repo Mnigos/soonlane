@@ -16,6 +16,7 @@ export type DatePickerChoice =
 	| 'quick_next_weekend'
 	| 'calendar'
 	| 'typed'
+	| 'no_date'
 
 export type UpcomingNavigation = 'next' | 'previous' | 'today' | 'strip'
 
@@ -24,7 +25,8 @@ export type RangeLoadTrigger = 'scroll' | 'navigation'
 export interface TaskEventProperties {
 	task_id: string
 	priority: TaskPriority
-	due_in_days: number
+	/** Absent for a task without a due date. */
+	due_in_days?: number
 }
 
 export interface ClientEvents {

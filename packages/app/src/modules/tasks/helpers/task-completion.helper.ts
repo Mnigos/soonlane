@@ -70,7 +70,7 @@ export function announceCompletion(
 
 	capture('task_completed', {
 		...properties,
-		was_overdue: properties.due_in_days < 0,
+		was_overdue: (properties.due_in_days ?? 0) < 0,
 		completed_via: completedVia,
 	})
 	toast('Task completed', {
@@ -108,7 +108,7 @@ export function getUndoCallbacks(
 
 			capture('task_uncompleted', {
 				...properties,
-				was_overdue: properties.due_in_days < 0,
+				was_overdue: (properties.due_in_days ?? 0) < 0,
 				completed_via: uncompletedVia,
 			})
 		},

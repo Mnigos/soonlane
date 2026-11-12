@@ -44,9 +44,11 @@ export function TaskItem({
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 	const isEditing = openEditorId === task.id
 	const [shouldFocusMenu, setShouldFocusMenu] = useState(false)
-	const due = showsDueDay
-		? getDueChipLabel(task.dueDate, task.dueTime, today)
-		: getDueLabel(task.dueDate, task.dueTime, today)
+	const due =
+		task.dueDate &&
+		(showsDueDay
+			? getDueChipLabel(task.dueDate, task.dueTime, today)
+			: getDueLabel(task.dueDate, task.dueTime, today))
 	const buttonId = useId()
 	const titleId = useId()
 	const { updateTask } = useUpdateTask(today)
@@ -64,7 +66,10 @@ export function TaskItem({
 	}
 
 	/** Focus moves to the "…" before the save, so it follows the task when the new date moves its row to another list. */
-	function changeDate(dueDate: CalendarDate, choice: DatePickerChoice) {
+	function changeDate(
+		dueDate: CalendarDate | undefined,
+		choice: DatePickerChoice
+	) {
 		triggerRef.current?.focus()
 		capture('date_picker_used', {
 			choice,

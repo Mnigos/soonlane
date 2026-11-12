@@ -82,7 +82,9 @@ export const CalendarServiceLive = Layer.effect(
 			const tasks = yield* tasksService.listOpen(subscription.ownerId)
 
 			return buildCalendarFeed({
-				tasks,
+				tasks: tasks.flatMap(({ dueDate, ...task }) =>
+					dueDate ? [{ ...task, dueDate }] : []
+				),
 				taskUrl: `${appUrl}/app`,
 				builtAt: new Date(yield* Clock.currentTimeMillis),
 			})

@@ -5,10 +5,12 @@ import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Toaster } from '@soonlane/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
-import { type PropsWithChildren, useState } from 'react'
+import { type PropsWithChildren, useMemo, useState } from 'react'
 import { AddTaskDialog } from '../../tasks/components/task/add-task-dialog'
 import { EditTaskDialog } from '../../tasks/components/task/edit-task-dialog'
 import { useDockBadgeQuery } from '../../tasks/hooks/use-dock-badge-query'
+import { NoDateSectionContext } from '../../tasks/no-date-section.context'
+import { saveNoDateSectionOpen } from '../helpers/no-date-section-preference.helper'
 import {
 	isWideViewport,
 	saveSidebarPreference,
@@ -26,6 +28,7 @@ interface ShellProps extends PropsWithChildren {
 	/** The current pathname, which Recent compares with `APP_PATHS`. */
 	activePath: string
 	activeLabelName?: string
+	initialIsNoDateSectionOpen: boolean
 	initialSidebarPreference: SidebarPreference
 	user: SessionUser
 }
@@ -40,6 +43,7 @@ export function Shell({
 	activePath,
 	activeLabelName,
 	children,
+	initialIsNoDateSectionOpen,
 	initialSidebarPreference,
 	user,
 }: Readonly<ShellProps>) {
@@ -50,6 +54,19 @@ export function Shell({
 	const [isSearching, setIsSearching] = useState(false)
 	const [editedTask, setEditedTask] = useState<Task>()
 	const showShortcuts = () => setIsShowingShortcuts(true)
+	const [isNoDateSectionOpen, setIsNoDateSectionOpen] = useState(
+		initialIsNoDateSectionOpen
+	)
+	const noDateSection = useMemo(
+		() => ({
+			isOpen: isNoDateSectionOpen,
+			toggle: () => {
+				setIsNoDateSectionOpen(!isNoDateSectionOpen)
+				void saveNoDateSectionOpen(!isNoDateSectionOpen)
+			},
+		}),
+		[isNoDateSectionOpen]
+	)
 
 	useDockBadgeQuery()
 	useTrackRecentViews(activePath, activeLabelName)
@@ -128,7 +145,9 @@ export function Shell({
 				</Button>
 			</div>
 
-			{children}
+			<NoDateSectionContext value={noDateSection}>
+				{children}
+			</NoDateSectionContext>
 
 			{isAddingTask && <AddTaskDialog onClose={() => setIsAddingTask(false)} />}
 

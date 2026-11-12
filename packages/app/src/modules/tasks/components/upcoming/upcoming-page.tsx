@@ -17,6 +17,7 @@ import { flushSync } from 'react-dom'
 import { useActiveDay } from '../../hooks/use-active-day'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
+import { NoDateSection } from '../list/no-date-section'
 import { OverdueSection } from '../list/overdue-section'
 import { TaskListError } from '../list/task-list-error'
 import { OpenEditorProvider } from '../open-editor-provider'
@@ -38,7 +39,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 		? addDays(activeDay, -1)
 		: undefined
 	const nextDay = addDays(activeDay, 1)
-	// The first range's query, shared with its section list, also brings the overdue tasks.
+	// The first range's query, shared with its section list, also brings the undated and overdue tasks.
 	const { data, isPending, isError, refetch } = useTasksQuery({
 		from: today,
 		to: getUpcomingLastDay(today, UPCOMING_WEEK_COUNT),
@@ -106,6 +107,12 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 				</header>
 
 				{isError && <TaskListError onRetry={() => void refetch()} />}
+
+				<NoDateSection
+					onComplete={completeTask}
+					tasks={data?.undated ?? []}
+					today={today}
+				/>
 
 				<OverdueSection
 					isLoading={isPending}

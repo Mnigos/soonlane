@@ -35,7 +35,7 @@ Each event has one source. The server sends what only the database knows; the br
 | `task_completion_failed` | the complete mutation, an Undo or a reopen fails                                                                   | client | `task_id`, `action`: `complete` \| `uncomplete`                                                |
 | `composer_opened`        | Add task opens the composer                                                                              | client | `source`                                                                                       |
 | `composer_cancelled`     | an open composer is dismissed and no task was created while it was open                                  | client | `source`                                                                                       |
-| `date_picker_used`       | a due date is accepted in the composer's date picker or a task's "…" menu                                 | client | `choice`, `has_time`                                                                           |
+| `date_picker_used`       | a due date or No date is accepted in the composer's date picker or a task's "…" menu                      | client | `choice`, `has_time`                                                                           |
 | `priority_set`           | the priority chip or a task's "…" menu changes to another priority                                       | client | `priority`                                                                                     |
 | `upcoming_day_navigated` | the Upcoming arrows, the today button or a week strip day is clicked                                     | client | `direction`: `next` \| `previous` \| `today` \| `strip`, `distance_days`                       |
 | `upcoming_range_loaded`  | the Upcoming list appends weeks                                                                          | client | `weeks_loaded`, `trigger`: `scroll` \| `navigation`                                            |
@@ -55,8 +55,8 @@ Details:
 - `first_task_created` fires when the user's task count right after the insert is 1. Two first creates that commit at the same moment both count 2, so neither fires; this is accepted, not locked against.
 - `source` is `day_row` (Add task under a day in Today or Upcoming), `label_view` (Add task in a label's view), `quick_add` (the desktop Quick Add window, opened with ⌥Space or from the File menu), `sidebar_dialog` (Add task in the rail or the sidebar, which opens the dialog) or `task_row` (Edit in a task's "…" menu, which edits it in place; an edit never sends `task_created`).
 - `composer_cancelled` fires for the X button, Escape and the dialog's own dismissal (backdrop, Escape). The dialog closing because a task was created is not a cancel, nor is an inline composer closing because another composer or edit card opened on the page. The composer under a day stays open after a create, so its later dismissal counts only if nothing was created since it opened.
-- `due_in_days` is the due date minus the browser's local today, in days (negative when overdue). `is_overdue` and `was_overdue` are the due date before that today, at the moment of the event. For a repeating task, `task_completed` describes the occurrence that was completed, not the next one. `completed_via: goal` fires when the server reports that a log completed the task; a log that would have completed it but fails sends nothing.
-- `choice` is `quick_today`, `quick_tomorrow`, `quick_this_weekend`, `quick_next_week`, `quick_next_weekend`, `calendar` or `typed`. A typed date counts when it is accepted (Enter or a click on the match), never per keystroke and never with the text. `has_time` says whether the task has a due time at that moment.
+- `due_in_days` is the due date minus the browser's local today, in days (negative when overdue); a task without a due date sends no `due_in_days`. `is_overdue` and `was_overdue` are the due date before that today, at the moment of the event, and `false` for a task without one. For a repeating task, `task_completed` describes the occurrence that was completed, not the next one. `completed_via: goal` fires when the server reports that a log completed the task; a log that would have completed it but fails sends nothing.
+- `choice` is `quick_today`, `quick_tomorrow`, `quick_this_weekend`, `quick_next_week`, `quick_next_weekend`, `calendar`, `typed` or `no_date` (the date removed). A typed date counts when it is accepted (Enter or a click on the match), never per keystroke and never with the text. `has_time` says whether the task has a due time at that moment.
 - `distance_days` is the number of days between the active day before the click and the target day. Passive scrolling is not navigation.
 - `weeks_loaded` is the Upcoming list's week count after the append (8 at first, plus 4 per append). `trigger: navigation` is the next arrow stepping past the last rendered day.
 - `sidebar_toggled` counts the user's clicks only: the docked sidebar from `xl`, and the overlay below it (open button, collapse button, backdrop). The overlay closing on navigation or on Add task is not counted.
@@ -78,7 +78,7 @@ Every event the app captures carries `app_version` (`version.json`), `commit`, `
 
 ### Categories
 
-- **Essential**, always on, no choice: the Better Auth session cookie, the `soonlane-sidebar` preference cookie and the `<prefix>.consent` consent cookie itself.
+- **Essential**, always on, no choice: the Better Auth session cookie, the `soonlane-sidebar` and `soonlane-no-date-section` preference cookies and the `<prefix>.consent` consent cookie itself.
 - **Analytics**, optional: product analytics with a persistent PostHog id and a person profile linked to the account, plus masked session replay.
 - Error reports are not a choice. They rest on legitimate interest in keeping the service working, carry no content (name and stack only), and follow the lanes below: identified with analytics granted, anonymous and cookieless otherwise, not sent from the browser before an answer.
 
@@ -138,7 +138,7 @@ Privacy choices dialog:
 
 > **Privacy choices**
 > **Essential** · Always on
-> Cookies that keep you signed in and remember your sidebar and these choices. Error reports without your content are always sent, so we can fix problems.
+> Cookies that keep you signed in and remember your layout and these choices. Error reports without your content are always sent, so we can fix problems.
 > **Analytics** · switch
 > Usage analytics linked to your account and session replays with your tasks, inputs, name and email hidden. When off, we count pages, actions and errors anonymously, without cookies.
 > Privacy policy · [Save]

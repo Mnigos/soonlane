@@ -1,5 +1,6 @@
 import { HostAppContext } from '@soonlane/app/host-app'
 import { Shell } from '@soonlane/app/shell/components/shell'
+import { readNoDateSectionOpen } from '@soonlane/app/shell/helpers/no-date-section-preference.helper'
 import { readSidebarPreference } from '@soonlane/app/shell/helpers/sidebar-preference.helper'
 import {
 	createFileRoute,
@@ -19,9 +20,9 @@ import {
 	RELEASE_NOTES_URL,
 } from '../build-info.constants'
 
-const getSidebarPreference = createIsomorphicFn()
-	.server(() => readSidebarPreference(getRequestHeader('cookie') ?? ''))
-	.client(() => readSidebarPreference(document.cookie))
+const getCookieHeader = createIsomorphicFn()
+	.server(() => getRequestHeader('cookie') ?? '')
+	.client(() => document.cookie)
 
 const shellSearchSchema = z.object({
 	deleteAccount: z.boolean().optional().catch(undefined),
@@ -35,14 +36,21 @@ export const Route = createFileRoute('/_session/app')({
 
 		return { user: context.me.user }
 	},
-	loader: () => ({ sidebarPreference: getSidebarPreference() }),
+	loader: () => {
+		const cookieHeader = getCookieHeader()
+
+		return {
+			sidebarPreference: readSidebarPreference(cookieHeader),
+			isNoDateSectionOpen: readNoDateSectionOpen(cookieHeader),
+		}
+	},
 	component: ShellRoute,
 	errorComponent: LayoutError,
 })
 
 function ShellRoute() {
 	const { user } = Route.useRouteContext()
-	const { sidebarPreference } = Route.useLoaderData()
+	const { sidebarPreference, isNoDateSectionOpen } = Route.useLoaderData()
 	const { deleteAccount, error } = Route.useSearch()
 	const activePath = useLocation({ select: location => location.pathname })
 	const labelMatch = useMatch({
@@ -70,6 +78,7 @@ function ShellRoute() {
 			<Shell
 				activeLabelName={labelMatch?.params.name}
 				activePath={activePath}
+				initialIsNoDateSectionOpen={isNoDateSectionOpen}
 				initialSidebarPreference={sidebarPreference}
 				user={user}
 			>

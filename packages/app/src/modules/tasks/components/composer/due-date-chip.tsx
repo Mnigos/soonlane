@@ -15,6 +15,7 @@ import {
 import { type KeyboardEvent, useRef, useState } from 'react'
 import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
+import { getNoDateHint } from '../../helpers/task-edit.helper'
 import { RepeatIcon } from './date-picker-icons'
 import { DueCalendarIcon } from './due-calendar-icon'
 import { DueDatePicker } from './due-date-picker'
@@ -22,11 +23,13 @@ import { DueTimeField } from './due-time-field'
 import { RepeatMenu } from './repeat-menu'
 
 interface DueDateChipProps {
-	dueDate: CalendarDate
+	dueDate: CalendarDate | undefined
 	dueTime: string | undefined
 	repeat: RepeatRule | undefined
 	today: CalendarDate
 	onDateChange: (date: CalendarDate) => void
+	/** Clears the date with its time and repeat rule. */
+	onNoDate: () => void
 	onTimeChange: (time: string | undefined) => void
 	onRepeatChange: (repeat: RepeatInput | undefined) => void
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
@@ -34,7 +37,8 @@ interface DueDateChipProps {
 
 /**
  * The task's due date and time, colored like the due line; it opens the date
- * picker. A task always has a due date, so the chip has no clear button.
+ * picker, which also offers No date. Time and repeat need a date, so an
+ * undated task's picker leaves them out.
  */
 export function DueDateChip({
 	dueDate,
@@ -42,21 +46,26 @@ export function DueDateChip({
 	repeat,
 	today,
 	onDateChange,
+	onNoDate,
 	onTimeChange,
 	onRepeatChange,
 	onKeyDown,
 }: Readonly<DueDateChipProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
-	const label = getDueChipLabel(dueDate, dueTime, today)
+	const label = dueDate
+		? getDueChipLabel(dueDate, dueTime, today)
+		: { text: 'No date', tone: 'later' as const }
 	const repeatText = repeat && formatRepeatRule(repeat, 'long')
 
 	return (
 		<Popover onOpenChange={setIsOpen} open={isOpen}>
 			<PopoverTrigger
-				aria-label={[`Due ${label.text}`, repeatText]
-					.filter(Boolean)
-					.join(', ')}
+				aria-label={
+					dueDate
+						? [`Due ${label.text}`, repeatText].filter(Boolean).join(', ')
+						: 'No due date'
+				}
 				className={cn(COMPOSER_CHIP_CLASS, DUE_TONE_CLASSES[label.tone])}
 				onKeyDown={onKeyDown}
 			>
@@ -78,6 +87,7 @@ export function DueDateChip({
 				<DueDatePicker
 					dueDate={dueDate}
 					inputRef={inputRef}
+					noDateHint={getNoDateHint(dueTime, repeat !== undefined)}
 					onDateChange={(date, choice) => {
 						capture('date_picker_used', {
 							choice,
@@ -86,18 +96,30 @@ export function DueDateChip({
 						onDateChange(date)
 						setIsOpen(false)
 					}}
+					onNoDate={() => {
+						capture('date_picker_used', {
+							choice: 'no_date',
+							has_time: dueTime !== undefined,
+						})
+						onNoDate()
+						setIsOpen(false)
+					}}
 					today={today}
 				>
-					<DueTimeField onChange={onTimeChange} value={dueTime} />
+					{dueDate && (
+						<>
+							<DueTimeField onChange={onTimeChange} value={dueTime} />
 
-					<RepeatMenu
-						dueDate={dueDate}
-						onChange={rule => {
-							onRepeatChange(rule)
-							setIsOpen(false)
-						}}
-						value={repeat}
-					/>
+							<RepeatMenu
+								dueDate={dueDate}
+								onChange={rule => {
+									onRepeatChange(rule)
+									setIsOpen(false)
+								}}
+								value={repeat}
+							/>
+						</>
+					)}
 				</DueDatePicker>
 			</PopoverContent>
 		</Popover>

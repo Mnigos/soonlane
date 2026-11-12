@@ -5,6 +5,7 @@ import { MenuItem, MenuSeparator } from '@soonlane/ui/components/menu'
 import { Popover, PopoverContent } from '@soonlane/ui/components/popover'
 import { PencilLine } from 'lucide-react'
 import { type RefObject, useRef } from 'react'
+import { getNoDateHint } from '../../helpers/task-edit.helper'
 import { DueDatePicker } from '../composer/due-date-picker'
 import { TaskActionsMenu } from './task-actions-menu'
 import { TaskMenuDateGroup } from './task-menu-date-group'
@@ -19,13 +20,17 @@ interface TaskRowMenuProps {
 	isPickingDate: boolean
 	triggerRef: RefObject<HTMLButtonElement | null>
 	onEdit: () => void
-	onDateChange: (dueDate: CalendarDate, choice: DatePickerChoice) => void
+	/** `undefined` removes the date with its time and repeat rule. */
+	onDateChange: (
+		dueDate: CalendarDate | undefined,
+		choice: DatePickerChoice
+	) => void
 	onPickingDateChange: (isPickingDate: boolean) => void
 	onPriorityChange: (priority: TaskPriority) => void
 }
 
 /**
- * A task row's "…" menu: Edit, Date and Priority above Delete. A date or priority saves at once
+ * A task row's "…" menu: Edit, Date and Priority above Delete. A date, No date or priority saves at once
  * like the same change in the edit card; "More dates" opens the date picker under the "…" button.
  */
 export function TaskRowMenu({
@@ -41,6 +46,10 @@ export function TaskRowMenu({
 	onPriorityChange,
 }: Readonly<TaskRowMenuProps>) {
 	const inputRef = useRef<HTMLInputElement>(null)
+	const noDateHint = getNoDateHint(task.dueTime, task.repeat !== undefined)
+	const removeDate = task.dueDate
+		? () => onDateChange(undefined, 'no_date')
+		: undefined
 
 	return (
 		<>
@@ -59,8 +68,10 @@ export function TaskRowMenu({
 				<MenuSeparator />
 
 				<TaskMenuDateGroup
+					noDateHint={noDateHint}
 					onDateChange={onDateChange}
 					onMoreDates={() => onPickingDateChange(true)}
+					onNoDate={removeDate}
 					today={today}
 				/>
 
@@ -82,10 +93,18 @@ export function TaskRowMenu({
 					<DueDatePicker
 						dueDate={task.dueDate}
 						inputRef={inputRef}
+						noDateHint={noDateHint}
 						onDateChange={(dueDate, choice) => {
 							onDateChange(dueDate, choice)
 							onPickingDateChange(false)
 						}}
+						onNoDate={
+							removeDate &&
+							(() => {
+								removeDate()
+								onPickingDateChange(false)
+							})
+						}
 						today={today}
 					/>
 				</PopoverContent>

@@ -1,5 +1,6 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
 import type { DueDateShortcutId } from '@soonlane/domain'
+import { Ban } from 'lucide-react'
 import type { ComponentType, SVGProps } from 'react'
 import {
 	NextWeekIcon,
@@ -45,6 +46,13 @@ export const DUE_DATE_SHORTCUT_ICONS = {
 		strokeWidth: number
 	}
 >
+
+/** Todoist's grey slashed circle for removing the date, next to the quick dates. */
+export const NO_DATE_ICON = {
+	icon: Ban,
+	className: 'text-muted-foreground',
+	strokeWidth: QUICK_ICON_STROKE,
+} as const
 
 export const DUE_DATE_SHORTCUT_CHOICES = {
 	today: 'quick_today',

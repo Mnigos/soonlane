@@ -27,7 +27,7 @@ import { PriorityChip } from './priority-chip'
 import { TitleField } from './title-field'
 
 interface TaskComposerProps {
-	defaultDueDate: CalendarDate
+	defaultDueDate: CalendarDate | undefined
 	/** Picked again after each task, like the label of an open label view. */
 	defaultLabels?: Label[]
 	today: CalendarDate
@@ -95,16 +95,16 @@ export function TaskComposer({
 		reset,
 	} = useTypedTitle(task, today, defaultLabels)
 	const [description, setDescription] = useState(task?.description ?? '')
-	const [dueDate, setDueDate] = useState(defaultDueDate)
+	const [dueDate, setDueDate] = useState<CalendarDate | undefined>(
+		defaultDueDate
+	)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
-	const scheduledDate = getEditedDueDate(
-		task,
-		typedDueDate ?? dueDate,
-		repeat?.unit
-	)
+	const pickedDate = typedDueDate ?? dueDate
+	const scheduledDate =
+		pickedDate && getEditedDueDate(task, pickedDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
-	const savedRule = getSavedRule(task, scheduledDate, repeat)
+	const savedRule = scheduledDate && getSavedRule(task, scheduledDate, repeat)
 	const [goal, setGoal] = useState<GoalInput | undefined>(
 		task?.goal && { target: task.goal.target, unit: task.goal.unit }
 	)
@@ -237,6 +237,12 @@ export function TaskComposer({
 						pickDueDate()
 					}}
 					onKeyDown={handleFieldKeys}
+					onNoDate={() => {
+						setDueDate(undefined)
+						pickDueDate()
+						setDueTime(undefined)
+						pickRepeat(undefined)
+					}}
 					onRepeatChange={rule => {
 						// Keeps the date on the chip, which the old rule may have moved off the picked day.
 						setDueDate(scheduledDate)

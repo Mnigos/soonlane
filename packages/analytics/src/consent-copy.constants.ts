@@ -10,7 +10,7 @@ export const CONSENT_COPY = {
 	essentialLabel: 'Essential',
 	essentialStatus: 'Always on',
 	essentialDescription:
-		'Cookies that keep you signed in and remember your sidebar and these choices. Error reports without your content are always sent, so we can fix problems.',
+		'Cookies that keep you signed in and remember your layout and these choices. Error reports without your content are always sent, so we can fix problems.',
 	analyticsLabel: 'Analytics',
 	analyticsDescription:
 		'Usage analytics linked to your account and session replays with your tasks, inputs, name and email hidden. When off, we count pages, actions and errors anonymously, without cookies.',

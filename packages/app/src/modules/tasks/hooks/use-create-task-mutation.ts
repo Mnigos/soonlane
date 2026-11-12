@@ -23,7 +23,7 @@ export function useCreateTaskMutation(
 					source,
 					has_description: task.description !== undefined,
 					has_time: task.dueTime !== undefined,
-					is_overdue: properties.due_in_days < 0,
+					is_overdue: (properties.due_in_days ?? 0) < 0,
 				})
 				await refreshTaskAndLabelLists(queryClient)
 			},
