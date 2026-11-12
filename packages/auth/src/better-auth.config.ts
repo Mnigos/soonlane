@@ -152,8 +152,9 @@ function refuse(message: string) {
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
  * signed-in hint cookie, the hand-off of a browser sign-in to the desktop
- * app with the signed bearer token its session uses and, when configured, linking Todoist for an import: Todoist is only
- * linked, Google only signs in, and provider tokens are stored encrypted.
+ * app with the signed bearer token its session uses and, when configured,
+ * linking Todoist for an import: Todoist is only linked, Google only signs
+ * in, and provider tokens are stored encrypted.
  */
 export function createAuth(options: CreateAuthOptions) {
 	return betterAuth({
