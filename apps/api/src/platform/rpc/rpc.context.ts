@@ -1,4 +1,4 @@
-import type { WithEffectContext } from '@orpc/experimental-effect'
+import type { WithEffectContext } from '@orpc/effect'
 import { hasAnalyticsConsent } from '@soonlane/analytics'
 import { Context } from 'effect'
 import { AnalyticsConsent } from '@/modules/analytics/application/analytics.port'

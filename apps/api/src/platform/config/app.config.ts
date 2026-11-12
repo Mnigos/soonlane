@@ -62,16 +62,16 @@ export class AppConfig extends Context.Service<
 >()('soonlane/AppConfig') {}
 
 function originConfig(name: string) {
-	return Config.url(name).pipe(Config.map(url => url.origin))
+	return Config.URL(name).pipe(Config.map(url => url.origin))
 }
 
 /** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN` and `POSTHOG_KEY` is required: a missing or malformed variable stops the start with its name. */
 const appConfig = Config.all({
-	port: Config.port('PORT'),
-	environment: Config.nonEmptyString('APP_ENV'),
+	port: Config.Port('PORT'),
+	environment: Config.NonEmptyString('APP_ENV'),
 	// GitHub deploys get the commit from Railway; `railway up` deploys get it from the bundle.
-	commit: Config.nonEmptyString('RAILWAY_GIT_COMMIT_SHA').pipe(
-		Config.orElse(() => Config.nonEmptyString('APP_COMMIT'))
+	commit: Config.NonEmptyString('RAILWAY_GIT_COMMIT_SHA').pipe(
+		Config.orElse(() => Config.NonEmptyString('APP_COMMIT'))
 	),
 	baseUrl: originConfig('API_URL'),
 	// The web app's origin: the target of Better Auth's errors and the host of event links; calendar subscription links use API_URL.
@@ -79,20 +79,20 @@ const appConfig = Config.all({
 	trustedOrigins: Config.schema(originsSchema, 'TRUSTED_ORIGINS').pipe(
 		Config.map(urls => urls.map(url => url.origin))
 	),
-	cookiePrefix: Config.nonEmptyString('AUTH_COOKIE_PREFIX'),
-	cookieDomain: Config.option(Config.nonEmptyString('AUTH_COOKIE_DOMAIN')).pipe(
+	cookiePrefix: Config.NonEmptyString('AUTH_COOKIE_PREFIX'),
+	cookieDomain: Config.option(Config.NonEmptyString('AUTH_COOKIE_DOMAIN')).pipe(
 		Config.map(Option.getOrUndefined)
 	),
-	databaseUrl: Config.redacted('DATABASE_URL'),
+	databaseUrl: Config.Redacted('DATABASE_URL'),
 	authSecret: Config.schema(Schema.Redacted(authSecretSchema), 'AUTH_SECRET'),
 	allowedEmails: Config.schema(allowedEmailsSchema, 'ALLOWED_EMAILS').pipe(
 		Config.withDefault(''),
 		Config.map(parseAllowedEmails)
 	),
-	googleClientId: Config.nonEmptyString('GOOGLE_CLIENT_ID'),
-	googleClientSecret: Config.redacted('GOOGLE_CLIENT_SECRET'),
-	proxySecret: Config.redacted('API_PROXY_SECRET'),
-	posthogKey: Config.option(Config.nonEmptyString('POSTHOG_KEY')).pipe(
+	googleClientId: Config.NonEmptyString('GOOGLE_CLIENT_ID'),
+	googleClientSecret: Config.Redacted('GOOGLE_CLIENT_SECRET'),
+	proxySecret: Config.Redacted('API_PROXY_SECRET'),
+	posthogKey: Config.option(Config.NonEmptyString('POSTHOG_KEY')).pipe(
 		Config.map(Option.getOrUndefined)
 	),
 })

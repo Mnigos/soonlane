@@ -1,5 +1,5 @@
-import '@orpc/experimental-effect/extensions/effect'
-import { middlewareGen } from '@orpc/experimental-effect'
+import '@orpc/effect/extensions/effect'
+import { middlewareGen } from '@orpc/effect'
 import { implement } from '@orpc/server'
 import { contract } from '@soonlane/contracts'
 import { Cause, Effect } from 'effect'

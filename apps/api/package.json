@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@orpc/contract": "catalog:",
-    "@orpc/experimental-effect": "catalog:",
+    "@orpc/effect": "catalog:",
     "@orpc/server": "catalog:",
     "@soonlane/analytics": "workspace:*",
     "@soonlane/auth": "workspace:*",

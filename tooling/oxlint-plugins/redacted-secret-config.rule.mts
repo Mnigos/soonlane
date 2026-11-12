@@ -6,8 +6,14 @@ const REDACTED_SCHEMAS = new Set(['Redacted', 'RedactedFromValue'])
 /** Config members whose first argument is a value or a prefix, not a variable name. */
 const NAMELESS_MEMBERS = new Set(['nested', 'succeed', 'withDefault'])
 
-/** Config readers that take the variable name after a codec or literal. */
-const NAME_SECOND_READERS = new Set(['literal', 'literals', 'schema'])
+/** Config readers that take the variable name after codecs or literals, with the name's argument index. */
+const NAME_INDEX_BY_READER = new Map([
+	['Array', 1],
+	['Literal', 1],
+	['Literals', 1],
+	['Record', 2],
+	['schema', 1],
+])
 
 /** Secret-looking names that are public on purpose, with the reason. */
 const PUBLIC_NAMES = new Map([
@@ -50,7 +56,7 @@ function isRedactedSchema(node: ESTree.Node | undefined) {
 /**
  * Requires secrets read through Effect `Config` to stay `Redacted`: a
  * variable whose name contains SECRET, PASSWORD, TOKEN or KEY, or starts with
- * DATABASE_URL, must be read with `Config.redacted` (or
+ * DATABASE_URL, must be read with `Config.Redacted` (or
  * `Config.schema(Schema.Redacted(...), name)`), so it prints as `<redacted>`
  * in logs and errors until the one place that builds the client unwraps it.
  * Only literal names are judged; `PUBLIC_NAMES` lists the deliberate exceptions.
@@ -64,18 +70,19 @@ export const redactedSecretConfigRule = defineRule({
 		},
 		messages: {
 			plainSecret:
-				'{{ name }} is a secret; read it with Config.redacted and unwrap it with Redacted.value only where the client is built (AGENTS.md).',
+				'{{ name }} is a secret; read it with Config.Redacted and unwrap it with Redacted.value only where the client is built (AGENTS.md).',
 		},
 	},
 	create(context) {
 		return {
 			CallExpression(node) {
 				const member = getConfigMember(node)
-				if (!member || member === 'redacted' || NAMELESS_MEMBERS.has(member))
+				if (!member || member === 'Redacted' || NAMELESS_MEMBERS.has(member))
 					return
 
-				const nameSecond = NAME_SECOND_READERS.has(member)
-				const name = getLiteralString(node.arguments[nameSecond ? 1 : 0])
+				const name = getLiteralString(
+					node.arguments[NAME_INDEX_BY_READER.get(member) ?? 0]
+				)
 				if (
 					!name ||
 					!SECRET_NAME_PATTERN.test(name) ||
