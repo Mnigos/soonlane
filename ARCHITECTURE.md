@@ -158,5 +158,6 @@ Inside the desktop app, `<html data-shell="desktop">` (set by its preload) turns
 | [0012](docs/decisions/0012-changelog-written-at-release.md)                    | An agent writes a summary above the commit list in a release PR that pins the nightly it ships.          |
 | [0013](docs/decisions/0013-three-hosts-on-railway.md)                          | Landing, app and API on three Railway hosts with one session on `.soonlane.com`; partly supersedes 0008. |
 | [0014](docs/decisions/0014-repositories-without-ports.md)                      | Repositories declare their tag and layer in `infrastructure/`; ports only for outside systems.           |
+| [0015](docs/decisions/0015-desktop-app-with-its-own-ui.md)                     | Desktop app bundles its UI from `@soonlane/app`, signs in with a token; partly supersedes 0007.          |
 
 Deploy: [docs/deploy-railway.md](docs/deploy-railway.md). Analytics: [docs/analytics.md](docs/analytics.md).
