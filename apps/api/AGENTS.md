@@ -2,7 +2,7 @@
 
 - One Bun process on Railway: `platform/http/http-server.layer.ts` maps paths to handlers (`/health`, `/api/auth/*`, `/api/rpc/*`, `/calendar/*`); `AppLive` in `platform/app.layers.ts` wires every `*Live` layer into the one `ManagedRuntime`.
 - Every setting comes from `AppConfig` (`platform/config/app.config.ts`); a missing or malformed variable stops the start with its name. No Vercel variables. Locally Bun reads `apps/api/.env.local`.
-- `withCors` answers every preflight and refuses an `Origin` outside `TRUSTED_ORIGINS` before anything else runs; never add `*` or a pattern to the list.
+- `withCors` answers every preflight and refuses an `Origin` outside `TRUSTED_ORIGINS` before anything else runs; never add `*` or a pattern to the list, and set no `Access-Control-*` header anywhere else (lint-enforced).
 - Only `withClientIp` sets `x-soonlane-client-ip`, and Better Auth reads no other IP header. Never trust `x-soonlane-visitor-ip` without the proxy secret.
 - Never log or report a request URL, a token, a cookie or a driver error beyond its name: Drizzle errors embed SQL parameters such as session tokens.
 - Every procedure that reads or writes user data uses `requireUser` and passes `context.user.id` down; every repository query filters by `owner_id`. There is no test login or auth bypass.

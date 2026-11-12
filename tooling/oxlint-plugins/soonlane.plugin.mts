@@ -1,4 +1,5 @@
 import { definePlugin } from '@oxlint/plugins'
+import { corsAtEntryRule } from './cors-at-entry.rule.mts'
 import { declarationGroupSpacingRule } from './declaration-group-spacing.rule.mts'
 import { declarationJsdocRule } from './declaration-jsdoc.rule.mts'
 import { fileRoleFolderRule } from './file-role-folder.rule.mts'
@@ -18,6 +19,7 @@ import { typeParamPrefixRule } from './type-param-prefix.rule.mts'
 export default definePlugin({
 	meta: { name: 'soonlane' },
 	rules: {
+		'cors-at-entry': corsAtEntryRule,
 		'declaration-group-spacing': declarationGroupSpacingRule,
 		'declaration-jsdoc': declarationJsdocRule,
 		'file-role-folder': fileRoleFolderRule,

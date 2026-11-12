@@ -261,4 +261,12 @@ export const CONVENTION_OVERRIDES = [
 		],
 		rules: { 'soonlane/no-repository-try-catch': 'error' },
 	},
+	{
+		files: ['apps/**', 'packages/**'],
+		rules: { 'soonlane/cors-at-entry': 'error' },
+	},
+	{
+		files: ['apps/api/src/platform/http/cors.helper.ts'],
+		rules: { 'soonlane/cors-at-entry': 'off' },
+	},
 ] satisfies OxlintOverride[]
