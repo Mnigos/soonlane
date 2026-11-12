@@ -31,6 +31,16 @@ Soonlane stores the tasks you create: the title, description, due date and time,
 
 If you choose to, you can create a private calendar link that shows your open tasks in a calendar app. Anyone who has the link can read your open tasks (title, description, labels and due date), so share it only with apps you trust. Soonlane stores only a hash of the link's secret, not the link itself. Your calendar app and its sync service (such as iCloud) keep copies of what they fetched, under their own policies.
 
+## Payments for Soonlane Pro
+
+A Stripe customer is created only at your first checkout, so a free account sends nothing to Stripe.
+
+When you buy Soonlane Pro through Link, [Stripe collects](https://link.com/privacy-center#sold-through-link) your name, email address, billing address, payment method details and transaction data (amount, date and tax) at checkout. Stripe is a controller of the data it collects through Link, under the [Link Privacy Policy](https://link.com/privacy).
+
+[Stripe shares order information](https://link.com/privacy-center#sold-through-link) (contact details, billing address and order details) with Soonlane so the order can be fulfilled, and Soonlane keeps it under this policy. That information stays in Soonlane's account at Stripe, where I can see it. Soonlane's own database stores only your Stripe customer id and the subscription's state (plan, status and the current billing period). Soonlane never receives or stores your card details.
+
+If you [ask Stripe to delete your data](https://link.com/privacy-center#sold-through-link), Stripe cancels your subscriptions sold through Link and tells Soonlane.
+
 ## Sessions and security
 
 When you sign in, Soonlane creates a session and stores it with your IP address and your browser's user agent. They are used only to keep you signed in and to investigate abuse or a security problem. A session lasts 7 days and is renewed at most once a day while you use Soonlane. Signing out deletes it. An expired session stops working, and its record is deleted at the latest with your account.
@@ -73,13 +83,14 @@ Deleting your account does not yet remove analytics data from PostHog automatica
 - **Neon** hosts the database in Frankfurt, Germany (AWS `eu-central-1`).
 - **Google** provides sign-in.
 - **PostHog** provides analytics in its EU region, as described above.
+- **Stripe and Link** ([Sold through Link, LLC](https://stripe.com/legal/ssa-service-terms), a Stripe company) sell Soonlane Pro as the merchant of record and handle checkout, payments and tax, as described above; free accounts send nothing to Stripe.
 - **Cloudflare** provides DNS for soonlane.com and sits in front of the website, the web app and the API: every request your browser sends to soonlane.com or api.soonlane.com, including your IP address, passes through Cloudflare's network on its way to Railway.
 
 Some of these providers are based in the United States. When they handle data outside the European Union, they rely on the safeguards in their data processing terms.
 
 ## How long data is kept and how to delete it
 
-Your account, your Google data and tokens, and your tasks are kept until you delete your account. A calendar link works until you revoke it or create a new one in the account menu, or until you delete your account.
+Your account, your Google data and tokens, and your tasks are kept until you delete your account. A calendar link works until you revoke it or create a new one in the account menu, or until you delete your account. If you have subscribed to Soonlane Pro, deleting your account also deletes Soonlane's copy of your Stripe customer id and subscription state, while Stripe keeps its own records under the [Link Privacy Policy](https://link.com/privacy).
 
 To delete your account, open the account menu in the app and choose "Delete account". If your last Google sign-in is more than a day old, Soonlane asks you to sign in with Google again first. Deletion removes your account, all your sessions, the stored Google tokens, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
 
@@ -89,7 +100,7 @@ Neon keeps the database's history for point-in-time restore. Deleted data can st
 
 Under the GDPR, Soonlane relies on:
 
-- **the contract with you** (Art. 6(1)(b)) for your account, sessions and tasks;
+- **the contract with you** (Art. 6(1)(b)) for your account, sessions, tasks and, if you subscribe, Soonlane Pro;
 - **legitimate interest** (Art. 6(1)(f)) in keeping Soonlane working and safe, for rate limits, security, error reports and anonymous measurement;
 - **your consent** (Art. 6(1)(a)) for analytics with cookies and session replays. You can withdraw it at any time.
 
