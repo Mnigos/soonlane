@@ -5,7 +5,7 @@ import { z } from 'zod'
 import { isPostPublished } from './src/modules/blog/domain/post-visibility.helper'
 
 const BUILD_DAY = new Date().toISOString().slice(0, 10)
-const IS_PRODUCTION = process.env.VERCEL_ENV === 'production'
+const IS_PRODUCTION = process.env.APP_ENV === 'production'
 
 const legal = defineCollection({
 	name: 'legal',

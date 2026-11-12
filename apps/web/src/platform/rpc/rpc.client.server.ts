@@ -1,4 +1,5 @@
 import { getConsentCookie } from '@soonlane/analytics'
+import { resolveEdgeIp } from '@soonlane/auth/client-ip'
 import { PROXY_SECRET_HEADER, VISITOR_IP_HEADER } from '@soonlane/contracts'
 import {
 	appendResponseHeader,
@@ -8,6 +9,8 @@ import {
 import { AUTH_COOKIE_PREFIX } from '@/modules/identity/presentation/auth-cookie.constants'
 
 const AUTH_COOKIES = ['session_token', 'session_data', 'dont_remember']
+/** Railway's private network carries plain http between services of one environment, never across the internet. */
+const PRIVATE_NETWORK_SUFFIX = '.railway.internal'
 const API_COOKIE_NAMES = new Set([
 	getConsentCookie(AUTH_COOKIE_PREFIX),
 	...AUTH_COOKIES.flatMap(name => [
@@ -26,8 +29,14 @@ function readApiSettings() {
 
 	const origin = new URL(url)
 
-	if (origin.protocol !== 'https:' && !import.meta.env.DEV)
-		throw new Error('API_INTERNAL_URL must use https outside development')
+	if (
+		origin.protocol !== 'https:' &&
+		!origin.hostname.endsWith(PRIVATE_NETWORK_SUFFIX) &&
+		!import.meta.env.DEV
+	)
+		throw new Error(
+			`API_INTERNAL_URL must use https outside development and Railway's private network (*${PRIVATE_NETWORK_SUFFIX})`
+		)
 
 	return { origin: origin.origin, secret }
 }
@@ -48,14 +57,14 @@ export function getInternalApiOrigin() {
 
 /**
  * Calls the API as the visitor: their cookies of this environment, their IP
- * (Vercel overwrites `x-forwarded-for`; locally the socket's address) and the
+ * (as Railway's edge or Cloudflare saw it; locally the socket's address) and the
  * proxy secret that makes the API trust that IP. Every `Set-Cookie` the API
  * answers with (a refreshed session) goes onto the page's response.
  */
 export async function fetchAsVisitor(url: string, init: RequestInit) {
 	const headers = new Headers(init.headers)
 	const cookie = filterCookies(getRequest().headers.get('cookie') ?? '')
-	const ip = getRequestIP({ xForwardedFor: true })
+	const ip = resolveEdgeIp(getRequest().headers) ?? getRequestIP()
 
 	headers.set(PROXY_SECRET_HEADER, readApiSettings().secret)
 	if (cookie) headers.set('cookie', cookie)

@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
+import { parseEnv } from 'node:util'
 import contentCollections from '@content-collections/vite'
 import tailwindcss from '@tailwindcss/vite'
 import { tanstackStart } from '@tanstack/react-start/plugin/vite'
@@ -9,20 +10,31 @@ import versionFile from '../../version.json' with { type: 'json' }
 import { routes } from './src/routes'
 
 const SHORT_SHA_LENGTH = 7
-/** The commit from Vercel, 'dev' locally; the product version comes from version.json (written by the release workflow). */
-const APP_COMMIT =
-	process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, SHORT_SHA_LENGTH) || 'dev'
-const APP_ENVIRONMENT = process.env.VERCEL_ENV || 'development'
-/** Production and the `staging` branch must not fall back: without the API's origin or the cookie prefix, the deployed pages call no API and look signed out. CI and local builds keep the fallback. */
-const REQUIRES_API_VARIABLES =
-	process.env.VERCEL_ENV === 'production' ||
-	process.env.VERCEL_GIT_COMMIT_REF === 'staging'
+const APP_ENVIRONMENTS = ['production', 'staging', 'development'] as const
+/** Written by the staging deploy, since `railway up` uploads no git metadata; GitHub deploys on Railway set RAILWAY_GIT_COMMIT_SHA. */
+const COMMIT_FILE = new URL('commit.env', import.meta.url)
+/** The deployed commit, 'dev' locally; the product version comes from version.json (written by the release workflow). */
+const APP_COMMIT = (
+	process.env.RAILWAY_GIT_COMMIT_SHA ||
+	(existsSync(COMMIT_FILE)
+		? parseEnv(readFileSync(COMMIT_FILE, 'utf-8')).APP_COMMIT
+		: undefined) ||
+	'dev'
+).slice(0, SHORT_SHA_LENGTH)
+const APP_ENVIRONMENT = process.env.APP_ENV || 'development'
+
+if (!isAppEnvironment(APP_ENVIRONMENT))
+	throw new Error(
+		`APP_ENV must be one of ${APP_ENVIRONMENTS.join(', ')}, not "${APP_ENVIRONMENT}"`
+	)
+
+/** Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, so only development may fall back. */
 const API_VARIABLES = ['VITE_API_URL', 'VITE_AUTH_COOKIE_PREFIX'] as const
 
 for (const name of API_VARIABLES)
-	if (REQUIRES_API_VARIABLES && !process.env[name])
+	if (APP_ENVIRONMENT !== 'development' && !process.env[name])
 		throw new Error(
-			`${name} is not set; production and staging builds need it (docs/deploy-vercel.md)`
+			`${name} is not set; ${APP_ENVIRONMENT} builds need it (docs/deploy-railway.md)`
 		)
 
 /** Missing until the first stable release. */
@@ -57,8 +69,8 @@ const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/platform/rpc/rpc-serializer.constants.ts',
 ]
 
-/** The prerender runs without env vars, so it must stay off routes that read the session. */
-const NON_PUBLIC_PATHS = [
+/** Rendered per request: the prerender runs without env vars, so it stays off routes that read the session or the host, and the feeds keep the content type their routes set, which a static file would lose. */
+const SERVER_RENDERED_PATHS = [
 	'/app',
 	'/login',
 	'/desktop',
@@ -66,10 +78,19 @@ const NON_PUBLIC_PATHS = [
 	'/calendar',
 	'/robots.txt',
 	'/today',
+	'/health',
+	'/blog/rss.xml',
+	'/sitemap.xml',
 ]
 
-function isPublicPath(path: string) {
-	return !NON_PUBLIC_PATHS.some(
+function isAppEnvironment(
+	name: string
+): name is (typeof APP_ENVIRONMENTS)[number] {
+	return APP_ENVIRONMENTS.some(environment => environment === name)
+}
+
+function isPrerenderedPath(path: string) {
+	return !SERVER_RENDERED_PATHS.some(
 		prefix => path === prefix || path.startsWith(`${prefix}/`)
 	)
 }
@@ -102,7 +123,7 @@ export default defineConfig({
 				autoStaticPathsDiscovery: false,
 				crawlLinks: true,
 				failOnError: true,
-				filter: page => isPublicPath(page.path),
+				filter: page => isPrerenderedPath(page.path),
 			},
 			pages: [
 				{ path: '/' },
@@ -110,8 +131,6 @@ export default defineConfig({
 				{ path: '/privacy' },
 				{ path: '/terms' },
 				{ path: '/blog' },
-				{ path: '/blog/rss.xml' },
-				{ path: '/sitemap.xml' },
 			],
 			importProtection: {
 				behavior: 'error',
@@ -125,30 +144,11 @@ export default defineConfig({
 			},
 		}),
 		nitro({
-			preset: 'vercel',
+			preset: 'bun',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
-			// The SSR build inlines Base UI's CJS use-sync-external-store, whose require('react') stays a runtime call the trace cannot see; tracing React ships it in the function.
-			traceDeps: ['react', 'react-dom'],
-			// The preset's 'npx srvx' runs from the package root and, under Bun, makes request.runtime read-only.
-			commands: { preview: 'bun ./functions/__server.func/index.mjs' },
-			vercel: {
-				// Vercel would serve the static feed as generic XML.
-				config: {
-					version: 3,
-					overrides: {
-						'blog/rss.xml': {
-							contentType: 'application/rss+xml; charset=utf-8',
-						},
-					},
-				},
-				// Nitro's default 'bun1.x' is Bun 1.3; 'bun1.4.x' matches bunVersion in vercel.json. fra1 sits next to the Neon database in eu-central-1.
-				functions: {
-					runtime: 'bun1.4.x',
-					maxDuration: 60,
-					regions: ['fra1'],
-				},
-			},
+			// Nitro adds the immutable header for /assets/; a 4xx or 5xx gets errorCacheMiddleware's header instead.
+			routeRules: { '/**': { headers: { 'cache-control': 'no-cache' } } },
 		}),
 		react(),
 	],

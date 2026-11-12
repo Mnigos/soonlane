@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite dev --port 3000 --strictPort",
-    "build": "bun scripts/generate-content-collections.ts && bun scripts/og-images.tsx && bunx --bun vite build && bun scripts/vercel-asset-routes.ts && bun scripts/check-server-function.ts",
+    "build": "bun scripts/generate-content-collections.ts && bun scripts/og-images.tsx && bunx --bun vite build && bun scripts/check-server.ts",
+    "start": "bun .output/server/index.mjs",
     "typecheck": "bun scripts/generate-content-collections.ts && tsc --noEmit",
     "postinstall": "bun scripts/generate-content-collections.ts"
   },

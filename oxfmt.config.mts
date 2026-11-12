@@ -19,7 +19,6 @@ export default defineConfig({
 		'**/*.svg',
 		'**/.nitro',
 		'**/.output',
-		'**/.vercel',
 		'**/routeTree.gen.ts',
 		'**/modern-screenshot.umd.js',
 		'packages/db/migrations/**',

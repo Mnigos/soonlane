@@ -40,4 +40,5 @@ export const routes = rootRoute('routes/__root.tsx', [
 	route('/sitemap[.]xml', 'modules/site/presentation/routes/sitemap.route.ts'),
 	route('/blog/rss[.]xml', 'modules/blog/presentation/routes/rss.route.ts'),
 	route('/ingest/$', 'modules/analytics/presentation/routes/ingest.$.route.ts'),
+	route('/health', 'modules/hosting/presentation/routes/health.route.ts'),
 ])
