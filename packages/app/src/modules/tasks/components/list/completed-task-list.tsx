@@ -1,5 +1,3 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
-import { getUndoCallbacks } from '@soonlane/app/tasks/helpers/task-completion.helper'
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import {
@@ -7,6 +5,8 @@ import {
 	useMutation,
 	useQueryClient,
 } from '@tanstack/react-query'
+import { orpcQuery } from '../../../../rpc-query.client'
+import { getUndoCallbacks } from '../../helpers/task-completion.helper'
 import { CompletedTaskItem } from '../task/completed-task-item'
 
 interface CompletedTaskListProps {

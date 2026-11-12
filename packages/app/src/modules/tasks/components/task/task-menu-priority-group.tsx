@@ -1,5 +1,3 @@
-import { PriorityFlagIcon } from '@soonlane/app/tasks/components/composer/priority-flag-icon'
-import { PRIORITY_FLAG_CLASSES } from '@soonlane/app/tasks/helpers/task-priority.constants'
 import { TASK_PRIORITIES, type TaskPriority } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import {
@@ -10,6 +8,8 @@ import {
 	MenuRow,
 } from '@soonlane/ui/components/menu'
 import { Tooltip } from '@soonlane/ui/components/tooltip'
+import { PRIORITY_FLAG_CLASSES } from '../../helpers/task-priority.constants'
+import { PriorityFlagIcon } from '../composer/priority-flag-icon'
 
 interface TaskMenuPriorityGroupProps {
 	value: TaskPriority

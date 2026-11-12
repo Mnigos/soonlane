@@ -7,17 +7,14 @@
   "exports": {
     "./app-paths": "./src/app-path.constants.ts",
     "./host-app": "./src/host-app.context.ts",
-    "./hooks/*": "./src/hooks/*.ts",
     "./rpc-query": "./src/rpc-query.client.ts",
-    "./labels/components/*": "./src/modules/labels/components/*.tsx",
+    "./calendar/components/*": "./src/modules/calendar/components/*.tsx",
     "./labels/helpers/*": "./src/modules/labels/helpers/*.ts",
-    "./labels/hooks/*": "./src/modules/labels/hooks/*.ts",
     "./shell/components/*": "./src/modules/shell/components/*.tsx",
     "./shell/helpers/*": "./src/modules/shell/helpers/*.ts",
     "./tasks/components/*": "./src/modules/tasks/components/*.tsx",
     "./tasks/helpers/*": "./src/modules/tasks/helpers/*.ts",
-    "./tasks/hooks/*": "./src/modules/tasks/hooks/*.ts",
-    "./utils/*": "./src/utils/*.ts"
+    "./tasks/hooks/*": "./src/modules/tasks/hooks/*.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"

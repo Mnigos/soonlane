@@ -1,7 +1,7 @@
 import { capture } from '@soonlane/analytics/client'
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useRef } from 'react'
+import { orpcQuery } from '../../../rpc-query.client'
 
 /** Keeps the last results on screen while the next query loads; `tasks_searched` fires once per new query, not on the refetches after a change. */
 export function useSearchTasksQuery(query: string) {

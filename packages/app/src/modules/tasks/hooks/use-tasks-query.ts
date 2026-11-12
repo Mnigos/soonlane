@@ -1,6 +1,6 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
 import type { ListTasksInput } from '@soonlane/contracts'
 import { useQuery } from '@tanstack/react-query'
+import { orpcQuery } from '../../../rpc-query.client'
 
 export function useTasksQuery(input: ListTasksInput) {
 	return useQuery(orpcQuery.tasks.list.queryOptions({ input }))

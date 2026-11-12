@@ -1,7 +1,7 @@
+import { TaskListSkeleton } from '@soonlane/app/tasks/components/list/task-list.skeleton'
+import { UpcomingPage } from '@soonlane/app/tasks/components/upcoming/upcoming-page'
 import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { createFileRoute } from '@tanstack/react-router'
-import { TaskListSkeleton } from '../components/list/task-list.skeleton'
-import { UpcomingPage } from '../components/upcoming/upcoming-page'
 
 export const Route = createFileRoute('/_session/app/')({
 	head: () => ({ meta: [{ title: 'Upcoming · Soonlane' }] }),

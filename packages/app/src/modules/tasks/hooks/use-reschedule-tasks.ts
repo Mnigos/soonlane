@@ -1,17 +1,17 @@
-import { orpcQuery } from '@soonlane/app/rpc-query'
-import { toastFailure } from '@soonlane/app/shell/helpers/maintenance.helper'
-import { getListInput } from '@soonlane/app/tasks/helpers/task-list-key.helper'
-import {
-	findTaskPlacement,
-	placeTask,
-	withoutTask,
-	withTask,
-} from '@soonlane/app/tasks/helpers/task-list.helper'
 import {
 	type ListTasksOutput,
 	rescheduleTasksInputSchema,
 } from '@soonlane/contracts'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { orpcQuery } from '../../../rpc-query.client'
+import { toastFailure } from '../../shell/helpers/maintenance.helper'
+import { getListInput } from '../helpers/task-list-key.helper'
+import {
+	findTaskPlacement,
+	placeTask,
+	withoutTask,
+	withTask,
+} from '../helpers/task-list.helper'
 
 /** Moves tasks to another day at once (optimistically), keeping their due times. */
 export function useRescheduleTasks() {

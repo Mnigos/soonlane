@@ -1,4 +1,3 @@
-import { GoalField } from '@soonlane/app/tasks/components/task/goal-field'
 import type { Task } from '@soonlane/contracts'
 import { type CalendarDate, GOAL_TARGET_MAX } from '@soonlane/domain'
 import { Button, buttonVariants } from '@soonlane/ui/components/button'
@@ -10,6 +9,7 @@ import {
 import { Diff } from 'lucide-react'
 import { type KeyboardEvent, type Ref, useId, useRef, useState } from 'react'
 import { useLogProgress } from '../../hooks/use-log-progress'
+import { GoalField } from './goal-field'
 
 interface LogProgressControlsProps {
 	task: Task
