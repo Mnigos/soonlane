@@ -7,6 +7,7 @@ import { useNavigate } from '@tanstack/react-router'
 import {
 	CalendarSync,
 	ChevronDown,
+	Keyboard,
 	LogOut,
 	ShieldCheck,
 	Trash2,
@@ -27,12 +28,14 @@ interface UserMenuProps {
 	isDeletingAccount: boolean
 	reauthError?: string
 	user: SessionUser
+	onShowShortcuts: () => void
 }
 
 export function UserMenu({
 	isDeletingAccount,
 	reauthError,
 	user,
+	onShowShortcuts,
 }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isSubscribingCalendar, setIsSubscribingCalendar] = useState(false)
@@ -96,6 +99,16 @@ export function UserMenu({
 							className="size-4 text-muted-foreground"
 						/>
 						Calendar link
+					</button>
+
+					{/* Phones have no keyboard to use the shortcuts with. */}
+					<button
+						className={cn(MENU_ITEM_CLASS, 'pointer-coarse:hidden')}
+						onClick={onShowShortcuts}
+						type="button"
+					>
+						<Keyboard aria-hidden className="size-4 text-muted-foreground" />
+						Keyboard shortcuts
 					</button>
 
 					<button

@@ -22,6 +22,7 @@ interface ShellSidebarProps {
 	onAddTask: () => void
 	onCollapse: () => void
 	onNavigate: () => void
+	onShowShortcuts: () => void
 }
 
 export function ShellSidebar({
@@ -33,6 +34,7 @@ export function ShellSidebar({
 	onAddTask,
 	onCollapse,
 	onNavigate,
+	onShowShortcuts,
 }: Readonly<ShellSidebarProps>) {
 	return (
 		<Sidebar
@@ -44,6 +46,7 @@ export function ShellSidebar({
 			<div className="flex items-start justify-between gap-2 pt-0.5">
 				<UserMenu
 					isDeletingAccount={isDeletingAccount}
+					onShowShortcuts={onShowShortcuts}
 					reauthError={reauthError}
 					user={user}
 				/>

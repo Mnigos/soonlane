@@ -1,16 +1,24 @@
+import type { DatePickerChoice } from '@soonlane/analytics'
+import { capture } from '@soonlane/analytics/client'
 import type { Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	getDueLabel,
 	formatRepeatRule,
+	TASK_PRIORITIES,
+	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Calendar, Check, Tag } from 'lucide-react'
-import { useId, useState } from 'react'
+import { type KeyboardEvent, useId, useRef, useState } from 'react'
 import { LABEL_COLOR_CLASSES } from '@/modules/labels/presentation/helpers/label-color.constants'
+import { isShortcutKeydown } from '@/utils/keyboard-shortcut.util'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
+import { getMenuEdit } from '../../helpers/task-edit.helper'
+import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
+import { useUpdateTask } from '../../hooks/use-update-task'
 import { RepeatIcon } from '../composer/date-picker-icons'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
@@ -35,6 +43,9 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const buttonId = useId()
 	const titleId = useId()
+	const { updateTask } = useUpdateTask(today)
+	const [isPickingDate, setIsPickingDate] = useState(false)
+	const triggerRef = useRef<HTMLButtonElement>(null)
 
 	function openComposer() {
 		setOpenEditorId(task.id)
@@ -46,9 +57,50 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 		setShouldFocusMenu(true)
 	}
 
+	/** Focus moves to the "…" before the save, so it follows the task when the new date moves its row to another list. */
+	function changeDate(dueDate: CalendarDate, choice: DatePickerChoice) {
+		triggerRef.current?.focus()
+		capture('date_picker_used', {
+			choice,
+			has_time: task.dueTime !== undefined,
+		})
+		const edit = getMenuEdit(task, today, { dueDate })
+
+		if (edit) updateTask(edit)
+	}
+
+	function changePriority(priority: TaskPriority) {
+		const edit = getMenuEdit(task, today, { priority })
+
+		if (!edit) return
+
+		capture('priority_set', { priority })
+		updateTask(edit)
+	}
+
+	/** The selected row's shortcuts; Enter on its own buttons keeps their native press. */
+	function handleRowKeys(event: KeyboardEvent<HTMLLIElement>) {
+		if (event.repeat || !isShortcutKeydown(event.nativeEvent)) return
+
+		const priority = TASK_PRIORITIES.find(value => String(value) === event.key)
+		const key = event.key.toLowerCase()
+
+		if (priority) changePriority(priority)
+		else if (key === 't') setIsPickingDate(true)
+		else if (key === 'e') {
+			// The row, not one of its buttons, takes focus to the next row once it leaves.
+			event.currentTarget.focus()
+			onComplete(task)
+		} else if (key === 'enter' && event.target === event.currentTarget)
+			openComposer()
+		else return
+
+		event.preventDefault()
+	}
+
 	if (isEditing)
 		return (
-			<li>
+			<li ref={keepFocusAfterMove}>
 				<TaskComposer
 					defaultDueDate={task.dueDate}
 					defaultLabels={task.labels}
@@ -63,7 +115,14 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 
 	// "Complete <title>" without the title in an attribute, which replay masking would not hide.
 	return (
-		<li className="group/task flex gap-2.5 border-b py-2.5">
+		// oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the row takes focus only from J and K, then its keys act on the task
+		<li
+			className="group/task flex scroll-mt-36 gap-2.5 rounded-xs border-b py-2.5 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary focus-visible:outline-solid"
+			data-task-id={task.id}
+			onKeyDown={handleRowKeys}
+			ref={keepFocusAfterMove}
+			tabIndex={-1}
+		>
 			<button
 				aria-label="Complete"
 				aria-labelledby={`${buttonId} ${titleId}`}
@@ -145,9 +204,14 @@ export function TaskItem({ task, today, onComplete }: Readonly<TaskItemProps>) {
 			<TaskRowMenu
 				autoFocus={shouldFocusMenu}
 				className={ROW_CONTROL_CLASS}
+				isPickingDate={isPickingDate}
+				onDateChange={changeDate}
 				onEdit={openComposer}
+				onPickingDateChange={setIsPickingDate}
+				onPriorityChange={changePriority}
 				task={task}
 				today={today}
+				triggerRef={triggerRef}
 			/>
 		</li>
 	)
