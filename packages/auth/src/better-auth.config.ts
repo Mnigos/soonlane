@@ -54,6 +54,8 @@ export interface CreateAuthOptions {
 	errorUrl: string
 	secret: string
 	allowedEmails: readonly string[]
+	/** Session lookups through `auth.api.getSession` neither refresh nor delete a session; set while the API refuses writes. */
+	readOnlySessions?: boolean
 	google: GoogleProviderOptions
 	log: AuthLogger
 	events: AuthEvents
@@ -119,6 +121,8 @@ export function createAuth(options: CreateAuthOptions) {
 			google: { ...options.google, disableIdTokenSignIn: true },
 		},
 		user: { deleteUser: { enabled: true } },
+		// Deferred refresh makes a server-side (GET) lookup skip both writes; it changes nothing else in this setup.
+		session: { deferSessionRefresh: options.readOnlySessions },
 		hooks: {
 			after: createAuthMiddleware(async ctx => {
 				const hintCookie = getSignedInHintCookie(options.cookiePrefix)

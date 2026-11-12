@@ -1,4 +1,5 @@
 import { AUTH_BASE_PATH } from '@soonlane/auth/server'
+import { MAINTENANCE_ERROR } from '@soonlane/contracts'
 import { Context, Effect, Layer, Redacted } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { createCalendarFeedHandler } from '@/modules/calendar/presentation/calendar-feed.handler'
@@ -21,11 +22,18 @@ const SERVER_DRAIN_TIMEOUT = '15 seconds'
  * Serves the API on `0.0.0.0:$PORT`. `/health` answers Railway's deploy check with the
  * environment and commit and never touches the database, so a database outage cannot block a deploy.
  * Auth and RPC answer CORS first (`withCors`), then resolve the client IP (`withClientIp`); the calendar feed needs neither.
+ * While maintenance is on, every `/api/auth` request gets the maintenance 503 without reaching Better Auth, whose endpoints and rate limiter write.
  */
 export const HttpServerLive = Layer.effectDiscard(
 	Effect.gen(function* () {
-		const { port, environment, commit, trustedOrigins, proxySecret } =
-			yield* AppConfig
+		const {
+			port,
+			environment,
+			commit,
+			trustedOrigins,
+			proxySecret,
+			maintenance,
+		} = yield* AppConfig
 		const services = yield* Effect.context<AppServices>()
 		const auth = Context.get(services, Auth)
 		const forBrowser = (handle: (request: Request) => Promise<Response>) =>
@@ -34,7 +42,11 @@ export const HttpServerLive = Layer.effectDiscard(
 				trustedOrigins,
 				withClientIp(services, Redacted.value(proxySecret), handle)
 			)
-		const handleAuth = forBrowser(auth.handle)
+		const handleAuth = forBrowser(
+			maintenance
+				? async () => Response.json(MAINTENANCE_ERROR, { status: 503 })
+				: auth.handle
+		)
 		const handleRpc = forBrowser(
 			createRpcHandler(
 				async request => await createRpcContext(services, request.headers),

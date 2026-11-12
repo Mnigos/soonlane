@@ -43,6 +43,7 @@ export const BetterAuthLive = Layer.effect(
 			errorUrl: `${config.appUrl}/login`,
 			secret: Redacted.value(config.authSecret),
 			allowedEmails: config.allowedEmails,
+			readOnlySessions: config.maintenance,
 			google: {
 				clientId: config.googleClientId,
 				clientSecret: Redacted.value(config.googleClientSecret),

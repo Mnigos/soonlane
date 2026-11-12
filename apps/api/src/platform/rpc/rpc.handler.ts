@@ -1,4 +1,6 @@
+import { COMMON_ERROR_STATUS_MAP } from '@orpc/server'
 import { RPCHandler } from '@orpc/server/fetch'
+import { MAINTENANCE_ERROR } from '@soonlane/contracts'
 import { RPC_PREFIX } from './rpc-prefix.constants'
 import type { RpcContext } from './rpc.context'
 import { router } from './rpc.router'
@@ -14,7 +16,12 @@ export function createRpcHandler(
 	trustedOrigins: readonly string[],
 	reportError?: ErrorReporter
 ) {
-	const handler = new RPCHandler(router)
+	const handler = new RPCHandler(router, {
+		errorStatusMap: {
+			...COMMON_ERROR_STATUS_MAP,
+			[MAINTENANCE_ERROR.code]: 503,
+		},
+	})
 
 	return async function handleRpc(request: Request): Promise<Response> {
 		const origin = request.headers.get('origin')

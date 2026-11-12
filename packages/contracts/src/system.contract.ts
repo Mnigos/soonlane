@@ -4,6 +4,7 @@ import { z } from 'zod'
 export const healthOutputSchema = z.object({
 	ok: z.boolean(),
 	db: z.enum(['ok', 'down']),
+	maintenance: z.boolean(),
 	version: z.string(),
 	commit: z.string(),
 })
