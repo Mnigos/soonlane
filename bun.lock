@@ -207,8 +207,8 @@
         "react-dom": ">=19",
       },
     },
-    "tooling/oxlint-plugins": {
-      "name": "@soonlane/oxlint-plugins",
+    "tooling/oxlint-plugin": {
+      "name": "@soonlane/oxlint-plugin",
       "devDependencies": {
         "@oxlint/plugins": "1.86.0",
         "@soonlane/typescript-config": "workspace:*",
@@ -768,7 +768,7 @@
 
     "@soonlane/domain": ["@soonlane/domain@workspace:packages/domain"],
 
-    "@soonlane/oxlint-plugins": ["@soonlane/oxlint-plugins@workspace:tooling/oxlint-plugins"],
+    "@soonlane/oxlint-plugin": ["@soonlane/oxlint-plugin@workspace:tooling/oxlint-plugin"],
 
     "@soonlane/tailwind-config": ["@soonlane/tailwind-config@workspace:tooling/tailwind-config"],
 

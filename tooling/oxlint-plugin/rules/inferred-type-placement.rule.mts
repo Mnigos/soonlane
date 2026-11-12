@@ -1,9 +1,9 @@
 import { defineRule, type ESTree, type Fixer } from '@oxlint/plugins'
-import { isSingleLineConst } from './declaration-group-spacing.rule.mts'
 import {
 	getInferredAliases,
 	type ProgramStatement,
-} from './inferred-type-placement.helper.mts'
+} from '../helpers/inferred-type-placement.helper.mts'
+import { isSingleLineConst } from './declaration-group-spacing.rule.mts'
 
 type BlockEdge = ESTree.Comment | ProgramStatement
 type Neighbour = ESTree.Comment | ESTree.Token

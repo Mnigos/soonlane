@@ -34,6 +34,10 @@ Soonlist starts as one TanStack Start app, but a desktop app is next and will ca
 
 The server code moved to `apps/api`, so Effect services, ports and layers now live in both apps. The web app no longer depends on `@soonlane/db`, `@soonlane/auth/server`, `pg` or `drizzle-orm`, so its import protection no longer lists them.
 
+## Update 2026-11-12 (SOON-137)
+
+`tooling/oxlint-plugins` is now `tooling/oxlint-plugin` (`@soonlane/oxlint-plugin`), because it holds one plugin. `soonlane.plugin.mts` stays at its root, the rules sit in `rules/` and their shared helpers in `helpers/`.
+
 ## Related
 
 - `ARCHITECTURE.md`: Monorepo layout, Package layering

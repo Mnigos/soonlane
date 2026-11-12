@@ -46,7 +46,7 @@ const DISABLED_RULES = {
 		'AGENTS.md skips braces for single-statement blocks',
 } as const satisfies Record<string, string>
 
-/** tooling/oxlint-plugins is copied verbatim from vinyl-wishlist (originally rigtch.fm), which still defers these rules; fix them upstream before removing an entry. */
+/** tooling/oxlint-plugin started as a copy of the vinyl-wishlist plugin (originally rigtch.fm), which defers the same rules except soonlane/no-let; fix the shared rules upstream before removing an entry. */
 const VENDORED_PLUGIN_DEFERRED_RULES = [
 	'require-unicode-regexp',
 	'soonlane/no-let',
@@ -69,7 +69,7 @@ export default defineConfig({
 		'**/routeTree.gen.ts',
 		'packages/db/migrations/**',
 	],
-	jsPlugins: ['./tooling/oxlint-plugins/soonlane.plugin.mts'],
+	jsPlugins: ['./tooling/oxlint-plugin/soonlane.plugin.mts'],
 	options: { typeAware: true },
 	env: { browser: true, node: true, es2024: true },
 	globals: { Bun: 'readonly' },
@@ -144,7 +144,7 @@ export default defineConfig({
 				'oxlint.config.mts',
 				'oxfmt.config.mts',
 				'.railway/railway.ts',
-				'tooling/oxlint-plugins/soonlane.plugin.mts',
+				'tooling/oxlint-plugin/soonlane.plugin.mts',
 			],
 			rules: { 'import/no-default-export': 'off' },
 		},
@@ -194,7 +194,7 @@ export default defineConfig({
 			rules: { 'oxc/no-barrel-file': 'off' },
 		},
 		{
-			files: ['tooling/oxlint-plugins/**'],
+			files: ['tooling/oxlint-plugin/**'],
 			rules: Object.fromEntries(
 				VENDORED_PLUGIN_DEFERRED_RULES.map(rule => [rule, 'off'])
 			),

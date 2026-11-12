@@ -18,7 +18,7 @@ Production: https://soonlane.com
 | `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.           |
 | `tooling/typescript-config` | tsconfig presets every workspace extends.                                                         |
 | `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                                |
-| `tooling/oxlint-plugins`    | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.              |
+| `tooling/oxlint-plugin`     | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.              |
 
 Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Product and design: [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
