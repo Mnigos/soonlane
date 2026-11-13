@@ -18,6 +18,7 @@ import {
 	type TodoistImportChange,
 } from '@soonlane/domain'
 import type { TodoistItem, TodoistSnapshot } from './todoist-snapshot.schemas'
+import { type ItemPlacement, placeTodoistItems } from './todoist-subtask.helper'
 
 /** A due date as Todoist keeps it; `utc` marks a time pinned to a zone, which the import moves into the browser's zone. */
 export interface DraftDue {
@@ -27,9 +28,10 @@ export interface DraftDue {
 	repeat?: Omit<RepeatRule, 'anchor'>
 }
 
-/** One task the import creates; `changed` when it arrives differently from Todoist. */
+/** One task the import creates, after its parent; `changed` when it arrives differently from Todoist. */
 export interface TaskDraft {
 	todoistId: string
+	parentTodoistId?: string
 	title: string
 	description?: string
 	due?: DraftDue
@@ -146,14 +148,21 @@ function isTooLong(text: string, maxLength: number) {
 /** The changes counted per imported task; any of them, or a section, makes the task arrive changed. */
 const TASK_CHANGES = {
 	repeating: item => item.due?.is_recurring === true && !readDue(item)?.repeat,
-	subtasks: item => Boolean(item.parent_id),
+	subtasks: (item, { parent }) => Boolean(item.parent_id) && !parent,
+	deepSubtasks: (item, { parent }) =>
+		parent !== undefined && parent.item.id !== item.parent_id,
 	deadlines: item => Boolean(item.deadline),
 	durations: item =>
 		Boolean(item.duration) && readDurationMinutes(item) === undefined,
 	longTitles: item => isTooLong(item.content, TASK_TITLE_MAX_LENGTH),
 	longDescriptions: item =>
 		isTooLong(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH),
-} satisfies Partial<Record<TodoistImportChange, (item: TodoistItem) => boolean>>
+} satisfies Partial<
+	Record<
+		TodoistImportChange,
+		(item: TodoistItem, placement: ItemPlacement) => boolean
+	>
+>
 
 /** Label or project names as Soonlane would keep them: trimmed, cut to length and unique ignoring case, the first spelling winning. */
 function toNames(names: readonly string[], maxLength: number) {
@@ -199,7 +208,7 @@ function toLabelColor(todoistColor: string | null | undefined) {
 	)
 }
 
-/** Projects and sections count only when they hold an imported task; labels are the Todoist labels plus every name on an imported task (shared labels have no label object). Open tasks imported before are left out. */
+/** A subtask takes its top-level task's project. Projects and sections count only when they hold an imported task; labels are the Todoist labels plus every name on an imported task (shared labels have no label object). Open tasks imported before are left out. */
 export function planTodoistImport(
 	snapshot: TodoistSnapshot,
 	existingLabelNames: readonly string[],
@@ -211,15 +220,16 @@ export function planTodoistImport(
 		item => !(item.checked || item.is_deleted)
 	)
 	const items = openItems.filter(item => !imported.has(item.id))
+	const placements = placeTodoistItems(items)
 	const inboxId = snapshot.user.inbox_project_id
 	const projectsById = new Map(
 		snapshot.projects
 			.filter(project => !project.is_deleted && project.id !== inboxId)
 			.map(project => [project.id, project])
 	)
-	const projects = [...new Set(items.map(item => item.project_id))].flatMap(
-		id => projectsById.get(id) ?? []
-	)
+	const projects = [
+		...new Set(placements.map(({ root }) => root.project_id)),
+	].flatMap(id => projectsById.get(id) ?? [])
 	const projectSources = projects.map(({ name }) => name)
 	const { newNames: newProjectNames, existingCount: existingProjects } =
 		matchNames(
@@ -235,28 +245,37 @@ export function planTodoistImport(
 		toNames(labelSources, LABEL_NAME_MAX_LENGTH),
 		existingLabelNames
 	)
-	const count = (isChanged: (item: TodoistItem) => boolean) =>
-		items.filter(isChanged).length
+	const count = (
+		isChanged: (item: TodoistItem, placement: ItemPlacement) => boolean
+	) =>
+		placements.filter(placement => isChanged(placement.item, placement)).length
 
 	return {
-		tasks: items.map(item => ({
-			todoistId: item.id,
-			title: cut(item.content, TASK_TITLE_MAX_LENGTH),
-			description:
-				cut(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH) || undefined,
-			due: readDue(item),
-			durationMinutes: readDurationMinutes(item),
-			priority: PRIORITY_FROM_TODOIST[item.priority] ?? DEFAULT_TASK_PRIORITY,
-			labelNames: toNames(item.labels, LABEL_NAME_MAX_LENGTH),
-			projectName:
-				cut(
-					projectsById.get(item.project_id)?.name ?? '',
-					PROJECT_NAME_MAX_LENGTH
-				) || undefined,
-			changed:
-				Boolean(item.section_id) ||
-				Object.values(TASK_CHANGES).some(isChanged => isChanged(item)),
-		})),
+		tasks: placements.map(placement => {
+			const { item, parent, root } = placement
+
+			return {
+				todoistId: item.id,
+				parentTodoistId: parent?.item.id,
+				title: cut(item.content, TASK_TITLE_MAX_LENGTH),
+				description:
+					cut(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH) || undefined,
+				due: readDue(item),
+				durationMinutes: readDurationMinutes(item),
+				priority: PRIORITY_FROM_TODOIST[item.priority] ?? DEFAULT_TASK_PRIORITY,
+				labelNames: toNames(item.labels, LABEL_NAME_MAX_LENGTH),
+				projectName:
+					cut(
+						projectsById.get(root.project_id)?.name ?? '',
+						PROJECT_NAME_MAX_LENGTH
+					) || undefined,
+				changed:
+					Boolean(item.section_id) ||
+					Object.values(TASK_CHANGES).some(isChanged =>
+						isChanged(item, placement)
+					),
+			}
+		}),
 		newLabels: newLabelNames.map(name => ({
 			name,
 			color: toLabelColor(
@@ -278,6 +297,7 @@ export function planTodoistImport(
 				repeating: count(TASK_CHANGES.repeating),
 				alreadyImported: openItems.length - items.length,
 				subtasks: count(TASK_CHANGES.subtasks),
+				deepSubtasks: count(TASK_CHANGES.deepSubtasks),
 				sections: countDistinct(items.map(item => item.section_id)),
 				deadlines: count(TASK_CHANGES.deadlines),
 				durations: count(TASK_CHANGES.durations),
