@@ -94,7 +94,7 @@ function isPrerenderedPath(path: string) {
 	)
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
 	define: {
 		'import.meta.env.APP_VERSION': JSON.stringify(versionFile.version),
 		'import.meta.env.APP_COMMIT': JSON.stringify(APP_COMMIT),
@@ -154,6 +154,8 @@ export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
+	// A CommonJS require of an external package (use-sync-external-store's require('react')) stays a runtime createRequire Nitro cannot bundle; the dev server runs React's CommonJS entry only as an external.
+	ssr: { noExternal: command === 'build' ? true : undefined },
 	// The prerender fetches from this server on port 3000; via 'localhost' a dev server on [::1]:3000 answered.
 	preview: { host: '127.0.0.1' },
-})
+}))
