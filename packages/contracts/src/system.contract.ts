@@ -9,8 +9,9 @@ export const healthOutputSchema = z.object({
 })
 export type HealthOutput = z.infer<typeof healthOutputSchema>
 
-/** A release version from version.json: `1.2.3`, or a prerelease such as `0.2.0-nightly.20261112.1`. */
-export const APP_VERSION_PATTERN = /^\d+\.\d+\.\d+(?:-[\w.]+)?$/u
+/** A SemVer 2.0 version (semver.org's own pattern): `1.2.3`, a prerelease such as `0.2.0-nightly.20261112.1`, build metadata such as `+build.1`. */
+export const APP_VERSION_PATTERN =
+	/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][\dA-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][\dA-Za-z-]*))*)?(?:\+[\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*)?$/u
 
 export const desktopSupportOutputSchema = z.object({
 	isSupported: z.boolean(),
