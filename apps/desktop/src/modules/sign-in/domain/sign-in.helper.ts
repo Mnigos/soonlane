@@ -1,63 +1,44 @@
 import {
 	CODE_CHALLENGE_PARAM,
-	CODE_VERIFIER_PARAM,
-	DESKTOP_CALLBACK_PATH,
-	DESKTOP_SIGN_IN_LINK_HOST,
 	DESKTOP_SIGN_IN_PATH,
-	DESKTOP_URL_SCHEME,
-	FRESH_SIGN_IN_PARAM,
+	LOOPBACK_CALLBACK_PATH,
+	LOOPBACK_PORT_PARAM,
 	SIGN_IN_CODE_PARAM,
+	SIGN_IN_CODE_PATTERN,
 } from '@soonlane/auth'
 
-/** The window asked for the desktop sign-in page, which only the system browser may open. */
-export function isSignInStart(href: string, appUrl: URL) {
-	const url = URL.parse(href)
-
-	return url?.origin === appUrl.origin && url.pathname === DESKTOP_SIGN_IN_PATH
+interface BrowserSignIn {
+	challenge: string
+	/** The loopback listener's port, where the browser hands the code back. */
+	port: number
 }
 
-/** The code of a `soonlane://sign-in?code=…` link; anything else carries none. */
-export function readSignInCode(href: string) {
-	const url = URL.parse(href)
-
-	return url?.protocol === `${DESKTOP_URL_SCHEME}:` &&
-		url.host === DESKTOP_SIGN_IN_LINK_HOST
-		? (url.searchParams.get(SIGN_IN_CODE_PARAM) ?? undefined)
-		: undefined
-}
-
-/** The browser's sign-in page for this challenge; a fresh sign-in the window asked for (account deletion) carries over. */
+/** The browser's sign-in page for this challenge. */
 export function getBrowserSignInUrl(
 	appUrl: URL,
-	challenge: string,
-	requestedHref: string
+	{ challenge, port }: BrowserSignIn
 ) {
 	const url = new URL(DESKTOP_SIGN_IN_PATH, appUrl)
-	const fresh = URL.parse(requestedHref)?.searchParams.get(FRESH_SIGN_IN_PARAM)
 
 	url.searchParams.set(CODE_CHALLENGE_PARAM, challenge)
-	if (fresh) url.searchParams.set(FRESH_SIGN_IN_PARAM, fresh)
+	url.searchParams.set(LOOPBACK_PORT_PARAM, String(port))
 
 	return url
 }
 
 /**
- * The fragment keeps the code and the verifier out of requests and server
- * logs. Without a pending verifier (the app restarted, or the sign-in already
- * finished) the page gets nothing to exchange and says the sign-in did not finish.
+ * The code of a `GET /callback?code=…` the browser sent to the listener; any
+ * other request carries none, so a page that guesses the port cannot end the
+ * sign-in with junk.
  */
-export function getCallbackUrl(
-	appUrl: URL,
-	code: string,
-	verifier: string | undefined
-) {
-	const url = new URL(DESKTOP_CALLBACK_PATH, appUrl)
+export function readCallbackCode(request: Request) {
+	const url = new URL(request.url)
+	const code = url.searchParams.get(SIGN_IN_CODE_PARAM)
 
-	if (verifier)
-		url.hash = new URLSearchParams({
-			[SIGN_IN_CODE_PARAM]: code,
-			[CODE_VERIFIER_PARAM]: verifier,
-		}).toString()
-
-	return url
+	return request.method === 'GET' &&
+		url.pathname === LOOPBACK_CALLBACK_PATH &&
+		code !== null &&
+		SIGN_IN_CODE_PATTERN.test(code)
+		? code
+		: undefined
 }
