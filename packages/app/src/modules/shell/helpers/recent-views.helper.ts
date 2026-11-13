@@ -1,4 +1,4 @@
-import { labelIdSchema, taskIdSchema } from '@soonlane/domain'
+import { labelIdSchema, projectIdSchema, taskIdSchema } from '@soonlane/domain'
 import { z } from 'zod'
 import { VIEW_SHORTCUTS } from '../keyboard-shortcuts.constants'
 
@@ -10,13 +10,14 @@ const recentViewsSchema = z.array(
 			kind: z.literal('view'),
 			id: z.literal(VIEW_SHORTCUTS.map(({ view }) => view)),
 		}),
+		z.object({ kind: z.literal('project'), id: projectIdSchema }),
 		z.object({ kind: z.literal('label'), id: labelIdSchema }),
 		z.object({ kind: z.literal('task'), id: taskIdSchema }),
 	])
 )
 export type RecentView = z.infer<typeof recentViewsSchema>[number]
 
-/** This device's recently viewed views, labels and tasks, newest first; empty when storage is blocked or holds something else. */
+/** This device's recently viewed views, projects, labels and tasks, newest first; empty when storage is blocked or holds something else. */
 export function readRecentViews(): RecentView[] {
 	try {
 		return recentViewsSchema.parse(

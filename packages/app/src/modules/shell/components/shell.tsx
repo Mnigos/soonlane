@@ -71,7 +71,7 @@ export function Shell({
 	)
 
 	useDockBadgeQuery()
-	useTrackRecentViews(activePath, activeLabelName)
+	useTrackRecentViews(activePath, activeLabelName, activeProjectName)
 	useKeyboardShortcuts({
 		onAddTask: openAddTask,
 		onOpenSearch: openSearch,
