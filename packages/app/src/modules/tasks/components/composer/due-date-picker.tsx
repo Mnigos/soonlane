@@ -21,7 +21,7 @@ import {
 	PICKER_FIELD_ROW_CLASS,
 	PICKER_NOTE_CLASS,
 } from '../../helpers/composer-chip.constants'
-import { DUE_DATE_SHORTCUT_CHOICES } from '../../helpers/due-date-shortcut.constants'
+import { DUE_DATE_SHORTCUT_CHOICES } from '../../helpers/due-date-choice.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { DueDateShortcuts } from './due-date-shortcuts'
 import { MonthCalendar } from './month-calendar'
