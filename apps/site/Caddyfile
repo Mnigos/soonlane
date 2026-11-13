@@ -1,0 +1,44 @@
+{
+	admin off
+	auto_https off
+	persist_config off
+}
+
+(security) {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		X-Frame-Options DENY
+		# Inline scripts are the signed-in hint and the router's data; the MDX renderer compiles pages with Function(), hence 'unsafe-eval' until SOON-188.
+		# Both API hosts (PostHog's proxy and its scripts) because one Caddyfile serves every environment.
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.soonlane.com https://api.staging.soonlane.com; connect-src 'self' https://api.soonlane.com https://api.staging.soonlane.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		-Server
+	}
+}
+
+:{$PORT:8080} {
+	import security
+	root * /srv
+	encode zstd gzip
+
+	respond /health 200
+
+	# Vite names every file under /assets after its content hash; everything else keeps its URL across deploys.
+	@hashed path /assets/*
+	@revalidated not path /assets/*
+	header @hashed Cache-Control "public, max-age=31536000, immutable"
+	header @revalidated Cache-Control no-cache
+	header /sitemap.xml Content-Type "application/xml; charset=utf-8"
+	header /blog/rss.xml Content-Type "application/rss+xml; charset=utf-8"
+
+	try_files {path} {path}/index.html
+	file_server
+
+	handle_errors 404 {
+		import security
+		header Cache-Control no-store
+		rewrite * /404.html
+		file_server
+	}
+}
