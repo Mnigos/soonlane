@@ -71,6 +71,7 @@ function InboxTasks({ today }: Readonly<InboxPageProps>) {
 					<TaskComposer
 						defaultDueDate={undefined}
 						onCancel={closeComposer}
+						onCreated={closeComposer}
 						source="inbox_view"
 						today={today}
 					/>
