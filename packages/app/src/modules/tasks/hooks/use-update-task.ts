@@ -1,3 +1,4 @@
+import { isDefinedError } from '@orpc/client'
 import {
 	type GoalInput,
 	type ListTasksOutput,
@@ -39,7 +40,8 @@ function getEditedGoal(
 }
 
 /**
- * Saves an edited task at once (optimistically), moving it to wherever its new date and labels belong.
+ * Saves an edited task at once (optimistically), moving it to wherever its new date, labels and project belong.
+ * A NOT_FOUND (the task or its new project was deleted) puts the task back and toasts the server's message.
  * A goal the progress already reaches completes the task with the "Task completed" toast and Undo, like a log.
  */
 export function useUpdateTask(today: CalendarDate) {
@@ -56,7 +58,7 @@ export function useUpdateTask(today: CalendarDate) {
 		orpcQuery.tasks.edit.mutationOptions({
 			onMutate: async variables => {
 				const edit = editTaskInputSchema.parse(variables)
-				const { id, labelIds, goal, description } = edit
+				const { id, labelIds, projectId, goal, description } = edit
 
 				// An Undo from an earlier completion would overwrite this edit's date.
 				dismissToast(id)
@@ -78,6 +80,9 @@ export function useUpdateTask(today: CalendarDate) {
 				const knownLabels =
 					queryClient.getQueryData(orpcQuery.labels.list.queryKey())?.labels ??
 					current.labels
+				const knownProjects =
+					queryClient.getQueryData(orpcQuery.projects.list.queryKey())
+						?.projects ?? []
 				const task = {
 					...current,
 					title: edit.title ?? current.title,
@@ -90,6 +95,10 @@ export function useUpdateTask(today: CalendarDate) {
 					labels: labelIds
 						? knownLabels.filter(label => labelIds.includes(label.id))
 						: current.labels,
+					project:
+						projectId === undefined
+							? current.project
+							: knownProjects.find(project => project.id === projectId),
 					goal: editedGoal,
 				}
 
@@ -116,7 +125,7 @@ export function useUpdateTask(today: CalendarDate) {
 				return { previous }
 			},
 			// Restores only this task, so concurrent changes to the lists survive.
-			onError: (_error, { id }, context) => {
+			onError: (error, { id }, context) => {
 				notifyManager.batch(() => {
 					for (const { key, placement } of context?.previous ?? [])
 						queryClient.setQueryData<ListTasksOutput>(
@@ -124,7 +133,11 @@ export function useUpdateTask(today: CalendarDate) {
 							list => list && withMovedTask(list, id, placement)
 						)
 				})
-				showToast('Could not save the task. Try again.')
+				showToast(
+					isDefinedError(error) && error.code === 'NOT_FOUND'
+						? error.message
+						: 'Could not save the task. Try again.'
+				)
 			},
 			onSuccess: ({ task, completed }) => {
 				if (!completed) return

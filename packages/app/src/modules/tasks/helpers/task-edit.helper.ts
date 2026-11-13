@@ -1,4 +1,10 @@
-import type { GoalInput, Label, RepeatInput, Task } from '@soonlane/contracts'
+import type {
+	GoalInput,
+	Label,
+	Project,
+	RepeatInput,
+	Task,
+} from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	type TaskPriority,
@@ -26,6 +32,11 @@ export function getChangedLabelIds(task: Task, picked: Label[]) {
 		task.labels.some(({ id }) => !ids.includes(id))
 
 	return isChanged ? ids : undefined
+}
+
+/** The project id an edit sends: undefined while it matches the task's, so the save keeps it; null removes it. */
+export function getChangedProjectId(task: Task, project: Project | undefined) {
+	return getChanged(project?.id ?? null, task.project?.id ?? null)
 }
 
 /** The goal an edit sends: undefined while it matches the task's, so the save keeps it; null removes it. */

@@ -19,6 +19,7 @@ import {
 	getChanged,
 	getChangedGoal,
 	getChangedLabelIds,
+	getChangedProjectId,
 	isRepeatChanged,
 } from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
@@ -30,13 +31,14 @@ import { DueDateChip } from './due-date-chip'
 import { GoalChip } from './goal-chip'
 import { LabelsChip } from './labels-chip'
 import { PriorityChip } from './priority-chip'
+import { ProjectChip } from './project-chip'
 import { TitleField } from './title-field'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate | undefined
 	/** Picked again after each task, like the label of an open label view. */
 	defaultLabels?: Label[]
-	/** Every task it adds goes into it, like the project of an open project view. */
+	/** Picked again after each task, like the project of an open project view. */
 	defaultProject?: Project
 	today: CalendarDate
 	source: ComposerSource
@@ -110,6 +112,7 @@ export function TaskComposer({
 		defaultDueDate
 	)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
+	const [project, setProject] = useState(task?.project ?? defaultProject)
 	// A typed rule without a date of its own starts today, as in Todoist, since a repeating task needs a due date.
 	const pickedDate = typedDueDate ?? dueDate ?? (repeat && today)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
@@ -159,6 +162,7 @@ export function TaskComposer({
 				repeat: repeatEdit,
 				labelIds: getChangedLabelIds(openedTask, pickedLabels),
 				goal: getChangedGoal(openedTask, goal),
+				projectId: getChangedProjectId(openedTask, project),
 			}
 
 			if (Object.values(edited).some(value => value !== undefined))
@@ -177,7 +181,7 @@ export function TaskComposer({
 				priority,
 				repeat,
 				labelIds: pickedLabels.map(({ id }) => id),
-				projectId: defaultProject?.id,
+				projectId: project?.id,
 				goal,
 			},
 			{
@@ -186,6 +190,7 @@ export function TaskComposer({
 					setDescription('')
 					setDueTime(undefined)
 					setGoal(undefined)
+					setProject(defaultProject)
 					titleRef.current?.focus()
 					onCreated?.()
 				},
@@ -284,6 +289,12 @@ export function TaskComposer({
 					onChange={pickLabels}
 					onKeyDown={handleFieldKeys}
 					value={pickedLabels}
+				/>
+
+				<ProjectChip
+					onChange={setProject}
+					onKeyDown={handleFieldKeys}
+					value={project}
 				/>
 
 				<div className="ml-auto flex items-center gap-2">
