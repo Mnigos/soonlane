@@ -2,11 +2,14 @@ import type { TodoistPreview } from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	DEFAULT_TASK_PRIORITY,
+	findTypedRepeatRules,
+	getFirstOccurrence,
 	getToday,
 	LABEL_COLORS,
 	LABEL_NAME_MAX_LENGTH,
 	type LabelColor,
 	PROJECT_NAME_MAX_LENGTH,
+	type RepeatRule,
 	storedCalendarDateSchema,
 	TASK_DESCRIPTION_MAX_LENGTH,
 	TASK_TITLE_MAX_LENGTH,
@@ -20,6 +23,7 @@ export interface DraftDue {
 	date: CalendarDate
 	time?: string
 	utc: boolean
+	repeat?: Omit<RepeatRule, 'anchor'>
 }
 
 /** One task the import creates; `changed` when it arrives differently from Todoist. */
@@ -55,31 +59,65 @@ const PRIORITY_FROM_TODOIST: Readonly<Record<number, TaskPriority>> = {
 }
 const DUE_PATTERN =
 	/^(\d{4}-\d{2}-\d{2})(?:T(\d{2}:\d{2})(?::\d{2}(?:\.\d+)?)?(Z)?)?$/u
+/** Todoist appends the due time to the rule ("every day at 9am"); the import reads the time from the due date. */
+const DUE_TIME_SUFFIX_PATTERN =
+	/^(?:\s+at\s+(?:noon|midnight|\d{1,2}(?::\d{2})?\s*(?:am|pm)?))?$/iu
 
-function readDue(item: TodoistItem): DraftDue | undefined {
-	const match = item.due ? DUE_PATTERN.exec(item.due.date) : null
-	const date = storedCalendarDateSchema.safeParse(match?.[1])
+/** The rule only when the whole English due string is one repeat phrase Soonlane can store. */
+function readRepeat(due: NonNullable<TodoistItem['due']>, date: CalendarDate) {
+	if (!(due.is_recurring && due.lang === 'en' && due.string)) return undefined
 
-	if (!date.success) return undefined
+	const text = due.string.trim()
+	const [phrase, ...others] = findTypedRepeatRules(text, [], date)
 
-	return { date: date.data, time: match?.[2], utc: match?.[3] === 'Z' }
+	return phrase?.start === 0 &&
+		others.length === 0 &&
+		DUE_TIME_SUFFIX_PATTERN.test(text.slice(phrase.end))
+		? phrase.rule
+		: undefined
 }
 
-/** The due date and time a task gets: none without a due, a UTC time moves into `timeZone`, a date or a floating time stays as written. */
-export function toTaskDue(due: DraftDue | undefined, timeZone: string) {
-	if (!due) return {}
-	if (!(due.utc && due.time)) return { dueDate: due.date, dueTime: due.time }
+function readDue({ due }: TodoistItem): DraftDue | undefined {
+	const match = due ? DUE_PATTERN.exec(due.date) : null
+	const date = storedCalendarDateSchema.safeParse(match?.[1])
+
+	if (!(due && date.success)) return undefined
+
+	return {
+		date: date.data,
+		time: match?.[2],
+		utc: match?.[3] === 'Z',
+		repeat: readRepeat(due, date.data),
+	}
+}
+
+function toLocalDue(due: DraftDue, timeZone: string) {
+	if (!(due.utc && due.time)) return { date: due.date, time: due.time }
 
 	const instant = new Date(`${due.date}T${due.time}Z`)
 
 	return {
-		dueDate: getToday(instant, timeZone),
-		dueTime: new Intl.DateTimeFormat('en-GB', {
+		date: getToday(instant, timeZone),
+		time: new Intl.DateTimeFormat('en-GB', {
 			timeZone,
 			hour: '2-digit',
 			minute: '2-digit',
 			hourCycle: 'h23',
 		}).format(instant),
+	}
+}
+
+/** The due date, time and repeat rule a task gets: none without a due, a UTC time moves into `timeZone`, and a kept rule starts as a new task's would. */
+export function toTaskDue(due: DraftDue | undefined, timeZone: string) {
+	if (!due) return {}
+
+	const local = toLocalDue(due, timeZone)
+	const dueDate = getFirstOccurrence(local.date, due.repeat?.unit)
+
+	return {
+		dueDate,
+		dueTime: local.time,
+		repeat: due.repeat && { ...due.repeat, anchor: dueDate },
 	}
 }
 
@@ -93,7 +131,7 @@ function isTooLong(text: string, maxLength: number) {
 
 /** The changes counted per imported task; any of them, or a section, makes the task arrive changed. */
 const TASK_CHANGES = {
-	repeating: item => item.due?.is_recurring === true,
+	repeating: item => item.due?.is_recurring === true && !readDue(item)?.repeat,
 	subtasks: item => Boolean(item.parent_id),
 	deadlines: item => Boolean(item.deadline),
 	durations: item => Boolean(item.duration),
