@@ -99,8 +99,9 @@ export function TaskComposer({
 		defaultDueDate
 	)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
+	// A typed rule without a date of its own starts today, as in Todoist, since a repeating task needs a due date.
+	const pickedDate = typedDueDate ?? dueDate ?? (repeat && today)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
-	const pickedDate = typedDueDate ?? dueDate
 	const scheduledDate =
 		pickedDate && getEditedDueDate(task, pickedDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
