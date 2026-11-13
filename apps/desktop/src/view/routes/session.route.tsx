@@ -1,5 +1,6 @@
 import { APP_PATHS } from '@soonlane/app/app-paths'
 import { orpcQuery } from '@soonlane/app/rpc-query'
+import { sendToDesktopHost } from '@soonlane/app/shell/helpers/desktop-host.helper'
 import type { QueryClient } from '@tanstack/react-query'
 import {
 	createRootRouteWithContext,
@@ -29,16 +30,24 @@ export const updateRoute = createRoute({
 export const supportedRoute = createRoute({
 	getParentRoute: () => rootRoute,
 	id: 'supported',
-	beforeLoad: async ({ context }) => {
+	beforeLoad: async ({ context, location }) => {
 		const { isSupported } = await context.queryClient.query(
 			orpcQuery.system.desktopSupport.queryOptions({
 				input: { version: import.meta.env.APP_VERSION },
 				// Once per page: the answer changes only with a deploy.
 				staleTime: Number.POSITIVE_INFINITY,
+				gcTime: Number.POSITIVE_INFINITY,
+				// Offline too, so a failure reaches the no-connection screen instead of pausing here.
+				networkMode: 'always',
 			})
 		)
 
-		if (!isSupported) throw redirect({ to: UPDATE_PATH })
+		if (isSupported) return
+		// The small Quick Add window closes; the main window shows the update screen.
+		if (location.pathname === APP_PATHS.quickAdd)
+			sendToDesktopHost({ type: 'quick-add-done' })
+
+		throw redirect({ to: UPDATE_PATH })
 	},
 })
 
