@@ -1,3 +1,4 @@
+import type { LinkProps } from '@tanstack/react-router'
 import { type PropsWithChildren, useState } from 'react'
 import { applyConsent } from '../analytics.client'
 import { saveConsent } from '../consent-cookie.helper'
@@ -12,6 +13,8 @@ interface ConsentProviderProps extends PropsWithChildren {
 	isAnalyticsEnabled: boolean
 	/** The environment's cookie prefix, which names the consent cookie. */
 	cookiePrefix: string
+	/** Where the dialog links to the privacy policy in the host's route tree. */
+	privacyPolicyPath: LinkProps['to']
 }
 
 /**
@@ -21,6 +24,7 @@ interface ConsentProviderProps extends PropsWithChildren {
 export function ConsentProvider({
 	isAnalyticsEnabled,
 	cookiePrefix,
+	privacyPolicyPath,
 	children,
 }: Readonly<ConsentProviderProps>) {
 	const storedConsent = useStoredConsent(cookiePrefix)
@@ -49,7 +53,10 @@ export function ConsentProvider({
 			{isAnalyticsEnabled && consent === 'unanswered' && <ConsentBanner />}
 
 			{isChoosing && (
-				<PrivacyChoicesDialog onClose={() => setIsChoosing(false)} />
+				<PrivacyChoicesDialog
+					onClose={() => setIsChoosing(false)}
+					privacyPolicyPath={privacyPolicyPath}
+				/>
 			)}
 		</ConsentContext>
 	)

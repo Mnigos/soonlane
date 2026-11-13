@@ -5,7 +5,7 @@ import { BLOG_DESCRIPTION } from '../blog.constants'
 import { PostByline } from '../components/post-byline'
 import { sortedPosts } from '../helpers/sorted-posts.helper'
 
-export const Route = createFileRoute('/_site/blog')({
+export const Route = createFileRoute('/site/blog')({
 	head: () =>
 		buildPageHead({
 			title: `Blog · ${SITE_NAME}`,
@@ -37,7 +37,7 @@ function BlogRoute() {
 								<Link
 									className="rounded-sm underline-offset-4 hover:underline"
 									params={{ slug: post.slug }}
-									to="/blog/$slug"
+									to="/site/blog/$slug"
 								>
 									{post.title}
 								</Link>

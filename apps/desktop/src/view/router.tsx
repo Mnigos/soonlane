@@ -17,11 +17,7 @@ import {
 	updateRoute,
 } from './routes/session.route'
 import { shellRoute } from './routes/shell.route'
-import {
-	indexRoute,
-	quickAddRoute,
-	taskViewRoutes,
-} from './routes/task-views.route'
+import { quickAddRoute, taskViewRoutes } from './routes/task-views.route'
 
 // Before anything below reads them: syncDockBadge checks the host ports while this module loads.
 provideRpcLink(apiLink)
@@ -57,7 +53,6 @@ const queryClient = new QueryClient({
 })
 
 const routeTree = rootRoute.addChildren([
-	indexRoute,
 	updateRoute,
 	supportedRoute.addChildren([
 		signInRoute,

@@ -15,7 +15,7 @@ import {
 	getPostPath,
 } from '../helpers/post.helper'
 
-export const Route = createFileRoute('/_site/blog/$slug')({
+export const Route = createFileRoute('/site/blog/$slug')({
 	loader: async ({ params }) => {
 		// A static import would put every post in the main bundle.
 		const { sortedPosts } = await import('../helpers/sorted-posts.helper')

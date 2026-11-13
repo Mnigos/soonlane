@@ -3,7 +3,7 @@ import { TodayPage } from '@soonlane/app/tasks/components/today-page'
 import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_session/app/today')({
+export const Route = createFileRoute('/_session/_shell/today')({
 	head: () => ({ meta: [{ title: 'Today · Soonlane' }] }),
 	component: TodayRoute,
 })

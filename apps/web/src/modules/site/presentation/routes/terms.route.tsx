@@ -6,7 +6,7 @@ import { SITE_NAME } from '../site.constants'
 
 const legal = getLegalDocument('terms')
 
-export const Route = createFileRoute('/_site/terms')({
+export const Route = createFileRoute('/site/terms')({
 	head: () =>
 		buildPageHead({
 			title: `${legal.title} · ${SITE_NAME}`,

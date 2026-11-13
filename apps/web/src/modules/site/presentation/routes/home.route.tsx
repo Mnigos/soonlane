@@ -18,7 +18,7 @@ import {
 } from '../landing.constants'
 import { SITE_NAME, SITE_URL } from '../site.constants'
 
-export const Route = createFileRoute('/_site/')({
+export const Route = createFileRoute('/site/')({
 	head: () => ({
 		...buildPageHead({
 			title: LANDING_TITLE,

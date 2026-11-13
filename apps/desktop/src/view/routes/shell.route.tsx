@@ -1,4 +1,3 @@
-import { APP_PATHS } from '@soonlane/app/app-paths'
 import { HostAppContext } from '@soonlane/app/host-app'
 import { Shell } from '@soonlane/app/shell/components/shell'
 import { readNoDateSectionOpen } from '@soonlane/app/shell/helpers/no-date-section-preference.helper'
@@ -30,11 +29,11 @@ function ShellLayout() {
 	const { sidebarPreference, isNoDateSectionOpen } = shellRoute.useLoaderData()
 	const activePath = useLocation({ select: location => location.pathname })
 	const labelMatch = useMatch({
-		from: '/supported/session/shell/app/labels/$name',
+		from: '/supported/session/shell/labels/$name',
 		shouldThrow: false,
 	})
 	const projectMatch = useMatch({
-		from: '/supported/session/shell/app/projects/$name',
+		from: '/supported/session/shell/projects/$name',
 		shouldThrow: false,
 	})
 
@@ -44,7 +43,6 @@ function ShellLayout() {
 				renderUserMenu: onShowShortcuts => (
 					<UserMenu onShowShortcuts={onShowShortcuts} user={user} />
 				),
-				homePath: APP_PATHS.upcoming,
 				appVersion: import.meta.env.APP_VERSION,
 				appCommit: import.meta.env.APP_COMMIT,
 				releaseNotesUrl: RELEASE_NOTES_URL,

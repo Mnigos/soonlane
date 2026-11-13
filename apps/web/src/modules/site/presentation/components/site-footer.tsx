@@ -53,7 +53,7 @@ export function SiteFooter() {
 								Legal
 							</h2>
 
-							<Link className={FOOTER_LINK_CLASS} to="/privacy">
+							<Link className={FOOTER_LINK_CLASS} to="/site/privacy">
 								Privacy
 							</Link>
 
@@ -61,7 +61,7 @@ export function SiteFooter() {
 								className={cn(FOOTER_LINK_CLASS, 'cursor-pointer text-left')}
 							/>
 
-							<Link className={FOOTER_LINK_CLASS} to="/terms">
+							<Link className={FOOTER_LINK_CLASS} to="/site/terms">
 								Terms
 							</Link>
 

@@ -1,12 +1,12 @@
 /** The paths both host apps serve; every link in this package goes through them. */
 export const APP_PATHS = {
-	inbox: '/app/inbox',
-	upcoming: '/app',
-	today: '/app/today',
-	search: '/app/search',
-	completed: '/app/completed',
-	label: '/app/labels/$name',
-	project: '/app/projects/$name',
+	inbox: '/inbox',
+	upcoming: '/',
+	today: '/today',
+	search: '/search',
+	completed: '/completed',
+	label: '/labels/$name',
+	project: '/projects/$name',
 	/** Only the desktop app serves it, in its own window. */
-	quickAdd: '/app/quick-add',
+	quickAdd: '/quick-add',
 } as const

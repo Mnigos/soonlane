@@ -10,7 +10,7 @@ const searchStateSchema = z.object({
 	handoffId: z.string().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/_session/app/search')({
+export const Route = createFileRoute('/_session/_shell/search')({
 	head: () => ({ meta: [{ title: 'Search · Soonlane' }] }),
 	component: SearchRoute,
 })
