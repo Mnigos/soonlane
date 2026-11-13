@@ -154,6 +154,8 @@ export default defineConfig({
 	resolve: {
 		tsconfigPaths: true,
 	},
+	// A CommonJS require of an external package (use-sync-external-store's require('react')) stays a runtime createRequire Nitro cannot bundle, so the server would need node_modules.
+	ssr: { noExternal: true },
 	// The prerender fetches from this server on port 3000; via 'localhost' a dev server on [::1]:3000 answered.
 	preview: { host: '127.0.0.1' },
 })
