@@ -40,6 +40,7 @@ export interface ClientEvents {
 		source: ComposerSource
 		hasDescription: boolean
 		hasTime: boolean
+		hasDuration: boolean
 		isOverdue: boolean
 	}
 	task_completed: TaskEventProperties & {
@@ -93,6 +94,7 @@ type ListedClientWireKey =
 	| 'source'
 	| 'has_description'
 	| 'has_time'
+	| 'has_duration'
 	| 'is_overdue'
 	| 'was_overdue'
 	| 'completed_via'

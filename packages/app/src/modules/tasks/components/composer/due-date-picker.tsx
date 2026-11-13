@@ -89,9 +89,7 @@ export function DueDatePicker({
 								aria-hidden
 								className={cn(
 									'size-4',
-									DUE_TONE_CLASSES[
-										getDueChipLabel(match, undefined, today).tone
-									]
+									DUE_TONE_CLASSES[getDueChipLabel(match, {}, today).tone]
 								)}
 							/>
 							{formatWeekdayDayMonth(match)}

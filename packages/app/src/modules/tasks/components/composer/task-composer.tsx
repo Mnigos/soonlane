@@ -18,6 +18,7 @@ import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
 	getChanged,
 	getChangedGoal,
+	getChangedOptional,
 	getChangedLabelIds,
 	getChangedProjectId,
 	isRepeatChanged,
@@ -112,6 +113,9 @@ export function TaskComposer({
 	)
 	const [dueTime, setDueTime] = useState(task?.dueTime)
 	const [project, setProject] = useState(task?.project ?? defaultProject)
+	const [durationMinutes, setDurationMinutes] = useState(
+		() => task?.durationMinutes
+	)
 	// A typed rule without a date of its own starts today, as in Todoist, since a repeating task needs a due date.
 	const pickedDate = typedDueDate ?? dueDate ?? (repeat && today)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
@@ -137,10 +141,7 @@ export function TaskComposer({
 		if (!canSubmit || isSubmittingRef.current) return
 
 		if (openedTask) {
-			const dueTimeEdit = getChanged(
-				dueTime ?? null,
-				openedTask.dueTime ?? null
-			)
+			const dueTimeEdit = getChangedOptional(dueTime, openedTask.dueTime)
 			const repeatEdit = isRepeatChanged(openedTask, repeat)
 				? (repeat ?? null)
 				: undefined
@@ -157,6 +158,10 @@ export function TaskComposer({
 				),
 				dueDate: isDateSent ? (scheduledDate ?? null) : undefined,
 				dueTime: dueTimeEdit,
+				durationMinutes: getChangedOptional(
+					durationMinutes,
+					openedTask.durationMinutes
+				),
 				priority: getChanged(priority, openedTask.priority),
 				repeat: repeatEdit,
 				labelIds: getChangedLabelIds(openedTask, pickedLabels),
@@ -177,6 +182,7 @@ export function TaskComposer({
 				description: description.trim() || undefined,
 				dueDate: scheduledDate,
 				dueTime,
+				durationMinutes,
 				priority,
 				repeat,
 				labelIds: pickedLabels.map(({ id }) => id),
@@ -188,6 +194,7 @@ export function TaskComposer({
 					reset()
 					setDescription('')
 					setDueTime(undefined)
+					setDurationMinutes(undefined)
 					setGoal(undefined)
 					setProject(defaultProject)
 					titleRef.current?.focus()
@@ -255,6 +262,7 @@ export function TaskComposer({
 				<DueDateChip
 					dueDate={scheduledDate}
 					dueTime={dueTime}
+					durationMinutes={durationMinutes}
 					onDateChange={date => {
 						setDueDate(date)
 						pickDueDate()
@@ -264,14 +272,19 @@ export function TaskComposer({
 						setDueDate(undefined)
 						pickDueDate()
 						setDueTime(undefined)
+						setDurationMinutes(undefined)
 						pickRepeat(undefined)
 					}}
+					onDurationChange={setDurationMinutes}
 					onRepeatChange={rule => {
 						// Keeps the date on the chip, which the old rule may have moved off the picked day.
 						setDueDate(scheduledDate)
 						pickRepeat(rule)
 					}}
-					onTimeChange={setDueTime}
+					onTimeChange={time => {
+						setDueTime(time)
+						if (!time) setDurationMinutes(undefined)
+					}}
 					repeat={savedRule}
 					today={today}
 				/>

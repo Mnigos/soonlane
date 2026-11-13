@@ -6,7 +6,10 @@ import type {
 	EditTaskInput,
 	Task,
 } from '@soonlane/contracts'
-import { TASK_PROJECT_FOREIGN_KEY } from '@soonlane/db'
+import {
+	TASK_DURATION_DUE_TIME_CHECK,
+	TASK_PROJECT_FOREIGN_KEY,
+} from '@soonlane/db'
 import {
 	type CalendarDate,
 	getEditedSchedule,
@@ -15,8 +18,12 @@ import {
 import { Effect } from 'effect'
 import { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import { ProjectNotFound } from '@/modules/projects/domain/project.errors'
-import { type DbError, isForeignKeyViolation } from '@/platform/db/db.errors'
-import { TaskNotFound } from '../domain/task.errors'
+import {
+	type DbError,
+	isCheckViolation,
+	isForeignKeyViolation,
+} from '@/platform/db/db.errors'
+import { TaskDurationWithoutTime, TaskNotFound } from '../domain/task.errors'
 
 /** The client's today and the due date it showed; both absent from older clients. */
 export interface CompletionDates {
@@ -42,21 +49,30 @@ export function getAdvance(
 	return { from, to: getNextDueDate(from, repeat, today) }
 }
 
-/** The schedule columns an edit writes: none when it carries neither a due date nor a rule; `nextDueDate` from the date and rule it leaves. */
+/**
+ * The schedule columns an edit writes: none when it carries neither a due date nor a rule; `nextDueDate` from the date and rule it leaves.
+ * Clearing the time clears the duration in the same write; a duration on a task the edit leaves without a time fails.
+ */
 export function getScheduleUpdate(
 	current: Task,
 	edit: EditTaskInput,
 	today: CalendarDate | undefined
 ) {
-	const { dueDate, repeat } = getEditedSchedule(current, edit)
-	const isRuleWritten = edit.dueDate !== undefined || edit.repeat !== undefined
+	const { dueDate, dueTime, repeat } = getEditedSchedule(current, edit)
 
-	return {
+	if (edit.durationMinutes && dueTime === undefined)
+		return Effect.fail(new TaskDurationWithoutTime())
+
+	const isRuleWritten = edit.dueDate !== undefined || edit.repeat !== undefined
+	const dueTimeColumn = edit.dueDate === null ? null : edit.dueTime
+
+	return Effect.succeed({
 		dueDate: edit.dueDate === undefined ? undefined : (dueDate ?? null),
-		dueTime: edit.dueDate === null ? null : edit.dueTime,
+		dueTime: dueTimeColumn,
+		durationMinutes: dueTimeColumn === null ? null : edit.durationMinutes,
 		repeat: isRuleWritten ? (repeat ?? null) : undefined,
 		nextDueDate: repeat && dueDate && getNextDueDate(dueDate, repeat, today),
-	}
+	})
 }
 
 export function requireTask<T>(task: T | undefined) {
@@ -72,6 +88,15 @@ export function failDeletedProject(error: DbError) {
 	return Effect.fail(
 		isForeignKeyViolation(error, TASK_PROJECT_FOREIGN_KEY)
 			? new ProjectNotFound()
+			: error
+	)
+}
+
+/** The duration passed the edit's check but another request cleared the due time before the write. */
+export function failTimelessDuration(error: DbError) {
+	return Effect.fail(
+		isCheckViolation(error, TASK_DURATION_DUE_TIME_CHECK)
+			? new TaskDurationWithoutTime()
 			: error
 	)
 }

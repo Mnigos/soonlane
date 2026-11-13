@@ -6,6 +6,7 @@ export interface FeedTask {
 	description?: string
 	dueDate: CalendarDate
 	dueTime?: string
+	durationMinutes?: number
 	labels: readonly { name: string }[]
 }
 
@@ -17,7 +18,7 @@ export interface CalendarFeed {
 
 /** Task ids are UUIDs, so one fixed domain keeps UIDs stable across deployments whatever their host. */
 const UID_DOMAIN = 'soonlane.com'
-const TIMED_EVENT_DURATION = 'PT30M'
+const DEFAULT_EVENT_MINUTES = 30
 const REFRESH_INTERVAL = 'PT15M'
 const LINE_OCTETS = 75
 const CRLF = '\r\n'
@@ -72,14 +73,17 @@ function getDescription({ description, labels }: FeedTask) {
 	return [description, labelLine].filter(Boolean).join('\n\n')
 }
 
-/** A task with a due time is a floating local time (no TZID, no Z) with an alarm at its start; without one it is all day. */
+/**
+ * A task with a due time is a floating local time (no TZID, no Z) lasting its duration, 30 minutes without one, with an alarm at
+ * its start; without a time it is all day. DURATION, unlike DTEND, carries an end past midnight without date arithmetic.
+ */
 function toEvent(task: FeedTask, { taskUrl, builtAt }: CalendarFeed) {
 	const summary = escapeText(task.title)
 	const description = getDescription(task)
 	const timing = task.dueTime
 		? [
 				`DTSTART:${toIcsDate(task.dueDate)}T${task.dueTime.replace(':', '')}00`,
-				`DURATION:${TIMED_EVENT_DURATION}`,
+				`DURATION:PT${task.durationMinutes ?? DEFAULT_EVENT_MINUTES}M`,
 			]
 		: [`DTSTART;VALUE=DATE:${toIcsDate(task.dueDate)}`]
 	const alarm = task.dueTime

@@ -18,6 +18,7 @@ export function toTask(row: TaskRow, labels: Label[], project?: Project): Task {
 		description: row.description ?? undefined,
 		dueDate: row.dueDate ?? undefined,
 		dueTime: row.dueTime?.slice(0, DUE_TIME_LENGTH),
+		durationMinutes: row.durationMinutes ?? undefined,
 		priority: row.priority,
 		createdAt: row.createdAt,
 		completedAt: row.completedAt ?? undefined,

@@ -34,7 +34,15 @@ export function TaskMeta({ task, due }: Readonly<TaskMetaProps>) {
 						<>
 							<Calendar aria-hidden className="size-3" />
 
-							{due.text}
+							{due.spokenText ? (
+								<>
+									<span aria-hidden>{due.text}</span>
+
+									<span className="sr-only">{due.spokenText}</span>
+								</>
+							) : (
+								due.text
+							)}
 						</>
 					)}
 
