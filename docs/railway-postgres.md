@@ -1,6 +1,6 @@
 # Production Postgres on Railway
 
-The production database for the move off Neon (Linear project [Soonlane on Railway](https://linear.app/rigtch/project/soonlane-on-railway-66b76785820a), SOON-122). Nothing points at it yet. SOON-123 moves the data and SOON-119 points the API at it.
+Production's database (Linear project [Soonlane on Railway](https://linear.app/rigtch/project/soonlane-on-railway-66b76785820a), SOON-122). Production's `api` reads and writes it through `${{Postgres.DATABASE_URL}}`.
 
 Railway's own volume backups protect it. There is no copy outside Railway and no dump job (Igor, 2026-11-11). The backups live in the same Railway project as the database. Deleting the project, wiping the volume or losing the Railway account loses the backups too.
 
@@ -14,7 +14,7 @@ Railway's own volume backups protect it. There is no copy outside Railway and no
 | Image | `ghcr.io/railwayapp-templates/postgres-ssl:18`, server PostgreSQL 18.6 on 2026-11-11 |
 | Region | Amsterdam, `europe-west4-drams3a` (service and volume) |
 | Volume | `postgres-data` (`cae64ef6-4471-4da0-9af9-58c3679e2945`), 50 GB, mounted at `/var/lib/postgresql/data` |
-| Database | `railway`, owner `postgres`, UTF8, `en_US.utf8`; production's data since the move from Neon on 2026-11-12 ([neon-to-railway-move.md](neon-to-railway-move.md)) |
+| Database | `railway`, owner `postgres`, UTF8, `en_US.utf8`; production's data since 2026-11-12 ([ADR 0013](decisions/0013-three-hosts-on-railway.md)) |
 | Private address | `postgres.railway.internal:5432`, reachable only from services in `production` |
 | Public TCP proxy | off |
 
@@ -24,13 +24,13 @@ The image tag pins the major version (18), not the minor one, so a redeploy can 
 
 Railway generated the credentials when it created the service. Nobody typed or copied a secret. The `Postgres` service in `production` has:
 
-- `DATABASE_URL` (private address, the one the API will use)
+- `DATABASE_URL` (private address, the one the API uses)
 - `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD`, `PGDATABASE`
 - `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`
 - `PGDATA`, `SSL_CERT_DAYS`, `RAILWAY_DEPLOYMENT_DRAINING_SECONDS`
 - Railway's own `RAILWAY_*` variables, among them `RAILWAY_PRIVATE_DOMAIN` and `RAILWAY_VOLUME_*`
 
-The API service will reference `${{Postgres.DATABASE_URL}}` instead of a copy. `DATABASE_PUBLIC_URL` does not exist, because public access is off. With the TCP proxy on, the service also gets `RAILWAY_TCP_PROXY_DOMAIN` and `RAILWAY_TCP_PROXY_PORT`.
+The API service references `${{Postgres.DATABASE_URL}}` instead of a copy. `DATABASE_PUBLIC_URL` does not exist, because public access is off. With the TCP proxy on, the service also gets `RAILWAY_TCP_PROXY_DOMAIN` and `RAILWAY_TCP_PROXY_PORT`.
 
 ## Backups
 
@@ -131,7 +131,7 @@ The drill restores a backup taken a minute earlier, so production loses no data.
 Skip this when the database already holds the app's tables and data. From the repository root, with the proxy open and Bun 1.4:
 
 ```sh
-railway run -p "$P" -e production -s Postgres -- sh -c 'DATABASE_URL_UNPOOLED="postgresql://$PGUSER:$PGPASSWORD@$RAILWAY_TCP_PROXY_DOMAIN:$RAILWAY_TCP_PROXY_PORT/$PGDATABASE?sslmode=no-verify" exec bun packages/db/scripts/migrate.ts'
+railway run -p "$P" -e production -s Postgres -- sh -c 'DATABASE_URL="postgresql://$PGUSER:$PGPASSWORD@$RAILWAY_TCP_PROXY_DOMAIN:$RAILWAY_TCP_PROXY_PORT/$PGDATABASE?sslmode=no-verify" exec bun packages/db/scripts/migrate.ts'
 rpg <<'SQL'
 insert into "user" (name, email) select 'Drill user ' || g, 'drill-' || g || '@drill.invalid' from generate_series(1, 3) g;
 insert into label (owner_id, name) select u.id, 'drill-label-' || g from "user" u cross join generate_series(1, 2) g;

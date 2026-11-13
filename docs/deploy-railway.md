@@ -1,6 +1,6 @@
 # Deploy on Railway
 
-Soonlane runs as three services in the Railway project `Soonlane`, each with one replica in Amsterdam (`europe-west4-drams3a`), in two environments ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). `api` (`apps/api`) serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`) at https://api.soonlane.com and https://api.staging.soonlane.com. `api` also proxies PostHog at `/ingest/*`. `web` (`apps/web`) is the Bun server for the app at https://app.soonlane.com and https://app.staging.soonlane.com; its pages call the API from the browser with credentials and from server rendering over the private network with the proxy secret ([Web app](#web-app)). `site` (`apps/site`) serves the landing, the blog, the changelog and the legal pages at https://soonlane.com and https://staging.soonlane.com as static files from Caddy ([Site](#site)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
+Soonlane runs as three services in the Railway project `Soonlane`, each with one replica in Amsterdam (`europe-west4-drams3a`), in two environments ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). `api` (`apps/api`) serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`) at https://api.soonlane.com and https://api.staging.soonlane.com. `api` also proxies PostHog at `/ingest/*`. `web` (`apps/web`) is the Bun server for the app at https://app.soonlane.com and https://app.staging.soonlane.com; its pages call the API from the browser with credentials and from server rendering over the private network with the proxy secret ([Web app](#web-app)). `site` (`apps/site`) serves the landing, the blog, the changelog and the legal pages at https://soonlane.com and https://staging.soonlane.com as static files from Caddy ([Site](#site)). Each environment has its own Railway Postgres (the `Postgres` service, same region), reached at `postgres.railway.internal`: `.railway/railway.ts` declares staging's (volume `postgres-volume`), and production's is set up by hand ([railway-postgres.md](railway-postgres.md)).
 
 ## Configuration
 
@@ -120,7 +120,7 @@ docker run --rm -p 127.0.0.1:8080:8080 soonlane-site
 
 ## Migrations
 
-The pre-deploy command `bun packages/db/scripts/migrate.ts` applies the Drizzle migrations from `packages/db/migrations` to `DATABASE_URL_UNPOOLED`, or `DATABASE_URL` without it. It runs in the built image after the build and before the new deployment takes traffic, where the private network is reachable. When it fails, the deployment fails and the previous one keeps serving; the pending migrations run in one transaction, so a failure leaves none of them applied. A change under `packages/db` deploys production, so a merged migration reaches it.
+The pre-deploy command `bun packages/db/scripts/migrate.ts` applies the Drizzle migrations from `packages/db/migrations` to `DATABASE_URL`. It runs in the built image after the build and before the new deployment takes traffic, where the private network is reachable. When it fails, the deployment fails and the previous one keeps serving; the pending migrations run in one transaction, so a failure leaves none of them applied. A change under `packages/db` deploys production, so a merged migration reaches it.
 
 Staging's web server calls the staging API, so it uses staging's Postgres. Nothing migrates the local database; run `bun run db:migrate` after a new migration ([Local environment](#local-environment)).
 
@@ -226,7 +226,7 @@ Igor's steps, in order. Each one says how to check it. Variable and record value
 1. **Staging secrets** on the `api` service in `staging`: `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: `railway variables --service api --environment staging --json | jq 'keys'` lists the names.
 2. **Staging DNS**: the `staging` and `api.staging` CNAMEs and their `_railway-verify` TXT records from the table. Check: `railway domain status staging.soonlane.com` and `railway domain status api.staging.soonlane.com` report the domain verified and the certificate issued.
 3. **Staging deploy**: run **Deploy staging** with the ref to test. Check: the curl commands under [Staging](#staging), then sign in on https://app.staging.soonlane.com.
-4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (Neon `main`, direct), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
+4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (`${{Postgres.DATABASE_URL}}`), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
 5. **The `web` service and the site's domain**: `web` does not exist in production before this step, and a domain needs its service. Apply a copy of `.railway/railway.ts` without the production `web` custom domain (`railway config apply --file <copy> --environment production`), which creates `web` with its variables, health check and GitHub source, and Railway deploys `main` to it. Then `railway domain soonlane.com --service web --environment production --port 8080`, which prints the CNAME target and the TXT value.
 6. **The final apply**: `railway config apply --file .railway/railway.ts --environment production` with the unmodified file from `main`, after the PRs are on `main`; the domain exists by now, so it changes nothing. Check: `railway config plan --file .railway/railway.ts --environment production` reports nothing to change, and `railway deployment list --service web --environment production` and the same for `api` show a successful deployment.
 7. **Railway's GitHub app** must have access to `Mnigos/soonlane`, or step 5 creates a source that never deploys. Check: the deployments in step 6.
@@ -235,8 +235,8 @@ Igor's steps, in order. Each one says how to check it. Variable and record value
 ```sh
 curl https://soonlane.com/health
 # {"ok":true,"environment":"production","commit":"<short sha>"}
-curl -sI https://soonlane.com/ | grep -i -E '^HTTP|^server|x-vercel-id'
-# 200, server: cloudflare, no x-vercel-id
+curl -sI https://soonlane.com/ | grep -i -E '^HTTP|^server'
+# 200, server: cloudflare
 curl -sI https://www.soonlane.com/blog | grep -i -E '^HTTP|^location'
 # 301 to https://soonlane.com/blog
 curl https://soonlane.com/robots.txt
@@ -246,8 +246,6 @@ curl https://api.soonlane.com/health
 ```
 
 Then sign in on https://app.soonlane.com, add and complete a task, and check that the Mac app still loads.
-
-**Going back**: production runs on Railway behind Cloudflare's proxy (the apex and `www` CNAMEs proxied, the `www` redirect rule to the apex). To go back, replace the apex CNAME with the record Vercel's domain settings list, DNS only; the proxied `www` record and its redirect rule keep sending `www` to the apex. Vercel still serves the build of `fcbd5f2`, and the Neon schema fits it as long as no migration has landed since; once one lands, this way back closes. Railway's services can keep running meanwhile.
 
 ## The app host
 
@@ -330,5 +328,3 @@ The public pages moved from `web` to the static `site` service ([ADR 0013](decis
 **Going back** before the merge: delete `soonlane.com` from `site`, add it to `web` again (`railway domain soonlane.com --service web --environment production --port 8080`) and point the CNAME and TXT at what it prints; `web`'s running build still serves the public pages, and the head's API can stay. After the merge `web` no longer has them, so the way back is reverting the merge.
 
 If step 5 or 6 refuses a commit that is not on `main`, visitors have seen no change yet. Do not merge first: until the swap, `soonlane.com` would show the app's sign-in, and the site's events would be lost from the swap until the merged `api` is live. Instead, after step 5's check that the head carries the commit production's `api` runs, deploy `api`, then `site`, from a clean checkout of the head the way **Deploy staging** does (write each `commit.env`, then `railway up --service <name> --environment production`), the one time production takes an upload, and go on with step 7.
-
-Cloudflare's cache rules for the static site, Search Console and switching off Vercel and Neon follow in [SOON-129](https://linear.app/rigtch/issue/SOON-129).

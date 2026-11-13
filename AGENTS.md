@@ -1,6 +1,6 @@
 # Soonlane agent rules
 
-Todoist-like personal task list: anyone can sign up with Google and gets their own tasks. Bun + Turborepo; TanStack Start (React 19, Router, Query) as a Bun server on Railway for the app (`apps/web`) and prerendered into the static public site (`apps/site`), which Caddy serves; the API (`apps/api`, Bun + Effect 4) on Railway; oRPC v2; Drizzle on Neon Postgres; Better Auth (Google, open sign-up); Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
+Todoist-like personal task list: anyone can sign up with Google and gets their own tasks. Bun + Turborepo; TanStack Start (React 19, Router, Query) as a Bun server on Railway for the app (`apps/web`) and prerendered into the static public site (`apps/site`), which Caddy serves; the API (`apps/api`, Bun + Effect 4) on Railway; oRPC v2; Drizzle on Railway Postgres; Better Auth (Google, open sign-up); Tailwind 4; oxlint/oxfmt via Ultracite. Map: `ARCHITECTURE.md`. Product and look: `PRODUCT.md`, `DESIGN.md`.
 
 ## Must
 
