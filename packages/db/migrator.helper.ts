@@ -7,14 +7,10 @@ export const MIGRATIONS_FOLDER = fileURLToPath(
 	new URL('migrations', import.meta.url)
 )
 
-/** Neon's direct connection suits schema changes better than the pooler. */
 export function resolveMigrationUrl(env: Record<string, string | undefined>) {
-	const url = env.DATABASE_URL_UNPOOLED || env.DATABASE_URL
+	const url = env.DATABASE_URL
 
-	if (!url)
-		throw new Error(
-			'Set DATABASE_URL_UNPOOLED or DATABASE_URL before running migrations.'
-		)
+	if (!url) throw new Error('Set DATABASE_URL before running migrations.')
 
 	return url
 }
