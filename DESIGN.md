@@ -233,6 +233,7 @@ Flat. The layered surfaces are the mobile drawer, the Add task dialog, the Delet
 - Heading with a hairline below (today's in ink, later days in pencil, like Todoist), then task rows, then a muted "+ Add task" row whose plus turns into a filled red circle on hover.
 - The Overdue section has a collapse chevron and a coral "Reschedule" action on the right.
 - An "Inbox" section sits above Overdue on Upcoming and Today while there are open tasks without a due date and without a project, and a "No date" section in the same place in a label view for its tasks without a due date: the same collapse chevron and count as Completed, no Add task row and no action; one collapse for both, remembered on the device.
+- On Upcoming, while the account has no open task, project or label, a "Moving from Todoist?" note sits under the week strip with a hairline below: a semibold title, a muted line, a small red "Import from Todoist" button and a ghost "No thanks" that hides it on this device. Only a host with a Todoist import shows it.
 - On Today, a "Completed" section sits above Inbox and Overdue once a task was completed today: the same collapse chevron, the count in `muted-foreground` after the heading, collapsed on every visit. Its rows have a filled `faint-foreground` circle with a check and the title struck through in `muted-foreground`; clicking the circle reopens the task.
 
 ### Inbox view
