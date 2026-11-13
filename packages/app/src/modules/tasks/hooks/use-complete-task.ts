@@ -53,7 +53,10 @@ export function useCompleteTask(today: CalendarDate) {
 				capture('task_completion_failed', { taskId: id, action: 'complete' })
 				showToast('Could not complete the task. Try again.')
 			},
-			onSuccess: ({ task }, input) => {
+			// An unchanged task (completed or moved on elsewhere) has nothing to undo, and Undo would reopen what completed it.
+			onSuccess: ({ task, changed }, input) => {
+				if (!changed) return
+
 				const { dueDate: seenDueDate } = completeTaskInputSchema.parse(input)
 				// A repeating task moved on; Undo puts back the due date and goal progress it had before.
 				const restored = task.repeat && {

@@ -1,7 +1,7 @@
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
-import { TaskItem } from '../task/task-item'
+import { TaskTreeItem } from '../task/task-tree-item'
 
 interface TaskListProps {
 	tasks: Task[]
@@ -31,7 +31,7 @@ export function TaskList({
 	return (
 		<ul>
 			{tasks.map(task => (
-				<TaskItem
+				<TaskTreeItem
 					key={task.id}
 					onComplete={onComplete}
 					showsDueDay={showsDueDay}

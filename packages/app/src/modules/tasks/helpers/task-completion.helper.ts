@@ -140,6 +140,16 @@ export function dismissCompletionToast(taskId: string) {
 	getHostPorts().dismissToast(toastId)
 }
 
+/** A change to a task with subtasks can change any task under it, and the client cannot list them all, so every toast goes. */
+function dismissToastsAround(task: Task) {
+	if (!task.subtasks) {
+		dismissCompletionToast(task.id)
+		return
+	}
+
+	for (const taskId of completionToastIds.keys()) dismissCompletionToast(taskId)
+}
+
 export function announceCompletion(
 	completed: Task,
 	today: CalendarDate,
@@ -154,7 +164,7 @@ export function announceCompletion(
 		wasOverdue: (properties.dueInDays ?? 0) < 0,
 		completedVia,
 	})
-	dismissCompletionToast(completed.id)
+	dismissToastsAround(completed)
 	completionToastCount += 1
 	const toastId = `${completed.id}:${completionToastCount}`
 
@@ -198,6 +208,7 @@ export function getUndoCallbacks(
 			showToast('Could not restore the task. Try again.')
 		},
 		onSuccess: ({ task }: TaskResult) => {
+			dismissToastsAround(task)
 			const properties = getTaskEventProperties(task, today)
 
 			capture('task_uncompleted', {

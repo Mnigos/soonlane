@@ -55,6 +55,7 @@ export function SearchPaletteOption({
 							item.task.dueDate &&
 							getDueChipLabel(item.task.dueDate, item.task, today)
 						}
+						showsParentAs="name"
 						task={item.task}
 					/>
 				</div>
