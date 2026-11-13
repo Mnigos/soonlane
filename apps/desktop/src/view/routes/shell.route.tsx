@@ -30,11 +30,11 @@ function ShellLayout() {
 	const { sidebarPreference, isNoDateSectionOpen } = shellRoute.useLoaderData()
 	const activePath = useLocation({ select: location => location.pathname })
 	const labelMatch = useMatch({
-		from: '/session/shell/app/labels/$name',
+		from: '/supported/session/shell/app/labels/$name',
 		shouldThrow: false,
 	})
 	const projectMatch = useMatch({
-		from: '/session/shell/app/projects/$name',
+		from: '/supported/session/shell/app/projects/$name',
 		shouldThrow: false,
 	})
 

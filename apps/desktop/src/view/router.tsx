@@ -8,7 +8,13 @@ import { toast } from 'sonner'
 import { RouteError } from './components/route-error'
 import { apiLink } from './platform/rpc/api-link.client'
 import { desktopHost } from './platform/rpc/desktop-host.client'
-import { rootRoute, sessionRoute, signInRoute } from './routes/session.route'
+import {
+	rootRoute,
+	sessionRoute,
+	signInRoute,
+	supportedRoute,
+	updateRoute,
+} from './routes/session.route'
 import { shellRoute } from './routes/shell.route'
 import {
 	indexRoute,
@@ -51,9 +57,12 @@ const queryClient = new QueryClient({
 
 const routeTree = rootRoute.addChildren([
 	indexRoute,
-	signInRoute,
-	quickAddRoute,
-	sessionRoute.addChildren([shellRoute.addChildren(taskViewRoutes)]),
+	updateRoute,
+	supportedRoute.addChildren([
+		signInRoute,
+		quickAddRoute,
+		sessionRoute.addChildren([shellRoute.addChildren(taskViewRoutes)]),
+	]),
 ])
 
 /** Hash history: `views://` serves files, so a path in the URL would not survive a reload. */
