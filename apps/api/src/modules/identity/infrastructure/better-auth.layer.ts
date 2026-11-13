@@ -23,6 +23,8 @@ const LOG_BY_LEVEL = {
 	AuthLogLevel,
 	(...message: readonly unknown[]) => Effect.Effect<void>
 >
+/** The mobile app's API calls send it with `mobile`; its Keychain takes refreshed cookies only from the auth client's own calls, so their lookup never refreshes the session. */
+const MOBILE_APP_HEADER = 'x-soonlane-app'
 
 function withRequestConsent(cookiePrefix: string, headers?: Headers) {
 	return Effect.provideService(
@@ -84,7 +86,13 @@ export const BetterAuthLive = Layer.effect(
 			readStoredToken: async stored => await readStoredOAuthToken(auth, stored),
 			getSession: async headers => {
 				const { headers: responseHeaders, response: result } =
-					await auth.api.getSession({ headers, returnHeaders: true })
+					await auth.api.getSession({
+						headers,
+						query: {
+							disableRefresh: headers.get(MOBILE_APP_HEADER) === 'mobile',
+						},
+						returnHeaders: true,
+					})
 				const setCookies = responseHeaders.getSetCookie()
 
 				if (!result) return { session: null, setCookies }
