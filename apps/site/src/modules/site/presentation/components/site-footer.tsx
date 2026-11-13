@@ -72,12 +72,19 @@ export function SiteFooter() {
 					</div>
 				</div>
 
-				<p className="text-caption text-muted-foreground">
-					© 2026 Igor Makowski ·{' '}
-					<a className={FOOTER_LINK_CLASS} href={LICENSE_URL}>
-						AGPL-3.0
-					</a>
-				</p>
+				<div className="flex flex-col gap-2 text-caption text-muted-foreground">
+					<p>
+						© 2026 Igor Makowski ·{' '}
+						<a className={FOOTER_LINK_CLASS} href={LICENSE_URL}>
+							AGPL-3.0
+						</a>
+					</p>
+
+					<p>
+						Todoist is a trademark of Doist, and Soonlane is not created by,
+						affiliated with, or supported by Todoist.
+					</p>
+				</div>
 			</div>
 		</footer>
 	)
