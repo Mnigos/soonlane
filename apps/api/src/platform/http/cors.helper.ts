@@ -16,6 +16,14 @@ interface CorsRule {
 	allowedHeaders: string
 }
 
+type CorsRuleFor = (origin: string) => CorsRule | undefined
+
+/** posthog-js's fetches and scripts need no credentials and only `content-type` beyond the safelisted headers. */
+const INGEST_CORS_RULE: CorsRule = {
+	credentials: false,
+	allowedHeaders: 'content-type',
+}
+
 /**
  * The CORS answer for an origin, or `undefined` to refuse it. A web origin from
  * `TRUSTED_ORIGINS` gets credentials and only `content-type`, all the browser's
@@ -63,16 +71,10 @@ function forbidden() {
 	return new Response(null, { status: 403, headers: { vary: 'Origin' } })
 }
 
-/**
- * CORS for the browser's direct calls: an exact origin from `TRUSTED_ORIGINS` with credentials, and the
- * desktop app's bundled page without (`corsRuleFor`). Answers every preflight itself and refuses any other
- * `Origin` with 403, including other `soonlane.com` hosts and the API's own. A request without `Origin`
- * (SSR, Google's redirect back, the desktop app's main process) goes on to the handler, whose own origin
- * checks stay on; a provider that returned with a `form_post` would carry Google's origin and be refused.
- */
-export function withCors(
+/** Answers every preflight itself and refuses an `Origin` the rule does not know with 403; a request without `Origin` goes on to the handler. */
+function answerCors(
 	context: Context.Context<never>,
-	trustedOrigins: readonly string[],
+	ruleFor: CorsRuleFor,
 	handle: RequestHandler
 ) {
 	return async (request: Request) => {
@@ -82,7 +84,7 @@ export function withCors(
 		if (origin === null)
 			return isPreflight ? forbidden() : await handle(request)
 
-		const rule = corsRuleFor(origin, trustedOrigins)
+		const rule = ruleFor(origin)
 
 		if (!rule) return forbidden()
 
@@ -113,4 +115,36 @@ export function withCors(
 
 		return answer
 	}
+}
+
+/**
+ * CORS for the browser's direct calls: an exact origin from `TRUSTED_ORIGINS` with credentials, and the
+ * desktop app's bundled page without (`corsRuleFor`). Any other `Origin` is refused, including other
+ * `soonlane.com` hosts and the API's own. A request without `Origin` (SSR, Google's redirect back, the desktop
+ * app's main process) keeps the handler's own origin checks; a provider that returned with a `form_post` would
+ * carry Google's origin and be refused.
+ */
+export function withCors(
+	context: Context.Context<never>,
+	trustedOrigins: readonly string[],
+	handle: RequestHandler
+) {
+	return answerCors(
+		context,
+		origin => corsRuleFor(origin, trustedOrigins),
+		handle
+	)
+}
+
+/** CORS for the PostHog proxy: the exact app and site origins, never with credentials; a beacon may still carry the shared cookies, which the proxy's header allowlist keeps from PostHog. */
+export function withIngestCors(
+	context: Context.Context<never>,
+	ingestOrigins: readonly string[],
+	handle: RequestHandler
+) {
+	return answerCors(
+		context,
+		origin => (ingestOrigins.includes(origin) ? INGEST_CORS_RULE : undefined),
+		handle
+	)
 }
