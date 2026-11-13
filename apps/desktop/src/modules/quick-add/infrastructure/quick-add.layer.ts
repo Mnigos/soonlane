@@ -1,17 +1,15 @@
-import { dlopen, FFIType } from 'bun:ffi'
 import { APP_PATHS } from '@soonlane/app/app-paths'
 import { Effect, Layer, Option, Queue, Ref, Stream } from 'effect'
-import { BrowserWindow, GlobalShortcut, Screen } from 'electrobun'
+import { BrowserWindow, Screen } from 'electrobun'
 import {
 	electrobunEvents,
 	handleEvents,
 } from '../../../platform/electrobun/electrobun-events.helper'
 import {
-	getClass,
-	getSelector,
-	messageSender,
-	utf8,
-} from '../../../platform/macos/objc.helper'
+	HOT_KEY_MODIFIERS,
+	registerHotKey,
+	SPACE_KEY_CODE,
+} from '../../../platform/macos/carbon-hot-key.helper'
 import { readMenuAction } from '../../menu/domain/menu-event.helper'
 import { QUICK_ADD_ACTION } from '../../menu/domain/menu.constants'
 import { followNavigation } from '../../navigation/infrastructure/navigation-events.layer'
@@ -24,40 +22,10 @@ import {
 } from '../domain/quick-add-event.helper'
 import { placeQuickAdd } from '../domain/quick-add-frame.helper'
 import {
-	QUICK_ADD_SHORTCUT,
 	QUICK_ADD_SIZE,
 	QUICK_ADD_SUGGESTIONS_HEIGHT,
 	QUICK_ADD_TITLE,
 } from '../domain/quick-add.constants'
-
-const APPLICATION_SERVICES =
-	'/System/Library/Frameworks/ApplicationServices.framework/ApplicationServices'
-
-/** Electrobun's NSEvent monitor sees keys in other apps only with Accessibility access; when missing, macOS asks for it. */
-function requestAccessibility() {
-	const { AXIsProcessTrustedWithOptions } = dlopen(APPLICATION_SERVICES, {
-		AXIsProcessTrustedWithOptions: {
-			args: [FFIType.ptr],
-			returns: FFIType.bool,
-		},
-	}).symbols
-	const sendString = messageSender([FFIType.cstring], FFIType.ptr)
-	const sendBool = messageSender([FFIType.bool], FFIType.ptr)
-	const sendPair = messageSender([FFIType.ptr, FFIType.ptr], FFIType.ptr)
-
-	return AXIsProcessTrustedWithOptions(
-		sendPair(
-			getClass('NSDictionary'),
-			getSelector('dictionaryWithObject:forKey:'),
-			sendBool(getClass('NSNumber'), getSelector('numberWithBool:'), true),
-			sendString(
-				getClass('NSString'),
-				getSelector('stringWithUTF8String:'),
-				utf8('AXTrustedCheckOptionPrompt')
-			)
-		)
-	)
-}
 
 /** Grows the window while the "@" suggestions are open, keeping its top edge. */
 function fitSuggestions(window: BrowserWindow, isOpen: boolean) {
@@ -71,27 +39,20 @@ function fitSuggestions(window: BrowserWindow, isOpen: boolean) {
 	)
 }
 
-/** Presses of the Quick Add shortcut; when another app holds it, a warning and no presses. */
+/** Presses of ⌥Space, which macOS hands only to this app; when another app holds it, a warning and no presses. */
 const shortcutPresses = Stream.callback<undefined>(queue =>
 	Effect.gen(function* () {
-		const registered = yield* Effect.acquireRelease(
+		const unregister = yield* Effect.acquireRelease(
 			Effect.sync(() =>
-				GlobalShortcut.register(QUICK_ADD_SHORTCUT, () => {
+				registerHotKey(SPACE_KEY_CODE, HOT_KEY_MODIFIERS.option, () => {
 					Queue.offerUnsafe(queue, undefined)
 				})
 			),
-			isRegistered =>
-				Effect.sync(
-					() => isRegistered && GlobalShortcut.unregister(QUICK_ADD_SHORTCUT)
-				)
+			release => Effect.sync(() => release?.())
 		)
 
-		if (!registered)
+		if (!unregister)
 			yield* Effect.logWarning('Could not register the Quick Add shortcut')
-		else if (!(yield* Effect.sync(requestAccessibility)))
-			yield* Effect.logWarning(
-				'The Quick Add shortcut works in other apps once Soonlane has Accessibility access'
-			)
 	})
 )
 
