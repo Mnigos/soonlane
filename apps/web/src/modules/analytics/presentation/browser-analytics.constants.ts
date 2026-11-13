@@ -7,6 +7,7 @@ import { BUILD_PROPERTIES } from '../domain/analytics.constants'
 /** How this app's router feeds the shared browser analytics. */
 export const BROWSER_ANALYTICS_OPTIONS = {
 	key: import.meta.env.VITE_POSTHOG_KEY,
+	apiHost: `${import.meta.env.VITE_API_URL}/ingest`,
 	buildProperties: BUILD_PROPERTIES,
 	cookiePrefix: AUTH_COOKIE_PREFIX,
 	// Label and project names are user content and a calendar link's token (on the API host) is a secret.

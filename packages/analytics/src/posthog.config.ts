@@ -123,19 +123,20 @@ export async function clearPostHogStorage(cookiePrefix: string) {
 }
 
 /**
- * Explicit events, pageviews, page leaves, exceptions and masked replay only; see docs/analytics.md.
- * With analytics denied the SDK runs cookieless: no identity, no storage, no replay. `privateRoutes`
+ * Explicit events, pageviews, page leaves, exceptions and masked replay only, sent through the proxy at `apiHost`;
+ * see docs/analytics.md. With analytics denied the SDK runs cookieless: no identity, no storage, no replay. `privateRoutes`
  * lists the route paths (`/labels/$name`) whose params every sent URL replaces with `:name`. Every cookie the
  * SDK keeps is named `ph_<cookiePrefix>_…`, since production's cookies for `soonlane.com` reach staging hosts too.
  */
 export function createPostHogConfig(
+	apiHost: string,
 	privateRoutes: readonly string[],
 	cookiePrefix: string
 ): Partial<PostHogConfig> {
 	const routeSegments = privateRoutes.map(path => path.split('/'))
 
 	return {
-		api_host: '/ingest',
+		api_host: apiHost,
 		ui_host: 'https://eu.posthog.com',
 		defaults: '2026-08-30',
 		person_profiles: 'identified_only',

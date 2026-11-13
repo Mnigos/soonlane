@@ -16,7 +16,6 @@ import { Route as modulesSitePresentationRoutesSiteDotrouteRouteImport } from '.
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
-import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
 import { Route as modulesBlogPresentationRoutesBlogDotrouteRouteImport } from './modules/blog/presentation/routes/blog.route'
 import { Route as modulesChangelogPresentationRoutesChangelogDotrouteRouteImport } from './modules/changelog/presentation/routes/changelog.route'
@@ -75,12 +74,6 @@ const modulesTasksPresentationRoutesQuickAddDotrouteRoute =
     id: '/quick-add',
     path: '/quick-add',
     getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
-  } as any)
-const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
-  modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport.update({
-    id: '/ingest/$',
-    path: '/ingest/$',
-    getParentRoute: () => rootRouteImport,
   } as any)
 const modulesSitePresentationRoutesHomeDotrouteRoute =
   modulesSitePresentationRoutesHomeDotrouteRouteImport.update({
@@ -199,7 +192,6 @@ export interface FileRoutesByFullPath {
   '/site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
@@ -224,7 +216,6 @@ export interface FileRoutesByTo {
   '/site': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
@@ -252,7 +243,6 @@ export interface FileRoutesById {
   '/_session/_shell': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/_session/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
@@ -281,7 +271,6 @@ export interface FileRouteTypes {
     | '/site/'
     | '/login'
     | '/quick-add'
-    | '/ingest/$'
     | '/site/blog'
     | '/site/changelog'
     | '/site/privacy'
@@ -306,7 +295,6 @@ export interface FileRouteTypes {
     | '/site'
     | '/login'
     | '/quick-add'
-    | '/ingest/$'
     | '/site/blog'
     | '/site/changelog'
     | '/site/privacy'
@@ -333,7 +321,6 @@ export interface FileRouteTypes {
     | '/_session/_shell'
     | '/_session/login'
     | '/_session/quick-add'
-    | '/ingest/$'
     | '/site/blog'
     | '/site/changelog'
     | '/site/privacy'
@@ -358,7 +345,6 @@ export interface RootRouteChildren {
   modulesHostingPresentationRoutesHealthDotrouteRoute: typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   modulesSitePresentationRoutesSiteDotrouteRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
-  modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
 }
@@ -413,13 +399,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/quick-add'
       preLoaderRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
-    }
-    '/ingest/$': {
-      id: '/ingest/$'
-      path: '/ingest/$'
-      fullPath: '/ingest/$'
-      preLoaderRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
     }
     '/site/': {
       id: '/site/'
@@ -652,8 +631,6 @@ const rootRouteChildren: RootRouteChildren = {
     modulesSitePresentationRoutesRobotsDotrouteRoute,
   modulesSitePresentationRoutesSiteDotrouteRoute:
     modulesSitePresentationRoutesSiteDotrouteRouteWithChildren,
-  modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:
-    modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute,
   modulesSitePresentationRoutesSitemapDotrouteRoute:
     modulesSitePresentationRoutesSitemapDotrouteRoute,
   modulesBlogPresentationRoutesRssDotrouteRoute:

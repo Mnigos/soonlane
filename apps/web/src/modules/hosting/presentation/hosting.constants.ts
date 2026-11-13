@@ -7,4 +7,4 @@ export const SITE_ORIGIN =
 /** Where the public pages sit in the route tree; the site host's URLs leave it out. */
 export const SITE_PREFIX = '/site'
 /** Server routes both hosts answer at the same path. */
-export const SHARED_PATHS = ['/health', '/ingest', '/robots.txt']
+export const SHARED_PATHS = ['/health', '/robots.txt']

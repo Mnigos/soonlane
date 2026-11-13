@@ -24,6 +24,8 @@ interface AnalyticsUser {
 export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	/** The PostHog project key; without one nothing is loaded or sent. */
 	key: string | undefined
+	/** The PostHog proxy on the API host (`<API origin>/ingest`). */
+	apiHost: string
 	buildProperties: Pick<
 		SuperProperties,
 		'appVersion' | 'commit' | 'environment'
@@ -44,6 +46,7 @@ interface RouteMatch {
 interface Tracking {
 	router: AnyRouter
 	key: string
+	apiHost: string
 	buildProperties: BrowserAnalyticsOptions<AnyRouter>['buildProperties']
 	privateRoutes: readonly string[]
 	cookiePrefix: string
@@ -83,7 +86,7 @@ function getSuperProperties({
 }
 
 async function startPostHog(
-	{ key, privateRoutes, cookiePrefix }: Tracking,
+	{ key, apiHost, privateRoutes, cookiePrefix }: Tracking,
 	consent: Exclude<ConsentState, 'unanswered'>
 ) {
 	try {
@@ -92,7 +95,7 @@ async function startPostHog(
 		if (consent !== 'granted') await clearPostHogStorage(cookiePrefix)
 		// Back into the desktop sign-in while loading: its fresh document starts PostHog later, if at all.
 		if (location.pathname.startsWith(DESKTOP_SIGN_IN_PREFIX)) return undefined
-		posthog.init(key, createPostHogConfig(privateRoutes, cookiePrefix))
+		posthog.init(key, createPostHogConfig(apiHost, privateRoutes, cookiePrefix))
 		if (consent === 'granted')
 			posthog.opt_in_capturing({ captureEventName: false })
 
@@ -171,6 +174,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 	router: TRouter,
 	{
 		key,
+		apiHost,
 		buildProperties,
 		privateRoutes,
 		cookiePrefix,
@@ -182,6 +186,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 	const current: Tracking = {
 		router,
 		key,
+		apiHost,
 		buildProperties,
 		privateRoutes,
 		cookiePrefix,
