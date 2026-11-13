@@ -7,7 +7,10 @@
     "development": {
       "developmentClient": true,
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://api.staging.soonlane.com" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.staging.soonlane.com",
+        "EXPO_PUBLIC_AUTH_COOKIE_PREFIX": "soonlane-staging"
+      }
     },
     "development-simulator": {
       "extends": "development",
@@ -15,11 +18,17 @@
     },
     "preview": {
       "distribution": "internal",
-      "env": { "EXPO_PUBLIC_API_URL": "https://api.staging.soonlane.com" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.staging.soonlane.com",
+        "EXPO_PUBLIC_AUTH_COOKIE_PREFIX": "soonlane-staging"
+      }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_API_URL": "https://api.soonlane.com" }
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://api.soonlane.com",
+        "EXPO_PUBLIC_AUTH_COOKIE_PREFIX": "soonlane"
+      }
     }
   }
 }

@@ -1,10 +1,5 @@
-import { PlaceholderScreen } from '@/modules/shell/presentation/components/placeholder-screen'
+import { SignInScreen } from '@/modules/identity/presentation/components/sign-in-screen'
 
 export default function SignInRoute() {
-	return (
-		<PlaceholderScreen
-			title="Sign in"
-			description="You will sign in with Google here."
-		/>
-	)
+	return <SignInScreen />
 }
