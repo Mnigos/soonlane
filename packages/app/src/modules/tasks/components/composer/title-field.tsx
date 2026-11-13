@@ -18,9 +18,10 @@ import { orpcQuery } from '../../../../rpc-query.client'
 import { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
 import { LABEL_ROW_CLASS } from '../../helpers/composer-chip.constants'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
-import { searchLabels } from '../../helpers/label-search.helper'
+import { searchByName } from '../../helpers/name-search.helper'
 import { HighlightedInput } from './highlighted-input'
-import { CreateLabelOption, LabelListNotes, LabelOption } from './label-options'
+import { LabelListNotes, LabelOption } from './label-options'
+import { CreateOption } from './picker-options'
 
 interface TitleFieldProps extends Pick<
 	ComponentProps<typeof HighlightedInput>,
@@ -70,7 +71,7 @@ export function TitleField({
 	const labels = data?.labels ?? []
 	const typing = findLabelQuery(value, caret)
 	const query = typing?.query ?? ''
-	const { name, matches, isNewName } = searchLabels(labels, query)
+	const { name, matches, isNewName } = searchByName(labels, query)
 	const count = matches.length + Number(isNewName)
 	const isOpen =
 		typing !== undefined &&
@@ -241,7 +242,7 @@ export function TitleField({
 								aria-disabled={createLabel.isPending}
 								data-disabled={createLabel.isPending ? '' : undefined}
 							>
-								<CreateLabelOption name={name} />
+								<CreateOption name={name} noun="label" />
 							</div>
 						)}
 					</div>

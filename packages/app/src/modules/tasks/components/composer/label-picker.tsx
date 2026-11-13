@@ -15,8 +15,9 @@ import {
 	PICKER_FIELD_CLASS,
 	PICKER_FIELD_ROW_CLASS,
 } from '../../helpers/composer-chip.constants'
-import { NEW_LABEL_ID, searchLabels } from '../../helpers/label-search.helper'
-import { CreateLabelOption, LabelListNotes, LabelOption } from './label-options'
+import { NEW_ITEM_ID, searchByName } from '../../helpers/name-search.helper'
+import { LabelListNotes, LabelOption } from './label-options'
+import { CreateOption } from './picker-options'
 
 interface LabelPickerProps {
 	value: Label[]
@@ -35,7 +36,7 @@ export function LabelPicker({
 	const [query, setQuery] = useState('')
 	const { data, isError } = useQuery(orpcQuery.labels.list.queryOptions())
 	const labels = data?.labels ?? []
-	const { name, items } = searchLabels(labels, query)
+	const { name, items } = searchByName(labels, query)
 
 	return (
 		<Combobox
@@ -52,7 +53,7 @@ export function LabelPicker({
 				if (createLabel.isError) createLabel.reset()
 			}}
 			onValueChange={(nextLabels, details) => {
-				if (!nextLabels.some(label => label.id === NEW_LABEL_ID)) {
+				if (!nextLabels.some(label => label.id === NEW_ITEM_ID)) {
 					onChange(nextLabels)
 					return
 				}
@@ -87,14 +88,14 @@ export function LabelPicker({
 
 			<ComboboxList className="max-h-72 overflow-y-auto py-1 empty:hidden">
 				{(label: Label) =>
-					label.id === NEW_LABEL_ID ? (
+					label.id === NEW_ITEM_ID ? (
 						<ComboboxItem
 							className={LABEL_ROW_CLASS}
 							disabled={createLabel.isPending}
-							key={NEW_LABEL_ID}
+							key={NEW_ITEM_ID}
 							value={label}
 						>
-							<CreateLabelOption name={label.name} />
+							<CreateOption name={label.name} noun="label" />
 						</ComboboxItem>
 					) : (
 						<ComboboxItem
