@@ -1,8 +1,9 @@
 import type { GoalInput, UpdateTaskOutput } from '@soonlane/contracts'
 import { type TaskRow, task, taskLabel } from '@soonlane/db'
 import type { CalendarDate } from '@soonlane/domain'
-import { and, eq, notInArray } from 'drizzle-orm'
+import { and, eq, inArray, notInArray } from 'drizzle-orm'
 import { ownedBy, ownedTasks, type Queries } from './owned-tasks.query'
+import { updateSubtree } from './task-tree.query'
 import { toRepeatColumns } from './task.mapper'
 import type { TaskUpdate } from './task.repository.types'
 
@@ -68,7 +69,9 @@ function getCompleted(
  * Saves an edit on the row it locks first, so the goal's clamp sees the progress concurrent logs left and the
  * `task_goal_progress_range` check always holds. When the goal it leaves (new or kept) is at or below the progress of
  * an open task, the edit completes it like a log reaching the target: a repeating task moves to `nextDueDate` with no
- * progress, any other gets `completedAt`. So no open task sits at its target after an edit. Writes only the columns the edit carries.
+ * progress, any other gets `completedAt`, and its subtasks follow. So no open task sits at its target after an edit.
+ * Writes only the columns the edit carries; a project goes to the whole subtree, and a subtask keeps the one it has (the
+ * service let through only that one).
  */
 export async function updateTask(
 	transaction: Queries,
@@ -89,12 +92,9 @@ export async function updateTask(
 		editedAt,
 	}: TaskUpdate
 ): Promise<UpdateTaskOutput | undefined> {
+	const tasks = ownedTasks(transaction, ownerId)
 	const where = and(ownedBy(ownerId), eq(task.id, id))
-	const [previous] = await transaction
-		.select()
-		.from(task)
-		.where(where)
-		.for('update')
+	const previous = await tasks.lockPath(id)
 
 	if (!previous) return undefined
 
@@ -102,9 +102,10 @@ export async function updateTask(
 		previous.goalTarget === null ? null : { target: previous.goalTarget }
 	const isCompleted = isGoalReached(goal === undefined ? kept : goal, previous)
 	const isAdvanced = isCompleted && nextDueDate !== undefined
+	const treeProjectId = previous.parentId === null ? projectId : undefined
 	const columns = {
 		title,
-		description: description === undefined ? undefined : description || null,
+		description: description === '' ? null : description,
 		dueDate: isAdvanced ? nextDueDate : dueDate,
 		dueTime,
 		durationMinutes,
@@ -112,7 +113,7 @@ export async function updateTask(
 		...(repeat === undefined ? {} : toRepeatColumns(repeat ?? undefined)),
 		completedAt: isCompleted && !isAdvanced ? editedAt : undefined,
 		...getGoalColumns(goal, previous.goalProgress, isAdvanced),
-		projectId,
+		projectId: treeProjectId,
 	}
 	// Drizzle refuses an empty set, e.g. for an edit of the labels only.
 	const [row] = Object.values(columns).some(value => value !== undefined)
@@ -122,19 +123,21 @@ export async function updateTask(
 	if (!row) return undefined
 	if (labelIds) await replaceLabels(transaction, { ownerId, id, labelIds })
 
-	const [updated] = await ownedTasks(transaction, ownerId).withLabelsAndProject(
-		[row]
-	)
+	const from = dueDate === undefined ? previous.dueDate : dueDate
+
+	await updateSubtree(tasks, previous, row, isAdvanced ? from : undefined)
+	if (treeProjectId !== undefined)
+		await tasks.update(
+			{ projectId: treeProjectId },
+			inArray(task.id, tasks.descendantsOf(id))
+		)
+
+	const [updated] = await tasks.withRelations([row])
 
 	return (
 		updated && {
 			task: updated,
-			completed: isCompleted
-				? getCompleted(
-						previous,
-						dueDate === undefined ? previous.dueDate : dueDate
-					)
-				: undefined,
+			completed: isCompleted ? getCompleted(previous, from) : undefined,
 		}
 	)
 }

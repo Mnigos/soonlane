@@ -2,17 +2,12 @@ import { type ErrorMap, oc } from '@orpc/contract'
 import {
 	type CalendarDate,
 	calendarDateSchema,
-	DURATION_MINUTES_MAX,
-	DURATION_MINUTES_MIN,
 	labelIdSchema,
 	projectIdSchema,
-	REPEAT_INTERVAL_MAX,
-	REPEAT_UNITS,
 	SINGLE_INTERVAL_REPEAT_UNITS,
 	GOAL_TARGET_MAX,
 	GOAL_UNIT_MAX_LENGTH,
 	TASK_DESCRIPTION_MAX_LENGTH,
-	TASK_PRIORITIES,
 	TASK_SEARCH_QUERY_MAX_LENGTH,
 	TASK_TITLE_MAX_LENGTH,
 	storedCalendarDateSchema,
@@ -20,46 +15,14 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { authErrors } from './auth.errors'
-import { labelSchema } from './labels.contract'
-import { projectNotFound, projectSchema } from './projects.contract'
-
-const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
-const durationMinutesSchema = z
-	.int()
-	.min(DURATION_MINUTES_MIN)
-	.max(DURATION_MINUTES_MAX)
-const prioritySchema = z.union(
-	TASK_PRIORITIES.map(priority => z.literal(priority))
-)
-const repeatSchema = z.object({
-	unit: z.enum(REPEAT_UNITS),
-	interval: z.int().min(1).max(REPEAT_INTERVAL_MAX),
-})
-
-export const taskSchema = z.object({
-	id: taskIdSchema,
-	title: z.string(),
-	description: z.string().optional(),
-	dueDate: storedCalendarDateSchema.optional(),
-	dueTime: dueTimeSchema.optional(),
-	durationMinutes: durationMinutesSchema.optional(),
-	priority: prioritySchema,
-	createdAt: z.date(),
-	completedAt: z.date().optional(),
-	repeat: repeatSchema
-		.extend({ anchor: storedCalendarDateSchema, fromCompletion: z.boolean() })
-		.optional(),
-	labels: z.array(labelSchema),
-	project: projectSchema.optional(),
-	goal: z
-		.object({
-			target: z.int(),
-			unit: z.string().optional(),
-			progress: z.int(),
-		})
-		.optional(),
-})
-export type Task = z.infer<typeof taskSchema>
+import { projectNotFound } from './projects.contract'
+import {
+	dueTimeSchema,
+	durationMinutesSchema,
+	prioritySchema,
+	repeatSchema,
+	taskSchema,
+} from './task.schemas'
 
 /**
  * The open tasks of one view. `today` splits them; `from` and `to` (both or neither) limit the scheduled ones to a range, and without
@@ -182,14 +145,22 @@ const undatedTaskRule = {
 
 const durationWithoutTime = { message: 'A duration needs a due time.' }
 
-/** An absent due date creates a task without one. */
+/**
+ * An absent due date creates a task without one. `parentId` creates a subtask in its parent's project: a parent that is not the owner's
+ * fails with NOT_FOUND, one that is completed, at the deepest level or full with CONFLICT.
+ */
 export const createTaskInputSchema = taskInputSchema
+	.extend({ parentId: taskIdSchema.optional() })
 	.refine(isDatedWhenTimedOrRepeating, undatedTaskRule)
 	.refine(
 		({ dueTime, durationMinutes }) =>
 			durationMinutes === undefined || dueTime !== undefined,
 		{ ...durationWithoutTime, path: ['durationMinutes'] }
 	)
+	.refine(({ parentId, projectId }) => !parentId || !projectId, {
+		path: ['projectId'],
+		message: 'Subtasks always use the same project as the task they belong to.',
+	})
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 /**
@@ -197,7 +168,8 @@ export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
  * Replaces every field (an absent description, due date or time clears it) but five that an absent value keeps for clients from before they could be edited
  * and for edits that do not show them: the repeat rule (cleared anyway without a due date), the duration (cleared anyway without a due time), the goal and
  * the project (null clears them) and the labels (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels).
- * A `projectId` that is not the owner's project fails with NOT_FOUND; a duration the edit leaves without a due time fails with BAD_REQUEST.
+ * A `projectId` that is not the owner's project fails with NOT_FOUND; a duration the edit leaves without a due time, or another project
+ * for a subtask, fails with BAD_REQUEST.
  * A goal at or below the progress of an open task completes it like a log reaching the target; `today` places a repeating task's next occurrence.
  */
 export const updateTaskInputSchema = taskInputSchema
@@ -300,6 +272,8 @@ const listFilterNotFound = {
 	message: 'This label or project no longer exists.',
 }
 
+const subtaskRefused = { message: "Couldn't add a subtask to this task." }
+
 const taskErrors = {
 	...authErrors,
 	NOT_FOUND: { message: 'This task no longer exists.' },
@@ -311,7 +285,11 @@ export const tasksContract = {
 		.input(listTasksInputSchema)
 		.output(listTasksOutputSchema),
 	create: oc
-		.errors({ ...authErrors, NOT_FOUND: projectNotFound })
+		.errors({
+			...authErrors,
+			NOT_FOUND: projectNotFound,
+			CONFLICT: subtaskRefused,
+		})
 		.input(createTaskInputSchema)
 		.output(z.object({ task: taskSchema })),
 	update: oc
@@ -359,4 +337,9 @@ export const tasksContract = {
 		.errors(taskErrors)
 		.input(taskIdInputSchema)
 		.output(z.object({ task: taskSchema })),
+	/** The direct subtasks, open and completed, in day order; none for a task that is not the owner's. */
+	listSubtasks: oc
+		.errors(authErrors)
+		.input(taskIdInputSchema)
+		.output(z.object({ tasks: z.array(taskSchema) })),
 }

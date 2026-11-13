@@ -22,21 +22,24 @@ import {
 import { Clock, Context, Effect, Layer } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import type { LabelNotFound } from '@/modules/labels/domain/label.errors'
-import { ProjectNotFound } from '@/modules/projects/domain/project.errors'
+import type { ProjectNotFound } from '@/modules/projects/domain/project.errors'
 import type { DbError } from '@/platform/db/db.errors'
 import type {
-	TaskDurationWithoutTime,
+	InvalidTaskEdit,
+	SubtaskRefusal,
 	TaskNotFound,
 } from '../domain/task.errors'
 import { TaskRepository } from '../infrastructure/task.repository'
 import {
 	type CompletionDates,
 	type RestoredOccurrence,
-	failDeletedProject,
+	failDeletedReference,
 	failTimelessDuration,
 	getAdvance,
 	getScheduleUpdate,
 	requireLabel,
+	requireProject,
+	requireSubtaskProject,
 	requireTask,
 	splitAtToday,
 } from './tasks.service.helper'
@@ -63,19 +66,26 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			id: TaskId
 		) => Effect.Effect<Task, TaskNotFound | DbError>
-		/** Every open task, with or without a due date, in day order. */
+		/** Every open task, with or without a due date, in day order; a subtask without a due date only shows under its parent. */
 		readonly listOpen: (ownerId: UserId) => Effect.Effect<Task[], DbError>
+		readonly listSubtasks: (
+			ownerId: UserId,
+			id: TaskId
+		) => Effect.Effect<Task[], DbError>
 		readonly create: (
 			ownerId: UserId,
 			input: CreateTaskInput
-		) => Effect.Effect<Task, ProjectNotFound | DbError>
+		) => Effect.Effect<
+			Task,
+			ProjectNotFound | TaskNotFound | SubtaskRefusal | DbError
+		>
 		readonly edit: (
 			ownerId: UserId,
 			id: TaskId,
 			input: EditTaskInput
 		) => Effect.Effect<
 			UpdateTaskOutput,
-			TaskNotFound | ProjectNotFound | TaskDurationWithoutTime | DbError
+			TaskNotFound | ProjectNotFound | InvalidTaskEdit | DbError
 		>
 		readonly delete: (
 			ownerId: UserId,
@@ -122,14 +132,10 @@ export const TasksServiceLive = Layer.effect(
 		const repository = yield* TaskRepository
 		const analytics = yield* Analytics
 
-		const requireProject = (ownerId: UserId, projectId: ProjectId) =>
+		const requireOwnedProject = (ownerId: UserId, projectId: ProjectId) =>
 			repository
 				.findProject({ ownerId, projectId })
-				.pipe(
-					Effect.flatMap(project =>
-						project ? Effect.void : Effect.fail(new ProjectNotFound())
-					)
-				)
+				.pipe(Effect.flatMap(requireProject))
 
 		// "Today" comes from the client: the server cannot know the owner's time zone.
 		const list = Effect.fn('TasksService.list')(function* (
@@ -138,7 +144,7 @@ export const TasksServiceLive = Layer.effect(
 		) {
 			if (labelId)
 				yield* requireLabel(yield* repository.findLabel({ ownerId, labelId }))
-			if (projectId) yield* requireProject(ownerId, projectId)
+			if (projectId) yield* requireOwnedProject(ownerId, projectId)
 
 			const tasks = yield* repository.listOpen({
 				ownerId,
@@ -196,11 +202,18 @@ export const TasksServiceLive = Layer.effect(
 			return yield* repository.listOpen({ ownerId })
 		})
 
+		const listSubtasks = Effect.fn('TasksService.listSubtasks')(function* (
+			ownerId: UserId,
+			id: TaskId
+		) {
+			return yield* repository.listSubtasks({ ownerId, id })
+		})
+
 		const create = Effect.fn('TasksService.create')(function* (
 			ownerId: UserId,
 			input: CreateTaskInput
 		) {
-			if (input.projectId) yield* requireProject(ownerId, input.projectId)
+			if (input.projectId) yield* requireOwnedProject(ownerId, input.projectId)
 
 			const dueDate =
 				input.dueDate && getFirstOccurrence(input.dueDate, input.repeat?.unit)
@@ -212,7 +225,10 @@ export const TasksServiceLive = Layer.effect(
 					repeat: dueDate &&
 						input.repeat && { ...input.repeat, anchor: dueDate },
 				})
-				.pipe(Effect.catchTag('DbError', failDeletedProject))
+				.pipe(Effect.catchTag('DbError', failDeletedReference))
+
+			if ('_tag' in task) return yield* task
+
 			// The task is saved: a failed count skips the event instead of failing the request.
 			const count = yield* repository
 				.count(ownerId)
@@ -235,7 +251,8 @@ export const TasksServiceLive = Layer.effect(
 				yield* repository.find({ ownerId, id })
 			)
 
-			if (input.projectId) yield* requireProject(ownerId, input.projectId)
+			yield* requireSubtaskProject(current, input)
+			if (input.projectId) yield* requireOwnedProject(ownerId, input.projectId)
 
 			const schedule = yield* getScheduleUpdate(current, input, today)
 			const editedAt = new Date(yield* Clock.currentTimeMillis)
@@ -250,7 +267,7 @@ export const TasksServiceLive = Layer.effect(
 						editedAt,
 					})
 					.pipe(
-						Effect.catchTag('DbError', failDeletedProject),
+						Effect.catchTag('DbError', failDeletedReference),
 						Effect.catchTag('DbError', failTimelessDuration)
 					)
 			)
@@ -359,6 +376,7 @@ export const TasksServiceLive = Layer.effect(
 			search,
 			get,
 			listOpen,
+			listSubtasks,
 			create,
 			edit,
 			delete: remove,

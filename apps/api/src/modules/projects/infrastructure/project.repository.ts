@@ -8,7 +8,10 @@ import { project, task } from '@soonlane/db'
 import type { ProjectId, UserId } from '@soonlane/domain'
 import { and, asc, count, eq, isNull, sql } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
-import { ownedBy } from '@/modules/tasks/infrastructure/owned-tasks.query'
+import {
+	ownedBy,
+	SHOWN_IN_LISTS,
+} from '@/modules/tasks/infrastructure/owned-tasks.query'
 import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
 import { toProject } from './project.mapper'
@@ -56,7 +59,8 @@ export const ProjectRepositoryLive = Layer.effect(
 							and(
 								eq(task.projectId, project.id),
 								ownedBy(ownerId),
-								isNull(task.completedAt)
+								isNull(task.completedAt),
+								SHOWN_IN_LISTS
 							)
 						)
 						.where(eq(project.ownerId, ownerId))
@@ -90,14 +94,26 @@ export const ProjectRepositoryLive = Layer.effect(
 					return row && toProject(row)
 				}),
 			delete: ({ ownerId, id }) =>
-				db.run('ProjectRepository.delete', async database => {
-					const [row] = await database
-						.delete(project)
-						.where(and(eq(project.ownerId, ownerId), eq(project.id, id)))
-						.returning()
+				db.run(
+					'ProjectRepository.delete',
+					async database =>
+						await database.transaction(async transaction => {
+							// Unsetting the project on its tasks locks them; taking them first in the tree lock order avoids deadlocks.
+							await transaction
+								.select({ id: task.id })
+								.from(task)
+								.where(and(ownedBy(ownerId), eq(task.projectId, id)))
+								.orderBy(asc(task.depth), asc(task.id))
+								.for('update')
 
-					return row && toProject(row)
-				}),
+							const [row] = await transaction
+								.delete(project)
+								.where(and(eq(project.ownerId, ownerId), eq(project.id, id)))
+								.returning()
+
+							return row && toProject(row)
+						})
+				),
 		})
 	})
 )

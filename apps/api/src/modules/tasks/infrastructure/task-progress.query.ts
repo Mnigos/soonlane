@@ -1,5 +1,5 @@
 import { task } from '@soonlane/db'
-import { and, eq, getColumns, isNotNull, sql } from 'drizzle-orm'
+import { and, eq, getColumns, isNotNull, isNull, sql } from 'drizzle-orm'
 import type { Database } from '@/platform/db/db.layer'
 import { ownedBy } from './owned-tasks.query'
 import type { ProgressLog } from './task.repository.types'
@@ -24,7 +24,7 @@ export async function updateProgress(
 	const progress = sql<number>`least(greatest(${before.progress} + ${amount}, 0), ${task.goalTarget})`
 	const advances =
 		advance &&
-		sql`${progress} >= ${task.goalTarget} and ${task.dueDate} = ${advance.from} and ${isNotNull(task.repeatUnit)}`
+		sql`${progress} >= ${task.goalTarget} and ${task.dueDate} = ${advance.from} and ${isNotNull(task.repeatUnit)} and ${isNull(task.completedAt)}`
 	const [row] = await database
 		.with(before)
 		.update(task)
@@ -51,6 +51,7 @@ export async function updateProgress(
 			completed: sql<boolean>`${task.dueDate} <> ${before.dueDate} or (${before.completedAt} is null and ${task.completedAt} is not null)`,
 			previousDueDate: before.dueDate,
 			previousProgress: before.progress,
+			previousCompletedAt: before.completedAt,
 		})
 
 	return row
