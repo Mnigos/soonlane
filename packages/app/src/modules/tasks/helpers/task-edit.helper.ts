@@ -8,6 +8,7 @@ import type {
 import {
 	type CalendarDate,
 	type TaskPriority,
+	getDueDateShortcuts,
 	getEditedDueDate,
 } from '@soonlane/domain'
 
@@ -73,6 +74,11 @@ export function isRepeatChanged(task: Task, repeat: RepeatInput | undefined) {
 		repeat?.interval !== task.repeat?.interval ||
 		(repeat?.fromCompletion ?? false) !== (task.repeat?.fromCompletion ?? false)
 	)
+}
+
+/** The quick dates of a task's "…" menu: the date picker's, without Next weekend. */
+export function getMenuDateShortcuts(today: CalendarDate) {
+	return getDueDateShortcuts(today).filter(({ id }) => id !== 'next-weekend')
 }
 
 /** What choosing No date also removes, shown next to the option; undefined when the task has neither. */

@@ -1,10 +1,8 @@
-import { PlaceholderScreen } from '@/modules/shell/presentation/components/placeholder-screen'
+import { useToday } from '@soonlane/app/tasks/hooks/use-today'
+import { TodayScreen } from '@/modules/tasks/presentation/components/today-screen'
 
 export default function TodayRoute() {
-	return (
-		<PlaceholderScreen
-			title="Today"
-			description="Tasks due today will appear here."
-		/>
-	)
+	const today = useToday()
+
+	return today && <TodayScreen today={today} />
 }

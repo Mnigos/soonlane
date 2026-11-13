@@ -3,7 +3,7 @@ import {
 	formatDayMonth,
 	formatWeekday,
 } from '@soonlane/domain'
-import { getTodayListInput } from '../helpers/dock-badge.helper'
+import { getTodayListInput } from '../helpers/task-list-key.helper'
 import { useCompleteTask } from '../hooks/use-complete-task'
 import { useCompletedTasksQuery } from '../hooks/use-completed-tasks-query'
 import { useTasksQuery } from '../hooks/use-tasks-query'

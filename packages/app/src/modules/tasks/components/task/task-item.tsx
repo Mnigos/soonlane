@@ -5,18 +5,15 @@ import {
 	getDueChipLabel,
 	getDueLabel,
 	TASK_PRIORITIES,
-	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Check } from 'lucide-react'
 import { type KeyboardEvent, useId, useRef, useState } from 'react'
-import { getHostPorts } from '../../../../host-ports.client'
 import { isShortcutKeydown } from '../../../../utils/keyboard-shortcut.util'
-import { getMenuEdit } from '../../helpers/task-edit.helper'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
-import { useUpdateTask } from '../../hooks/use-update-task'
+import { useTaskMenuEdits } from '../../hooks/use-task-menu-edits'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
 import { LogProgressControls } from './log-progress-controls'
@@ -41,7 +38,6 @@ export function TaskItem({
 	onComplete,
 	showsDueDay,
 }: Readonly<TaskItemProps>) {
-	const { capture } = getHostPorts()
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 	const isEditing = openEditorId === task.id
 	const [shouldFocusMenu, setShouldFocusMenu] = useState(false)
@@ -52,7 +48,10 @@ export function TaskItem({
 			: getDueLabel(task.dueDate, task, today))
 	const buttonId = useId()
 	const titleId = useId()
-	const { updateTask } = useUpdateTask(today)
+	const { changeDate: changeMenuDate, changePriority } = useTaskMenuEdits(
+		task,
+		today
+	)
 	const [isPickingDate, setIsPickingDate] = useState(false)
 	const triggerRef = useRef<HTMLButtonElement>(null)
 
@@ -72,22 +71,7 @@ export function TaskItem({
 		choice: DatePickerChoice
 	) {
 		triggerRef.current?.focus()
-		capture('date_picker_used', {
-			choice,
-			hasTime: task.dueTime !== undefined,
-		})
-		const edit = getMenuEdit(task, today, { dueDate })
-
-		if (edit) updateTask(edit)
-	}
-
-	function changePriority(priority: TaskPriority) {
-		const edit = getMenuEdit(task, today, { priority })
-
-		if (!edit) return
-
-		capture('priority_set', { priority })
-		updateTask(edit)
+		changeMenuDate(dueDate, choice)
 	}
 
 	/** The selected row's shortcuts; Enter on its own buttons keeps their native press. */
