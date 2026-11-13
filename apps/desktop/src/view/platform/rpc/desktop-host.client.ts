@@ -1,3 +1,4 @@
+import type { DesktopHostMessage } from '@soonlane/app/shell/helpers/desktop-host.helper'
 import { Electroview } from 'electrobun/view'
 import type { PageRpcSchema } from '../../../platform/electrobun/page-rpc.types'
 
@@ -56,4 +57,7 @@ export const desktopHost = {
 		}
 	},
 	signOut: async () => await rpc.request.signOut(undefined),
+	sendToMain: (message: DesktopHostMessage) => {
+		rpc.send.pageMessage(message)
+	},
 }

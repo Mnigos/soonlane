@@ -1,7 +1,9 @@
 import { DESKTOP_PAGE_ORIGIN } from '@soonlane/auth'
-import { Effect, Option, Stream } from 'effect'
+import { Effect, Option, PubSub, Stream } from 'effect'
 import { BrowserView, BrowserWindow, type WindowOptionsType } from 'electrobun'
 import type { PageRpcSchema } from '../../../platform/electrobun/page-rpc.types'
+import { DockBadge } from '../../dock-badge/application/dock-badge.port'
+import { readBadgeCount } from '../../dock-badge/domain/dock-badge-event.helper'
 import { PAGE_NAVIGATION_RULES } from '../../navigation/domain/navigation.helper'
 import { DesktopSession } from '../../sign-in/application/desktop-session.service'
 
@@ -9,7 +11,8 @@ import { DesktopSession } from '../../sign-in/application/desktop-session.servic
  * A window on the bundled page at an app path (`APP_PATHS`, served from the
  * hash), with the navigation rules that keep it there and the typed RPC that
  * lends the page the desktop token. Session changes reach the page until the
- * enclosing scope closes.
+ * enclosing scope closes. Any page may report the Dock badge count; its other
+ * messages come back as `pageMessages` for the window's owner.
  */
 export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 	path: string,
@@ -17,9 +20,23 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 		Partial<Pick<WindowOptionsType, 'styleMask'>>
 ) {
 	const session = yield* DesktopSession
+	const dockBadge = yield* DockBadge
 	const context = yield* Effect.context()
+	const pageMessages = yield* PubSub.unbounded<unknown>()
+	const receive = (message: unknown) => {
+		const count = readBadgeCount(message)
+
+		return count === undefined
+			? PubSub.publish(pageMessages, message)
+			: dockBadge.show(count)
+	}
 	const rpc = BrowserView.defineRPC<PageRpcSchema>({
 		handlers: {
+			messages: {
+				pageMessage: message => {
+					void Effect.runPromiseWith(context)(receive(message))
+				},
+			},
 			requests: {
 				readToken: async () =>
 					Option.getOrNull(await Effect.runPromiseWith(context)(session.token)),
@@ -55,5 +72,5 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 		Effect.forkScoped
 	)
 
-	return window
+	return { window, pageMessages: Stream.fromPubSub(pageMessages) }
 })

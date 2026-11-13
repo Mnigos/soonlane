@@ -1,4 +1,5 @@
 import type { ClientEvents } from '@soonlane/analytics'
+import type { DesktopHostMessage } from './modules/shell/helpers/desktop-host.helper'
 
 /** What the shared hooks need from the host app outside React; none of it may touch the DOM here, so a native host can provide it. */
 interface HostPorts {
@@ -17,6 +18,8 @@ interface HostPorts {
 	) => void
 	/** Calls back when the app may have slept, such as a tab or app returning to the foreground; returns the unsubscribe. */
 	subscribeToResume: (onResume: () => void) => () => void
+	/** Only the desktop app: hands Quick Add and Dock badge messages to its main process. */
+	sendToDesktop?: (message: DesktopHostMessage) => void
 }
 
 let hostPorts: HostPorts | undefined

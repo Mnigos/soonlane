@@ -1,3 +1,4 @@
+import type { DesktopHostMessage } from '@soonlane/app/shell/helpers/desktop-host.helper'
 import type { RPCSchema } from 'electrobun'
 
 /**
@@ -15,7 +16,10 @@ export interface PageRpcSchema {
 			/** Revokes the desktop session and forgets the token. */
 			signOut: { params: undefined; response: undefined }
 		}
-		messages: Record<never, never>
+		messages: {
+			/** Quick Add closing or growing, and the Dock badge count; the main process decodes each before acting on it. */
+			pageMessage: DesktopHostMessage
+		}
 	}>
 	webview: RPCSchema<{
 		requests: Record<never, never>

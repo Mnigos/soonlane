@@ -18,9 +18,10 @@ export const AppLive = Layer.mergeAll(
 	QuickAddLive,
 	DockBadgeEventsLive
 ).pipe(
-	Layer.provide(Layer.mergeAll(NavigationLive, AppKitDockBadgeLive)),
+	Layer.provide(NavigationLive),
 	Layer.provideMerge(MainWindowLive),
 	Layer.provide(FileFrameStoreLive),
+	Layer.provideMerge(AppKitDockBadgeLive),
 	Layer.provideMerge(DesktopSessionLive),
 	Layer.provide(KeychainTokenStoreLive),
 	Layer.provideMerge(ElectrobunSystemBrowserLive),
