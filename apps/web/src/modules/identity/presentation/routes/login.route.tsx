@@ -10,7 +10,7 @@ const loginSearchSchema = z.object({
 export const Route = createFileRoute('/_session/login')({
 	validateSearch: loginSearchSchema,
 	beforeLoad: ({ context }) => {
-		if (context.me.user) throw redirect({ to: '/app' })
+		if (context.me.user) throw redirect({ to: '/' })
 	},
 	head: () => ({ meta: [{ title: 'Log in · Soonlane' }] }),
 	component: LoginRoute,

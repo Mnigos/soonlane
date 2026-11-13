@@ -85,7 +85,7 @@ export const CalendarServiceLive = Layer.effect(
 				tasks: tasks.flatMap(({ dueDate, ...task }) =>
 					dueDate ? [{ ...task, dueDate }] : []
 				),
-				taskUrl: `${appUrl}/app`,
+				taskUrl: `${appUrl}/`,
 				builtAt: new Date(yield* Clock.currentTimeMillis),
 			})
 		})

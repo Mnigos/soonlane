@@ -28,10 +28,15 @@ if (!isAppEnvironment(APP_ENVIRONMENT))
 		`APP_ENV must be one of ${APP_ENVIRONMENTS.join(', ')}, not "${APP_ENVIRONMENT}"`
 	)
 
-/** Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, so only development may fall back. */
-const API_VARIABLES = ['VITE_API_URL', 'VITE_AUTH_COOKIE_PREFIX'] as const
+/** Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, and without the two origins the hosts cannot tell the app from the site, so only development may fall back. */
+const REQUIRED_VARIABLES = [
+	'VITE_API_URL',
+	'VITE_AUTH_COOKIE_PREFIX',
+	'VITE_APP_URL',
+	'VITE_SITE_URL',
+] as const
 
-for (const name of API_VARIABLES)
+for (const name of REQUIRED_VARIABLES)
 	if (APP_ENVIRONMENT !== 'development' && !process.env[name])
 		throw new Error(
 			`${name} is not set; ${APP_ENVIRONMENT} builds need it (docs/deploy-railway.md)`
@@ -68,15 +73,11 @@ const BROWSER_SAFE_PLATFORM_FILES = [
 	'**/platform/rpc/rpc-serializer.constants.ts',
 ]
 
-/** Rendered per request: the prerender runs without env vars, so it stays off routes that read the session or the host, and the feeds keep the content type their routes set, which a static file would lose. */
+/** Rendered per request: the prerender runs without env vars, so it stays off routes that read the host, and the feeds keep the content type their routes set, which a static file would lose. The app's pages are on another host, so the crawl never reaches them. */
 const SERVER_RENDERED_PATHS = [
-	'/app',
-	'/login',
-	'/desktop',
 	'/api',
 	'/calendar',
 	'/robots.txt',
-	'/today',
 	'/health',
 	'/blog/rss.xml',
 	'/sitemap.xml',

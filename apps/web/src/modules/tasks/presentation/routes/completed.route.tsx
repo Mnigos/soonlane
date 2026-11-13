@@ -3,7 +3,7 @@ import { TaskListSkeleton } from '@soonlane/app/tasks/components/list/task-list.
 import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_session/app/completed')({
+export const Route = createFileRoute('/_session/_shell/completed')({
 	head: () => ({ meta: [{ title: 'Completed · Soonlane' }] }),
 	component: CompletedRoute,
 })

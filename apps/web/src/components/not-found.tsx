@@ -1,11 +1,15 @@
 import { cn } from '@soonlane/ui/cn'
-import { Link } from '@tanstack/react-router'
+import { Link, type LinkProps } from '@tanstack/react-router'
 
 interface NotFoundProps {
 	className?: string
+	homePath?: LinkProps['to']
 }
 
-export function NotFound({ className }: Readonly<NotFoundProps>) {
+export function NotFound({
+	className,
+	homePath = '/',
+}: Readonly<NotFoundProps>) {
 	return (
 		<main
 			className={cn(
@@ -17,7 +21,7 @@ export function NotFound({ className }: Readonly<NotFoundProps>) {
 
 			<Link
 				className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-				to="/"
+				to={homePath}
 			>
 				Back to home
 			</Link>

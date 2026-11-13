@@ -9,8 +9,7 @@ import { sidebarItemVariants } from '@soonlane/ui/components/sidebar'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { Ellipsis, Pencil, Trash2 } from 'lucide-react'
 import { type ReactNode, useId, useState } from 'react'
-import type { APP_PATHS } from '../../../app-path.constants'
-import { useHostApp } from '../../../hooks/use-host-app'
+import { APP_PATHS } from '../../../app-path.constants'
 import { isNamed } from '../../tasks/helpers/task-view.helper'
 import {
 	SidebarNameField,
@@ -57,7 +56,6 @@ export function SidebarListRow({
 	const [isRenaming, setIsRenaming] = useState(false)
 	const [isDeleting, setIsDeleting] = useState(false)
 	const navigate = useNavigate()
-	const { homePath } = useHostApp()
 	const nameId = useId()
 	const actionsId = useId()
 	const isViewOpen = isNamed(item, activeName)
@@ -154,7 +152,7 @@ export function SidebarListRow({
 					onClose: () => setIsDeleting(false),
 					onDeleted: () => {
 						setIsDeleting(false)
-						if (isViewOpen) void navigate({ to: homePath })
+						if (isViewOpen) void navigate({ to: APP_PATHS.upcoming })
 					},
 				})}
 		</li>

@@ -1,6 +1,6 @@
 import { Link } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
-import { useHostApp } from '../../../../hooks/use-host-app'
+import { APP_PATHS } from '../../../../app-path.constants'
 import { TaskListError } from '../list/task-list-error'
 import { TaskListSkeleton } from '../list/task-list.skeleton'
 import { OpenEditorProvider } from '../open-editor-provider'
@@ -22,8 +22,6 @@ export function TaskViewPage<TItem extends { id: string }>({
 	notFoundTitle,
 	children,
 }: Readonly<TaskViewPageProps<TItem>>) {
-	const { homePath } = useHostApp()
-
 	if (!ownerList.data)
 		return ownerList.isError ? (
 			<main className={MAIN_CLASS}>
@@ -46,7 +44,7 @@ export function TaskViewPage<TItem extends { id: string }>({
 
 				<Link
 					className="mt-4 inline-block text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
-					to={homePath}
+					to={APP_PATHS.upcoming}
 				>
 					Back to Upcoming
 				</Link>

@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { buildSitemap } from '../helpers/sitemap.helper'
 
-export const Route = createFileRoute('/sitemap.xml')({
+export const Route = createFileRoute('/site/sitemap.xml')({
 	server: {
 		handlers: {
 			GET: () =>

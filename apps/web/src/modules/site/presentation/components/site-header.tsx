@@ -8,7 +8,7 @@ import { GithubIcon } from './github-icon'
 export function SiteHeader() {
 	return (
 		<header className="mx-auto flex h-16 w-full max-w-[1120px] items-center justify-between gap-4 px-4 sm:px-6">
-			<Link className="flex items-center gap-2 rounded-md font-bold" to="/">
+			<Link className="flex items-center gap-2 rounded-md font-bold" to="/site">
 				<img alt="" height={24} src="/favicon.svg" width={24} />
 				{SITE_NAME}
 			</Link>
@@ -42,7 +42,7 @@ export function SiteHeader() {
 						buttonVariants({ size: 'sm' }),
 						'signed-in:inline-flex hidden'
 					)}
-					to="/app"
+					to="/"
 				>
 					Open app
 				</Link>

@@ -1,4 +1,5 @@
 import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { NotFound } from '@/components/not-found'
 import { LayoutError } from '@/components/route-error'
 import {
 	BLOG_TITLE,
@@ -8,7 +9,7 @@ import { SiteFooter } from '../components/site-footer'
 import { SiteHeader } from '../components/site-header'
 import { syncSignedInHint } from '../helpers/signed-in-hint.helper'
 
-export const Route = createFileRoute('/_site')({
+export const Route = createFileRoute('/site')({
 	onEnter: syncSignedInHint,
 	head: () => ({
 		links: [
@@ -22,6 +23,9 @@ export const Route = createFileRoute('/_site')({
 	}),
 	component: SiteLayout,
 	errorComponent: LayoutError,
+	notFoundComponent: () => (
+		<NotFound className="flex-1 py-16" homePath="/site" />
+	),
 })
 
 function SiteLayout() {
