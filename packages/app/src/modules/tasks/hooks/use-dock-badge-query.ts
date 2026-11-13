@@ -1,7 +1,7 @@
 import { skipToken, useQuery } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 import { isDesktopShell } from '../../shell/helpers/desktop-host.helper'
-import { getTodayListInput } from '../helpers/dock-badge.helper'
+import { getTodayListInput } from '../helpers/task-list-key.helper'
 import { useToday } from './use-today'
 
 /** Keeps the Today list loaded and refetched in every desktop window, so `syncDockBadge` sees each change. */

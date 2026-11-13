@@ -1,15 +1,11 @@
-import { type CalendarDate, getToday } from '@soonlane/domain'
+import { getToday } from '@soonlane/domain'
 import { matchQuery, type QueryClient } from '@tanstack/react-query'
 import { orpcQuery } from '../../../rpc-query.client'
 import {
 	isDesktopShell,
 	sendToDesktopHost,
 } from '../../shell/helpers/desktop-host.helper'
-
-/** The Today list's input: overdue tasks and the ones due today. */
-export function getTodayListInput(today: CalendarDate) {
-	return { from: today, to: today, today }
-}
+import { getTodayListInput } from './task-list-key.helper'
 
 /** Reports the Today list's count to the Dock badge on every data change; cache listeners run synchronously, before the change's callbacks. */
 export function syncDockBadge(queryClient: QueryClient) {

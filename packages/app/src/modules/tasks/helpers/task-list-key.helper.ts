@@ -1,6 +1,12 @@
 import { listTasksInputSchema } from '@soonlane/contracts'
+import type { CalendarDate } from '@soonlane/domain'
 import type { QueryKey } from '@tanstack/react-query'
 import { z } from 'zod'
+
+/** The Today list's input: overdue tasks and the ones due today. */
+export function getTodayListInput(today: CalendarDate) {
+	return { from: today, to: today, today }
+}
 
 const listKeyOptionsSchema = z.object({ input: listTasksInputSchema })
 
