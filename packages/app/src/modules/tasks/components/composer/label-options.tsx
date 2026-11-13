@@ -1,13 +1,10 @@
-import { isDefinedError } from '@orpc/client'
 import type { Label } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
-import { Plus, Tag } from 'lucide-react'
+import { Tag } from 'lucide-react'
 import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
 import type { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
-import {
-	CHIP_ICON_STROKE,
-	PICKER_NOTE_CLASS,
-} from '../../helpers/composer-chip.constants'
+import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
+import { PickerNotes } from './picker-options'
 
 interface LabelListNotesProps {
 	isEmpty: boolean
@@ -33,23 +30,6 @@ export function LabelOption({ label }: Readonly<{ label: Label }>) {
 	)
 }
 
-export function CreateLabelOption({ name }: Readonly<{ name: string }>) {
-	return (
-		<>
-			<Plus
-				aria-hidden
-				className="size-4 shrink-0 text-secondary-foreground"
-				strokeWidth={CHIP_ICON_STROKE}
-			/>
-
-			<span className="truncate">
-				Create label &quot;<span className="ph-mask">{name}</span>
-				&quot;
-			</span>
-		</>
-	)
-}
-
 /** The lines under a list of labels: none yet, a failed load, a failed create. */
 export function LabelListNotes({
 	isEmpty,
@@ -57,21 +37,13 @@ export function LabelListNotes({
 	createLabel,
 }: Readonly<LabelListNotesProps>) {
 	return (
-		<>
-			{isEmpty && <p className={PICKER_NOTE_CLASS}>No labels yet</p>}
-
-			{isLoadError && (
-				<p className={PICKER_NOTE_CLASS}>Could not load your labels.</p>
-			)}
-
-			{createLabel.isError && (
-				<p className="px-3 py-2 text-caption text-danger" role="alert">
-					{isDefinedError(createLabel.error) &&
-					createLabel.error.code === 'CONFLICT'
-						? createLabel.error.message
-						: 'Could not create the label. Try again.'}
-				</p>
-			)}
-		</>
+		<PickerNotes
+			createError={createLabel.error}
+			createErrorText="Could not create the label. Try again."
+			emptyText="No labels yet"
+			isEmpty={isEmpty}
+			isLoadError={isLoadError}
+			loadErrorText="Could not load your labels."
+		/>
 	)
 }
