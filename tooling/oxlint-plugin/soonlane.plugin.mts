@@ -12,6 +12,7 @@ import { moduleNameRule } from './rules/module-name.rule.mts'
 import { noApiOnlyImportRule } from './rules/no-api-only-import.rule.mts'
 import { noBrandCastRule } from './rules/no-brand-cast.rule.mts'
 import { noDefaultRuntimeRule } from './rules/no-default-runtime.rule.mts'
+import { noInlineParamTypeRule } from './rules/no-inline-param-type.rule.mts'
 import { noLetRule } from './rules/no-let.rule.mts'
 import { noRepositoryTryCatchRule } from './rules/no-repository-try-catch.rule.mts'
 import { propsWithChildrenRule } from './rules/props-with-children.rule.mts'
@@ -35,6 +36,7 @@ export default definePlugin({
 		'no-api-only-import': noApiOnlyImportRule,
 		'no-brand-cast': noBrandCastRule,
 		'no-default-runtime': noDefaultRuntimeRule,
+		'no-inline-param-type': noInlineParamTypeRule,
 		'no-let': noLetRule,
 		'no-repository-try-catch': noRepositoryTryCatchRule,
 		'props-with-children': propsWithChildrenRule,
