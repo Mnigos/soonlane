@@ -61,7 +61,7 @@ export const MainWindowLive = Layer.effect(
 	MainWindow,
 	Effect.gen(function* () {
 		const saved = yield* (yield* FrameStore).load
-		const window = yield* openAppWindow(APP_PATHS.upcoming, {
+		const { window } = yield* openAppWindow(APP_PATHS.upcoming, {
 			title: WINDOW_TITLE,
 			frame: restoreFrame(
 				Option.getOrUndefined(saved),
@@ -85,6 +85,7 @@ export const MainWindowLive = Layer.effect(
 
 		return MainWindow.of({
 			reload: Effect.sync(() => webview.executeJavascript('location.reload()')),
+			activate,
 			webviewEvents: name => electrobunEvents(`${name}-${webview.id}`),
 		})
 	})

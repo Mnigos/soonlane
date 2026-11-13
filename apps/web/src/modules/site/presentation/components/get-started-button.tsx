@@ -31,11 +31,7 @@ export function GetStartedButton({
 			onClick={event => {
 				const opensElsewhere =
 					event.metaKey || event.ctrlKey || event.shiftKey || event.altKey
-				// Google refuses the desktop app's webview; /login hands the sign-in to the system browser.
-				const isDesktopShell =
-					document.documentElement.dataset.shell === 'desktop'
-
-				if (opensElsewhere || isDesktopShell) return
+				if (opensElsewhere) return
 
 				event.preventDefault()
 
