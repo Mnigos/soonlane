@@ -32,6 +32,11 @@ interface ReopenContext {
 	queryKeys: QueryKey[]
 }
 
+/** Each task's open completion toast; every toast gets a fresh id, since Sonner can drop a toast created under an id it is still dismissing. */
+const completionToastIds = new Map<string, string>()
+
+let completionToastCount = 0
+
 const COMPLETED_ORDER_COMPARATORS: Record<
 	TaskCompletedOrderKey,
 	(a: Task, b: Task) => number
@@ -125,6 +130,16 @@ export function removeFromCompleted(
 	}
 }
 
+/** Closes the task's completion toast, so its Undo cannot revert a later change. */
+export function dismissCompletionToast(taskId: string) {
+	const toastId = completionToastIds.get(taskId)
+
+	if (toastId === undefined) return
+
+	completionToastIds.delete(taskId)
+	getHostPorts().dismissToast(toastId)
+}
+
 export function announceCompletion(
 	completed: Task,
 	today: CalendarDate,
@@ -139,9 +154,13 @@ export function announceCompletion(
 		wasOverdue: (properties.dueInDays ?? 0) < 0,
 		completedVia,
 	})
+	dismissCompletionToast(completed.id)
+	completionToastCount += 1
+	const toastId = `${completed.id}:${completionToastCount}`
+
+	completionToastIds.set(completed.id, toastId)
 	showToast('Task completed', {
-		// A newer completion of this task replaces the toast, so an older Undo cannot revert it.
-		id: completed.id,
+		id: toastId,
 		action: { label: 'Undo', onClick: undo },
 	})
 }

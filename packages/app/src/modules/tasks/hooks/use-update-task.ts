@@ -15,6 +15,7 @@ import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import {
 	announceCompletion,
+	dismissCompletionToast,
 	getUndoCallbacks,
 } from '../helpers/task-completion.helper'
 import { getListInput } from '../helpers/task-list-key.helper'
@@ -46,7 +47,7 @@ function getEditedGoal(
  */
 export function useUpdateTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
-	const { dismissToast, showToast } = getHostPorts()
+	const { showToast } = getHostPorts()
 	const listKey = orpcQuery.tasks.list.key()
 	const uncomplete = useMutation(
 		orpcQuery.tasks.uncomplete.mutationOptions(
@@ -61,7 +62,7 @@ export function useUpdateTask(today: CalendarDate) {
 				const { id, labelIds, projectId, goal, description } = edit
 
 				// An Undo from an earlier completion would overwrite this edit's date.
-				dismissToast(id)
+				dismissCompletionToast(id)
 				await queryClient.cancelQueries({ queryKey: listKey })
 				const lists = queryClient.getQueriesData<ListTasksOutput>({
 					queryKey: listKey,
