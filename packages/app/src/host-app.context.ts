@@ -8,6 +8,8 @@ export interface HostApp {
 	appCommit: string
 	/** This build's release notes on the public site. */
 	releaseNotesUrl: string
+	/** A link into the Todoist import with the caller's classes; absent when this host offers no import. */
+	renderTodoistImportLink?: (className: string) => ReactNode
 }
 
 export const HostAppContext = createContext<HostApp | null>(null)
