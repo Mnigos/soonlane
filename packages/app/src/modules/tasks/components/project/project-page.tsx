@@ -2,6 +2,7 @@ import type { CalendarDate } from '@soonlane/domain'
 import { useQuery } from '@tanstack/react-query'
 import { orpcQuery } from '../../../../rpc-query.client'
 import { isNamed } from '../../helpers/task-view.helper'
+import { ProjectViewContext } from '../../project-view.context'
 import { TaskView } from '../view/task-view'
 import { TaskViewPage } from '../view/task-view-page'
 
@@ -20,15 +21,17 @@ export function ProjectPage({ name, today }: Readonly<ProjectPageProps>) {
 			ownerList={projects}
 		>
 			{project => (
-				<TaskView
-					composer={{ defaultProject: project, source: 'project_view' }}
-					emptyNote="No tasks in this project yet."
-					filter={{ projectId: project.id }}
-					id={project.id}
-					name={project.name}
-					ownerListKey={orpcQuery.projects.list.key()}
-					today={today}
-				/>
+				<ProjectViewContext value={project.id}>
+					<TaskView
+						composer={{ defaultProject: project, source: 'project_view' }}
+						emptyNote="No tasks in this project yet."
+						filter={{ projectId: project.id }}
+						id={project.id}
+						name={project.name}
+						ownerListKey={orpcQuery.projects.list.key()}
+						today={today}
+					/>
+				</ProjectViewContext>
 			)}
 		</TaskViewPage>
 	)
