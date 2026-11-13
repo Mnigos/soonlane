@@ -1,0 +1,12 @@
+{
+  "extends": "@soonlane/typescript-config/base.json",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "customConditions": ["react-native"],
+    "types": ["bun"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["app/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts"]
+}
