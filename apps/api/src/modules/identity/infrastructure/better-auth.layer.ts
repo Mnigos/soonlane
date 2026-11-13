@@ -42,6 +42,7 @@ export const BetterAuthLive = Layer.effect(
 			database: db.database,
 			baseUrl: config.baseUrl,
 			trustedOrigins: config.trustedOrigins,
+			trustExpoGo: config.environment === 'development',
 			cookiePrefix: config.cookiePrefix,
 			cookieDomain: config.cookieDomain,
 			errorUrl: `${config.appUrl}/login`,

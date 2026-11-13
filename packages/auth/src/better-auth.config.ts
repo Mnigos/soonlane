@@ -17,6 +17,13 @@ import {
 	DESKTOP_TOKEN_PATH,
 	desktopSignIn,
 } from './desktop-sign-in.handler'
+import {
+	EXPO_GO_SCHEME,
+	EXPO_PROXY_PATH,
+	MOBILE_APP_SCHEME,
+	expoSignIn,
+	isPendingAppSignIn,
+} from './expo-sign-in.handler'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
@@ -58,6 +65,8 @@ export interface CreateAuthOptions {
 	baseUrl: string
 	/** The web origins that may call the API and receive the user back after sign-in; exact origins only. */
 	trustedOrigins: readonly string[]
+	/** Development only: Expo Go's `exp:` links also count as the mobile app's return addresses. */
+	trustExpoGo?: boolean
 	/** Names every cookie of the environment (`<prefix>.session_token`), so production's and staging's never share a name. */
 	cookiePrefix: string
 	/** The registrable domain the cookies cover (`soonlane.com`); unset, they stay on the API's host, as on localhost. */
@@ -150,11 +159,16 @@ function refuse(message: string) {
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
  * signed-in hint cookie, the hand-off of a browser sign-in to the desktop
- * app with the signed bearer token its session uses and, when configured,
+ * app with the signed bearer token its session uses, the mobile app's
+ * sign-in through Better Auth's Expo plugin and, when configured,
  * linking Todoist for an import: Todoist is only linked, Google only signs
  * in, and provider tokens are stored encrypted.
  */
 export function createAuth(options: CreateAuthOptions) {
+	const appSchemes = options.trustExpoGo
+		? [MOBILE_APP_SCHEME, EXPO_GO_SCHEME]
+		: [MOBILE_APP_SCHEME]
+
 	return betterAuth({
 		appName: 'Soonlane',
 		logger: {
@@ -168,7 +182,10 @@ export function createAuth(options: CreateAuthOptions) {
 		secret: options.secret,
 		baseURL: options.baseUrl,
 		basePath: AUTH_BASE_PATH,
-		trustedOrigins: [...options.trustedOrigins],
+		trustedOrigins: [
+			...options.trustedOrigins,
+			...appSchemes.map(scheme => `${scheme}//`),
+		],
 		disabledPaths: DISABLED_PATHS,
 		onAPIError: { errorURL: options.errorUrl },
 		database: drizzleAdapter(options.database, {
@@ -195,6 +212,7 @@ export function createAuth(options: CreateAuthOptions) {
 				'/desktop-sign-in/code': SIGN_IN_RATE_LIMIT,
 				[DESKTOP_EXCHANGE_PATH]: SIGN_IN_RATE_LIMIT,
 				[DESKTOP_TOKEN_PATH]: SIGN_IN_RATE_LIMIT,
+				[EXPO_PROXY_PATH]: SIGN_IN_RATE_LIMIT,
 				'/delete-user': { window: 3600, max: 5 },
 			},
 		},
@@ -214,6 +232,15 @@ export function createAuth(options: CreateAuthOptions) {
 
 				if (ctx.path === '/sign-in/social' && provider === TODOIST_PROVIDER_ID)
 					throw refuse('Todoist can only be linked to a signed-in account.')
+				if (
+					ctx.path === EXPO_PROXY_PATH &&
+					!(await isPendingAppSignIn(
+						ctx.context.internalAdapter,
+						ctx.query?.authorizationURL,
+						appSchemes
+					))
+				)
+					throw refuse('Only a Google sign-in opens from the mobile app.')
 				if (ctx.path !== '/link-social') return
 				// Every before hook sees the request's own headers, so the lookup below would miss a bearer session; the desktop app links Todoist in the browser.
 				if (
@@ -299,8 +326,10 @@ export function createAuth(options: CreateAuthOptions) {
 		plugins: [
 			bearerSessions(),
 			desktopSignIn(),
-			returnAddresses(options.trustedOrigins),
+			returnAddresses(options.trustedOrigins, appSchemes),
 			...(options.todoist ? [todoistLink(options.todoist)] : []),
+			// Last, so its after hook strips the browser's cookies after every other plugin's callback hook.
+			expoSignIn(appSchemes),
 		],
 	})
 }

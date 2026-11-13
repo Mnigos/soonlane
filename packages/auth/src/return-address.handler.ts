@@ -9,6 +9,8 @@ const RETURN_ADDRESS_FIELDS = [
 ] as const
 /** A provider redirect started without a body `callbackURL` would return to the API's own origin. */
 const PROVIDER_REDIRECT_PATHS = ['/sign-in/social', '/link-social']
+/** The only requests that may return to an app scheme: after a callback the Expo plugin adds the response's cookies to that address, which an account link must never reach. */
+const APP_SIGN_IN_PATHS = ['/sign-in/social']
 
 /** better-call's media types, in its order: a JSON type wins over a `form` parameter. */
 const JSON_CONTENT_TYPE = /^application\/([a-z0-9.+-]*\+)?json/iu
@@ -47,22 +49,35 @@ function readField(body: unknown, field: string): unknown[] {
 	return value === undefined ? [] : [value]
 }
 
-/** Absolute and on a trusted web origin: Better Auth itself would also accept relative paths and its own host. */
-function isReturnAddress(value: unknown, trustedOrigins: readonly string[]) {
+/**
+ * Absolute and on a trusted web origin or one of the app schemes (`soonlane:`), whose URLs all have the origin `null`.
+ * Better Auth itself would also accept relative paths and its own host.
+ */
+function isReturnAddress(
+	value: unknown,
+	trustedOrigins: readonly string[],
+	appSchemes: readonly string[]
+) {
+	const url = typeof value === 'string' ? URL.parse(value) : null
+
 	return (
-		typeof value === 'string' &&
-		URL.canParse(value) &&
-		trustedOrigins.includes(new URL(value).origin)
+		url !== null &&
+		(trustedOrigins.includes(url.origin) || appSchemes.includes(url.protocol))
 	)
 }
 
 /**
  * Refuses with 400 any request whose return address (every body field Better
  * Auth redirects to, and each query `callbackURL`) is not an absolute URL on a
- * trusted web origin, and a provider sign-in or link without a body `callbackURL`. It runs
- * before Better Auth routes the request, so its own checks never answer first.
+ * trusted web origin or, on a sign-in, an app scheme (`appSchemes`, such as
+ * `soonlane:`), and a provider sign-in or link without a body `callbackURL`.
+ * It runs before Better Auth routes the request, so its own checks never
+ * answer first.
  */
-export function returnAddresses(trustedOrigins: readonly string[]) {
+export function returnAddresses(
+	trustedOrigins: readonly string[],
+	appSchemes: readonly string[]
+) {
 	return {
 		id: 'return-addresses',
 		onRequest: async (request, context) => {
@@ -73,21 +88,25 @@ export function returnAddresses(trustedOrigins: readonly string[]) {
 				...url.searchParams.getAll('callbackURL'),
 			]
 			const basePath = new URL(context.baseURL).pathname
+			const isOn = (paths: readonly string[]) =>
+				paths.some(path => url.pathname === `${basePath}${path}`)
 			const isMissingCallback =
-				PROVIDER_REDIRECT_PATHS.some(
-					path => url.pathname === `${basePath}${path}`
-				) && readField(body, 'callbackURL').length === 0
+				isOn(PROVIDER_REDIRECT_PATHS) &&
+				readField(body, 'callbackURL').length === 0
+			const schemes = isOn(APP_SIGN_IN_PATHS) ? appSchemes : []
 
 			if (
 				isMissingCallback ||
-				!addresses.every(value => isReturnAddress(value, trustedOrigins))
+				!addresses.every(value =>
+					isReturnAddress(value, trustedOrigins, schemes)
+				)
 			)
 				return {
 					response: Response.json(
 						{
 							code: 'INVALID_RETURN_ADDRESS',
 							message:
-								'Return addresses must be absolute URLs on a trusted origin.',
+								'Return addresses must be absolute URLs on a trusted origin, or the app scheme on a sign-in.',
 						},
 						{ status: 400 }
 					),

@@ -42,6 +42,8 @@ The `api` service:
 
 Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=4000`, `APP_ENV=development`, `API_URL=http://localhost:4000`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, `AUTH_COOKIE_PREFIX=soonlane-dev` and no `AUTH_COOKIE_DOMAIN` (localhost cookies reach every port), any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
 
+The mobile app's sign-in returns to `soonlane://` in every environment; only `APP_ENV=development` also accepts Expo Go's `exp://`. A local API takes requests without `X-Real-IP` as coming from `127.0.0.1`, so a development build on the Simulator can sign in against it; a physical iPhone cannot reach the Mac's localhost, so a build on the phone signs in against staging's API.
+
 ## Web app
 
 `apps/web` builds one Bun server for the landing, the blog, the changelog, the legal pages and the app under `/app`. `bun run --cwd apps/web build` writes it to `apps/web/.output` with Nitro's `bun` preset: `server/index.mjs` and `public/` (Vite's assets, the files of `apps/web/public` and the prerendered pages). `bun run --cwd apps/web start` runs `bun .output/server/index.mjs`, which listens on `PORT` (3000 without it). It needs Bun 1.4; Bun 1.3 cannot parse the bundled router. The build ends with `apps/web/scripts/check-server.ts`: it starts the built server from a copy outside the repo, so nothing resolves from the workspace's `node_modules`, and fails the build unless robots answer per host and gzipped, a prerendered page is read from disk and comes gzipped with `no-cache`, an existing asset comes as its brotli copy and immutable, a missing one is a 404 with `no-store`, and `/health` answers.
