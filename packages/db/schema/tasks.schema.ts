@@ -9,6 +9,7 @@ import {
 	GOAL_TARGET_MAX,
 	GOAL_UNIT_MAX_LENGTH,
 	type ProjectId,
+	SUBTASK_DEPTH_MAX,
 	type TaskId,
 	type TaskPriority,
 	type UserId,
@@ -26,6 +27,7 @@ import {
 	text,
 	time,
 	timestamp,
+	uniqueIndex,
 	uuid,
 } from 'drizzle-orm/pg-core'
 import { user } from './auth.schema'
@@ -33,6 +35,7 @@ import { project } from './projects.schema'
 
 export const TASK_PROJECT_FOREIGN_KEY = 'task_project_id_project_id_fkey'
 export const TASK_DURATION_DUE_TIME_CHECK = 'task_duration_due_time'
+export const TASK_PARENT_FOREIGN_KEY = 'task_parent_fkey'
 
 function toSqlList(values: readonly string[]) {
 	return sql.raw(values.map(value => `'${value}'`).join(', '))
@@ -72,6 +75,9 @@ export const task = pgTable(
 		// The current occurrence's progress, so repeating can reset it with the due date.
 		goalProgress: integer('goal_progress').notNull().default(0),
 		projectId: uuid('project_id').$type<ProjectId>(),
+		parentId: uuid('parent_id').$type<TaskId>(),
+		// Written once at insert: subtasks never move, so it cannot go stale.
+		depth: smallint('depth').notNull().default(0),
 	},
 	table => [
 		index('task_owner_due_idx').on(table.ownerId, table.dueDate),
@@ -81,6 +87,22 @@ export const task = pgTable(
 			columns: [table.projectId],
 			foreignColumns: [project.id],
 		}).onDelete('set null'),
+		uniqueIndex('task_owner_id_key').on(table.ownerId, table.id),
+		index('task_owner_parent_idx').on(table.ownerId, table.parentId),
+		// Carries the owner, so a subtask can never sit under another owner's task.
+		foreignKey({
+			name: TASK_PARENT_FOREIGN_KEY,
+			columns: [table.ownerId, table.parentId],
+			foreignColumns: [table.ownerId, table.id],
+		}).onDelete('cascade'),
+		check(
+			'task_depth_range',
+			sql`${table.depth} between 0 and ${sql.raw(String(SUBTASK_DEPTH_MAX))}`
+		),
+		check(
+			'task_parent_depth',
+			sql`(${table.parentId} is null) = (${table.depth} = 0)`
+		),
 		check('task_priority_range', sql`${table.priority} between 1 and 4`),
 		check(
 			'task_duration_range',

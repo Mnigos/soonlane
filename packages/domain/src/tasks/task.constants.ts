@@ -11,3 +11,7 @@ export const GOAL_UNIT_MAX_LENGTH = 24
 export const TASK_SEARCH_QUERY_MAX_LENGTH = 100
 export const DURATION_MINUTES_MIN = 5
 export const DURATION_MINUTES_MAX = 1440
+/** Levels of subtasks below a top-level task, which sits at depth 0. */
+export const SUBTASK_DEPTH_MAX = 4
+/** Direct subtasks of one task, completed ones included. */
+export const SUBTASKS_PER_TASK_MAX = 50
