@@ -1,6 +1,6 @@
 # Analytics
 
-Soonlane sends product analytics, session replays and exceptions to PostHog (EU cloud, project 337571). Everything is optional: without `VITE_POSTHOG_KEY` in the web app nothing is loaded and no consent banner appears, and without `POSTHOG_KEY` on the API no server event or exception is sent. With a key, what is sent depends on each visitor's answer ([Consent](#consent)). Soonlane is a public product: anyone can sign in with Google, so nothing here assumes one user.
+Soonlane sends product analytics, session replays and exceptions to PostHog (EU cloud, project 337571). Everything is optional: without `VITE_POSTHOG_KEY` in the web app nothing is loaded and no consent banner appears, without `EXPO_PUBLIC_POSTHOG_KEY` in the iPhone app nothing is asked or sent, and without `POSTHOG_KEY` on the API no server event or exception is sent. With a key, what is sent depends on each visitor's answer ([Consent](#consent)). Soonlane is a public product: anyone can sign in with Google, so nothing here assumes one user.
 
 ## Layout
 
@@ -10,7 +10,7 @@ The browser half lives in `packages/analytics` (`@soonlane/analytics`), so the a
 - `@soonlane/analytics/client`: the posthog-js client (`trackRouter`, `capture`, `captureException`, `applyConsent`, `resetAnalytics`) and the PostHog configuration.
 - `@soonlane/analytics/components/*`: `ConsentProvider` (with the banner and the Privacy choices dialog) and `PrivacyChoicesButton`; `@soonlane/analytics/consent-copy` holds their text.
 
-Each app passes what only it knows. `trackRouter(router, options)` takes the PostHog key, the build properties, the private routes typed against the app's own route tree, and how to find the signed-in user; `ConsentProvider` takes `isAnalyticsEnabled`. In `apps/web` these live in `modules/analytics/presentation/browser-analytics.constants.ts` and `routes/__root.tsx`. The server half lives in the apps: the server events (`ServerEvents`), the `Analytics` port and `PostHogAnalyticsLive` in `apps/api/src/modules/analytics`, the `/ingest` proxy in `apps/web/src/modules/analytics`.
+Each app passes what only it knows. `trackRouter(router, options)` takes the PostHog key, the build properties, the private routes typed against the app's own route tree, and how to find the signed-in user; `ConsentProvider` takes `isAnalyticsEnabled`. In `apps/web` these live in `modules/analytics/presentation/browser-analytics.constants.ts` and `routes/__root.tsx`. The iPhone app (`apps/mobile`) uses `posthog-react-native` instead, in `src/modules/analytics` ([iPhone app](#iphone-app)); it shares the event types, the consent types and `toSnakeCaseKeys` from `@soonlane/analytics`. The server half lives in the apps: the server events (`ServerEvents`), the `Analytics` port and `PostHogAnalyticsLive` in `apps/api/src/modules/analytics`, the `/ingest` proxy in `apps/web/src/modules/analytics`.
 
 ## Naming
 
@@ -20,13 +20,13 @@ Code writes property keys in camelCase (`dueInDays`), and `capture` on both side
 
 ## Events
 
-Each event has one source. The server sends what only the database knows; the browser sends the rest, because only the browser knows the local day, the entry point and the UI choice. Events fire from event handlers and mutation callbacks, never from render.
+Each event has one source. The server sends what only the database knows; the browser sends the rest, because only the browser knows the local day, the entry point and the UI choice. The iPhone app sends the same client events from its screens, through the `capture` it hands to `provideHostPorts`; `platform: ios` tells them apart. Events fire from event handlers and mutation callbacks, never from render.
 
 | Event                    | Fires when                                                                                               | Source | Properties                                                                                     |
 | ------------------------ | -------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------- |
 | `user_signed_up`         | Better Auth creates the user (the first sign-in only)                                                    | server | `$set_once`: `created_at`, `signup_date`                                                       |
 | `user_signed_in`         | Better Auth creates a session                                                                            | server | `method`: `google` \| `desktop`                                                                |
-| `user_signed_out`        | sign-out succeeds, before `reset()`                                                                      | client | none                                                                                           |
+| `user_signed_out`        | sign-out succeeds, before `reset()` (on the iPhone when sign-out starts, which always ends the session on the phone) | client | none                                                                                           |
 | `first_task_created`     | a user's first task is inserted                                                                          | server | `task_id`                                                                                      |
 | `todoist_imported`       | an import from Todoist commits                                                                           | server | `tasks`, `changed_tasks`, `new_labels`, `new_projects` (counts only)                            |
 | `desktop_shell_opened`   | the web app loads inside the desktop window                                                              | client | none (`app_version` comes with every event)                                                    |
@@ -42,7 +42,7 @@ Each event has one source. The server sends what only the database knows; the br
 | `upcoming_day_navigated` | the Upcoming arrows, the today button or a week strip day is clicked                                     | client | `direction`: `next` \| `previous` \| `today` \| `strip`, `distance_days`                       |
 | `upcoming_range_loaded`  | the Upcoming list appends weeks                                                                          | client | `weeks_loaded`, `trigger`: `scroll` \| `navigation`                                            |
 | `sidebar_toggled`        | the user expands or collapses the sidebar                                                                | client | `state`: `expanded` \| `collapsed`, `mode`: `docked` \| `overlay`                              |
-| `consent_updated`        | an analytics answer is applied (after the switch, so a denial goes out cookieless)                      | client | `analytics`: `granted` \| `denied`, `source`: `banner` \| `settings` \| `gpc`                  |
+| `consent_updated`        | an analytics answer is applied (after the switch, so a denial goes out cookieless)                      | client | `analytics`: `granted` \| `denied`, `source`: `banner` \| `prompt` \| `settings` \| `gpc`                |
 | `calendar_subscription_created` | Create link or Create new link in the Calendar subscription dialog succeeds                    | client | `replaced`: whether a link existed before (never the link or its token)                        |
 | `calendar_subscription_revoked` | Revoke link in the Calendar subscription dialog succeeds                                         | client | none                                                                                           |
 | `tasks_searched`         | the first result of a search query arrives (not the refetches after a change)                           | client | `result_count` (never the query, its length or its words)                                      |
@@ -62,7 +62,7 @@ Details:
 - `distance_days` is the number of days between the active day before the click and the target day. Passive scrolling is not navigation.
 - `weeks_loaded` is the Upcoming list's week count after the append (8 at first, plus 4 per append). `trigger: navigation` is the next arrow stepping past the last rendered day.
 - `sidebar_toggled` counts the user's clicks only: the docked sidebar from `xl`, and the overlay below it (open button, collapse button, backdrop). The overlay closing on navigation or on Add task is not counted.
-- `consent_updated` with `source: gpc` fires once per page load in a browser that sends Global Privacy Control and has no stored answer; count the opt-in rate from `banner` and `settings` only. A choice made on a `/desktop/*` screen is applied at the next page outside them and sends no `consent_updated`. The dialog's Save is `settings`, even when the banner opened it.
+- `consent_updated` with `source: gpc` fires once per page load in a browser that sends Global Privacy Control and has no stored answer; count the opt-in rate from `banner` and `settings` only. A choice made on a `/desktop/*` screen is applied at the next page outside them and sends no `consent_updated`. The dialog's Save is `settings`, even when the banner opened it. `prompt` is the iPhone app's first question; only its Accept is sent, because a Reject there leaves PostHog unstarted. The iPhone's Settings switch is `settings`, and turning it off sends the denial as the last event before the SDK stops.
 
 ## Identity
 
@@ -70,11 +70,14 @@ Details:
 - Sign-out sends `user_signed_out`, then calls `reset()`, opts in again (because `reset()` also clears the SDK's stored consent) and registers the super properties again, so the next account on the same device starts as a new anonymous visitor.
 - Deleting the account does the same reset without `user_signed_out`.
 - With analytics denied there is no identity: every browser event carries PostHog's cookieless sentinel id, `$cookieless_mode` and `$process_person_profile: false`, and PostHog derives a daily-rotating hash server-side. `internal_or_test_user_hostname: null` turns off the SDK's default test-user mark on localhost, which would set a person property and turn person processing on; the `environment` super property marks development traffic instead. Sign-out sends `user_signed_out` and resets nothing.
+- The iPhone app gives PostHog `user.id` and nothing else about the user: `identify(user.id)` without email or name, never the session ([ADR 0017](decisions/0017-expo-mobile-app.md)). It keeps nothing on the phone, so each launch starts a new anonymous id, which `identify` merges into the person. When the session ends or changes user (sign-out, account deletion, an expired session), it calls `reset()` and registers the super properties again; sign-out sends `user_signed_out` first, deletion does not.
 - Server events use the user id as the distinct id. The system browser and the desktop window have separate anonymous ids that meet at the same person once both identify.
 
 ## Super properties
 
 Every event the app captures carries `app_version` (`version.json`), `commit`, `platform` (`web` or `desktop`, from `<html data-shell="desktop">`), `surface` (`blog` on `/blog` and its posts; `landing` on the other public site routes under the `/_site` layout: `/`, `/changelog`, `/privacy`, `/terms`; `app` everywhere else, the app under `/app`, `/login` and the desktop screens), `environment` (`production`, `staging` or `development`, from `APP_ENV` at build time), `timezone` and `route` (the matched route id, such as `/_session/app/today` or `/_site/privacy`). `route` and `surface` are registered before `identify` and before each `$pageview`, and again with the rest after `reset()`, opting in or out, so exceptions carry it too. The SDK's own internal events (`$set`, replay `$snapshot` envelopes) do not carry super properties. Server events carry `app_version`, `commit` and `environment`.
+
+The iPhone app's events carry `app_version` (the `version` in `apps/mobile/app.json`), `environment` (`EXPO_PUBLIC_APP_ENV`, set per EAS profile: `development`, `staging` for preview, `production`), `platform: ios`, `surface: app` and `timezone`; no `commit` and no `route`, because it sends no screens.
 
 ## Consent
 
@@ -126,6 +129,20 @@ Privacy choices, in the user menu, in the public site's footer and below the sig
 - **Grant**: `opt_in_capturing()` leaves the cookieless mode, starts the persistent id and replay, then `identify` when signed in.
 - **Withdraw**: `opt_out_capturing()` stops and discards replay, resets the identity to the cookieless sentinel (the SDK's own reset), and then every `ph_*` and `__ph_*` key and `_postHogToolbarParams` in localStorage and sessionStorage is removed, as are `ph_*` cookies an older build left (host-only and for the host's domain). Events continue cookieless.
 
+### iPhone app
+
+The app asks once per phone, after the first sign-in (or at the first launch of this version when already signed in), in an iOS alert with Reject and Accept of equal weight that cannot be dismissed without an answer. The answer is kept in the Keychain (`analytics-consent`: `granted` or `denied`), so it stays across sign-outs and reinstalls and applies to whoever signs in on that phone. Settings has an Analytics switch that changes it.
+
+| | No answer yet | Granted | Denied |
+| --- | --- | --- | --- |
+| posthog-react-native | not started | running | not started; stopped after a withdrawal |
+| Events | none | the client events, identified by `user.id` | none (a withdrawal's own `consent_updated` is the last) |
+| Session replay, screens, touches, lifecycle events, exceptions, surveys, flags | none | none | none |
+| Server events | none | none, because the API reads the browser's consent cookie, which the app does not send | none |
+| Stored on the phone | nothing | the answer only: the SDK runs with `persistence: 'memory'` | the answer only |
+
+After a grant the SDK also fetches its remote config (`eu-assets.i.posthog.com/array/<key>/config`, no user data). It never reads the launch URL: only its app lifecycle events do, and they are off. Without `EXPO_PUBLIC_POSTHOG_KEY` there is no question and no switch.
+
 ### Copy
 
 The text lives in `packages/analytics/src/consent-copy.constants.ts`.
@@ -144,6 +161,19 @@ Privacy choices dialog:
 > **Analytics** · switch
 > Usage analytics linked to your account and session replays with your tasks, inputs, name and email hidden. When off, we count pages, actions and errors anonymously, without cookies.
 > Privacy policy · [Save]
+
+The iPhone app's text lives in `apps/mobile/src/modules/analytics/presentation/analytics-copy.constants.ts`; it reuses the web's title, buttons and switch label.
+
+First launch alert:
+
+> **Help improve Soonlane**
+> Can we link usage analytics for actions you take to your account, without your tasks, projects, labels, name, or email? If you reject, we send nothing, and you can change this in Settings.
+> [Reject] [Accept]
+
+Settings:
+
+> **Analytics** · switch
+> Usage analytics for actions you take, linked to your account without your tasks, projects, labels, name, or email. When off, we send no analytics.
 
 The dialog's Privacy policy link opens `/privacy` and closes the dialog. The banner does not link to it, so Reject and Accept stay its only actions besides Privacy choices.
 
@@ -194,7 +224,7 @@ Without `VITE_POSTHOG_KEY`:
 - Date picker choice mix: `date_picker_used` by `choice`, and `task_created` by `due_in_days`.
 - Desktop adoption: `user_signed_in` by `method`, events by `platform`.
 - Errors by `route` and `app_version`.
-- Consent: `consent_updated` by `analytics` and `source`. Identified insights (funnels, retention, server events) cover only visitors who granted analytics; cookieless events give the anonymous totals.
+- Consent: `consent_updated` by `analytics` and `source` (`prompt` counts the iPhone's grants only). Identified insights (funnels, retention, server events) cover only visitors who granted analytics; cookieless events give the anonymous totals.
 
 ## Follow-ups
 
