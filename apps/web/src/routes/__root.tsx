@@ -9,8 +9,8 @@ import {
 import type { PropsWithChildren } from 'react'
 import { LayoutError } from '@/components/route-error'
 import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/domain/analytics.constants'
+import { SITE_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
 import { AUTH_COOKIE_PREFIX } from '@/modules/identity/presentation/auth-cookie.constants'
-import { SIGNED_IN_HINT_SCRIPT } from '@/modules/site/presentation/helpers/signed-in-hint.helper'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
 
@@ -26,7 +26,6 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 			{ rel: 'stylesheet', href: appCss },
 			{ rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
 		],
-		scripts: [{ children: SIGNED_IN_HINT_SCRIPT }],
 	}),
 	component: RootComponent,
 	errorComponent: RootError,
@@ -38,7 +37,7 @@ function RootComponent() {
 			<ConsentProvider
 				cookiePrefix={AUTH_COOKIE_PREFIX}
 				isAnalyticsEnabled={IS_ANALYTICS_ENABLED}
-				privacyPolicyPath="/site/privacy"
+				privacyPolicyUrl={`${SITE_ORIGIN}/privacy`}
 			>
 				<Outlet />
 			</ConsentProvider>
@@ -56,7 +55,7 @@ function RootError(props: Readonly<ErrorComponentProps>) {
 
 function RootDocument({ children }: Readonly<PropsWithChildren>) {
 	return (
-		// The desktop shell and the signed-in hint script set data attributes on <html> before hydration.
+		// The desktop shell sets a data attribute on <html> before hydration.
 		<html lang="en" suppressHydrationWarning>
 			<head>
 				<HeadContent />

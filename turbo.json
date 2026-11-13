@@ -15,7 +15,6 @@
         "APP_ENV",
         "VITE_POSTHOG_KEY",
         "VITE_API_URL",
-        "VITE_APP_URL",
         "VITE_SITE_URL",
         "VITE_AUTH_COOKIE_PREFIX"
       ]

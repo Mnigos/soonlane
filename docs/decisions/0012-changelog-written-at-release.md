@@ -44,5 +44,5 @@ Features that ship over several PRs will make this worse. The Apple Calendar syn
 ## Related
 
 - `docs/release.md`, `.github/workflows/release.yml`, `scripts/release.ts`, `cliff.toml`
-- `apps/web/src/modules/changelog`
+- `apps/site/src/modules/changelog`
 - `ARCHITECTURE.md`: Decision records

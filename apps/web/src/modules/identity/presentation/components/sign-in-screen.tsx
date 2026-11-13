@@ -1,10 +1,11 @@
 import type { GoogleSignInRedirects } from '@soonlane/auth/client'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
-import { TermsAgreement } from '@/modules/site/presentation/components/terms-agreement'
+import { SITE_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 import { SignInLayout } from './sign-in-layout'
 
 const LOGIN_REDIRECTS = { callbackURL: '/', errorCallbackURL: '/login' }
+const LEGAL_LINK_CLASS = 'text-foreground underline underline-offset-2'
 
 interface SignInScreenProps {
 	oauthError?: string
@@ -39,7 +40,17 @@ export function SignInScreen({
 					redirects={redirects}
 				/>
 
-				<TermsAgreement />
+				<p className="text-caption text-muted-foreground">
+					By continuing you agree to the{' '}
+					<a className={LEGAL_LINK_CLASS} href={`${SITE_ORIGIN}/terms`}>
+						Terms
+					</a>{' '}
+					and the{' '}
+					<a className={LEGAL_LINK_CLASS} href={`${SITE_ORIGIN}/privacy`}>
+						Privacy Policy
+					</a>
+					.
+				</p>
 			</div>
 
 			{oauthError && (

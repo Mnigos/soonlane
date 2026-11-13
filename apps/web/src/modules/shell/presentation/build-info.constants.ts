@@ -1,6 +1,5 @@
-import { getReleaseAnchor } from '@/modules/changelog/domain/release-anchor.helper'
+import { getReleaseAnchor, RELEASES_URL } from '@soonlane/domain'
 import { SITE_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
-import { RELEASES_URL } from '@/modules/site/presentation/site.constants'
 
 export const { APP_VERSION } = import.meta.env
 export const { APP_COMMIT } = import.meta.env
