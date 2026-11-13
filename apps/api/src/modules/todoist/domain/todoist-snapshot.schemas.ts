@@ -7,6 +7,8 @@ const nullable = <TSchema extends Schema.Top>(schema: TSchema) =>
 const dueSchema = Schema.Struct({
 	date: Schema.String,
 	is_recurring: Schema.Boolean,
+	string: nullable(Schema.String),
+	lang: nullable(Schema.String),
 	timezone: nullable(Schema.String),
 })
 

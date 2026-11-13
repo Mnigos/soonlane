@@ -6,9 +6,15 @@ import {
 	task,
 	taskLabel,
 } from '@soonlane/db'
-import { type CalendarDate, taskIdSchema, type UserId } from '@soonlane/domain'
+import {
+	type CalendarDate,
+	type RepeatRule,
+	taskIdSchema,
+	type UserId,
+} from '@soonlane/domain'
 import { eq } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
+import { toRepeatColumns } from '@/modules/tasks/infrastructure/task.mapper'
 import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
 import type { LabelDraft, TaskDraft } from '../domain/todoist-import.helper'
@@ -16,6 +22,7 @@ import type { LabelDraft, TaskDraft } from '../domain/todoist-import.helper'
 export interface ImportedTask extends Omit<TaskDraft, 'due'> {
 	dueDate?: CalendarDate
 	dueTime?: string
+	repeat?: RepeatRule
 }
 
 export interface TodoistImport {
@@ -145,6 +152,7 @@ export const ImportedTodoistTaskRepositoryLive = Layer.effect(
 										dueDate: draft.dueDate ?? null,
 										dueTime: draft.dueTime ?? null,
 										priority: draft.priority,
+										...toRepeatColumns(draft.repeat),
 										projectId: draft.projectName
 											? (projectIds.get(draft.projectName.toLowerCase()) ??
 												null)
