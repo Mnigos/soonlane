@@ -2,7 +2,7 @@
 
 Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Inbox, Upcoming, Today and Labels; no projects, filters or reporting. See [PRODUCT.md](PRODUCT.md).
 
-Production: https://soonlane.com
+Production: the app at https://app.soonlane.com, the site at https://soonlane.com
 
 ## Monorepo
 
@@ -33,7 +33,7 @@ bun run db:migrate
 bun run dev
 ```
 
-The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expects it).
+The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expects it). The same server shows the public site on any other host name, such as http://127.0.0.1:3000 (`VITE_APP_URL` and `VITE_SITE_URL` change the two, docs/deploy-railway.md).
 
 ## Scripts
 
@@ -51,7 +51,7 @@ Run with `bun run <script>` from the root.
 
 ## Desktop
 
-`apps/desktop` is an Electrobun app on its own bundled UI (ADR 0015): `bun run view` builds the page from `@soonlane/app` with Vite into `dist/view`, which the app serves as `views://app`. The build bakes in `APP_URL` (the web app, where the browser signs in) and `API_URL`. From `apps/desktop`: `bun run dev` builds the page and opens the app against the dev servers on ports 3000 and 4000, `APP_URL=https://soonlane.com API_URL=https://api.soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without both), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`). Sign-in returns to the app through a loopback port, so it works from any folder.
+`apps/desktop` is an Electrobun app on its own bundled UI (ADR 0015): `bun run view` builds the page from `@soonlane/app` with Vite into `dist/view`, which the app serves as `views://app`. The build bakes in `APP_URL` (the web app, where the browser signs in) and `API_URL`. From `apps/desktop`: `bun run dev` builds the page and opens the app against the dev servers on ports 3000 and 4000, `APP_URL=https://app.soonlane.com API_URL=https://api.soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without both), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`). Sign-in returns to the app through a loopback port, so it works from any folder.
 
 ## Commits
 
