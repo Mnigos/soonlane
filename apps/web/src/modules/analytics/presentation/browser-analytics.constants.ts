@@ -12,8 +12,8 @@ export const BROWSER_ANALYTICS_OPTIONS = {
 	// Label and project names are user content and a calendar link's token (on the API host) is a secret.
 	privateRoutes: [
 		...([
-			'/app/labels/$name',
-			'/app/projects/$name',
+			'/labels/$name',
+			'/projects/$name',
 		] satisfies (keyof FileRoutesByFullPath)[]),
 		'/calendar/{$token}.ics',
 	],

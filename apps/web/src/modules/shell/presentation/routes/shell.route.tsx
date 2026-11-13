@@ -29,7 +29,7 @@ const shellSearchSchema = z.object({
 	error: z.string().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/_session/app')({
+export const Route = createFileRoute('/_session/_shell')({
 	validateSearch: shellSearchSchema,
 	beforeLoad: ({ context }) => {
 		if (!context.me.user) throw redirect({ to: '/login' })
@@ -54,11 +54,11 @@ function ShellRoute() {
 	const { deleteAccount, error } = Route.useSearch()
 	const activePath = useLocation({ select: location => location.pathname })
 	const labelMatch = useMatch({
-		from: '/_session/app/labels/$name',
+		from: '/_session/_shell/labels/$name',
 		shouldThrow: false,
 	})
 	const projectMatch = useMatch({
-		from: '/_session/app/projects/$name',
+		from: '/_session/_shell/projects/$name',
 		shouldThrow: false,
 	})
 
@@ -73,7 +73,6 @@ function ShellRoute() {
 						user={user}
 					/>
 				),
-				homePath: '/',
 				appVersion: APP_VERSION,
 				appCommit: APP_COMMIT,
 				releaseNotesUrl: RELEASE_NOTES_URL,

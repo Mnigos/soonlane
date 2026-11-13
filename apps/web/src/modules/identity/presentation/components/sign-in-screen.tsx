@@ -4,7 +4,7 @@ import { TermsAgreement } from '@/modules/site/presentation/components/terms-agr
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 import { SignInLayout } from './sign-in-layout'
 
-const LOGIN_REDIRECTS = { callbackURL: '/app', errorCallbackURL: '/login' }
+const LOGIN_REDIRECTS = { callbackURL: '/', errorCallbackURL: '/login' }
 
 interface SignInScreenProps {
 	oauthError?: string

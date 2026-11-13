@@ -6,11 +6,11 @@ export function TermsAgreement() {
 	return (
 		<p className="text-caption text-muted-foreground">
 			By continuing you agree to the{' '}
-			<Link className={LEGAL_LINK_CLASS} to="/terms">
+			<Link className={LEGAL_LINK_CLASS} to="/site/terms">
 				Terms
 			</Link>{' '}
 			and the{' '}
-			<Link className={LEGAL_LINK_CLASS} to="/privacy">
+			<Link className={LEGAL_LINK_CLASS} to="/site/privacy">
 				Privacy Policy
 			</Link>
 			.

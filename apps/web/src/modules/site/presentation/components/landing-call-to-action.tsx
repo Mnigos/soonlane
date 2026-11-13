@@ -11,7 +11,7 @@ export function LandingCallToAction() {
 					buttonVariants({ size: 'lg' }),
 					'signed-in:inline-flex hidden'
 				)}
-				to="/app"
+				to="/"
 			>
 				Open app
 			</Link>

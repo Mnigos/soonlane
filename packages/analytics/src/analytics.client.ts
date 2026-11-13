@@ -12,8 +12,8 @@ import { toSnakeCaseKeys } from './utils/snake-case-keys.util'
 
 /** The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there. */
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
-const SITE_LAYOUT_ROUTE_ID = '/_site'
-const BLOG_ROUTE_ID_PREFIX = '/_site/blog'
+const SITE_LAYOUT_ROUTE_ID = '/site'
+const BLOG_ROUTE_ID_PREFIX = '/site/blog'
 
 interface AnalyticsUser {
 	id: string
@@ -28,7 +28,7 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 		SuperProperties,
 		'appVersion' | 'commit' | 'environment'
 	>
-	/** Route paths (`/app/labels/$name`) whose params are user content or a secret, sent as `:name`. */
+	/** Route paths (`/labels/$name`) whose params are user content or a secret, sent as `:name`. */
 	privateRoutes: readonly string[]
 	/** The environment's cookie prefix, which names the consent cookie and PostHog's cookies. */
 	cookiePrefix: string

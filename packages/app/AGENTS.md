@@ -5,7 +5,7 @@
 - Call the API through `orpcQuery` (`@soonlane/app/rpc-query`). The host app hands over its oRPC link once at startup with `provideRpcLink`; the link keeps any per-visitor state.
 - Toasts, analytics events and the app resuming go through `getHostPorts()` (`@soonlane/app/host-ports`), which the host app fills once at startup with `provideHostPorts`; never import `sonner` or `@soonlane/analytics/client` here.
 - The data hooks and helpers the mobile app uses (task, label and project queries and mutations, their helpers, `useToday`) stay DOM-free: no DOM globals, `@soonlane/ui`, TanStack Router, `react-dom`, `lucide-react` or `.tsx` imports, directly or through another file ([ADR 0017](../../docs/decisions/0017-expo-mobile-app.md)).
-- What only the host knows (the user menu with sign-out and account actions, the home path, build info, the release notes link) comes from `useHostApp()`; the host renders `HostAppContext` around the screens.
+- What only the host knows (the user menu with sign-out and account actions, build info, the release notes link) comes from `useHostApp()`; the host renders `HostAppContext` around the screens.
 - Link to app views only through `APP_PATHS`, which both host apps' route trees serve.
 - Lay out code like the web app's `presentation/` folders: `src/modules/<module>/{components,hooks,helpers}`, with the repo's file-role names. No barrel; consumers import through the export map.
 - The web app's component rules apply here too: `Readonly<Props>`, router state only as props, no `useEffect` outside `use-*.ts` hooks, `useToday()` for dates.

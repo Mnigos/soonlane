@@ -23,7 +23,7 @@ export function DeleteAccountDialog({
 	const reopenURL = router.buildLocation({
 		to: '.',
 		search: { deleteAccount: true },
-	}).href
+	}).publicHref
 	const needsFreshSignIn = Boolean(reauthError) || data?.needsFreshSignIn
 
 	return (

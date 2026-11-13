@@ -2,7 +2,7 @@ import { sendToDesktopHost } from '@soonlane/app/shell/helpers/desktop-host.help
 import { QuickAddPage } from '@soonlane/app/tasks/components/quick-add-page'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_session/app/quick-add')({
+export const Route = createFileRoute('/_session/quick-add')({
 	// Client-only so the signed-out guard can tell the desktop app to close the window.
 	ssr: false,
 	beforeLoad: ({ context }) => {

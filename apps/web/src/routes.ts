@@ -1,7 +1,7 @@
 import { index, layout, rootRoute, route } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('routes/__root.tsx', [
-	layout('site', 'modules/site/presentation/routes/site.route.tsx', [
+	route('/site', 'modules/site/presentation/routes/site.route.tsx', [
 		index('modules/site/presentation/routes/home.route.tsx'),
 		route(
 			'/changelog',
@@ -13,7 +13,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 		route('/blog/$slug', 'modules/blog/presentation/routes/post.route.tsx'),
 	]),
 	layout('session', 'modules/identity/presentation/routes/session.route.tsx', [
-		route('/app', 'modules/shell/presentation/routes/shell.route.tsx', [
+		layout('shell', 'modules/shell/presentation/routes/shell.route.tsx', [
 			index('modules/tasks/presentation/routes/upcoming.route.tsx'),
 			route('/inbox', 'modules/tasks/presentation/routes/inbox.route.tsx'),
 			route('/today', 'modules/tasks/presentation/routes/today.route.tsx'),
@@ -36,7 +36,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 			),
 		]),
 		route(
-			'/app/quick-add',
+			'/quick-add',
 			'modules/tasks/presentation/routes/quick-add.route.tsx'
 		),
 		route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
@@ -49,10 +49,15 @@ export const routes = rootRoute('routes/__root.tsx', [
 			'modules/identity/presentation/routes/desktop-callback.route.tsx'
 		),
 	]),
-	route('/today', 'modules/shell/presentation/routes/legacy-today.route.tsx'),
 	route('/robots[.]txt', 'modules/site/presentation/routes/robots.route.ts'),
-	route('/sitemap[.]xml', 'modules/site/presentation/routes/sitemap.route.ts'),
-	route('/blog/rss[.]xml', 'modules/blog/presentation/routes/rss.route.ts'),
+	route(
+		'/site/sitemap[.]xml',
+		'modules/site/presentation/routes/sitemap.route.ts'
+	),
+	route(
+		'/site/blog/rss[.]xml',
+		'modules/blog/presentation/routes/rss.route.ts'
+	),
 	route('/ingest/$', 'modules/analytics/presentation/routes/ingest.$.route.ts'),
 	route('/health', 'modules/hosting/presentation/routes/health.route.ts'),
 ])

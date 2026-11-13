@@ -7,7 +7,7 @@ const todoistSearchSchema = z.object({
 	error: z.string().optional().catch(undefined),
 })
 
-export const Route = createFileRoute('/_session/app/todoist')({
+export const Route = createFileRoute('/_session/_shell/todoist')({
 	validateSearch: todoistSearchSchema,
 	head: () => ({ meta: [{ title: `${TODOIST_COPY.introTitle} · Soonlane` }] }),
 	component: TodoistRoute,
