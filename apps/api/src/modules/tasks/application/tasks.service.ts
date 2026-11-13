@@ -1,4 +1,5 @@
 import type {
+	CompleteTaskOutput,
 	CreateTaskInput,
 	EditTaskInput,
 	ListCompletedTasksInput,
@@ -95,7 +96,7 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			id: TaskId,
 			seen: CompletionDates
-		) => Effect.Effect<Task, TaskNotFound | DbError>
+		) => Effect.Effect<CompleteTaskOutput, TaskNotFound | DbError>
 		readonly uncomplete: (
 			ownerId: UserId,
 			id: TaskId,
@@ -280,7 +281,7 @@ export const TasksServiceLive = Layer.effect(
 			yield* requireTask(yield* repository.delete({ ownerId, id }))
 		})
 
-		// A repeating task stays open and moves to its next occurrence instead.
+		// A repeating task stays open and moves to its next occurrence instead; a task completed before keeps its own stamp.
 		const complete = Effect.fn('TasksService.complete')(function* (
 			ownerId: UserId,
 			id: TaskId,
@@ -291,10 +292,14 @@ export const TasksServiceLive = Layer.effect(
 
 			if (!advance) {
 				const completedAt = new Date(yield* Clock.currentTimeMillis)
-
-				return yield* requireTask(
+				const completed = yield* requireTask(
 					yield* repository.setCompletion({ ownerId, id, completedAt })
 				)
+
+				return {
+					task: completed,
+					changed: completed.completedAt?.getTime() === completedAt.getTime(),
+				}
 			}
 
 			const advanced = yield* repository.advanceDueDate({
@@ -303,10 +308,12 @@ export const TasksServiceLive = Layer.effect(
 				...advance,
 			})
 
-			return (
-				advanced ??
-				(yield* requireTask(yield* repository.find({ ownerId, id })))
-			)
+			if (advanced) return { task: advanced, changed: true }
+
+			return {
+				task: yield* requireTask(yield* repository.find({ ownerId, id })),
+				changed: false,
+			}
 		})
 
 		const uncomplete = Effect.fn('TasksService.uncomplete')(function* (

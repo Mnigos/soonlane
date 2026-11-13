@@ -79,9 +79,7 @@ export const tasksRouter = {
 	}) {
 		const tasksService = yield* TasksService
 
-		return {
-			task: yield* tasksService.complete(context.user.id, input.id, input),
-		}
+		return yield* tasksService.complete(context.user.id, input.id, input)
 	}),
 	uncomplete: os.tasks.uncomplete.use(requireUser).effect(function* ({
 		context,
