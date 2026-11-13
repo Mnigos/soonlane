@@ -1,4 +1,5 @@
 import { MIN_SECRET_LENGTH, parseAllowedEmails } from '@soonlane/auth'
+import { APP_VERSION_PATTERN } from '@soonlane/contracts'
 import {
 	Config,
 	ConfigProvider,
@@ -58,6 +59,8 @@ export class AppConfig extends Context.Service<
 		readonly googleClientSecret: Redacted.Redacted
 		readonly proxySecret: Redacted.Redacted
 		readonly posthogKey?: string
+		/** The oldest desktop app version this API serves; unset, every version is. */
+		readonly desktopMinimumVersion?: string
 		readonly todoist?: {
 			readonly clientId: string
 			readonly clientSecret: Redacted.Redacted
@@ -117,6 +120,18 @@ const appConfig = Config.all({
 		Config.map(Option.getOrUndefined)
 	),
 	todoist: todoistConfig,
+	desktopMinimumVersion: Config.option(
+		Config.schema(
+			Schema.String.check(
+				Schema.makeFilter(
+					value =>
+						APP_VERSION_PATTERN.test(value) ||
+						'DESKTOP_MINIMUM_VERSION must be a version such as 0.3.0'
+				)
+			),
+			'DESKTOP_MINIMUM_VERSION'
+		)
+	).pipe(Config.map(Option.getOrUndefined)),
 })
 
 /**

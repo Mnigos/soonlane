@@ -20,7 +20,7 @@ import {
 import type { ReactElement } from 'react'
 import { z } from 'zod'
 import { loadSessionUser } from '../modules/identity/helpers/session-user.helper'
-import { rootRoute, SIGN_IN_PATH } from './session.route'
+import { rootRoute, SIGN_IN_PATH, supportedRoute } from './session.route'
 import { shellRoute } from './shell.route'
 
 /** The search palette's query, handed over in navigation state so it never reaches the URL. */
@@ -97,7 +97,7 @@ export const indexRoute = createRoute({
 
 /** Its own window; signed out, it asks the main process to close it, and the main window signs in. */
 export const quickAddRoute = createRoute({
-	getParentRoute: () => rootRoute,
+	getParentRoute: () => supportedRoute,
 	path: APP_PATHS.quickAdd,
 	beforeLoad: async ({ context }) => {
 		if (await loadSessionUser(context.queryClient)) return

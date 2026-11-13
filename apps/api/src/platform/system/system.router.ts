@@ -24,4 +24,14 @@ export const systemRouter = {
 
 		return { ok: db === 'ok', db, version, commit }
 	}),
+	desktopSupport: os.system.desktopSupport.effect(function* ({ input }) {
+		const { desktopMinimumVersion } = yield* AppConfig
+
+		return {
+			isSupported:
+				desktopMinimumVersion === undefined ||
+				Bun.semver.order(input.version, desktopMinimumVersion) >= 0,
+			minimumVersion: desktopMinimumVersion ?? '0.0.0',
+		}
+	}),
 }
