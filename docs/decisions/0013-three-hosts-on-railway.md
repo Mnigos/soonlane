@@ -112,6 +112,10 @@ The landing, blog, changelog and legal pages moved to `apps/site`, a static app 
 - **`/ingest` is on the API host** (`https://api.soonlane.com/ingest`), with the same upstreams, header allowlist, timeouts and client IP as before. It answers CORS for `APP_URL` and the new `SITE_URL` only, without credentials. Both browser apps set PostHog's `api_host` to it.
 - **A release rebuilds the site.** The `site` service watches `CHANGELOG.md` and `version.json`, and `/changelog` is prerendered from `CHANGELOG.md`. A post dated in the future still waits for the next production build.
 
+## Update 2026-11-13 (SOON-129)
+
+The data moved from Neon to Railway Postgres on 2026-11-12 between 22:04 and 22:14 UTC, and the repository names Vercel or Neon only in these records, the privacy policy, the vendored `.agents/skills/impeccable` skill and drizzle-orm's optional peers in `bun.lock`; the move's runbook, `docs/neon-to-railway-move.md`, lives in git history at the parent of the commit that deleted it.
+
 ## Options considered
 
 - **Stay on Vercel and add a separate API.** The app would keep the function model it works around today, and the product would run on two platforms. Igor chose to leave Vercel.
