@@ -21,6 +21,10 @@ export function LandingHero() {
 			<div className="mt-8 flex flex-col items-start gap-5">
 				<LandingCallToAction />
 
+				<p className="signed-in:hidden text-sm text-secondary-foreground">
+					{LANDING_HERO.todoistImportLine}
+				</p>
+
 				<a
 					className="inline-flex items-center gap-2 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
 					href={GITHUB_URL}
