@@ -81,7 +81,7 @@ export const LANDING_OPEN_SOURCE = {
 	title: 'Open source, and yours to read.',
 	paragraphs: [
 		'The task list is free to use, with a paid Pro plan coming for integrations. The code is open source under AGPL-3.0, so you can read everything that happens to your tasks.',
-		'It runs on TanStack Start, React, Effect and Drizzle, hosted on Railway in Amsterdam with Neon Postgres in Frankfurt.',
+		'It runs on TanStack Start, React, Effect and Drizzle, hosted on Railway in Amsterdam with Railway Postgres.',
 		'A Mac app is in the works.',
 	],
 	linkLabel: 'Read the source on GitHub',
@@ -98,7 +98,7 @@ export const LANDING_FAQ = {
 		{
 			question: 'What happens to my tasks?',
 			answer:
-				'They are stored in the EU, on Neon Postgres in Frankfurt, and only you can see them.',
+				'They are stored in the EU, on Railway Postgres in Amsterdam, and only you can see them.',
 			link: { label: 'Read the privacy policy', href: '/privacy' },
 		},
 		{

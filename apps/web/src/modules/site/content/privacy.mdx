@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 description: What data Soonlane collects, why, where it is stored and how to delete it.
-updated: '2026-11-12'
+updated: '2026-11-13'
 ---
 
 Soonlane is a task list that anyone can sign up for with a Google account. This policy explains what data Soonlane collects, why, where it is stored and how you can delete it.
@@ -88,8 +88,8 @@ Deleting your account does not yet remove analytics data from PostHog automatica
 
 ## Service providers and where your data is stored
 
-- **Railway** hosts Soonlane: the website and the web app at soonlane.com, and the API at api.soonlane.com, which handles sign-in, your tasks and calendar links. Both run in Amsterdam, the Netherlands, and Railway keeps request logs, including IP addresses, for a limited time.
-- **Neon** hosts the database in Frankfurt, Germany (AWS `eu-central-1`).
+- **Railway** hosts Soonlane: the website and the web app at soonlane.com, and the API at api.soonlane.com, which handles sign-in, your tasks and calendar links. Since 12 November 2026, Railway also hosts the Postgres database, which holds your account and tasks. All of these run in Amsterdam, the Netherlands (Railway region `europe-west4`), and Railway keeps request logs, including IP addresses, for a limited time.
+- **Neon** hosted the database in Frankfurt, Germany (AWS `eu-central-1`), and has no longer been the production database since 12 November 2026. It keeps an unchanged, frozen copy of the database from that day until that Neon project is deleted.
 - **Google** provides sign-in.
 - **Todoist** provides the data for an import, only when you start one.
 - **PostHog** provides analytics in its EU region, as described above.
@@ -104,7 +104,7 @@ Your account, your Google data and tokens, and your tasks are kept until you del
 
 To delete your account, open the account menu in the app and choose "Delete account". If your last Google sign-in is more than a day old, Soonlane asks you to sign in with Google again first. Deletion removes your account, all your sessions, any stored Google and Todoist tokens, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
 
-Neon keeps the database's history for point-in-time restore. Deleted data can stay in that history for up to 6 hours, then it is gone.
+Railway backs up the database volume as snapshots of the whole database, which stay inside Railway. For scheduled backups, it keeps a daily backup for 6 days, a weekly backup for 27 days and a monthly backup for 89 days. A deleted account's data stays in those scheduled backups until each backup expires, for up to 89 days. If I make a backup by hand, for example for a restore test or before maintenance, it has no expiry of its own and I delete it once that work is done. The frozen copy at Neon also still holds data from before 12 November 2026 until that project is deleted.
 
 ## Legal bases
 
