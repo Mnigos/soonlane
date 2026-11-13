@@ -13,7 +13,7 @@ interface DesktopSignInScreenProps {
 	user: SessionUser | null
 	fresh?: boolean
 	oauthError?: string
-	/** The app's loopback port; unset, the code goes back through `soonlane://`. */
+	/** The app's loopback port. */
 	port?: number
 }
 
@@ -30,7 +30,7 @@ export function DesktopSignInScreen({
 	oauthError,
 	port,
 }: Readonly<DesktopSignInScreenProps>) {
-	if (!challenge)
+	if (!(challenge && port))
 		return (
 			<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-1 px-6 py-16 text-sm">
 				<h1 className="font-semibold">Start from the desktop app</h1>
@@ -49,7 +49,7 @@ export function DesktopSignInScreen({
 
 	const returnUrl = `${DESKTOP_SIGN_IN_PATH}?${new URLSearchParams({
 		[CODE_CHALLENGE_PARAM]: challenge,
-		...(port && { [LOOPBACK_PORT_PARAM]: String(port) }),
+		[LOOPBACK_PORT_PARAM]: String(port),
 	})}`
 
 	return (

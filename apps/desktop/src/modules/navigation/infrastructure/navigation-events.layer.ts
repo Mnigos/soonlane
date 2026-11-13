@@ -10,7 +10,7 @@ import {
 	readNewWindowUrl,
 } from '../domain/navigation-event.helper'
 
-/** Applies the navigation rules' follow-ups to a window's webview until the enclosing scope closes. */
+/** Sends the links a window's page cannot follow to the system browser until the enclosing scope closes. */
 export const followNavigation = Effect.fn('Navigation.follow')(function* (
 	webviewEvents: (name: WebviewEventName) => Stream.Stream<unknown>
 ) {
@@ -19,13 +19,13 @@ export const followNavigation = Effect.fn('Navigation.follow')(function* (
 	yield* handleEvents(webviewEvents('new-window-open'), event => {
 		const href = readNewWindowUrl(event)
 
-		return href ? navigation.openLink(href) : Effect.void
+		return href ? navigation.openExternal(href) : Effect.void
 	})
 
 	yield* handleEvents(webviewEvents('will-navigate'), event => {
 		const href = readBlockedNavigationUrl(event)
 
-		return href ? navigation.leaveApp(href) : Effect.void
+		return href ? navigation.openExternal(href) : Effect.void
 	})
 })
 

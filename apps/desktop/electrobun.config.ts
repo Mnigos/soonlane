@@ -1,23 +1,29 @@
-import { DESKTOP_URL_SCHEME } from '@soonlane/auth'
 import type { ElectrobunConfig } from 'electrobun'
 import productVersion from '../../version.json' with { type: 'json' }
+import { APP_IDENTIFIER } from './src/platform/config/desktop.constants'
 
-const appUrl = process.env.APP_URL
+const { APP_URL, API_URL } = process.env
 
 export default {
 	app: {
 		name: 'Soonlane',
-		identifier: 'com.mnigos.soonlane',
+		identifier: APP_IDENTIFIER,
 		version: productVersion.version,
-		// macOS registers the scheme only for a copy of the app in /Applications.
-		urlSchemes: [DESKTOP_URL_SCHEME],
 	},
 	build: {
 		mainProcess: 'bun',
 		bun: {
 			entrypoint: 'src/main.ts',
-			// Bakes the build's APP_URL into the app; DesktopConfig validates it at launch.
-			define: appUrl ? { 'process.env.APP_URL': JSON.stringify(appUrl) } : {},
+			// Bakes the build's APP_URL and API_URL into the app; DesktopConfig validates them at launch.
+			define: {
+				...(APP_URL && { 'process.env.APP_URL': JSON.stringify(APP_URL) }),
+				...(API_URL && { 'process.env.API_URL': JSON.stringify(API_URL) }),
+			},
+		},
+		// The page Vite builds into dist/view (`bun run view`), served as views://app.
+		copy: {
+			'dist/view/index.html': 'views/app/index.html',
+			'dist/view/assets': 'views/app/assets',
 		},
 		mac: { bundleCEF: false, defaultRenderer: 'native' },
 	},

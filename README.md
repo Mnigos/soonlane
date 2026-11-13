@@ -51,9 +51,7 @@ Run with `bun run <script>` from the root.
 
 ## Desktop
 
-`apps/desktop` is an Electrobun shell around the hosted web app (ADR 0004). The window loads `APP_URL`, which the build bakes into the app. From `apps/desktop`: `bun run dev` opens it against the dev server on port 3000, `APP_URL=https://soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without `APP_URL`), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`).
-
-Sign-in returns to the app through a `soonlane://` link, which macOS delivers only to an app in `/Applications`, so `bun run dev` cannot finish a sign-in. `bun run dev:applications` builds a dev copy, installs it as `/Applications/Soonlane-dev.app` and runs it against `http://localhost:3000`. Keep only one installed copy that claims `soonlane`.
+`apps/desktop` is an Electrobun app on its own bundled UI (ADR 0015): `bun run view` builds the page from `@soonlane/app` with Vite into `dist/view`, which the app serves as `views://app`. The build bakes in `APP_URL` (the web app, where the browser signs in) and `API_URL`. From `apps/desktop`: `bun run dev` builds the page and opens the app against the dev servers on ports 3000 and 4000, `APP_URL=https://soonlane.com API_URL=https://api.soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without both), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`). Sign-in returns to the app through a loopback port, so it works from any folder.
 
 ## Commits
 

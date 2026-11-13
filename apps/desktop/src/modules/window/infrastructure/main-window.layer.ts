@@ -1,10 +1,11 @@
+import { APP_PATHS } from '@soonlane/app/app-paths'
 import { Effect, Layer, Option, Queue, Ref, Stream } from 'effect'
 import { type BrowserWindow, Screen } from 'electrobun'
-import { DesktopConfig } from '../../../platform/config/desktop.config'
 import {
 	electrobunEvents,
 	listen,
 } from '../../../platform/electrobun/electrobun-events.helper'
+import { DesktopSession } from '../../sign-in/application/desktop-session.service'
 import { FrameStore } from '../application/frame-store.port'
 import { MainWindow } from '../application/main-window.port'
 import { applyFrameEvent, restoreFrame } from '../domain/window-frame.helper'
@@ -59,27 +60,31 @@ const persistFrame = Effect.fn('MainWindow.persistFrame')(function* (
 export const MainWindowLive = Layer.effect(
 	MainWindow,
 	Effect.gen(function* () {
-		const { appUrl } = yield* DesktopConfig
 		const saved = yield* (yield* FrameStore).load
-		const window = yield* Effect.sync(() =>
-			openAppWindow(appUrl, {
-				title: WINDOW_TITLE,
-				url: new URL('/app', appUrl).href,
-				frame: restoreFrame(
-					Option.getOrUndefined(saved),
-					Screen.getAllDisplays().map(({ workArea }) => workArea)
-				),
-				titleBarStyle: 'hiddenInset',
-			})
-		)
+		const window = yield* openAppWindow(APP_PATHS.upcoming, {
+			title: WINDOW_TITLE,
+			frame: restoreFrame(
+				Option.getOrUndefined(saved),
+				Screen.getAllDisplays().map(({ workArea }) => workArea)
+			),
+			titleBarStyle: 'hiddenInset',
+		})
 		const { webview } = window
+		const activate = Effect.sync(() => window.activate())
 
 		yield* persistFrame(window)
 
+		// The browser was in front for the sign-in, so the signed-in app comes back to it.
+		yield* (yield* DesktopSession).events.pipe(
+			Stream.filter(
+				event => event.type === 'token-changed' && Option.isSome(event.token)
+			),
+			Stream.runForEach(() => activate),
+			Effect.forkScoped
+		)
+
 		return MainWindow.of({
-			load: url => Effect.sync(() => webview.loadURL(url.href)),
 			reload: Effect.sync(() => webview.executeJavascript('location.reload()')),
-			activate: Effect.sync(() => window.activate()),
 			webviewEvents: name => electrobunEvents(`${name}-${webview.id}`),
 		})
 	})
