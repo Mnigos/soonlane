@@ -68,6 +68,8 @@ export const router = createRouter({
 })
 
 syncDockBadge(queryClient)
+// Back online, every view loads again without waiting for the next reconnect ping.
+window.addEventListener('online', () => void router.invalidate())
 
 declare module '@tanstack/react-router' {
 	interface Register {
