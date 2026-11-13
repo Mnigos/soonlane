@@ -9,6 +9,7 @@ import {
 import {
 	type CalendarDate,
 	type RepeatRule,
+	type TaskId,
 	taskIdSchema,
 	type UserId,
 } from '@soonlane/domain'
@@ -43,6 +44,37 @@ function chunk<TRow>(rows: readonly TRow[]) {
 	)
 }
 
+interface CreatedTask extends ImportedTask {
+	id: TaskId
+	parentId: TaskId | null
+	depth: number
+}
+
+/** Gives each recorded task an id and its created parent; a parent another import recorded first is not created here, so its subtask arrives top level. */
+function toCreatedTasks(
+	tasks: readonly ImportedTask[],
+	recorded: ReadonlySet<string>
+) {
+	const byTodoistId = new Map<string, CreatedTask>()
+	const recordedTasks = tasks.filter(({ todoistId }) => recorded.has(todoistId))
+
+	for (const draft of recordedTasks) {
+		const parent =
+			draft.parentTodoistId === undefined
+				? undefined
+				: byTodoistId.get(draft.parentTodoistId)
+
+		byTodoistId.set(draft.todoistId, {
+			...draft,
+			id: taskIdSchema.parse(crypto.randomUUID()),
+			parentId: parent?.id ?? null,
+			depth: parent ? parent.depth + 1 : 0,
+		})
+	}
+
+	return [...byTodoistId.values()]
+}
+
 function toIdsByName<TId>(rows: readonly { id: TId; name: string }[]) {
 	return new Map(rows.map(row => [row.name.toLowerCase(), row.id]))
 }
@@ -52,7 +84,7 @@ export class ImportedTodoistTaskRepository extends Context.Service<
 	{
 		/** The Todoist ids of every task the owner imported. */
 		readonly list: (ownerId: UserId) => Effect.Effect<string[], DbError>
-		/** Saves the tasks not imported before with their labels and projects, all or nothing. */
+		/** Saves the tasks not imported before with their labels and projects, all or nothing; a subtask must follow its parent in `tasks`. */
 		readonly create: (
 			todoistImport: TodoistImport
 		) => Effect.Effect<TodoistImportSummary, DbError>
@@ -92,12 +124,7 @@ export const ImportedTodoistTaskRepositoryLive = Layer.effect(
 								for (const { todoistId } of inserted) recorded.add(todoistId)
 							}
 
-							const created = tasks
-								.filter(({ todoistId }) => recorded.has(todoistId))
-								.map(draft => ({
-									...draft,
-									id: taskIdSchema.parse(crypto.randomUUID()),
-								}))
+							const created = toCreatedTasks(tasks, recorded)
 
 							if (created.length === 0)
 								return {
@@ -147,6 +174,8 @@ export const ImportedTodoistTaskRepositoryLive = Layer.effect(
 									rows.map(draft => ({
 										id: draft.id,
 										ownerId,
+										parentId: draft.parentId,
+										depth: draft.depth,
 										title: draft.title,
 										description: draft.description ?? null,
 										dueDate: draft.dueDate ?? null,
