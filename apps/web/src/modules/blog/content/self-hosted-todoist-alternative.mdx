@@ -34,7 +34,7 @@ The code is on [GitHub](https://github.com/Mnigos/soonlane) under AGPL-3.0. You 
 
 Soonlane has two parts and a database, plus a Google client and a domain.
 
-- **Postgres.** The hosted copy uses Neon in Frankfurt.
+- **Postgres.** The hosted copy uses Railway Postgres in Amsterdam.
 - **The API.** A Bun server that handles sign-in, the task API and the calendar feed. A migration script in `packages/db` creates and updates the tables, and you run it before each new version starts.
 - **The web app.** A TanStack Start app that serves the pages and calls the API.
 - **A Google OAuth client.** Sign-in is Google only, so you create a client in Google Cloud and point its redirect at your API.
