@@ -1,4 +1,3 @@
-import { DUE_DATE_SHORTCUT_CHOICES } from '@soonlane/app/tasks/helpers/due-date-choice.constants'
 import {
 	getMenuDateShortcuts,
 	getNoDateHint,
@@ -10,8 +9,9 @@ import {
 	DEFAULT_TASK_PRIORITY,
 	getDueLabel,
 } from '@soonlane/domain'
-import { ActionSheetIOS, Pressable, StyleSheet, Text, View } from 'react-native'
+import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { COLORS, RADIUS, TEXT } from '@/tokens.gen'
+import { showDueDateSheet } from '../due-date-sheet.helper'
 import {
 	DUE_TONE_COLORS,
 	LABEL_COLORS,
@@ -39,31 +39,12 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 	const hasMeta = due || task.labels.length > 0 || task.project
 
 	function openDateMenu() {
-		const shortcuts = getMenuDateShortcuts(today)
-		const noDateHint = getNoDateHint(task.dueTime, task.repeat !== undefined)
-		const noDate = noDateHint ? `No date, ${noDateHint}` : 'No date'
-		const options = [
-			...shortcuts.map(({ label, hint }) => `${label}, ${hint}`),
-			...(task.dueDate ? [noDate] : []),
-			'Cancel',
-		]
-
-		ActionSheetIOS.showActionSheetWithOptions(
-			{
-				title: 'Date',
-				options,
-				cancelButtonIndex: options.length - 1,
-				userInterfaceStyle: 'dark',
-			},
-			index => {
-				const shortcut = shortcuts[index]
-
-				if (shortcut)
-					changeDate(shortcut.date, DUE_DATE_SHORTCUT_CHOICES[shortcut.id])
-				else if (task.dueDate && index === shortcuts.length)
-					changeDate(undefined, 'no_date')
-			}
-		)
+		showDueDateSheet({
+			shortcuts: getMenuDateShortcuts(today),
+			hasNoDate: task.dueDate !== undefined,
+			noDateHint: getNoDateHint(task.dueTime, task.repeat !== undefined),
+			onChange: changeDate,
+		})
 	}
 
 	return (
