@@ -24,7 +24,7 @@ SOON-105 lets a task be broken into subtasks, up to 4 levels below a top-level t
 - Each list call runs up to two more batched queries (parent titles, subtask counts), indexed by `task_owner_parent_idx`.
 - A repeating subtask whose date its parent's advance moved keeps its old repeat anchor.
 - A deadlock abort (`40P01`) reaches the client as an internal error; retrying such transactions is a follow-up.
-- The Todoist import stays flat; keeping its parent links is a follow-up that the composite key and the depth checks guard.
+- The Todoist import nests a subtask under its parent when both arrive in the same import, within the depth and 50-subtask limits, parents inserted first. It cannot link a subtask to a parent from an earlier import: `imported_todoist_task` keeps no task id.
 
 ## Related
 
