@@ -16,6 +16,8 @@ import { withCors } from './cors.helper'
  * Kept under Railway's `drainingSeconds`, so PostHog's final flush and the pool's close still run before SIGKILL.
  */
 const SERVER_DRAIN_TIMEOUT = '15 seconds'
+/** Locally no edge names the client, and every request comes from this machine. */
+const LOCAL_CLIENT_IP = '127.0.0.1'
 /** Bun's default of 10 s also cuts a request still waiting on its handler; this outlasts `todoist.preview` (a 20 s read, then up to two 15 s revokes). */
 const IDLE_TIMEOUT_SECONDS = 60
 
@@ -34,7 +36,12 @@ export const HttpServerLive = Layer.effectDiscard(
 			withCors(
 				services,
 				trustedOrigins,
-				withClientIp(services, Redacted.value(proxySecret), handle)
+				withClientIp(
+					services,
+					Redacted.value(proxySecret),
+					handle,
+					environment === 'development' ? LOCAL_CLIENT_IP : undefined
+				)
 			)
 		const handleAuth = forBrowser(auth.handle)
 		const handleRpc = forBrowser(

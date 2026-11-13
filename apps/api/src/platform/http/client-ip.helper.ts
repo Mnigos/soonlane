@@ -24,13 +24,15 @@ function reject(status: 400 | 403) {
  * `CLIENT_IP_HEADER`, the only IP header Better Auth reads. A request with the
  * right proxy secret comes from the web server, which names the visitor; a
  * wrong secret is refused. A request without a client IP gets 400, so none
- * shares Better Auth's rate limit bucket for unknown addresses. The secret and
- * the visitor IP never reach the handler.
+ * shares Better Auth's rate limit bucket for unknown addresses; only local
+ * development, where no edge sets one, passes `localIp` instead. The secret
+ * and the visitor IP never reach the handler.
  */
 export function withClientIp(
 	context: Context.Context<never>,
 	proxySecret: string,
-	handle: RequestHandler
+	handle: RequestHandler,
+	localIp?: string
 ) {
 	return async (request: Request) => {
 		const headers = new Headers(request.headers)
@@ -52,7 +54,7 @@ export function withClientIp(
 			return reject(403)
 		}
 
-		const ip = secret === null ? resolveEdgeIp(headers) : visitorIp
+		const ip = (secret === null ? resolveEdgeIp(headers) : visitorIp) ?? localIp
 
 		if (!ip) return reject(400)
 		headers.set(CLIENT_IP_HEADER, ip)
