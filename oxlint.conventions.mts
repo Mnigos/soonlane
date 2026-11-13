@@ -156,6 +156,7 @@ export const CONVENTION_RULES = {
 	'soonlane/declaration-group-spacing': 'error',
 	'soonlane/declaration-jsdoc': 'error',
 	'soonlane/inferred-type-placement': 'error',
+	'soonlane/no-inline-param-type': 'error',
 	'soonlane/no-let': 'error',
 	'soonlane/type-param-prefix': 'error',
 	'typescript/no-non-null-assertion': 'error',
