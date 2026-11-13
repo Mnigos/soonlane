@@ -84,8 +84,14 @@ export const TODOIST_CHANGE_COPY: Record<TodoistImportChange, PluralCopy> = {
 			'{count} tasks imported from Todoist before will be skipped this time.',
 	},
 	subtasks: {
-		one: '{count} subtask will arrive as a separate task.',
-		other: '{count} subtasks will arrive as separate tasks.',
+		one: "{count} subtask will arrive as a separate task because its parent task isn't in this import or already has 50 subtasks.",
+		other:
+			"{count} subtasks will arrive as separate tasks because their parent tasks aren't in this import or already have 50 subtasks.",
+	},
+	deepSubtasks: {
+		one: '{count} subtask nested deeper than 4 levels will move up to the 4th level, still under its main task.',
+		other:
+			'{count} subtasks nested deeper than 4 levels will move up to the 4th level, still under their main tasks.',
 	},
 	sections: {
 		one: '{count} section will be dropped, while its tasks stay.',
