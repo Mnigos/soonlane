@@ -3,7 +3,6 @@ import {
 	getNoDateHint,
 	getScheduledDate,
 } from '@soonlane/app/tasks/helpers/task-edit.helper'
-import { splitByRanges } from '@soonlane/app/tasks/helpers/text-range.helper'
 import { useCreateTaskMutation } from '@soonlane/app/tasks/hooks/use-create-task-mutation'
 import { useTypedTitle } from '@soonlane/app/tasks/hooks/use-typed-title'
 import {
@@ -11,22 +10,21 @@ import {
 	DEFAULT_TASK_PRIORITY,
 	getDueChipLabel,
 	getDueDateShortcuts,
-	TASK_PRIORITIES,
 } from '@soonlane/domain'
 import { type ComponentRef, useRef, useState } from 'react'
 import {
-	ActionSheetIOS,
 	KeyboardAvoidingView,
 	Modal,
 	Pressable,
 	StyleSheet,
 	Text,
-	TextInput,
+	type TextInput,
 	View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { COLORS, RADIUS, TEXT } from '@/tokens.gen'
 import { showDueDateSheet } from '../due-date-sheet.helper'
+import { showPrioritySheet } from '../priority-sheet.helper'
 import {
 	DUE_TONE_COLORS,
 	LABEL_COLORS,
@@ -34,6 +32,7 @@ import {
 } from '../task-colors.constants'
 import { ComposerChip } from './composer-chip'
 import { LabelPicker } from './label-picker'
+import { TitleInput } from './title-input'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate
@@ -41,8 +40,6 @@ interface TaskComposerProps {
 	onClose: () => void
 }
 
-/** 40% in hex alpha, the web's `bg-primary/40` behind a recognized word. */
-const HIGHLIGHT_ALPHA = '66'
 /** 60% in hex alpha, the web dialog's backdrop. */
 const BACKDROP_ALPHA = '99'
 
@@ -133,29 +130,6 @@ export function TaskComposer({
 		})
 	}
 
-	function openPrioritySheet() {
-		const options = [
-			...TASK_PRIORITIES.map(level => `Priority ${level}`),
-			'Cancel',
-		]
-
-		ActionSheetIOS.showActionSheetWithOptions(
-			{
-				title: 'Priority',
-				options,
-				cancelButtonIndex: options.length - 1,
-				userInterfaceStyle: 'dark',
-			},
-			index => {
-				const picked = TASK_PRIORITIES[index]
-				if (!picked) return
-
-				if (picked !== priority) capture('priority_set', { priority: picked })
-				pickPriority(picked)
-			}
-		)
-	}
-
 	return (
 		<Modal animationType="fade" onRequestClose={onClose} transparent visible>
 			{/* The card pads the home indicator itself, so with the keyboard up it sits right above the keys. */}
@@ -172,33 +146,17 @@ export function TaskComposer({
 				/>
 
 				<View style={[styles.card, { paddingBottom: 12 + bottom }]}>
-					<TextInput
-						accessibilityLabel="Task name"
+					<TitleInput
 						autoFocus
-						keyboardAppearance="dark"
-						maxLength={500}
+						highlights={highlights}
 						onChangeText={changeTitle}
 						onFocus={() => setIsPickingLabels(false)}
 						onSubmitEditing={submit}
-						placeholder="Task name"
-						placeholderTextColor={COLORS.faintForeground}
 						ref={titleRef}
 						returnKeyType="done"
-						selectionColor={COLORS.primary}
-						style={styles.title}
 						submitBehavior="submit"
-					>
-						{splitByRanges(title, highlights).map(
-							({ start, end, text, isRange }) => (
-								<Text
-									key={`${start}:${end}`}
-									style={isRange && styles.highlight}
-								>
-									{text}
-								</Text>
-							)
-						)}
-					</TextInput>
+						title={title}
+					/>
 
 					{isPickingLabels && (
 						<LabelPicker onChange={pickLabels} value={pickedLabels} />
@@ -222,7 +180,7 @@ export function TaskComposer({
 									? undefined
 									: PRIORITY_COLORS[priority]
 							}
-							onPress={openPrioritySheet}
+							onPress={() => showPrioritySheet(priority, pickPriority)}
 						>
 							{priority === DEFAULT_TASK_PRIORITY ? 'Priority' : `P${priority}`}
 						</ComposerChip>
@@ -281,8 +239,6 @@ const styles = StyleSheet.create({
 		borderTopRightRadius: 12,
 		backgroundColor: COLORS.card,
 	},
-	title: { ...TEXT.base, minHeight: 32, color: COLORS.foreground },
-	highlight: { backgroundColor: `${COLORS.primary}${HIGHLIGHT_ALPHA}` },
 	chips: {
 		flexDirection: 'row',
 		alignItems: 'center',

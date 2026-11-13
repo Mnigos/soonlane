@@ -1,26 +1,19 @@
 import type { RepeatInput } from '@soonlane/contracts'
-import { REPEAT_INTERVAL_MAX, type RepeatUnit } from '@soonlane/domain'
+import { REPEAT_INTERVAL_MAX } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { type KeyboardEvent, useState } from 'react'
 import { FOOTER_FIELD_CLASS } from '../../helpers/composer-chip.constants'
+import {
+	CUSTOM_REPEAT_UNIT_LABELS,
+	type CustomRepeatUnit,
+	isCustomRepeatUnit,
+} from '../../helpers/repeat-choice.helper'
 
 interface RepeatCustomFormProps {
 	initial: RepeatInput | undefined
 	onSave: (repeat: RepeatInput) => void
 	onCancel: () => void
-}
-
-const CUSTOM_UNIT_LABELS = {
-	day: 'days',
-	week: 'weeks',
-	month: 'months',
-} as const satisfies Partial<Record<RepeatUnit, string>>
-
-type CustomUnit = keyof typeof CUSTOM_UNIT_LABELS
-
-function isCustomUnit(unit: string): unit is CustomUnit {
-	return Object.hasOwn(CUSTOM_UNIT_LABELS, unit)
 }
 
 function focusElement(input: HTMLInputElement | null) {
@@ -34,8 +27,8 @@ export function RepeatCustomForm({
 	onCancel,
 }: Readonly<RepeatCustomFormProps>) {
 	const [count, setCount] = useState(String(initial?.interval ?? 1))
-	const [unit, setUnit] = useState<CustomUnit>(
-		initial && isCustomUnit(initial.unit) ? initial.unit : 'day'
+	const [unit, setUnit] = useState<CustomRepeatUnit>(
+		initial && isCustomRepeatUnit(initial.unit) ? initial.unit : 'day'
 	)
 	const interval = Number(count)
 	const isValid =
@@ -74,12 +67,13 @@ export function RepeatCustomForm({
 					aria-label="Repeat unit"
 					className={cn(FOOTER_FIELD_CLASS, 'min-w-0 flex-1')}
 					onChange={event => {
-						if (isCustomUnit(event.target.value)) setUnit(event.target.value)
+						if (isCustomRepeatUnit(event.target.value))
+							setUnit(event.target.value)
 					}}
 					onKeyDown={saveOnEnter}
 					value={unit}
 				>
-					{Object.entries(CUSTOM_UNIT_LABELS).map(([value, label]) => (
+					{Object.entries(CUSTOM_REPEAT_UNIT_LABELS).map(([value, label]) => (
 						<option key={value} value={value}>
 							{label}
 						</option>
