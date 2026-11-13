@@ -29,6 +29,16 @@ export const tasksRouter = {
 
 		return { task: yield* tasksService.get(context.user.id, input.id) }
 	}),
+	listSubtasks: os.tasks.listSubtasks.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const tasksService = yield* TasksService
+
+		return {
+			tasks: yield* tasksService.listSubtasks(context.user.id, input.id),
+		}
+	}),
 	create: os.tasks.create.use(requireUser).effect(function* ({
 		context,
 		input,

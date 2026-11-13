@@ -1,5 +1,4 @@
 import type {
-	GoalInput,
 	Label,
 	LogProgressOutput,
 	Project,
@@ -7,33 +6,24 @@ import type {
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
 import { label, project, task, taskLabel } from '@soonlane/db'
-import {
-	DEFAULT_TASK_PRIORITY,
-	type TaskId,
-	type UserId,
-} from '@soonlane/domain'
-import {
-	and,
-	between,
-	eq,
-	gte,
-	inArray,
-	isNotNull,
-	isNull,
-	lt,
-	or,
-	sql,
-} from 'drizzle-orm'
+import type { TaskId, UserId } from '@soonlane/domain'
+import { and, between, eq, gte, inArray, isNull, lt, or } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
 import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
 import { toProject } from '@/modules/projects/infrastructure/project.mapper'
 import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
-import { COMPLETED_ORDER, ownedTasks } from './owned-tasks.query'
+import type { SubtaskRefusal, TaskNotFound } from '../domain/task.errors'
+import {
+	COMPLETED_ORDER,
+	ownedTasks,
+	SHOWN_IN_LISTS,
+} from './owned-tasks.query'
+import { createTask } from './task-create.query'
 import { updateProgress } from './task-progress.query'
 import { matchesEveryWord, SEARCH_ORDER } from './task-search.query'
+import { advanceDueDate, setCompletion, updateSubtree } from './task-tree.query'
 import { updateTask } from './task-update.query'
-import { toRepeatColumns, toTask } from './task.mapper'
 import type {
 	CompletedTasksBefore,
 	CompletedTasksBetween,
@@ -63,8 +53,11 @@ export class TaskRepository extends Context.Service<
 		readonly listMatching: (
 			params: MatchingTasks
 		) => Effect.Effect<Task[], DbError>
+		readonly listSubtasks: (key: TaskKey) => Effect.Effect<Task[], DbError>
 		readonly find: (key: TaskKey) => Effect.Effect<Task | undefined, DbError>
-		readonly create: (task: NewTask) => Effect.Effect<Task, DbError>
+		readonly create: (
+			task: NewTask
+		) => Effect.Effect<Task | TaskNotFound | SubtaskRefusal, DbError>
 		readonly update: (
 			update: TaskUpdate
 		) => Effect.Effect<UpdateTaskOutput | undefined, DbError>
@@ -99,18 +92,6 @@ export class TaskRepository extends Context.Service<
 	}
 >()('soonlane/TaskRepository') {}
 
-/** Clamped to the restored goal's target, or to the stored one; a task without a goal keeps 0, which its check requires. */
-function getRestoredProgress(
-	progress: number | undefined,
-	goal: GoalInput | undefined
-) {
-	if (goal && progress !== undefined) return Math.min(progress, goal.target)
-	if (goal) return sql`least(${task.goalProgress}, ${goal.target})`
-	if (progress === undefined) return undefined
-
-	return sql`least(${progress}, coalesce(${task.goalTarget}, 0))`
-}
-
 export const TaskRepositoryLive = Layer.effect(
 	TaskRepository,
 	Effect.gen(function* () {
@@ -133,6 +114,7 @@ export const TaskRepositoryLive = Layer.effect(
 											.where(eq(taskLabel.labelId, labelId))
 									),
 								projectId && eq(task.projectId, projectId),
+								SHOWN_IN_LISTS,
 								range &&
 									or(
 										isNull(task.dueDate),
@@ -172,51 +154,16 @@ export const TaskRepositoryLive = Layer.effect(
 					'TaskRepository.find',
 					async database => await ownedTasks(database, ownerId).find(id)
 				),
-			create: ({
-				ownerId,
-				title,
-				description,
-				dueDate,
-				dueTime,
-				durationMinutes,
-				priority,
-				repeat,
-				labelIds = [],
-				goal,
-				projectId,
-			}) =>
+			listSubtasks: ({ ownerId, id }) =>
+				db.run(
+					'TaskRepository.listSubtasks',
+					async database =>
+						await ownedTasks(database, ownerId).list(eq(task.parentId, id))
+				),
+			create: newTask =>
 				db.run(
 					'TaskRepository.create',
-					async database =>
-						await database.transaction(async transaction => {
-							const [row] = await transaction
-								.insert(task)
-								.values({
-									ownerId,
-									title,
-									description: description || null,
-									dueDate,
-									dueTime: dueTime ?? null,
-									durationMinutes: durationMinutes ?? null,
-									priority: priority ?? DEFAULT_TASK_PRIORITY,
-									...toRepeatColumns(repeat),
-									goalTarget: goal?.target ?? null,
-									goalUnit: goal?.unit ?? null,
-									projectId: projectId ?? null,
-								})
-								.returning()
-
-							if (!row) throw new Error('Task insert returned no row')
-							if (labelIds.length === 0 && !projectId) return toTask(row, [])
-
-							const tasks = ownedTasks(transaction, ownerId)
-
-							if (labelIds.length > 0)
-								await tasks.assignLabels(row.id, labelIds)
-							const [created] = await tasks.withLabelsAndProject([row])
-
-							return created ?? toTask(row, [])
-						})
+					async database => await createTask(database, newTask)
 				),
 			update: update =>
 				db.run(
@@ -227,68 +174,55 @@ export const TaskRepositoryLive = Layer.effect(
 						)
 				),
 			delete: ({ ownerId, id }) =>
-				db.run('TaskRepository.delete', async database => {
-					const [row] = await ownedTasks(database, ownerId)
-						.delete(eq(task.id, id))
-						.returning({ id: task.id })
+				db.run(
+					'TaskRepository.delete',
+					async database =>
+						await database.transaction(async transaction => {
+							const tasks = ownedTasks(transaction, ownerId)
 
-					return row?.id
-				}),
+							await tasks.lockPath(id)
+
+							const [row] = await tasks
+								.delete(eq(task.id, id))
+								.returning({ id: task.id })
+
+							return row?.id
+						})
+				),
 			count: ownerId =>
 				db.run(
 					'TaskRepository.count',
 					async database => await ownedTasks(database, ownerId).count()
 				),
-			setCompletion: ({ ownerId, id, completedAt, dueDate, progress, goal }) =>
-				db.run('TaskRepository.setCompletion', async database => {
-					const tasks = ownedTasks(database, ownerId)
-					const rows = await tasks
-						.update(
-							{
-								completedAt: completedAt ?? null,
-								dueDate,
-								...(goal && {
-									goalTarget: goal.target,
-									goalUnit: goal.unit ?? null,
-								}),
-								goalProgress: getRestoredProgress(progress, goal),
-							},
-							eq(task.id, id)
-						)
-						.returning()
-					const [updated] = await tasks.withLabelsAndProject(rows)
-
-					return updated
-				}),
-			advanceDueDate: ({ ownerId, id, from, to }) =>
-				db.run('TaskRepository.advanceDueDate', async database => {
-					const tasks = ownedTasks(database, ownerId)
-					const rows = await tasks
-						.update(
-							{ dueDate: to, goalProgress: 0 },
-							and(
-								eq(task.id, id),
-								eq(task.dueDate, from),
-								isNotNull(task.repeatUnit)
-							)
-						)
-						.returning()
-					const [advanced] = await tasks.withLabelsAndProject(rows)
-
-					return advanced
-				}),
+			setCompletion: completion =>
+				db.run(
+					'TaskRepository.setCompletion',
+					async database => await setCompletion(database, completion)
+				),
+			advanceDueDate: advance =>
+				db.run(
+					'TaskRepository.advanceDueDate',
+					async database => await advanceDueDate(database, advance)
+				),
 			rescheduleOpen: ({ ownerId, ids, dueDate }) =>
-				db.run('TaskRepository.rescheduleOpen', async database => {
-					const tasks = ownedTasks(database, ownerId)
-					const rows = await tasks
-						.update(
-							{ dueDate },
-							and(inArray(task.id, ids), isNull(task.completedAt))
-						)
-						.returning()
+				db.run(
+					'TaskRepository.rescheduleOpen',
+					async database =>
+						await database.transaction(async transaction => {
+							const tasks = ownedTasks(transaction, ownerId)
 
-					return await tasks.withLabelsAndProject(rows)
-				}),
+							await tasks.lockPaths(ids)
+
+							const rows = await tasks
+								.update(
+									{ dueDate },
+									and(inArray(task.id, ids), isNull(task.completedAt))
+								)
+								.returning()
+
+							return await tasks.withRelations(rows)
+						})
+				),
 			findLabel: ({ ownerId, labelId }) =>
 				db.run('TaskRepository.findLabel', async database => {
 					const [row] = await database
@@ -328,14 +262,23 @@ export const TaskRepositoryLive = Layer.effect(
 					'TaskRepository.logProgress',
 					async database =>
 						await database.transaction(async transaction => {
+							const tasks = ownedTasks(transaction, log.ownerId)
+
+							await tasks.lockPath(log.id)
+
 							const row = await updateProgress(transaction, log)
 
 							if (!row) return undefined
+							await updateSubtree(
+								tasks,
+								{ completedAt: row.previousCompletedAt },
+								row,
+								row.dueDate === row.previousDueDate
+									? undefined
+									: row.previousDueDate
+							)
 
-							const [logged] = await ownedTasks(
-								transaction,
-								log.ownerId
-							).withLabelsAndProject([row])
+							const [logged] = await tasks.withRelations([row])
 							const completed = row.completed
 								? {
 										dueDate: row.previousDueDate ?? undefined,
