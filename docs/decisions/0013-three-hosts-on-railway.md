@@ -2,7 +2,7 @@
 
 **Status:** Proposed
 **Date:** 2026-11-11
-**Updated:** 2026-11-12
+**Updated:** 2026-11-13
 
 ## Context
 
@@ -91,6 +91,16 @@ Igor changed the order of stages 2 and 3 and the shape of stage 3 on 2026-11-12;
 - **Build variables.** The environment name and the blog's draft filter come from `APP_ENV`, the commit from `RAILWAY_GIT_COMMIT_SHA` or, for `railway up`, from `commit.env`; a production build still leaves drafts out.
 - **Server rendering** calls the API on Railway's private network (`http://api.railway.internal:8080`), and the visitor IP it forwards follows the API's own rule: Railway's `X-Real-IP`, or `CF-Connecting-IP` when that address is a Cloudflare edge. The API listens on both IP stacks.
 - **DNS.** `soonlane.com` is proxied by Cloudflare with SSL mode Full, like `api.soonlane.com`; `www.soonlane.com` reaches it through a Cloudflare redirect rule, not code.
+
+## Update 2026-11-13 (SOON-126)
+
+The app moved to `app.soonlane.com` (`app.staging.soonlane.com` on staging); this replaces the No /app prefix, API access and Old URLs points where they differ.
+
+- **One service, two hosts.** Until [SOON-128](https://linear.app/rigtch/issue/SOON-128) the Railway service `web` serves both hosts and tells them apart by the request's host. The app's routes sit at their public paths (Upcoming at `/`, `/today`, `/labels/$name`, `/quick-add`, `/login`, `/desktop/sign-in`); the public pages sit under `/site` in the route tree, and a TanStack Router `rewrite` adds that prefix on every host but the app's (`VITE_APP_URL`) and takes it out of links. A link or redirect to the other host's page becomes an absolute URL on its origin (`VITE_APP_URL`, `VITE_SITE_URL`). `/health`, `/ingest` and `/robots.txt` answer on both hosts; prerendered pages are served only on the site host.
+- **Old URLs get no redirect.** `soonlane.com/app`, `/app/today`, `/today` and `/login` answer 404, and the app host answers 404 for the public pages. Mac apps built for `https://soonlane.com` stop working until their update ([SOON-125](https://linear.app/rigtch/issue/SOON-125)) is installed.
+- **The landing only links to the app.** "Open app" goes to `app.soonlane.com/`, "Get started" and "Log in" to its `/login`; the landing makes no API call.
+- **The API trusts only the app's origin.** `TRUSTED_ORIGINS` and `APP_URL` are `https://app.soonlane.com` (`https://app.staging.soonlane.com` on staging); `soonlane.com` left the list. Calendar events link to the app's `/`. The cookie prefix and domain stay, so nobody signs in again, and Google's redirect URI stays on the API host.
+- **One PostHog identity across both hosts.** With analytics granted, posthog-js keeps its identity in a cookie for the shared domain as well as localStorage; withdrawing consent deletes it there too.
 
 ## Options considered
 
