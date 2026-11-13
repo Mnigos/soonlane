@@ -10,6 +10,14 @@ export function getChanged<T>(value: T, previous: T) {
 	return value === previous ? undefined : value
 }
 
+interface DueDateChange {
+	dueDate: CalendarDate | undefined
+}
+
+interface PriorityChange {
+	priority: TaskPriority
+}
+
 /** The label ids an edit sends: undefined while they match the task's, so the save keeps them. */
 export function getChangedLabelIds(task: Task, picked: Label[]) {
 	const ids = picked.map(({ id }) => id)
@@ -64,7 +72,7 @@ export function getNoDateHint(dueTime: string | undefined, hasRepeat: boolean) {
 export function getMenuEdit(
 	task: Task,
 	today: CalendarDate,
-	change: { dueDate: CalendarDate | undefined } | { priority: TaskPriority }
+	change: DueDateChange | PriorityChange
 ) {
 	if ('priority' in change)
 		return change.priority === task.priority

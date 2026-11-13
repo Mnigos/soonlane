@@ -36,6 +36,11 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	getUser?: (router: TRouter) => AnalyticsUser | undefined
 }
 
+/** The part of a router match that tells the landing site from the app. */
+interface RouteMatch {
+	routeId: string
+}
+
 interface Tracking {
 	router: AnyRouter
 	key: string
@@ -65,7 +70,7 @@ function getSuperProperties({
 	buildProperties,
 }: Tracking): SuperProperties {
 	const routeIds = router.state.matches.map(
-		({ routeId }: { routeId: string }) => routeId
+		({ routeId }: RouteMatch) => routeId
 	)
 
 	return {

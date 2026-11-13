@@ -1,6 +1,6 @@
 import type { GoalInput, UpdateTaskOutput } from '@soonlane/contracts'
 import { type TaskRow, task, taskLabel } from '@soonlane/db'
-import type { CalendarDate, LabelId, TaskId, UserId } from '@soonlane/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { and, eq, notInArray } from 'drizzle-orm'
 import { ownedBy, ownedTasks, type Queries } from './owned-tasks.query'
 import { toRepeatColumns } from './task.mapper'
@@ -40,7 +40,7 @@ async function replaceLabels(
 		ownerId,
 		id,
 		labelIds,
-	}: { ownerId: UserId; id: TaskId; labelIds: LabelId[] }
+	}: Required<Pick<TaskUpdate, 'ownerId' | 'id' | 'labelIds'>>
 ) {
 	await transaction
 		.delete(taskLabel)

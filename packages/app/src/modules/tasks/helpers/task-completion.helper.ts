@@ -12,6 +12,21 @@ import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from './task-event.helper'
 import { refreshTaskLists } from './task-list.helper'
 
+/** The variables a task mutation sends, before the API parses the id. */
+interface TaskVariables {
+	id: string
+}
+
+/** What a task mutation resolves with. */
+interface TaskResult {
+	task: Task
+}
+
+/** What reopening keeps to put the task back in Completed when the change fails. */
+interface ReopenContext {
+	reopened?: Task
+}
+
 const COMPLETED_ORDER_COMPARATORS: Record<
 	TaskCompletedOrderKey,
 	(a: Task, b: Task) => number
@@ -89,7 +104,7 @@ export function getUndoCallbacks(
 	const { capture } = getHostPorts()
 
 	return {
-		onMutate: async ({ id }: { id: string }) => {
+		onMutate: async ({ id }: TaskVariables) => {
 			await queryClient.cancelQueries({
 				queryKey: orpcQuery.tasks.listCompleted.key(),
 			})
@@ -98,14 +113,14 @@ export function getUndoCallbacks(
 		},
 		onError: (
 			error: unknown,
-			{ id }: { id: string },
-			context?: { reopened?: Task }
+			{ id }: TaskVariables,
+			context?: ReopenContext
 		) => {
 			if (context?.reopened) addToCompleted(queryClient, context.reopened)
 			capture('task_completion_failed', { taskId: id, action: 'uncomplete' })
 			toastFailure(error, 'Could not restore the task. Try again.')
 		},
-		onSuccess: ({ task }: { task: Task }) => {
+		onSuccess: ({ task }: TaskResult) => {
 			const properties = getTaskEventProperties(task, today)
 
 			capture('task_uncompleted', {

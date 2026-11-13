@@ -1,5 +1,10 @@
+/** A label or project, which a view finds by its name. */
+interface NamedItem {
+	name: string
+}
+
 /** Label and project names are unique per owner ignoring case, so a view's `$name` matches any casing. */
-export function isNamed(item: { name: string }, name: string | undefined) {
+export function isNamed(item: NamedItem, name: string | undefined) {
 	return name?.toLowerCase() === item.name.toLowerCase()
 }
 
@@ -15,7 +20,7 @@ export function filterByName<T extends { name: string }>(
 
 /** A view's tab title: the item's name, a not-found title once the list loaded without it, or the URL's name while it loads. */
 export function getTaskViewTitle(
-	items: { name: string }[] | undefined,
+	items: NamedItem[] | undefined,
 	name: string,
 	notFoundTitle: string
 ) {
