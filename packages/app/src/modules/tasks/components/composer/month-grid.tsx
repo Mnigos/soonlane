@@ -1,12 +1,13 @@
 import {
 	type CalendarDate,
+	type CalendarDayTone,
 	formatLongDate,
 	formatMonthYear,
 	getDayOfMonth,
 	getMonthStart,
 	isBefore,
-	isWeekend,
 	formatMonthHeading,
+	getCalendarDayTone,
 	getVisibleWeeks,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
@@ -31,13 +32,12 @@ function focusElement(element: HTMLButtonElement | null) {
 	element?.focus()
 }
 
-function getDayTone(date: CalendarDate, today: CalendarDate) {
-	if (isBefore(date, today)) return 'text-faint-foreground'
-	if (date === today) return 'font-semibold text-danger'
-	if (isWeekend(date)) return 'text-secondary-foreground'
-
-	return 'text-foreground'
-}
+const DAY_TONE_CLASSES = {
+	past: 'text-faint-foreground',
+	today: 'font-semibold text-danger',
+	weekend: 'text-secondary-foreground',
+	weekday: 'text-foreground',
+} as const satisfies Record<CalendarDayTone, string>
 
 /**
  * One month of the date picker, headed by its short name after the first
@@ -97,7 +97,7 @@ export function MonthGrid({
 								<span
 									className={cn(
 										'relative flex size-6 items-center justify-center rounded-full text-label transition-colors group-hover:bg-hover group-focus-visible:outline-2 group-focus-visible:outline-primary',
-										getDayTone(date, today),
+										DAY_TONE_CLASSES[getCalendarDayTone(date, today)],
 										isSelected &&
 											'bg-primary font-semibold text-primary-foreground group-hover:bg-primary-hover'
 									)}

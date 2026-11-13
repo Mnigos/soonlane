@@ -9,6 +9,7 @@ import {
 	DEFAULT_TASK_PRIORITY,
 	getDueLabel,
 } from '@soonlane/domain'
+import { useRouter } from 'expo-router'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { COLORS, RADIUS, TEXT } from '@/tokens.gen'
 import { showDueDateSheet } from '../due-date-sheet.helper'
@@ -17,6 +18,7 @@ import {
 	LABEL_COLORS,
 	PRIORITY_COLORS,
 } from '../task-colors.constants'
+import { GoalProgress } from './goal-progress'
 
 interface TaskRowProps {
 	task: Task
@@ -30,8 +32,9 @@ const PRIORITY_TINT_ALPHA = '26'
 const CIRCLE_HIT_SLOP = 13
 const MORE_DOTS = [0, 1, 2]
 
-/** DESIGN.md's task row: the priority circle completes, the "…" or a long press opens the row menu's dates. */
+/** DESIGN.md's task row: the priority circle completes, a tap opens the task's details, the "…" or a long press its dates. */
 export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
+	const router = useRouter()
 	const { changeDate } = useTaskMenuEdits(task, today)
 	const due =
 		task.dueDate && getDueLabel(task.dueDate, { dueTime: task.dueTime }, today)
@@ -48,7 +51,7 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 	}
 
 	return (
-		<Pressable accessible={false} onLongPress={openDateMenu} style={styles.row}>
+		<View style={styles.row}>
 			<Pressable
 				accessibilityLabel={`Complete ${task.title}`}
 				accessibilityRole="button"
@@ -63,7 +66,14 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 				]}
 			/>
 
-			<View style={styles.body}>
+			<Pressable
+				accessibilityRole="button"
+				onLongPress={openDateMenu}
+				onPress={() =>
+					router.push({ pathname: '/tasks/[id]', params: { id: task.id } })
+				}
+				style={styles.body}
+			>
 				<Text style={styles.title}>{task.title}</Text>
 
 				{task.description && (
@@ -72,25 +82,7 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 					</Text>
 				)}
 
-				{task.goal && (
-					<View style={styles.goal}>
-						<Text style={styles.caption}>
-							{task.goal.progress}/{task.goal.target}
-							{task.goal.unit && ` ${task.goal.unit}`}
-						</Text>
-
-						<View style={styles.goalTrack}>
-							<View
-								style={[
-									styles.goalFill,
-									{
-										width: `${(task.goal.progress / task.goal.target) * 100}%`,
-									},
-								]}
-							/>
-						</View>
-					</View>
-				)}
+				{task.goal && <GoalProgress goal={task.goal} />}
 
 				{hasMeta && (
 					<View style={styles.meta}>
@@ -119,7 +111,7 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 						)}
 					</View>
 				)}
-			</View>
+			</Pressable>
 
 			<Pressable
 				accessibilityLabel="More task actions"
@@ -132,7 +124,7 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 					<View key={dot} style={styles.dot} />
 				))}
 			</Pressable>
-		</Pressable>
+		</View>
 	)
 }
 
@@ -154,14 +146,6 @@ const styles = StyleSheet.create({
 	body: { flex: 1, gap: 2 },
 	title: { ...TEXT.sm, color: COLORS.foreground },
 	description: { ...TEXT.label, color: COLORS.mutedForeground },
-	goal: { gap: 4 },
-	goalTrack: {
-		height: 2,
-		maxWidth: 192,
-		overflow: 'hidden',
-		backgroundColor: COLORS.border,
-	},
-	goalFill: { height: 2, backgroundColor: COLORS.mutedForeground },
 	meta: { flexDirection: 'row', flexWrap: 'wrap', columnGap: 8 },
 	caption: { ...TEXT.caption, color: COLORS.mutedForeground },
 	more: {

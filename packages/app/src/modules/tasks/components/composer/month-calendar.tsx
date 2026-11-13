@@ -11,6 +11,7 @@ import {
 	getCalendarMonths,
 	getInitialMonthCount,
 	getMonthOffset,
+	WEEKDAY_INITIALS,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ChevronLeft, ChevronRight, Circle } from 'lucide-react'
@@ -23,7 +24,6 @@ interface MonthCalendarProps {
 	onSelect: (date: CalendarDate) => void
 }
 
-const WEEKDAY_INITIALS = ['M', 'T', 'W', 'T', 'F', 'S', 'S']
 const KEY_STEPS: Record<string, number> = {
 	ArrowLeft: -1,
 	ArrowRight: 1,

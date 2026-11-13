@@ -1,5 +1,7 @@
 // Hermes has no Array.prototype.toSorted, which the shared list helpers and the title parser use.
 import 'core-js/stable/array/to-sorted'
+// Nor Intl.PluralRules, which spells the ordinal of a monthly repeat ("Every month on the 13th").
+import 'intl-pluralrules'
 import { provideHostPorts } from '@soonlane/app/host-ports'
 import { provideRpcLink } from '@soonlane/app/rpc-query'
 import {
@@ -96,6 +98,8 @@ export default function RootLayout() {
 						<Stack.Screen name="labels/[name]" />
 
 						<Stack.Screen name="projects/[name]" />
+
+						<Stack.Screen name="tasks/[id]" options={{ title: 'Edit task' }} />
 					</Stack.Protected>
 
 					<Stack.Protected guard={!isSignedIn}>
