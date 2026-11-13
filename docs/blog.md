@@ -4,7 +4,7 @@ Posts are MDX files in the repo. A pull request shows them on its preview, and m
 
 ## Write a post
 
-Create `apps/web/src/modules/blog/content/<slug>.mdx`. The file name is the URL: `why-soonlane.mdx` becomes `/blog/why-soonlane`.
+Create `apps/site/src/modules/blog/content/<slug>.mdx`. The file name is the URL: `why-soonlane.mdx` becomes `/blog/why-soonlane`.
 
 ```mdx
 ---
@@ -26,7 +26,7 @@ The post, in Markdown. GitHub-flavoured tables and task lists work too.
 | `draft`       | no       | `true` keeps the post off production. Defaults to `false`.                   |
 | `image`       | no       | Custom share image under `/blog/`; without it the build draws one per post.  |
 
-Put images in `apps/web/public/blog/<slug>/` and reference them as `/blog/<slug>/<file>`. Give inline images a width and height (`<img src="/blog/<slug>/shot.png" alt="…" width={1200} height={750} />`) so the page does not jump while they load.
+Put images in `apps/site/public/blog/<slug>/` and reference them as `/blog/<slug>/<file>`. Give inline images a width and height (`<img src="/blog/<slug>/shot.png" alt="…" width={1200} height={750} />`) so the page does not jump while they load.
 
 ## Publish
 

@@ -163,7 +163,7 @@ export const CONVENTION_RULES = {
 } satisfies OxlintOverride['rules']
 
 /** Workspaces that render React screens; `packages/app` also gets HOST_ONLY_IMPORTS. */
-const FRONTEND_WORKSPACES = ['apps/web', 'packages/app'] as const
+const FRONTEND_WORKSPACES = ['apps/web', 'apps/site', 'packages/app'] as const
 
 function getHostOnlyImports(workspace: string) {
 	return workspace === 'packages/app' ? [HOST_ONLY_IMPORTS] : []
@@ -193,6 +193,7 @@ const TASK_STATEMENT_FILES = [
 
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
+	'apps/site/src/**',
 	'apps/api/src/**',
 	'apps/desktop/src/**',
 	'packages/*/*.ts',
@@ -274,6 +275,7 @@ export const CONVENTION_OVERRIDES = [
 	{
 		files: [
 			'apps/web/src/modules/**',
+			'apps/site/src/modules/**',
 			'apps/api/src/modules/**',
 			'packages/contracts/src/*.contract.ts',
 		],
@@ -303,7 +305,7 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'promise/prefer-await-to-then': 'error' },
 	},
 	{
-		files: ['apps/web/**', 'packages/app/**'],
+		files: ['apps/web/**', 'apps/site/**', 'packages/app/**'],
 		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
 	{

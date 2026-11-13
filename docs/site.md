@@ -1,6 +1,6 @@
 # Landing page screenshots
 
-The landing page (`apps/web/src/modules/site`) shows the real app in five WebP screenshots under `apps/web/public/site/`. Redo them when the app's UI changes. Use synthetic data only, never a real account or real tasks.
+The landing page (`apps/site/src/modules/site`) shows the real app in five WebP screenshots under `apps/site/public/site/`. Redo them when the app's UI changes. Use synthetic data only, never a real account or real tasks.
 
 | File | View | Viewport |
 | --- | --- | --- |
@@ -18,8 +18,8 @@ The landing page (`apps/web/src/modules/site`) shows the real app in five WebP s
 4. Crop only to remove empty space or the browser's scrollbar (for example to the centered list column for the feature rows), never edit the content. Convert each PNG to WebP and check that it stays under about 200 KB:
 
    ```sh
-   cwebp -q 90 -m 6 -sharp_yuv capture.png -o apps/web/public/site/<file>.webp
+   cwebp -q 90 -m 6 -sharp_yuv capture.png -o apps/site/public/site/<file>.webp
    ```
 
-5. If a file's pixel size changed, update its `width` and `height` in `apps/web/src/modules/site/presentation/landing.constants.ts` to half the pixel size (the CSS size), and check the `alt` text still describes the picture.
+5. If a file's pixel size changed, update its `width` and `height` in `apps/site/src/modules/site/presentation/landing.constants.ts` to half the pixel size (the CSS size), and check the `alt` text still describes the picture.
 6. Remove the sample data when done: `bun run --cwd apps/api dev:session --delete`.

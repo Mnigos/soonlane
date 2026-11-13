@@ -1,17 +1,6 @@
 import { index, layout, rootRoute, route } from '@tanstack/virtual-file-routes'
 
 export const routes = rootRoute('routes/__root.tsx', [
-	route('/site', 'modules/site/presentation/routes/site.route.tsx', [
-		index('modules/site/presentation/routes/home.route.tsx'),
-		route(
-			'/changelog',
-			'modules/changelog/presentation/routes/changelog.route.tsx'
-		),
-		route('/privacy', 'modules/site/presentation/routes/privacy.route.tsx'),
-		route('/terms', 'modules/site/presentation/routes/terms.route.tsx'),
-		route('/blog', 'modules/blog/presentation/routes/blog.route.tsx'),
-		route('/blog/$slug', 'modules/blog/presentation/routes/post.route.tsx'),
-	]),
 	layout('session', 'modules/identity/presentation/routes/session.route.tsx', [
 		layout('shell', 'modules/shell/presentation/routes/shell.route.tsx', [
 			index('modules/tasks/presentation/routes/upcoming.route.tsx'),
@@ -49,14 +38,5 @@ export const routes = rootRoute('routes/__root.tsx', [
 			'modules/identity/presentation/routes/desktop-callback.route.tsx'
 		),
 	]),
-	route('/robots[.]txt', 'modules/site/presentation/routes/robots.route.ts'),
-	route(
-		'/site/sitemap[.]xml',
-		'modules/site/presentation/routes/sitemap.route.ts'
-	),
-	route(
-		'/site/blog/rss[.]xml',
-		'modules/blog/presentation/routes/rss.route.ts'
-	),
 	route('/health', 'modules/hosting/presentation/routes/health.route.ts'),
 ])

@@ -1,0 +1,19 @@
+{
+  "name": "@soonlane/vite-config",
+  "version": "0.0.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "exports": {
+    "./build-info": "./build-info.helper.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@soonlane/analytics": "workspace:*",
+    "@soonlane/typescript-config": "workspace:*",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  }
+}

@@ -59,33 +59,27 @@
         "typescript": "catalog:",
       },
     },
-    "apps/web": {
-      "name": "@soonlane/web",
+    "apps/site": {
+      "name": "@soonlane/site",
       "dependencies": {
         "@content-collections/core": "0.15.3",
         "@content-collections/mdx": "0.2.2",
         "@content-collections/vite": "0.3.1",
-        "@orpc/client": "catalog:",
         "@soonlane/analytics": "workspace:*",
-        "@soonlane/app": "workspace:*",
         "@soonlane/auth": "workspace:*",
-        "@soonlane/contracts": "workspace:*",
         "@soonlane/domain": "workspace:*",
         "@soonlane/tailwind-config": "workspace:*",
         "@soonlane/ui": "workspace:*",
+        "@soonlane/vite-config": "workspace:*",
         "@tailwindcss/vite": "catalog:",
-        "@tanstack/react-query": "catalog:",
         "@tanstack/react-router": "catalog:",
-        "@tanstack/react-router-ssr-query": "catalog:",
         "@tanstack/react-start": "catalog:",
         "@tanstack/router-plugin": "catalog:",
         "@tanstack/virtual-file-routes": "catalog:",
         "lucide-react": "^1.56.0",
-        "nitro": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
         "remark-gfm": "4.0.1",
-        "sonner": "2.0.8",
         "tailwindcss": "catalog:",
         "zod": "catalog:",
       },
@@ -98,6 +92,43 @@
         "@vitejs/plugin-react": "catalog:",
         "satori": "0.63.2",
         "schema-dts": "2.1.0",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+    },
+    "apps/web": {
+      "name": "@soonlane/web",
+      "dependencies": {
+        "@orpc/client": "catalog:",
+        "@soonlane/analytics": "workspace:*",
+        "@soonlane/app": "workspace:*",
+        "@soonlane/auth": "workspace:*",
+        "@soonlane/contracts": "workspace:*",
+        "@soonlane/domain": "workspace:*",
+        "@soonlane/tailwind-config": "workspace:*",
+        "@soonlane/ui": "workspace:*",
+        "@soonlane/vite-config": "workspace:*",
+        "@tailwindcss/vite": "catalog:",
+        "@tanstack/react-query": "catalog:",
+        "@tanstack/react-router": "catalog:",
+        "@tanstack/react-router-ssr-query": "catalog:",
+        "@tanstack/react-start": "catalog:",
+        "@tanstack/router-plugin": "catalog:",
+        "@tanstack/virtual-file-routes": "catalog:",
+        "lucide-react": "^1.56.0",
+        "nitro": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "sonner": "2.0.8",
+        "tailwindcss": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@soonlane/typescript-config": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
       },
@@ -259,6 +290,16 @@
     "tooling/typescript-config": {
       "name": "@soonlane/typescript-config",
       "version": "0.0.0",
+    },
+    "tooling/vite-config": {
+      "name": "@soonlane/vite-config",
+      "version": "0.0.0",
+      "devDependencies": {
+        "@soonlane/analytics": "workspace:*",
+        "@soonlane/typescript-config": "workspace:*",
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
     },
   },
   "overrides": {
@@ -803,11 +844,15 @@
 
     "@soonlane/oxlint-plugin": ["@soonlane/oxlint-plugin@workspace:tooling/oxlint-plugin"],
 
+    "@soonlane/site": ["@soonlane/site@workspace:apps/site"],
+
     "@soonlane/tailwind-config": ["@soonlane/tailwind-config@workspace:tooling/tailwind-config"],
 
     "@soonlane/typescript-config": ["@soonlane/typescript-config@workspace:tooling/typescript-config"],
 
     "@soonlane/ui": ["@soonlane/ui@workspace:packages/ui"],
+
+    "@soonlane/vite-config": ["@soonlane/vite-config@workspace:tooling/vite-config"],
 
     "@soonlane/web": ["@soonlane/web@workspace:apps/web"],
 
