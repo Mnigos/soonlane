@@ -50,7 +50,7 @@ The Mac app works with your copy too. It loads the web app from an address baked
 
 I want to be clear about this part. Soonlane is not packaged for self-hosting yet.
 
-There is no Docker image and no single command that starts everything. The deploy docs in the repository describe my own setup: the API on Railway and the web app on Vercel. The web app's build targets Vercel, so to run it on your own server you need to change its build setup. The hosting setup is also changing as the project moves between providers.
+There is no single command or Docker setup that starts the whole app. The deploy docs in the repository describe my own setup on Railway: Postgres, the API, the web app and the public site. You can build the API and the web app and start both with Bun on your own server. Only the public site has a Docker image, and you do not need it for the app itself.
 
 If you are comfortable with Bun, Postgres and reading a deploy guide written for someone else, you can run it. If you want something that starts from one `docker run`, Vikunja is the better pick today.
 
