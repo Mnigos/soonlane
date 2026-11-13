@@ -1,13 +1,10 @@
+import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { useLocalSearchParams } from 'expo-router'
-import { PlaceholderScreen } from '@/modules/shell/presentation/components/placeholder-screen'
+import { ProjectScreen } from '@/modules/tasks/presentation/components/project-screen'
 
 export default function ProjectRoute() {
 	const { name } = useLocalSearchParams<{ name: string }>()
+	const today = useToday()
 
-	return (
-		<PlaceholderScreen
-			title={name}
-			description="Tasks in this project will appear here."
-		/>
-	)
+	return today && <ProjectScreen name={name} today={today} />
 }
