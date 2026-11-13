@@ -137,12 +137,13 @@ export default defineConfig({
 	},
 	overrides: [
 		{
-			// Their tool loads them only through the default export: Vite, content-collections, Drizzle Kit, Electrobun, Expo Router, commitlint, oxlint (config and plugin), oxfmt and Railway.
+			// Their tool loads them only through the default export: Vite, content-collections, Drizzle Kit, Electrobun, Expo (app config and routes), commitlint, oxlint (config and plugin), oxfmt and Railway.
 			files: [
 				'apps/web/vite.config.ts',
 				'apps/web/content-collections.ts',
 				'packages/db/drizzle.config.ts',
 				'apps/desktop/electrobun.config.ts',
+				'apps/mobile/app.config.ts',
 				'apps/mobile/app/**',
 				'commitlint.config.ts',
 				'oxlint.config.mts',

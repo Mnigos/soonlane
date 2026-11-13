@@ -6,6 +6,7 @@
   "scripts": {
     "start": "bun scripts/generate-tokens.ts && expo start",
     "typecheck": "bun scripts/generate-tokens.ts && tsc --noEmit",
+    "images": "bun scripts/generate-tokens.ts && bun scripts/generate-app-images.ts",
     "postinstall": "bun scripts/generate-tokens.ts"
   },
   "dependencies": {
@@ -26,6 +27,7 @@
     "expo-network": "~58.0.5",
     "expo-router": "~58.0.31",
     "expo-secure-store": "~58.0.3",
+    "expo-splash-screen": "~58.0.14",
     "expo-web-browser": "~58.0.8",
     "intl-pluralrules": "2.0.1",
     "posthog-react-native": "4.86.0",
@@ -35,6 +37,7 @@
     "react-native-screens": "~4.30.1"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@soonlane/tailwind-config": "workspace:*",
     "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",

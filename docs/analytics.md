@@ -77,7 +77,7 @@ Details:
 
 Every event the app captures carries `app_version` (`version.json`), `commit`, `platform` (`web` or `desktop`, from `<html data-shell="desktop">`), `surface` (`blog` on `/blog` and its posts; `landing` on the other public site routes under the `/_site` layout: `/`, `/changelog`, `/privacy`, `/terms`; `app` everywhere else, the app under `/app`, `/login` and the desktop screens), `environment` (`production`, `staging` or `development`, from `APP_ENV` at build time), `timezone` and `route` (the matched route id, such as `/_session/app/today` or `/_site/privacy`). `route` and `surface` are registered before `identify` and before each `$pageview`, and again with the rest after `reset()`, opting in or out, so exceptions carry it too. The SDK's own internal events (`$set`, replay `$snapshot` envelopes) do not carry super properties. Server events carry `app_version`, `commit` and `environment`.
 
-The iPhone app's events carry `app_version` (the `version` in `apps/mobile/app.json`), `environment` (`EXPO_PUBLIC_APP_ENV`, set per EAS profile: `development`, `staging` for preview, `production`), `platform: ios`, `surface: app` and `timezone`; no `commit` and no `route`, because it sends no screens.
+The iPhone app's events carry `app_version` (`version.json`, through `apps/mobile/app.config.ts`), `environment` (`EXPO_PUBLIC_APP_ENV`, set per EAS profile: `development`, `staging` for preview, `production`), `platform: ios`, `surface: app` and `timezone`; no `commit` and no `route`, because it sends no screens.
 
 ## Consent
 
