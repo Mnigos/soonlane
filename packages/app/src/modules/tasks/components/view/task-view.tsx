@@ -112,6 +112,7 @@ export function TaskView({
 						{...composer}
 						defaultDueDate={today}
 						onCancel={closeComposer}
+						onCreated={closeComposer}
 						today={today}
 					/>
 				) : (

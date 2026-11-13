@@ -36,9 +36,9 @@ import { TitleField } from './title-field'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate | undefined
-	/** Picked again after each task, like the label of an open label view. */
+	/** Picked from the start, like the label of an open label view. */
 	defaultLabels?: Label[]
-	/** Picked again after each task, like the project of an open project view. */
+	/** Picked from the start, like the project of an open project view. */
 	defaultProject?: Project
 	today: CalendarDate
 	source: ComposerSource
@@ -71,8 +71,7 @@ function getSavedRule(
 /**
  * Todoist's task card: title, description and a row of chips. Enter submits
  * from the text fields, Cmd+Enter or Ctrl+Enter from anywhere in the card,
- * Escape cancels. Adding keeps the card open for the next task; saving an
- * edit closes it.
+ * Escape cancels. The parent closes the card through onCreated or onSaved.
  */
 export function TaskComposer({
 	defaultDueDate,
