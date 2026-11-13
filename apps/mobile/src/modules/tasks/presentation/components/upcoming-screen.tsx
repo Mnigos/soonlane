@@ -50,6 +50,7 @@ export function UpcomingScreen({ today }: Readonly<UpcomingScreenProps>) {
 					heading: getDayHeading(date, today),
 					isMuted: date !== today,
 					isLoading: rangeQueries[index]?.isPending ?? true,
+					addDate: date,
 					data: tasksByDay.get(date) ?? [],
 				}))
 			)}

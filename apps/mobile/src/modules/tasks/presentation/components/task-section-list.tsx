@@ -1,3 +1,4 @@
+import { getHostPorts } from '@soonlane/app/host-ports'
 import { refreshTaskLists } from '@soonlane/app/tasks/helpers/task-list.helper'
 import { useCompleteTask } from '@soonlane/app/tasks/hooks/use-complete-task'
 import type { Task } from '@soonlane/contracts'
@@ -5,6 +6,7 @@ import type { CalendarDate } from '@soonlane/domain'
 import { useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import {
+	Pressable,
 	RefreshControl,
 	SectionList,
 	StyleSheet,
@@ -14,6 +16,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { OutlineButton } from '@/modules/shell/presentation/components/outline-button'
 import { COLORS, RADIUS, TEXT } from '@/tokens.gen'
+import { TaskComposer } from './task-composer'
 import { TaskRow } from './task-row'
 
 /** One heading and its tasks, in the order and grouping of the web list. */
@@ -25,6 +28,8 @@ export interface TaskSection {
 	isLoading: boolean
 	/** Shown once loaded without tasks, like Overdue's "Nothing overdue." */
 	emptyText?: string
+	/** Adds the web's "+ Add task" row, whose composer starts due this day. */
+	addDate?: CalendarDate
 	data: Task[]
 }
 
@@ -49,11 +54,22 @@ export function TaskSectionList({
 	const queryClient = useQueryClient()
 	const { completeTask } = useCompleteTask(today)
 	const [isRefreshing, setIsRefreshing] = useState(false)
+	const [composerDate, setComposerDate] = useState<CalendarDate>()
 
 	async function refresh() {
 		setIsRefreshing(true)
 		await refreshTaskLists(queryClient)
 		setIsRefreshing(false)
+	}
+
+	function openComposer(date: CalendarDate) {
+		getHostPorts().capture('composer_opened', { source: 'day_row' })
+		setComposerDate(date)
+	}
+
+	function cancelComposer() {
+		getHostPorts().capture('composer_cancelled', { source: 'day_row' })
+		setComposerDate(undefined)
 	}
 
 	return (
@@ -99,10 +115,30 @@ export function TaskSectionList({
 								<View style={styles.skeleton} />
 							</View>
 						)
-					if (section.emptyText && section.data.length === 0)
-						return <Text style={styles.empty}>{section.emptyText}</Text>
+					const { addDate } = section
 
-					return null
+					return (
+						<>
+							{section.emptyText && section.data.length === 0 && (
+								<Text style={styles.empty}>{section.emptyText}</Text>
+							)}
+
+							{addDate && (
+								<Pressable
+									accessibilityRole="button"
+									onPress={() => openComposer(addDate)}
+									style={({ pressed }) => [
+										styles.addTask,
+										pressed && styles.pressed,
+									]}
+								>
+									<Text style={styles.plus}>+</Text>
+
+									<Text style={styles.addTaskLabel}>Add task</Text>
+								</Pressable>
+							)}
+						</>
+					)
 				}}
 				renderSectionHeader={({ section }) => (
 					<Text
@@ -114,6 +150,14 @@ export function TaskSectionList({
 				)}
 				sections={sections}
 			/>
+
+			{composerDate && (
+				<TaskComposer
+					defaultDueDate={composerDate}
+					onClose={cancelComposer}
+					today={today}
+				/>
+			)}
 		</SafeAreaView>
 	)
 }
@@ -149,4 +193,13 @@ const styles = StyleSheet.create({
 		backgroundColor: COLORS.hover,
 	},
 	empty: { ...TEXT.sm, paddingVertical: 12, color: COLORS.faintForeground },
+	addTask: {
+		height: 44,
+		flexDirection: 'row',
+		alignItems: 'center',
+		gap: 10,
+	},
+	pressed: { backgroundColor: COLORS.hover },
+	plus: { ...TEXT.lg, width: 18, textAlign: 'center', color: COLORS.primary },
+	addTaskLabel: { ...TEXT.sm, color: COLORS.mutedForeground },
 })

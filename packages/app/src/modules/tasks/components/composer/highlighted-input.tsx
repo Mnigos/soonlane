@@ -6,11 +6,7 @@ import {
 	type SyntheticEvent,
 	useRef,
 } from 'react'
-
-interface TextRange {
-	start: number
-	end: number
-}
+import { splitByRanges, type TextRange } from '../../helpers/text-range.helper'
 
 interface DismissibleRange extends TextRange {
 	onDismiss: () => void
@@ -22,32 +18,6 @@ interface HighlightedInputProps extends ComponentProps<'input'> {
 	highlights: TextRange[]
 	/** Some of `highlights` that Backspace right after one or a click on it turns off. */
 	dismissible: DismissibleRange[]
-}
-
-function splitByRanges(
-	text: string,
-	ranges: TextRange[],
-	dismissible: DismissibleRange[]
-) {
-	const sorted = ranges.toSorted((a, b) => a.start - b.start)
-
-	return [
-		...sorted.flatMap((range, index) => [
-			text.slice(sorted[index - 1]?.end ?? 0, range.start),
-			<span
-				className="-mx-0.5 rounded-sm bg-primary/40 px-0.5 py-0.5"
-				data-dismissible={
-					dismissible.some(({ start }) => start === range.start)
-						? range.start
-						: undefined
-				}
-				key={range.start}
-			>
-				{text.slice(range.start, range.end)}
-			</span>,
-		]),
-		text.slice(sorted.at(-1)?.end ?? 0),
-	]
 }
 
 /**
@@ -121,7 +91,23 @@ export function HighlightedInput({
 				)}
 			>
 				<span className="whitespace-pre" ref={layerRef}>
-					{splitByRanges(value, highlights, dismissible)}
+					{splitByRanges(value, highlights).map(({ start, text, isRange }) =>
+						isRange ? (
+							<span
+								className="-mx-0.5 rounded-sm bg-primary/40 px-0.5 py-0.5"
+								data-dismissible={
+									dismissible.some(range => range.start === start)
+										? start
+										: undefined
+								}
+								key={start}
+							>
+								{text}
+							</span>
+						) : (
+							text
+						)
+					)}
 				</span>
 			</div>
 

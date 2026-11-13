@@ -76,6 +76,22 @@ export function isRepeatChanged(task: Task, repeat: RepeatInput | undefined) {
 	)
 }
 
+/**
+ * The due date a composer saves for the typed or picked date. A typed rule without a date of its own starts today, as
+ * in Todoist, since a repeating task needs a due date; every weekday moves a weekend pick to Monday, as the server does,
+ * so the chip shows the real date.
+ */
+export function getScheduledDate(
+	task: Task | undefined,
+	pickedDate: CalendarDate | undefined,
+	repeat: RepeatInput | undefined,
+	today: CalendarDate
+) {
+	const date = pickedDate ?? (repeat && today)
+
+	return date && getEditedDueDate(task, date, repeat?.unit)
+}
+
 /** The quick dates of a task's "…" menu: the date picker's, without Next weekend. */
 export function getMenuDateShortcuts(today: CalendarDate) {
 	return getDueDateShortcuts(today).filter(({ id }) => id !== 'next-weekend')
