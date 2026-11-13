@@ -31,7 +31,6 @@ import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } fr
 import { Route as modulesTasksPresentationRoutesSearchDotrouteRouteImport } from './modules/tasks/presentation/routes/search.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesTodoistPresentationRoutesTodoistDotrouteRouteImport } from './modules/todoist/presentation/routes/todoist.route'
-import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
 import { Route as modulesBlogPresentationRoutesPostDotrouteRouteImport } from './modules/blog/presentation/routes/post.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
@@ -167,12 +166,6 @@ const modulesTodoistPresentationRoutesTodoistDotrouteRoute =
     path: '/todoist',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
-const modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute =
-  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport.update({
-    id: '/desktop/callback',
-    path: '/desktop/callback',
-    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
-  } as any)
 const modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute =
   modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport.update({
     id: '/desktop/sign-in',
@@ -219,7 +212,6 @@ export interface FileRoutesByFullPath {
   '/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
-  '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -245,7 +237,6 @@ export interface FileRoutesByTo {
   '/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
-  '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -275,7 +266,6 @@ export interface FileRoutesById {
   '/_session/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
-  '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
   '/_site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
   '/_session/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
@@ -304,7 +294,6 @@ export interface FileRouteTypes {
     | '/app/search'
     | '/app/today'
     | '/app/todoist'
-    | '/desktop/callback'
     | '/desktop/sign-in'
     | '/blog/$slug'
     | '/app/labels/$name'
@@ -330,7 +319,6 @@ export interface FileRouteTypes {
     | '/app/search'
     | '/app/today'
     | '/app/todoist'
-    | '/desktop/callback'
     | '/desktop/sign-in'
     | '/blog/$slug'
     | '/app/labels/$name'
@@ -359,7 +347,6 @@ export interface FileRouteTypes {
     | '/_session/app/search'
     | '/_session/app/today'
     | '/_session/app/todoist'
-    | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
     | '/_site/blog/$slug'
     | '/_session/app/labels/$name'
@@ -533,13 +520,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/desktop/callback': {
-      id: '/_session/desktop/callback'
-      path: '/desktop/callback'
-      fullPath: '/desktop/callback'
-      preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport
-      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
-    }
     '/_session/desktop/sign-in': {
       id: '/_session/desktop/sign-in'
       path: '/desktop/sign-in'
@@ -611,7 +591,6 @@ interface modulesIdentityPresentationRoutesSessionDotrouteRouteChildren {
   modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   modulesTasksPresentationRoutesQuickAddDotrouteRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
 }
 
@@ -623,8 +602,6 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteChildren: modulesIden
       modulesIdentityPresentationRoutesLoginDotrouteRoute,
     modulesTasksPresentationRoutesQuickAddDotrouteRoute:
       modulesTasksPresentationRoutesQuickAddDotrouteRoute,
-    modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute:
-      modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute,
     modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute:
       modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute,
   }

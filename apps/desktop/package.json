@@ -4,19 +4,38 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "APP_URL=http://localhost:3000 bunx --bun electrobun dev",
-    "dev:applications": "APP_URL=http://localhost:3000 bunx --bun electrobun build --env=dev && rm -rf /Applications/Soonlane-dev.app && cp -R build/dev-macos-arm64/Soonlane-dev.app /Applications/ && /Applications/Soonlane-dev.app/Contents/MacOS/launcher",
-    "package": ": \"${APP_URL:?set APP_URL to the web app URL the build should load}\" && bunx --bun electrobun build --env=stable",
+    "dev": "APP_URL=http://localhost:3000 API_URL=http://localhost:4000 bun run view && APP_URL=http://localhost:3000 API_URL=http://localhost:4000 bunx --bun electrobun dev",
+    "view": "bun run sdk && bunx --bun vite build",
+    "package": ": \"${APP_URL:?set APP_URL to the web app URL}\" \"${API_URL:?set API_URL to the API URL}\" && bun run view && bunx --bun electrobun build --env=stable",
     "sdk": "bunx --bun electrobun prepare",
     "typecheck": "bun run sdk && tsc --noEmit"
   },
   "dependencies": {
+    "@orpc/client": "catalog:",
+    "@soonlane/app": "workspace:*",
     "@soonlane/auth": "workspace:*",
-    "effect": "catalog:"
+    "@soonlane/contracts": "workspace:*",
+    "@soonlane/domain": "workspace:*",
+    "@soonlane/ui": "workspace:*",
+    "@tanstack/react-query": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "effect": "catalog:",
+    "lucide-react": "^1.56.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "sonner": "2.0.8",
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@soonlane/tailwind-config": "workspace:*",
     "@soonlane/typescript-config": "workspace:*",
+    "@tailwindcss/vite": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
     "electrobun": "2.0.6",
-    "typescript": "catalog:"
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

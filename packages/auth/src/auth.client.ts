@@ -54,14 +54,3 @@ export async function createDesktopSignInCode(challenge: string) {
 		body: { challenge },
 	})
 }
-
-/** Trades the code and the app's verifier for a session cookie on this origin. */
-export async function exchangeDesktopSignInCode(
-	code: string,
-	verifier: string
-) {
-	return await authClient.$fetch<{ status: boolean }>(
-		'/desktop-sign-in/exchange',
-		{ method: 'POST', body: { code, verifier } }
-	)
-}

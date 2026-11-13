@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en" data-shell="desktop">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta
+			http-equiv="Content-Security-Policy"
+			content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' %API_ORIGIN% ws://127.0.0.1:*; object-src 'none'; base-uri 'none'; form-action 'none'"
+		/>
+		<title>Soonlane</title>
+		<script type="module" src="./main.tsx"></script>
+	</head>
+	<body class="min-h-dvh bg-background font-sans text-foreground antialiased">
+		<div id="root"></div>
+	</body>
+</html>

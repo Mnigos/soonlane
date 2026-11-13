@@ -1,6 +1,4 @@
 import {
-	DESKTOP_SIGN_IN_LINK_HOST,
-	DESKTOP_URL_SCHEME,
 	LOOPBACK_CALLBACK_PATH,
 	LOOPBACK_HOST,
 	SIGN_IN_CODE_PARAM,
@@ -14,25 +12,21 @@ const HAND_OFF_FAILED = 'Could not start the desktop sign-in. Try again.'
 
 interface HandOff {
 	challenge: string
-	port?: number
+	port: number
 }
 
-/** The app's loopback listener when it sent a port (RFC 8252), else its `soonlane://` link. */
+/** Leaves for the app's loopback listener (RFC 8252), which answers with its own page. */
 async function openDesktopApp({ challenge, port }: HandOff) {
 	const { data, error } = await createDesktopSignInCode(challenge)
 
 	if (error) throw new Error(HAND_OFF_FAILED, { cause: error })
 
 	const link = new URL(
-		port
-			? `http://${LOOPBACK_HOST}:${port}${LOOPBACK_CALLBACK_PATH}`
-			: `${DESKTOP_URL_SCHEME}://${DESKTOP_SIGN_IN_LINK_HOST}`
+		`http://${LOOPBACK_HOST}:${port}${LOOPBACK_CALLBACK_PATH}`
 	)
 
 	link.searchParams.set(SIGN_IN_CODE_PARAM, data.code)
 	window.location.assign(link)
-
-	return link.href
 }
 
 interface DesktopHandOffScreenProps extends HandOff {
@@ -45,12 +39,9 @@ export function DesktopHandOffScreen({
 	port,
 	user,
 }: Readonly<DesktopHandOffScreenProps>) {
-	const {
-		mutate,
-		data: link,
-		isPending,
-		error,
-	} = useMutation({ mutationFn: openDesktopApp })
+	const { mutate, isPending, error } = useMutation({
+		mutationFn: openDesktopApp,
+	})
 
 	return (
 		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-8 px-6 py-16">
@@ -71,26 +62,6 @@ export function DesktopHandOffScreen({
 			>
 				{isPending ? 'Opening…' : 'Open the desktop app'}
 			</Button>
-
-			{/* The loopback page replaces this one; only a `soonlane://` link leaves the tab here. */}
-			{link && !port && (
-				// The link carries a one-time code: session replay records a placeholder.
-				<output className="ph-no-capture flex flex-col gap-1 text-sm">
-					<p className="font-semibold">You can close this tab</p>
-
-					<p className="text-muted-foreground">
-						The desktop app finishes signing in. If it did not open,{' '}
-						{/* Browsers can refuse to open an app after a slow request; a click on this link always counts. */}
-						<a
-							className="underline underline-offset-4 hover:text-foreground"
-							href={link}
-						>
-							open it from here
-						</a>{' '}
-						or check that it is in your Applications folder.
-					</p>
-				</output>
-			)}
 
 			{error && (
 				<p className="text-sm font-medium text-danger" role="alert">

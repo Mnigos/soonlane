@@ -12,11 +12,8 @@ import { symmetricDecrypt } from 'better-auth/crypto'
 import { bearer } from 'better-auth/plugins'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import { canSignUp } from './auth-policy.helper'
-import {
-	DESKTOP_EXCHANGE_PATH,
-	DESKTOP_TOKEN_PATH,
-	desktopSignIn,
-} from './desktop-sign-in.handler'
+import { AUTH_BASE_PATH, DESKTOP_TOKEN_PATH } from './desktop-sign-in.constants'
+import { desktopSignIn } from './desktop-sign-in.handler'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
@@ -27,7 +24,6 @@ import {
 	TODOIST_STILL_CONNECTED,
 } from './todoist.constants'
 
-export const AUTH_BASE_PATH = '/api/auth'
 /** The one header Better Auth reads the client IP from; the API's HTTP entry sets it and drops any copy a client sends. */
 export const CLIENT_IP_HEADER = 'x-soonlane-client-ip'
 
@@ -193,7 +189,6 @@ export function createAuth(options: CreateAuthOptions) {
 				'/sign-in/social': SIGN_IN_RATE_LIMIT,
 				'/link-social': SIGN_IN_RATE_LIMIT,
 				'/desktop-sign-in/code': SIGN_IN_RATE_LIMIT,
-				[DESKTOP_EXCHANGE_PATH]: SIGN_IN_RATE_LIMIT,
 				[DESKTOP_TOKEN_PATH]: SIGN_IN_RATE_LIMIT,
 				'/delete-user': { window: 3600, max: 5 },
 			},
@@ -287,10 +282,7 @@ export function createAuth(options: CreateAuthOptions) {
 					after: async ({ userId }, context) =>
 						await options.events.sessionCreated(
 							userId,
-							context?.path === DESKTOP_EXCHANGE_PATH ||
-								context?.path === DESKTOP_TOKEN_PATH
-								? 'desktop'
-								: 'google',
+							context?.path === DESKTOP_TOKEN_PATH ? 'desktop' : 'google',
 							context?.headers
 						),
 				},

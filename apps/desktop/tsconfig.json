@@ -1,12 +1,11 @@
 {
-  "extends": "@soonlane/typescript-config/base.json",
+  "extends": "@soonlane/typescript-config/react-app.json",
   "compilerOptions": {
-    "lib": ["ES2023", "DOM"],
-    "types": ["bun"],
     "paths": {
       "electrobun": ["./.hutch/devkit/api/sdks/main/index.ts"],
+      "electrobun/view": ["./.hutch/devkit/api/browser/index.ts"],
       "electrobun/*": ["./.hutch/devkit/api/sdks/main/entries/*.ts"]
     }
   },
-  "include": ["src/**/*.ts", "*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "*.ts"]
 }
