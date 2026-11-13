@@ -16,6 +16,7 @@ const ROLE_FOLDERS = {
 		'infrastructure',
 		'presentation',
 		'platform/rpc',
+		'platform/auth',
 		'packages/auth',
 		'packages/analytics',
 		'packages/app',

@@ -68,6 +68,12 @@ The council reviewed the server change.
 - **For SOON-168.** The app takes a session only from the result of its own auth session (`openAuthSessionAsync`) and never from a `cookie` parameter on any other incoming link. It strips that parameter from incoming links before routing, analytics or error reporting see them, and decides whether the sign-in sheet uses `preferEphemeralSession`, so it does not share cookies with Safari.
 - **No plugin `init`.** `createAuth` drops the plugin's `init`, which trusts `exp://` when `NODE_ENV` is `development`. `APP_ENV`, not `NODE_ENV`, decides whether Expo Go is trusted. Railpack builds with `NODE_ENV=production` by default, so this keeps local and Railway builds consistent rather than closing a live hole.
 
+## Update 2026-11-13 (SOON-168)
+
+- **Incoming links.** `app/+native-intent.tsx` is the only code that handles incoming URLs. It keeps only the route and drops every query and fragment, and a link with `cookie` anywhere in it (path, query or fragment), in any spelling or encoding, opens the start screen. An SDK added later (analytics, crash reporting) runs with deep-link and app-open URL capture off and gets `user.id` at most, never the session object, which holds the session token.
+- **Sign-out.** Sign-out always succeeds on the phone. When its request fails, offline or with an error, the server session stays valid until it expires, at most 7 days later, and the phone no longer holds its token. A reply to a request that a sign-out overtook is dropped before it can store a session, and no sign-in starts until the sign-out settles.
+- **Session refresh.** The mobile app's API calls send `x-soonlane-app: mobile`, and the API never refreshes the session on them. Only the auth client's `/get-session` does, and the Expo plugin stores that reply's cookie. Better Auth's `deferSessionRefresh` stays off: with it, a refresh reply the sign-out guard drops would put the signed-out user's session back.
+
 ## Related
 
 - [ADR 0007](0007-desktop-sign-in-through-the-system-browser.md), [ADR 0009](0009-open-sign-in.md), [ADR 0013](0013-three-hosts-on-railway.md), [ADR 0015](0015-desktop-app-with-its-own-ui.md)
