@@ -1,0 +1,42 @@
+name: Mobile
+
+# Only by hand: each run is an EAS build and a TestFlight upload (docs/release.md#mobile).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# One store build at a time; a running one is never canceled.
+concurrency:
+  group: mobile-ios
+  cancel-in-progress: false
+
+jobs:
+  testflight:
+    name: Build for iOS and submit to TestFlight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    defaults:
+      run:
+        working-directory: apps/mobile
+    env:
+      EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6
+        with:
+          bun-version-file: package.json
+      - name: Install
+        run: bun install --frozen-lockfile
+        working-directory: .
+      - name: Check the App Store Connect ids
+        run: |
+          if grep -q REPLACE_WITH eas.json; then
+            echo "::error file=apps/mobile/eas.json::Fill in submit.production.ios in eas.json first (docs/release.md#mobile)."
+            exit 1
+          fi
+      - name: Build and submit
+        run: bunx eas-cli@27.7.2 build --platform ios --profile production --non-interactive --auto-submit

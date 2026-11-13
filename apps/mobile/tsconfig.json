@@ -2,11 +2,18 @@
   "extends": "@soonlane/typescript-config/base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
+    "allowImportingTsExtensions": true,
     "customConditions": ["react-native"],
     "types": ["bun"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["app/**/*.tsx", "src/**/*.ts", "src/**/*.tsx", "scripts/**/*.ts"]
+  "include": [
+    "app.config.ts",
+    "app/**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "scripts/**/*.ts"
+  ]
 }
