@@ -1,7 +1,6 @@
 import { createCsrfMiddleware, createStart } from '@tanstack/react-start'
 import { compressionMiddleware } from './modules/hosting/presentation/compression.middleware'
 import { errorCacheMiddleware } from './modules/hosting/presentation/error-cache.middleware'
-import { prerenderedPagesMiddleware } from './modules/hosting/presentation/prerendered-pages.middleware'
 
 /**
  * Start adds this check to server function calls only while no start instance
@@ -20,12 +19,11 @@ const csrfMiddleware = createCsrfMiddleware({
 	},
 })
 
-/** Outermost first: the error header and gzip also cover the prerendered pages. */
+/** Outermost first: the error header also covers gzipped responses. */
 export const startInstance = createStart(() => ({
 	requestMiddleware: [
 		csrfMiddleware,
 		errorCacheMiddleware,
 		compressionMiddleware,
-		prerenderedPagesMiddleware,
 	],
 }))

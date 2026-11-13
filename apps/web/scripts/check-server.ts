@@ -1,25 +1,19 @@
 import { cp, mkdtemp, readdir, rm } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
-import { APP_ORIGIN } from '../src/modules/hosting/presentation/hosting.constants'
-import { SITE_URL } from '../src/modules/site/presentation/site.constants'
 
 /**
  * Starts the built server from a copy outside the repo, as Railway runs it, so
  * a module Nitro did not bundle cannot resolve from the workspace
- * node_modules, and checks what the hosting depends on: robots per host, a
- * prerendered page read from disk on the site host only, which pages each host
- * serves, compression, the asset cache headers and the health route.
+ * node_modules, and checks what the hosting depends on: robots blocking every
+ * crawler on every host, the app at root paths, no public page, compression, the asset
+ * cache headers and the health route.
  */
 const OUTPUT_DIR = path.resolve(import.meta.dirname, '../.output')
-const APP_HOST = new URL(APP_ORIGIN).host
 const IMMUTABLE = 'immutable'
 const BLOCKING_ROBOTS = 'User-agent: *\nDisallow: /\n'
-/** Added to the copy's prerendered page only, so seeing it proves the server read the file instead of rendering the page. */
-const DISK_MARKER = '<!-- read from disk -->'
 /** The session layout's robots tag, which only the app's routes render. */
 const APP_ROUTE_MARKER = 'noindex, nofollow'
-const PRERENDERED_PAGE = ''
 const START_TIMEOUT_MS = 10_000
 const POLL_INTERVAL_MS = 100
 
@@ -65,50 +59,29 @@ if (!asset)
 	throw new Error('The build wrote no precompressed script to public/assets')
 
 const CASES: Case[] = [
-	{
-		name: 'robots on the canonical host, gzipped',
-		path: '/robots.txt',
-		headers: { host: new URL(SITE_URL).host, 'accept-encoding': 'gzip' },
-		check: (response, body) =>
-			response.ok &&
-			response.headers.get('content-encoding') === 'gzip' &&
-			body.includes(`Sitemap: ${SITE_URL}/sitemap.xml`),
-	},
-	...[APP_HOST, 'staging.soonlane.com', 'www.soonlane.com'].map(host => ({
-		name: `robots on ${host}`,
-		path: '/robots.txt',
-		headers: { host },
-		check: (response: Response, body: string) =>
-			response.ok && body === BLOCKING_ROBOTS,
-	})),
-	{
-		name: 'a prerendered page read from disk, compressed and revalidated',
-		path: `/${PRERENDERED_PAGE}`,
-		headers: { 'accept-encoding': 'gzip' },
-		check: (response, body) =>
-			response.ok &&
-			body.endsWith(DISK_MARKER) &&
-			response.headers.get('content-type') === 'text/html; charset=utf-8' &&
-			response.headers.get('content-encoding') === 'gzip' &&
-			response.headers.get('cache-control') === 'no-cache',
-	},
-	{
-		name: 'the app, not the prerendered landing, on the app host',
-		path: '/',
-		headers: { host: APP_HOST },
-		// No API runs here, so the session lookup fails; the session layout's robots tag shows an app route matched.
-		check: (_response, body) =>
-			body.includes(APP_ROUTE_MARKER) && !body.endsWith(DISK_MARKER),
-	},
-	...['/today', '/login'].map(appPath => ({
-		name: `no app page on the site host at ${appPath}`,
+	...['app.soonlane.com', 'soonlane.com', 'app.staging.soonlane.com'].map(
+		host => ({
+			name: `robots blocking every crawler on ${host}`,
+			path: '/robots.txt',
+			headers: { host },
+			check: (response: Response, body: string) =>
+				response.ok &&
+				body === BLOCKING_ROBOTS &&
+				response.headers.get('cache-control') === 'no-cache',
+		})
+	),
+	...['/', '/today', '/login'].map(appPath => ({
+		name: `the app at ${appPath}, gzipped`,
 		path: appPath,
-		check: (response: Response) => response.status === 404,
+		headers: { 'accept-encoding': 'gzip' },
+		// No API runs here, so the session lookup fails; the session layout's robots tag shows an app route matched.
+		check: (response: Response, body: string) =>
+			response.headers.get('content-encoding') === 'gzip' &&
+			body.includes(APP_ROUTE_MARKER),
 	})),
 	{
-		name: 'no public page on the app host',
+		name: 'no public page',
 		path: '/privacy',
-		headers: { host: APP_HOST },
 		check: response => response.status === 404,
 	},
 	{
@@ -127,13 +100,11 @@ const CASES: Case[] = [
 			response.status === 404 &&
 			response.headers.get('cache-control') === 'no-store',
 	},
-	...[undefined, APP_HOST].map(host => ({
-		name: `the health route on ${host ?? 'the site host'}`,
+	{
+		name: 'the health route',
 		path: '/health',
-		headers: host ? { host } : undefined,
-		check: (response: Response, body: string) =>
-			response.ok && body.includes('"ok":true'),
-	})),
+		check: (response, body) => response.ok && body.includes('"ok":true'),
+	},
 ]
 
 const copyDir = await mkdtemp(path.join(tmpdir(), 'soonlane-web-server-'))
@@ -141,15 +112,6 @@ const port = await findFreePort()
 const origin = `http://127.0.0.1:${port}`
 
 await cp(OUTPUT_DIR, path.join(copyDir, '.output'), { recursive: true })
-
-const pagePath = path.join(
-	copyDir,
-	'.output/public',
-	PRERENDERED_PAGE,
-	'index.html'
-)
-
-await Bun.write(pagePath, `${await Bun.file(pagePath).text()}${DISK_MARKER}`)
 
 const server = Bun.spawn(['bun', '.output/server/index.mjs'], {
 	cwd: copyDir,

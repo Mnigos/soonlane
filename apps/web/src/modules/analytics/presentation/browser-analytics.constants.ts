@@ -18,6 +18,7 @@ export const BROWSER_ANALYTICS_OPTIONS = {
 		] satisfies (keyof FileRoutesByFullPath)[]),
 		'/calendar/{$token}.ics',
 	],
+	getSurface: () => 'app',
 	getUser: router => {
 		const context = router.state.matches.at(-1)?.context
 

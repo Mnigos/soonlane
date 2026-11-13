@@ -12,8 +12,6 @@ import { toSnakeCaseKeys } from './utils/snake-case-keys.util'
 
 /** The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there. */
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
-const SITE_LAYOUT_ROUTE_ID = '/site'
-const BLOG_ROUTE_ID_PREFIX = '/site/blog'
 
 interface AnalyticsUser {
 	id: string
@@ -36,9 +34,11 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	cookiePrefix: string
 	/** The signed-in user on the current page, identified when analytics is granted. */
 	getUser?: (router: TRouter) => AnalyticsUser | undefined
+	/** The part of the product the page with this route id belongs to. */
+	getSurface: (routeId: string | undefined) => SuperProperties['surface']
 }
 
-/** The part of a router match that tells the landing site from the app. */
+/** `AnyRouter` types its matches as `any`; annotating the one field read keeps the route id typed. */
 interface RouteMatch {
 	routeId: string
 }
@@ -51,6 +51,7 @@ interface Tracking {
 	privateRoutes: readonly string[]
 	cookiePrefix: string
 	getUser: () => AnalyticsUser | undefined
+	getSurface: BrowserAnalyticsOptions<AnyRouter>['getSurface']
 }
 
 let posthogReady: Promise<PostHog | undefined> | undefined
@@ -61,27 +62,21 @@ function isDesktopShell() {
 	return document.documentElement.dataset.shell === 'desktop'
 }
 
-/** The blog's pages share the public site's layout but count as their own surface. */
-function getSurface(routeIds: string[]): SuperProperties['surface'] {
-	if (routeIds.at(-1)?.startsWith(BLOG_ROUTE_ID_PREFIX)) return 'blog'
-
-	return routeIds.includes(SITE_LAYOUT_ROUTE_ID) ? 'landing' : 'app'
-}
-
 function getSuperProperties({
 	router,
 	buildProperties,
+	getSurface,
 }: Tracking): SuperProperties {
-	const routeIds = router.state.matches.map(
-		({ routeId }: RouteMatch) => routeId
-	)
+	const route = router.state.matches
+		.map(({ routeId }: RouteMatch) => routeId)
+		.at(-1)
 
 	return {
 		...buildProperties,
 		platform: isDesktopShell() ? 'desktop' : 'web',
-		surface: getSurface(routeIds),
+		surface: getSurface(route),
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-		route: routeIds.at(-1),
+		route,
 	}
 }
 
@@ -179,6 +174,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 		privateRoutes,
 		cookiePrefix,
 		getUser,
+		getSurface,
 	}: BrowserAnalyticsOptions<TRouter>
 ) {
 	if (typeof window === 'undefined' || !key) return
@@ -191,6 +187,7 @@ export function trackRouter<TRouter extends AnyRouter>(
 		privateRoutes,
 		cookiePrefix,
 		getUser: () => getUser?.(router),
+		getSurface,
 	}
 
 	tracking = current

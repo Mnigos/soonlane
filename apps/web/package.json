@@ -5,15 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "bunx --bun vite dev --port 3000 --strictPort",
-    "build": "bun scripts/generate-content-collections.ts && bun scripts/og-images.tsx && bunx --bun vite build && bun scripts/check-server.ts",
+    "build": "bunx --bun vite build && bun scripts/check-server.ts",
     "start": "bun .output/server/index.mjs",
-    "typecheck": "bun scripts/generate-content-collections.ts && tsc --noEmit",
-    "postinstall": "bun scripts/generate-content-collections.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@content-collections/core": "0.15.3",
-    "@content-collections/mdx": "0.2.2",
-    "@content-collections/vite": "0.3.1",
     "@orpc/client": "catalog:",
     "@soonlane/analytics": "workspace:*",
     "@soonlane/app": "workspace:*",
@@ -22,6 +18,7 @@
     "@soonlane/domain": "workspace:*",
     "@soonlane/tailwind-config": "workspace:*",
     "@soonlane/ui": "workspace:*",
+    "@soonlane/vite-config": "workspace:*",
     "@tailwindcss/vite": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@tanstack/react-router": "catalog:",
@@ -33,20 +30,16 @@
     "nitro": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "remark-gfm": "4.0.1",
     "sonner": "2.0.8",
     "tailwindcss": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
-    "@resvg/resvg-js": "2.6.2",
     "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",
-    "satori": "0.63.2",
-    "schema-dts": "2.1.0",
     "typescript": "catalog:",
     "vite": "catalog:"
   }

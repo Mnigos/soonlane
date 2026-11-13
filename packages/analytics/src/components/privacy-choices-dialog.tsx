@@ -1,7 +1,6 @@
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { Switch } from '@soonlane/ui/components/switch'
-import { Link, type LinkProps } from '@tanstack/react-router'
 import { useState } from 'react'
 import { CONSENT_COPY } from '../consent-copy.constants'
 import { useConsent } from '../hooks/use-consent'
@@ -11,13 +10,13 @@ const ANALYTICS_DESCRIPTION_ID = 'privacy-choices-analytics-description'
 
 interface PrivacyChoicesDialogProps {
 	onClose: () => void
-	privacyPolicyPath: LinkProps['to']
+	privacyPolicyUrl: string
 }
 
 /** Essential is always on; Analytics is the one switch, applied on Save. */
 export function PrivacyChoicesDialog({
 	onClose,
-	privacyPolicyPath,
+	privacyPolicyUrl,
 }: Readonly<PrivacyChoicesDialogProps>) {
 	const { consent, choose } = useConsent()
 	const [isGranted, setIsGranted] = useState(consent === 'granted')
@@ -71,13 +70,12 @@ export function PrivacyChoicesDialog({
 			</div>
 
 			<div className="mt-2 flex items-center justify-between gap-4">
-				<Link
+				<a
 					className="rounded-sm text-label text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-					onClick={onClose}
-					to={privacyPolicyPath}
+					href={privacyPolicyUrl}
 				>
 					{CONSENT_COPY.policyLink}
-				</Link>
+				</a>
 
 				<Button
 					onClick={() => choose(isGranted ? 'granted' : 'denied', 'settings')}
