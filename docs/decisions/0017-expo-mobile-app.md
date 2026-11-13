@@ -57,6 +57,17 @@ Defaults from the project brief, to which Igor has not objected:
 
 Styling uses React Native's `StyleSheet`, not NativeWind. `apps/mobile/scripts/generate-tokens.ts` writes `src/tokens.gen.ts` (gitignored) from `tooling/tailwind-config/tokens.css` and Tailwind's type scale on install, typecheck and start, so the colors still come from the one token file. On SDK 58 Babel keeps classes native, so oRPC's classes need no `noClassCalls` assumption.
 
+## Update 2026-11-13 (SOON-166)
+
+The council reviewed the server change.
+
+- **Proxy guard.** `/expo-authorization-proxy` signs the OAuth state into whichever browser opens it, and Better Auth's state row does not say which flow wrote it. A before hook in `createAuth` lets the proxy through only for one Google authorization URL whose state row is pending, has no `link`, and returns only to an app scheme (`callbackURL`, and `newUserURL` and `errorURL` when set). Without it, a Todoist link someone else started could be planted in another browser and link that person's Todoist to the starter's account. `returnAddresses` accepts the app's schemes only on `/sign-in/social`, never on `/link-social`.
+- **A sign-in someone else started.** The proxy still completes a Google sign-in started by another person in the opener's browser, which then hands the session cookie to whichever app handles `soonlane:` on that device. A server-side binding cannot close this, nor can a code exchange like the desktop's, because the person who started the flow holds every value the app would hold. For iOS this is accepted as residual risk: it needs an app that claims `soonlane:` on the victim's phone. Android's release depends on a new review, likely with App Links.
+- **Shared scheme with the desktop app.** Both apps use `soonlane://`. The iPhone app must not be offered on Apple Silicon Macs, or the desktop app first moves to the loopback return of ADR 0015, so two apps on one Mac never claim the scheme.
+- **Login CSRF through the proxy.** Someone could start an app sign-in, complete it with their own Google account to get a code, then send another person's browser through the proxy and on to the callback with that code, which signed that browser into the first account. `expoSignIn` drops every `Set-Cookie` from a callback that redirects to an app scheme, after the plugin has copied them into `?cookie=`, so the browser gets no session.
+- **For SOON-168.** The app takes a session only from the result of its own auth session (`openAuthSessionAsync`) and never from a `cookie` parameter on any other incoming link. It strips that parameter from incoming links before routing, analytics or error reporting see them, and decides whether the sign-in sheet uses `preferEphemeralSession`, so it does not share cookies with Safari.
+- **No plugin `init`.** `createAuth` drops the plugin's `init`, which trusts `exp://` when `NODE_ENV` is `development`. `APP_ENV`, not `NODE_ENV`, decides whether Expo Go is trusted. Railpack builds with `NODE_ENV=production` by default, so this keeps local and Railway builds consistent rather than closing a live hole.
+
 ## Related
 
 - [ADR 0007](0007-desktop-sign-in-through-the-system-browser.md), [ADR 0009](0009-open-sign-in.md), [ADR 0013](0013-three-hosts-on-railway.md), [ADR 0015](0015-desktop-app-with-its-own-ui.md)
