@@ -1,13 +1,15 @@
 import Constants from 'expo-constants'
 import { StyleSheet, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/infrastructure/analytics.client'
+import { AnalyticsSwitch } from '@/modules/analytics/presentation/components/analytics-switch'
 import { authClient } from '@/platform/auth/auth.client'
 import { COLORS, TEXT } from '@/tokens.gen'
 import { AccountActions } from './account-actions'
 
 const APP_VERSION = Constants.expoConfig?.version
 
-/** Settings: who is signed in, sign-out, account deletion (App Store guideline 5.1.1(v)), and the app's version. */
+/** Settings: who is signed in, the analytics answer, sign-out, account deletion (App Store guideline 5.1.1(v)), and the app's version. */
 export function AccountScreen() {
 	const { data: session } = authClient.useSession()
 
@@ -27,6 +29,8 @@ export function AccountScreen() {
 
 				<Text style={styles.email}>{user.email}</Text>
 			</View>
+
+			{IS_ANALYTICS_ENABLED && <AnalyticsSwitch />}
 
 			<AccountActions account={user} />
 
