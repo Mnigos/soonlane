@@ -1,0 +1,7 @@
+.expo/
+dist/
+expo-env.d.ts
+.metro-health-check*
+*.gen.ts
+/ios
+/android
