@@ -5,6 +5,7 @@ import {
 } from '@soonlane/app/tasks/helpers/task-edit.helper'
 import { useCreateTaskMutation } from '@soonlane/app/tasks/hooks/use-create-task-mutation'
 import { useTypedTitle } from '@soonlane/app/tasks/hooks/use-typed-title'
+import type { Label, Project } from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	DEFAULT_TASK_PRIORITY,
@@ -36,6 +37,10 @@ import { TitleInput } from './title-input'
 
 interface TaskComposerProps {
 	defaultDueDate: CalendarDate
+	defaultLabels?: Label[]
+	/** A project's view puts its tasks in that project; the phone has no project chip to change it. */
+	defaultProject?: Project
+	source: Parameters<typeof useCreateTaskMutation>[0]
 	today: CalendarDate
 	onClose: () => void
 }
@@ -49,6 +54,9 @@ const BACKDROP_ALPHA = '99'
  */
 export function TaskComposer({
 	defaultDueDate,
+	defaultLabels,
+	defaultProject,
+	source,
 	today,
 	onClose,
 }: Readonly<TaskComposerProps>) {
@@ -66,7 +74,7 @@ export function TaskComposer({
 		pickRepeat,
 		pickLabels,
 		reset,
-	} = useTypedTitle(undefined, today)
+	} = useTypedTitle(undefined, today, defaultLabels)
 	const { capture } = getHostPorts()
 	const { bottom } = useSafeAreaInsets()
 	const [dueDate, setDueDate] = useState<CalendarDate | undefined>(
@@ -86,7 +94,7 @@ export function TaskComposer({
 	const titleRef = useRef<ComponentRef<typeof TextInput>>(null)
 	// isPending lags a render, so a quick second tap would send the task twice.
 	const isSubmittingRef = useRef(false)
-	const { mutate, isPending, error } = useCreateTaskMutation('day_row', today)
+	const { mutate, isPending, error } = useCreateTaskMutation(source, today)
 
 	function submit() {
 		if (savedTitle.trim() === '') titleRef.current?.focus()
@@ -100,6 +108,7 @@ export function TaskComposer({
 				priority,
 				repeat,
 				labelIds: pickedLabels.map(({ id }) => id),
+				projectId: defaultProject?.id,
 			},
 			{
 				onSuccess: () => {

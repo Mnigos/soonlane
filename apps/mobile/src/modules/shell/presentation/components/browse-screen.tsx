@@ -1,28 +1,49 @@
-import { StyleSheet, Text } from 'react-native'
+import { Link } from 'expo-router'
+import { Pressable, ScrollView, StyleSheet, Text } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { BrowseLabels } from '@/modules/labels/presentation/components/browse-labels'
+import { BrowseProjects } from '@/modules/projects/presentation/components/browse-projects'
 import { COLORS, TEXT } from '@/tokens.gen'
-import { PlaceholderScreen } from './placeholder-screen'
+import { SEARCH_FIELD_STYLES } from '../search-field.constants'
 import { TextLink } from './text-link'
 
+/** The web sidebar's lists on a tab: a search field that opens Search, Projects, Labels, and Settings. */
 export function BrowseScreen() {
 	return (
-		<PlaceholderScreen
-			title="Browse"
-			description="Your projects and labels will appear here."
-		>
-			<Text style={styles.section}>Projects</Text>
+		<SafeAreaView edges={['top']} style={styles.screen}>
+			<ScrollView
+				contentContainerStyle={styles.content}
+				contentInsetAdjustmentBehavior="automatic"
+			>
+				<Text accessibilityRole="header" style={styles.title}>
+					Browse
+				</Text>
 
-			<Text style={styles.section}>Labels</Text>
+				<Link asChild href="/search">
+					<Pressable
+						accessibilityLabel="Search tasks"
+						style={[SEARCH_FIELD_STYLES.field, styles.search]}
+					>
+						<Text style={[SEARCH_FIELD_STYLES.text, styles.placeholder]}>
+							Search tasks
+						</Text>
+					</Pressable>
+				</Link>
 
-			<TextLink href="/settings">Settings</TextLink>
-		</PlaceholderScreen>
+				<BrowseProjects />
+
+				<BrowseLabels />
+
+				<TextLink href="/settings">Settings</TextLink>
+			</ScrollView>
+		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
-	section: {
-		...TEXT.sm,
-		marginTop: 12,
-		fontWeight: '600',
-		color: COLORS.foreground,
-	},
+	screen: { flex: 1, backgroundColor: COLORS.background },
+	content: { padding: 16 },
+	title: { ...TEXT.xl, fontWeight: '700', color: COLORS.foreground },
+	search: { marginTop: 12 },
+	placeholder: { color: COLORS.faintForeground },
 })

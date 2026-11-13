@@ -3,13 +3,16 @@ import {
 	getNoDateHint,
 } from '@soonlane/app/tasks/helpers/task-edit.helper'
 import { useTaskMenuEdits } from '@soonlane/app/tasks/hooks/use-task-menu-edits'
+import { ProjectViewContext } from '@soonlane/app/tasks/project-view'
 import type { Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
 	DEFAULT_TASK_PRIORITY,
+	getDueChipLabel,
 	getDueLabel,
 } from '@soonlane/domain'
 import { useRouter } from 'expo-router'
+import { use } from 'react'
 import { Pressable, StyleSheet, Text, View } from 'react-native'
 import { COLORS, RADIUS, TEXT } from '@/tokens.gen'
 import { showDueDateSheet } from '../due-date-sheet.helper'
@@ -18,28 +21,39 @@ import {
 	LABEL_COLORS,
 	PRIORITY_COLORS,
 } from '../task-colors.constants'
+import { CIRCLE_HIT_SLOP, TASK_ROW_STYLES } from '../task-row.constants'
 import { GoalProgress } from './goal-progress'
 
 interface TaskRowProps {
 	task: Task
 	today: CalendarDate
 	onComplete: (task: Task) => void
+	/** Names the due day in the due line, for a list without day headings. */
+	showsDueDay?: boolean
 }
 
 /** 15% in hex alpha, the web's `bg-priority-N/15`. */
 const PRIORITY_TINT_ALPHA = '26'
-/** Lets the 18px circle take a 44px touch. */
-const CIRCLE_HIT_SLOP = 13
 const MORE_DOTS = [0, 1, 2]
 
-/** DESIGN.md's task row: the priority circle completes, a tap opens the task's details, the "…" or a long press its dates. */
-export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
+/** DESIGN.md's task row: the priority circle completes, a tap opens the task's details, the "…" or a long press its dates; the project's own view leaves its name out. */
+export function TaskRow({
+	task,
+	today,
+	onComplete,
+	showsDueDay,
+}: Readonly<TaskRowProps>) {
 	const router = useRouter()
 	const { changeDate } = useTaskMenuEdits(task, today)
 	const due =
-		task.dueDate && getDueLabel(task.dueDate, { dueTime: task.dueTime }, today)
+		task.dueDate &&
+		(showsDueDay
+			? getDueChipLabel(task.dueDate, { dueTime: task.dueTime }, today)
+			: getDueLabel(task.dueDate, { dueTime: task.dueTime }, today))
+	const project =
+		task.project?.id === use(ProjectViewContext) ? undefined : task.project
 	const priorityColor = PRIORITY_COLORS[task.priority]
-	const hasMeta = due || task.labels.length > 0 || task.project
+	const hasMeta = due || task.labels.length > 0 || project
 
 	function openDateMenu() {
 		showDueDateSheet({
@@ -51,14 +65,14 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 	}
 
 	return (
-		<View style={styles.row}>
+		<View style={TASK_ROW_STYLES.row}>
 			<Pressable
 				accessibilityLabel={`Complete ${task.title}`}
 				accessibilityRole="button"
 				hitSlop={CIRCLE_HIT_SLOP}
 				onPress={() => onComplete(task)}
 				style={({ pressed }) => [
-					styles.circle,
+					TASK_ROW_STYLES.circle,
 					{ borderColor: priorityColor },
 					(task.priority !== DEFAULT_TASK_PRIORITY || pressed) && {
 						backgroundColor: `${priorityColor}${PRIORITY_TINT_ALPHA}`,
@@ -106,9 +120,7 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 							</Text>
 						))}
 
-						{task.project && (
-							<Text style={styles.caption}># {task.project.name}</Text>
-						)}
+						{project && <Text style={styles.caption}># {project.name}</Text>}
 					</View>
 				)}
 			</Pressable>
@@ -129,20 +141,6 @@ export function TaskRow({ task, today, onComplete }: Readonly<TaskRowProps>) {
 }
 
 const styles = StyleSheet.create({
-	row: {
-		flexDirection: 'row',
-		gap: 10,
-		paddingVertical: 10,
-		borderBottomWidth: StyleSheet.hairlineWidth,
-		borderBottomColor: COLORS.border,
-	},
-	circle: {
-		width: 18,
-		height: 18,
-		marginTop: 1,
-		borderWidth: 2,
-		borderRadius: 9,
-	},
 	body: { flex: 1, gap: 2 },
 	title: { ...TEXT.sm, color: COLORS.foreground },
 	description: { ...TEXT.label, color: COLORS.mutedForeground },

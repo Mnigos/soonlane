@@ -8,7 +8,7 @@ interface PlaceholderScreenProps extends PropsWithChildren {
 	description: string
 }
 
-/** Stands in for a screen until the ticket that builds it. */
+/** A title and a note over optional content: a screen still to be built, or a view whose label or project is gone. */
 export function PlaceholderScreen({
 	title,
 	description,
