@@ -1,25 +1,44 @@
 import type { Task } from '@soonlane/contracts'
 import { type DueLabel, formatRepeatRule } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { Calendar, Hash, Tag } from 'lucide-react'
+import { Calendar, Hash, ListTree, Tag } from 'lucide-react'
 import { use } from 'react'
 import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { ProjectViewContext } from '../../project-view.context'
 import { RepeatIcon } from '../composer/date-picker-icons'
+import { ParentTaskLink } from './parent-task-link'
 
 interface TaskMetaProps {
 	task: Task
 	due: DueLabel | undefined
+	/** A subtask's parent as a link to its edit card, or as plain text inside a palette option; absent under the parent itself. */
+	showsParentAs?: 'link' | 'name'
 }
 
-/** The line under a task's title: its due date, whether it repeats, its labels and its project (left out in that project's view). */
-export function TaskMeta({ task, due }: Readonly<TaskMetaProps>) {
+/**
+ * The line under a task's title: its due date, whether it repeats, its subtask progress, its labels, its project (left out in that
+ * project's view) and a subtask's parent.
+ */
+export function TaskMeta({
+	task,
+	due,
+	showsParentAs,
+}: Readonly<TaskMetaProps>) {
 	const repeatText = task.repeat && formatRepeatRule(task.repeat, 'long')
 	const viewProjectId = use(ProjectViewContext)
 	const project = task.project?.id === viewProjectId ? undefined : task.project
+	const parent = showsParentAs && task.parent
 
-	if (!due && !repeatText && task.labels.length === 0 && !project) return null
+	if (
+		!due &&
+		!repeatText &&
+		!task.subtasks &&
+		task.labels.length === 0 &&
+		!project &&
+		!parent
+	)
+		return null
 
 	return (
 		<p className="flex flex-wrap items-center gap-x-2 text-caption">
@@ -56,6 +75,18 @@ export function TaskMeta({ task, due }: Readonly<TaskMetaProps>) {
 				</span>
 			)}
 
+			{task.subtasks && (
+				<span className="flex items-center gap-0.5 text-muted-foreground">
+					<ListTree aria-hidden className="size-3" />
+					<span aria-hidden>
+						{task.subtasks.done}/{task.subtasks.total}
+					</span>
+					<span className="sr-only">
+						{task.subtasks.done} of {task.subtasks.total} subtasks completed
+					</span>
+				</span>
+			)}
+
 			{task.labels.map(label => (
 				<span
 					className={cn(
@@ -74,6 +105,13 @@ export function TaskMeta({ task, due }: Readonly<TaskMetaProps>) {
 					<Hash aria-hidden className="size-3" />
 					<span className="ph-mask">{project.name}</span>
 				</span>
+			)}
+
+			{parent && (
+				<ParentTaskLink
+					isPlainText={showsParentAs === 'name'}
+					parent={parent}
+				/>
 			)}
 		</p>
 	)

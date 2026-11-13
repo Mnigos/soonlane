@@ -1,11 +1,23 @@
-import type { Task } from '@soonlane/contracts'
 import { useOpenEditor } from './use-open-editor'
 
-/** Closes an edit card on one of `tasks` before their rows hide or move away; it would reopen wherever the task shows up next. */
-export function useCloseEditCard(tasks: Task[]) {
+/** Whether the editor belongs to the row: its edit card, its subtask composer (`:`) or a row inside its expansion (`/`). */
+function isEditorInRow(editorId: string, rowEditorId: string) {
+	return (
+		editorId === rowEditorId ||
+		editorId.startsWith(`${rowEditorId}/`) ||
+		editorId.startsWith(`${rowEditorId}:`)
+	)
+}
+
+/** Closes an edit card in one of the rows or under them before they hide or move away; it would reopen wherever the task shows up next. */
+export function useCloseEditCard(rowEditorIds: readonly string[]) {
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 
 	return () => {
-		if (tasks.some(({ id }) => id === openEditorId)) setOpenEditorId(undefined)
+		if (
+			openEditorId !== undefined &&
+			rowEditorIds.some(rowEditorId => isEditorInRow(openEditorId, rowEditorId))
+		)
+			setOpenEditorId(undefined)
 	}
 }

@@ -29,7 +29,7 @@ export function OverdueSection({
 	const [isPickerOpen, setIsPickerOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const { rescheduleTasks } = useRescheduleTasks()
-	const closeEditCard = useCloseEditCard(tasks)
+	const closeEditCard = useCloseEditCard(tasks.map(({ id }) => id))
 
 	return (
 		<CollapsibleTaskSection

@@ -117,11 +117,12 @@ export function withTask(
 	return { ...list, [bucket]: [...tasks, task].toSorted(compareTasks) }
 }
 
-/** Where a task belongs in a list loaded with these filters, as the server would place it. */
+/** Where a task belongs in a list loaded with these filters, as the server would place it; an undated subtask shows only under its parent. */
 export function placeTask(
 	task: Task,
 	{ today, from, to, labelId, projectId }: ListTasksInput
 ): TaskPlacement | undefined {
+	if (task.parent && task.dueDate === undefined) return undefined
 	if (labelId && !task.labels.some(({ id }) => id === labelId)) return undefined
 	if (projectId && task.project?.id !== projectId) return undefined
 	if (task.dueDate === undefined)
@@ -146,7 +147,7 @@ export function withMovedTask(
 	return placement ? withTask(rest, placement) : rest
 }
 
-/** Task rows show label names and the sidebar counts open tasks per label and project, so all of these follow any change to them. */
+/** Task rows show label names and subtask progress and the sidebar counts open tasks per label and project, so all of these follow any change to them. */
 export async function refreshTaskLists(queryClient: QueryClient) {
 	await Promise.all([
 		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.list.key() }),
@@ -154,6 +155,9 @@ export async function refreshTaskLists(queryClient: QueryClient) {
 			queryKey: orpcQuery.tasks.listCompleted.key(),
 		}),
 		queryClient.invalidateQueries({ queryKey: orpcQuery.tasks.search.key() }),
+		queryClient.invalidateQueries({
+			queryKey: orpcQuery.tasks.listSubtasks.key(),
+		}),
 		queryClient.invalidateQueries({ queryKey: orpcQuery.labels.list.key() }),
 		queryClient.invalidateQueries({ queryKey: orpcQuery.projects.list.key() }),
 	])

@@ -23,7 +23,7 @@ export function CollapsibleTaskSection({
 	onToggle,
 	children,
 }: Readonly<CollapsibleTaskSectionProps>) {
-	const closeEditCard = useCloseEditCard(tasks)
+	const closeEditCard = useCloseEditCard(tasks.map(task => task.id))
 
 	return (
 		<section aria-labelledby={`${id}-heading`} className="pt-4">
