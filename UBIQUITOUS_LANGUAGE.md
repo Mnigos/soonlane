@@ -66,6 +66,7 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Import preview        | "Import preview"                                               | `todoist.preview`, `TodoistPreview`, `planTodoistImport`       | What an import would create (tasks, new and matched labels and projects), read once from Todoist when the page opens.                                      |
 | Import change         | "What will change or be left out"                              | `TODOIST_IMPORT_CHANGES`, `TodoistImportChange`                | One counted way a Todoist task arrives differently or not at all, such as a repeating task arriving once or a task imported before skipped.                |
 | Imported Todoist task | none                                                           | `imported_todoist_task` table, `ImportedTodoistTaskRepository` | The record that the owner imported one Todoist task; it outlives the Soonlane task, so the next import skips that task (`alreadyImported`).                |
+| Todoist offer         | "Moving from Todoist?", "Import from Todoist", "No thanks"     | `TodoistOffer`, `soonlane-todoist-offer` cookie                | The note on a new account's Upcoming, while it has no open task, project or label, that points at the Todoist import; "No thanks" hides it on this device. |
 
 ## Codebase
 

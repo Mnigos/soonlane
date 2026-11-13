@@ -29,6 +29,8 @@ export const LANDING_HERO = {
 	headline: 'Your days, in order.',
 	subline:
 		'Overdue, today and every day after, in one scrolling list. An open source Todoist alternative with a free task list.',
+	todoistImportLine:
+		'Coming from Todoist? You can import your open tasks, projects, and labels.',
 	githubLabel: 'View on GitHub',
 	desktopImage: {
 		src: '/site/upcoming-desktop.webp',
@@ -109,7 +111,12 @@ export const LANDING_FAQ = {
 		{
 			question: 'How is it different from Todoist?',
 			answer:
-				'Soonlane keeps the part of Todoist built around days and opens on Upcoming. There are no projects and no teams.',
+				'Soonlane opens on Upcoming and is built around days in one scrolling list, with an Inbox for tasks without a date, projects, and labels. It is free and open source, and there are no teams or shared projects.',
+		},
+		{
+			question: 'Can I import my tasks from Todoist?',
+			answer:
+				'Yes. Choose Import from Todoist in the account menu to bring over your open tasks, projects, and labels, with a preview before anything is saved. Soonlane uses read-only access and never writes to Todoist. Comments, attachments, reminders, filters, and completed tasks stay in Todoist, and sections and deadlines are left out.',
 		},
 		{
 			question: 'Can I run my own copy?',

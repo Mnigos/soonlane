@@ -14,13 +14,17 @@ import {
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
 import { getHostPorts } from '../../../../host-ports.client'
+import { isEmptyTaskList } from '../../helpers/task-list.helper'
 import { useActiveDay } from '../../hooks/use-active-day'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
+import { useTodoistOffer } from '../../hooks/use-todoist-offer'
 import { OverdueSection } from '../list/overdue-section'
 import { TaskListError } from '../list/task-list-error'
+import { TaskSectionsSkeleton } from '../list/task-list.skeleton'
 import { UndatedSection } from '../list/undated-section'
 import { OpenEditorProvider } from '../open-editor-provider'
+import { TodoistOffer } from './todoist-offer'
 import { UpcomingRange } from './upcoming-range'
 import { WeekControls } from './week-controls'
 import { WeekStrip } from './week-strip'
@@ -41,10 +45,15 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 		: undefined
 	const nextDay = addDays(activeDay, 1)
 	// The first range's query, shared with its section list, also brings the undated and overdue tasks.
-	const { data, isPending, isError, refetch } = useTasksQuery({
+	const { data, isPending, isError, isSuccess, refetch } = useTasksQuery({
 		from: today,
 		to: getUpcomingLastDay(today, UPCOMING_WEEK_COUNT),
 		today,
+	})
+	const offer = useTodoistOffer({
+		today,
+		isListPending: isPending,
+		isListEmpty: isSuccess && isEmptyTaskList(data),
 	})
 	const { completeTask } = useCompleteTask(today)
 	const loadMore = useCallback(
@@ -109,34 +118,47 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 
 				{isError && <TaskListError onRetry={() => void refetch()} />}
 
-				<UndatedSection
-					heading="Inbox"
-					onComplete={completeTask}
-					tasks={data?.undated ?? []}
-					today={today}
-				/>
+				{offer.isListHeld ? (
+					<TaskSectionsSkeleton />
+				) : (
+					<>
+						{offer.importLink && (
+							<TodoistOffer
+								onDismiss={offer.dismiss}
+								renderImportLink={offer.importLink}
+							/>
+						)}
 
-				<OverdueSection
-					isLoading={isPending}
-					onComplete={completeTask}
-					tasks={data?.overdue ?? []}
-					today={today}
-				/>
+						<UndatedSection
+							heading="Inbox"
+							onComplete={completeTask}
+							tasks={data?.undated ?? []}
+							today={today}
+						/>
 
-				{ranges.map(({ from, to }, index) => (
-					<UpcomingRange
-						from={from}
-						key={from}
-						onComplete={completeTask}
-						onLoadMore={
-							index === ranges.length - 1 ? loadMoreOnScroll : undefined
-						}
-						sectionRef={sectionRef}
-						showsError={index > 0}
-						to={to}
-						today={today}
-					/>
-				))}
+						<OverdueSection
+							isLoading={isPending}
+							onComplete={completeTask}
+							tasks={data?.overdue ?? []}
+							today={today}
+						/>
+
+						{ranges.map(({ from, to }, index) => (
+							<UpcomingRange
+								from={from}
+								key={from}
+								onComplete={completeTask}
+								onLoadMore={
+									index === ranges.length - 1 ? loadMoreOnScroll : undefined
+								}
+								sectionRef={sectionRef}
+								showsError={index > 0}
+								to={to}
+								today={today}
+							/>
+						))}
+					</>
+				)}
 			</main>
 		</OpenEditorProvider>
 	)

@@ -90,6 +90,10 @@ function mapTaskBuckets(
 	}
 }
 
+export function isEmptyTaskList(list: ListTasksOutput) {
+	return TASK_BUCKETS.every(bucket => list[bucket].length === 0)
+}
+
 /** The cached list without one task, for the optimistic update when it is completed. */
 export function withoutTask(list: ListTasksOutput, id: string) {
 	return mapTaskBuckets(list, tasks => tasks.filter(task => task.id !== id))

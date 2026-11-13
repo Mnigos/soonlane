@@ -1,7 +1,9 @@
 import { HostAppContext } from '@soonlane/app/host-app'
+import { orpcQuery } from '@soonlane/app/rpc-query'
 import { Shell } from '@soonlane/app/shell/components/shell'
 import { readNoDateSectionOpen } from '@soonlane/app/shell/helpers/no-date-section-preference.helper'
 import { readSidebarPreference } from '@soonlane/app/shell/helpers/sidebar-preference.helper'
+import { useQuery } from '@tanstack/react-query'
 import {
 	createFileRoute,
 	Outlet,
@@ -14,6 +16,8 @@ import { getRequestHeader } from '@tanstack/react-start/server'
 import { z } from 'zod'
 import { LayoutError } from '@/components/route-error'
 import { UserMenu } from '@/modules/identity/presentation/components/user-menu'
+import { TodoistImportLink } from '@/modules/todoist/presentation/components/todoist-import-link'
+import { TODOIST_COPY } from '@/modules/todoist/presentation/helpers/todoist-copy.constants'
 import {
 	APP_COMMIT,
 	APP_VERSION,
@@ -61,6 +65,7 @@ function ShellRoute() {
 		from: '/_session/_shell/projects/$name',
 		shouldThrow: false,
 	})
+	const todoistStatus = useQuery(orpcQuery.todoist.status.queryOptions())
 
 	return (
 		<HostAppContext
@@ -76,6 +81,10 @@ function ShellRoute() {
 				appVersion: APP_VERSION,
 				appCommit: APP_COMMIT,
 				releaseNotesUrl: RELEASE_NOTES_URL,
+				renderTodoistImportLink:
+					todoistStatus.isSuccess && todoistStatus.data.configured
+						? renderTodoistImportLink
+						: undefined,
 			}}
 		>
 			<Shell
@@ -89,5 +98,13 @@ function ShellRoute() {
 				<Outlet />
 			</Shell>
 		</HostAppContext>
+	)
+}
+
+function renderTodoistImportLink(className: string) {
+	return (
+		<TodoistImportLink className={className}>
+			{TODOIST_COPY.menuEntry}
+		</TodoistImportLink>
 	)
 }
