@@ -6,11 +6,7 @@ import type {
 	RepeatInput,
 	Task,
 } from '@soonlane/contracts'
-import {
-	type CalendarDate,
-	getEditedDueDate,
-	getEditedRule,
-} from '@soonlane/domain'
+import { type CalendarDate, getEditedRule } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
@@ -21,6 +17,7 @@ import {
 	getChangedOptional,
 	getChangedLabelIds,
 	getChangedProjectId,
+	getScheduledDate,
 	isRepeatChanged,
 } from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
@@ -116,11 +113,12 @@ export function TaskComposer({
 	const [durationMinutes, setDurationMinutes] = useState(
 		() => task?.durationMinutes
 	)
-	// A typed rule without a date of its own starts today, as in Todoist, since a repeating task needs a due date.
-	const pickedDate = typedDueDate ?? dueDate ?? (repeat && today)
-	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
-	const scheduledDate =
-		pickedDate && getEditedDueDate(openedTask, pickedDate, repeat?.unit)
+	const scheduledDate = getScheduledDate(
+		openedTask,
+		typedDueDate ?? dueDate,
+		repeat,
+		today
+	)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
 	const savedRule =
 		scheduledDate && getSavedRule(openedTask, scheduledDate, repeat)

@@ -33,6 +33,7 @@ export function TodayScreen({ today }: Readonly<TodayScreenProps>) {
 					heading: getDayHeading(today, today),
 					isMuted: false,
 					isLoading: isPending,
+					addDate: today,
 					data: data?.scheduled ?? [],
 				},
 			]}
