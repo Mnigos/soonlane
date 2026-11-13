@@ -1,4 +1,5 @@
 import type { PostHogConfig } from 'posthog-js'
+import { getSharedCookieDomains } from './consent.helper'
 import { saveCookie } from './utils/cookie.util'
 
 const ABSOLUTE_URL = /^https?:\/\//u
@@ -24,7 +25,7 @@ function toRouteSegment(segment: string) {
 	}
 }
 
-/** The router decodes paths and matches them case-insensitively, so `/App/%6Cabels/Work` is the label route too. */
+/** The router decodes paths and matches them case-insensitively, so `/%4Cabels/Work` is the label route too. */
 function withoutPrivateParams(
 	privateRoutes: readonly RouteSegments[],
 	pathname: string
@@ -53,7 +54,7 @@ function withoutPrivateParams(
 }
 
 /**
- * Sends `/app/labels/:name` instead of a label's name and `/calendar/:token` instead of a calendar link, and drops the query and hash unless `keepQuery`
+ * Sends `/labels/:name` instead of a label's name and `/calendar/:token` instead of a calendar link, and drops the query and hash unless `keepQuery`
  * (desktop sign-in URLs carry one-time codes and challenges there). Takes an absolute URL or a path and
  * returns the same form; anything else comes back as is.
  */
@@ -94,29 +95,42 @@ function sanitizeUrls(privateRoutes: readonly RouteSegments[], value: unknown) {
 		else sanitizeUrls(privateRoutes, entry)
 }
 
-/** Removes everything posthog-js keeps on the device: its identity, session, consent, debug and toolbar keys, and the cookies an older build left. */
-export function clearPostHogStorage() {
+/**
+ * Removes what posthog-js keeps on the device for this environment: every key in this host's storage, older builds'
+ * included, and the environment's cookies, also those on the domain its hosts share. Another environment's
+ * cookies on that domain stay. Resolves once the browser has deleted them, so the SDK started next cannot read a stale consent record.
+ */
+export async function clearPostHogStorage(cookiePrefix: string) {
 	for (const storage of [localStorage, sessionStorage])
 		for (const key of Object.keys(storage))
 			if (POSTHOG_STORAGE_KEY.test(key)) storage.removeItem(key)
 
-	for (const part of document.cookie.split(';')) {
-		const name = part.trim().split('=')[0] ?? ''
+	const names = document.cookie
+		.split(';')
+		.map(part => part.trim().split('=')[0] ?? '')
+		.filter(name => name.startsWith(`ph_${cookiePrefix}_`))
+	const domains = [
+		undefined,
+		location.hostname,
+		...getSharedCookieDomains(location.hostname),
+	]
 
-		if (!POSTHOG_STORAGE_KEY.test(name)) continue
-
-		void saveCookie(name, '', 0)
-		void saveCookie(name, '', 0, location.hostname)
-	}
+	await Promise.allSettled(
+		names.flatMap(name =>
+			domains.map(async domain => await saveCookie(name, '', 0, domain))
+		)
+	)
 }
 
 /**
  * Explicit events, pageviews, page leaves, exceptions and masked replay only; see docs/analytics.md.
  * With analytics denied the SDK runs cookieless: no identity, no storage, no replay. `privateRoutes`
- * lists the route paths (`/app/labels/$name`) whose params every sent URL replaces with `:name`.
+ * lists the route paths (`/labels/$name`) whose params every sent URL replaces with `:name`. Every cookie the
+ * SDK keeps is named `ph_<cookiePrefix>_…`, since production's cookies for `soonlane.com` reach staging hosts too.
  */
 export function createPostHogConfig(
-	privateRoutes: readonly string[]
+	privateRoutes: readonly string[],
+	cookiePrefix: string
 ): Partial<PostHogConfig> {
 	const routeSegments = privateRoutes.map(path => path.split('/'))
 
@@ -129,7 +143,12 @@ export function createPostHogConfig(
 		internal_or_test_user_hostname: null,
 		cookieless_mode: 'on_reject',
 		opt_out_capturing_by_default: true,
-		persistence: 'localStorage',
+		// The identity and the SDK's consent record sit on the domain both hosts share; a host without the record starts opted out and drops the identity.
+		persistence: 'localStorage+cookie',
+		persistence_name: `${cookiePrefix}_posthog`,
+		opt_out_capturing_persistence_type: 'cookie',
+		consent_persistence_name: `ph_${cookiePrefix}_consent`,
+		cross_subdomain_cookie: true,
 		advanced_disable_feature_flags: true,
 		disable_surveys: true,
 		disable_product_tours: true,
