@@ -7,7 +7,11 @@ import { orpcQuery } from '../../../rpc-query.client'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
 import { refreshTaskLists } from '../helpers/task-list.helper'
 
-/** Tracks the create here, not in mutate's callbacks, which are skipped once the composer closes. A NOT_FOUND means the project was deleted elsewhere: the refresh turns its view into not-found and unmounts the composer, so the message goes to a toast. */
+/**
+ * Tracks the create here, not in mutate's callbacks, which are skipped once the composer closes. A NOT_FOUND means the project or the
+ * parent task was deleted elsewhere, a CONFLICT that the parent cannot take the subtask: the refresh can take the view or the parent's
+ * row, and the composer with it, away, so the server's message goes to a toast.
+ */
 export function useCreateTaskMutation(
 	source: ComposerSource,
 	today: CalendarDate
@@ -31,7 +35,11 @@ export function useCreateTaskMutation(
 				await refreshTaskLists(queryClient)
 			},
 			onError: async error => {
-				if (!(isDefinedError(error) && error.code === 'NOT_FOUND')) return
+				if (
+					!isDefinedError(error) ||
+					(error.code !== 'NOT_FOUND' && error.code !== 'CONFLICT')
+				)
+					return
 
 				showToast(error.message)
 				await refreshTaskLists(queryClient)

@@ -1,3 +1,4 @@
+import { isDefinedError } from '@orpc/client'
 import type { ComposerSource } from '@soonlane/analytics'
 import type {
 	GoalInput,
@@ -10,6 +11,7 @@ import {
 	type CalendarDate,
 	getEditedDueDate,
 	getEditedRule,
+	type TaskId,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
@@ -47,6 +49,8 @@ interface TaskComposerProps {
 	onCreated?: () => void
 	/** Edits this task in place instead of adding a new one. */
 	task?: Task
+	/** Adds a subtask of this task, which takes the parent's project, so the card has no Project chip. */
+	parentId?: TaskId
 	onSaved?: () => void
 	/** Closes an edit card in a dialog, which the deleted task's row cannot unmount. */
 	onDeleted?: () => void
@@ -58,6 +62,19 @@ interface TaskComposerProps {
 
 const FIELD_CLASS =
 	'bg-transparent text-foreground outline-none placeholder:text-faint-foreground'
+
+/**
+ * The card's name, its send button's, and whether it has the Project chip, which a subtask's card leaves out: a subtask keeps
+ * its parent's project.
+ */
+function getCardKind(task: Task | undefined, parentId: TaskId | undefined) {
+	if (task)
+		return { name: 'Edit task', submit: 'Save task', hasProject: !task.parent }
+
+	return parentId
+		? { name: 'Add subtask', submit: 'Add subtask', hasProject: false }
+		: { name: 'Add task', submit: 'Add task', hasProject: true }
+}
 
 function getSavedRule(
 	task: Task | undefined,
@@ -83,6 +100,7 @@ export function TaskComposer({
 	onCancel,
 	onCreated,
 	task,
+	parentId,
 	onSaved,
 	onDeleted,
 	autoFocus = true,
@@ -133,6 +151,7 @@ export function TaskComposer({
 	const { mutate, isPending, error } = useCreateTaskMutation(source, today)
 	const { updateTask } = useUpdateTask(today)
 	const canSubmit = savedTitle.trim() !== '' && !isPending
+	const card = getCardKind(task, parentId)
 
 	function submit(event: SubmitEvent<HTMLFormElement>) {
 		event.preventDefault()
@@ -187,6 +206,7 @@ export function TaskComposer({
 				repeat,
 				labelIds: pickedLabels.map(({ id }) => id),
 				projectId: project?.id,
+				parentId,
 				goal,
 			},
 			{
@@ -222,7 +242,7 @@ export function TaskComposer({
 
 	return (
 		<form
-			aria-label={task ? 'Edit task' : 'Add task'}
+			aria-label={card.name}
 			className={cn(
 				'my-2 flex flex-col rounded-xl border bg-card p-3 transition-colors focus-within:border-border-strong',
 				className
@@ -303,11 +323,13 @@ export function TaskComposer({
 					value={pickedLabels}
 				/>
 
-				<ProjectChip
-					onChange={setProject}
-					onKeyDown={handleFieldKeys}
-					value={project}
-				/>
+				{card.hasProject && (
+					<ProjectChip
+						onChange={setProject}
+						onKeyDown={handleFieldKeys}
+						value={project}
+					/>
+				)}
 
 				<div className="ml-auto flex items-center gap-2">
 					<TaskActionsMenu
@@ -329,7 +351,7 @@ export function TaskComposer({
 
 					<button
 						aria-disabled={!canSubmit}
-						aria-label={task ? 'Save task' : 'Add task'}
+						aria-label={card.submit}
 						className="flex size-8 cursor-pointer items-center justify-center rounded-md bg-primary text-primary-foreground transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
 						onKeyDown={handleFieldKeys}
 						type="submit"
@@ -343,7 +365,7 @@ export function TaskComposer({
 				</div>
 			</div>
 
-			{error && (
+			{error && !isDefinedError(error) && (
 				<p className="pt-2 text-caption text-danger" role="alert">
 					Could not add the task. Try again.
 				</p>

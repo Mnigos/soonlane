@@ -8,7 +8,7 @@ import {
 	type TaskPriority,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { Check } from 'lucide-react'
+import { Check, ChevronRight } from 'lucide-react'
 import { type KeyboardEvent, useId, useRef, useState } from 'react'
 import { getHostPorts } from '../../../../host-ports.client'
 import { isShortcutKeydown } from '../../../../utils/keyboard-shortcut.util'
@@ -23,12 +23,20 @@ import { LogProgressControls } from './log-progress-controls'
 import { TaskMeta } from './task-meta'
 import { TaskRowMenu } from './task-row-menu'
 
-interface TaskItemProps {
+export interface TaskItemProps {
 	task: Task
 	today: CalendarDate
 	onComplete: (task: Task) => void
 	/** Names the due day in the due line, for a list without day headings. */
 	showsDueDay?: boolean
+	/** Under its parent's subtasks, which leave out the link to the parent. */
+	isInParent?: boolean
+	/** This row's own editor id: a subtask can show both on its day and under its parent, and only the row chosen opens its card. */
+	editorId: string
+	/** Whether its subtasks show under it; a task with subtasks has a chevron that toggles them. */
+	isExpanded: boolean
+	onExpandedChange: (isExpanded: boolean) => void
+	onAddSubtask: () => void
 }
 
 /** Row controls show on hover and focus, always on touch screens; the negative margin keeps the row height. */
@@ -40,10 +48,15 @@ export function TaskItem({
 	today,
 	onComplete,
 	showsDueDay,
+	isInParent,
+	editorId,
+	isExpanded,
+	onExpandedChange,
+	onAddSubtask,
 }: Readonly<TaskItemProps>) {
 	const { capture } = getHostPorts()
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
-	const isEditing = openEditorId === task.id
+	const isEditing = openEditorId === editorId
 	const [shouldFocusMenu, setShouldFocusMenu] = useState(false)
 	const due =
 		task.dueDate &&
@@ -57,7 +70,7 @@ export function TaskItem({
 	const triggerRef = useRef<HTMLButtonElement>(null)
 
 	function openComposer() {
-		setOpenEditorId(task.id)
+		setOpenEditorId(editorId)
 		setShouldFocusMenu(false)
 	}
 
@@ -129,12 +142,30 @@ export function TaskItem({
 	return (
 		// oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the row takes focus only from J and K, then its keys act on the task
 		<li
-			className="group/task flex scroll-mt-36 gap-2.5 rounded-xs border-b py-2.5 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary focus-visible:outline-solid"
+			className="group/task relative flex scroll-mt-36 gap-2.5 rounded-xs border-b py-2.5 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary focus-visible:outline-solid"
 			data-task-id={task.id}
 			onKeyDown={handleRowKeys}
 			ref={keepFocusAfterMove}
 			tabIndex={-1}
 		>
+			{task.subtasks && (
+				<button
+					aria-expanded={isExpanded}
+					aria-label={isExpanded ? 'Hide subtasks' : 'Show subtasks'}
+					className="absolute top-2.25 -left-6 flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+					onClick={() => onExpandedChange(!isExpanded)}
+					type="button"
+				>
+					<ChevronRight
+						aria-hidden
+						className={cn(
+							'size-4 transition-transform duration-150 ease-out motion-reduce:transition-none',
+							isExpanded && 'rotate-90'
+						)}
+					/>
+				</button>
+			)}
+
 			<button
 				aria-label="Complete"
 				aria-labelledby={`${buttonId} ${titleId}`}
@@ -166,7 +197,11 @@ export function TaskItem({
 
 				{task.goal && <GoalProgress goal={task.goal} />}
 
-				<TaskMeta due={due} task={task} />
+				<TaskMeta
+					due={due}
+					showsParentAs={isInParent ? undefined : 'link'}
+					task={task}
+				/>
 			</div>
 
 			{task.goal && (
@@ -177,6 +212,7 @@ export function TaskItem({
 				autoFocus={shouldFocusMenu}
 				className={ROW_CONTROL_CLASS}
 				isPickingDate={isPickingDate}
+				onAddSubtask={onAddSubtask}
 				onDateChange={changeDate}
 				onEdit={openComposer}
 				onPickingDateChange={setIsPickingDate}
