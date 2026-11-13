@@ -227,6 +227,13 @@ export const completeTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
 })
 
+/** `changed` is false when the task was already completed or had already moved on, so the call left nothing to undo. */
+export const completeTaskOutputSchema = z.object({
+	task: taskSchema,
+	changed: z.boolean(),
+})
+export type CompleteTaskOutput = z.infer<typeof completeTaskOutputSchema>
+
 /** Undo of a repeating task sends the due date and the goal progress it had before completing; Undo of an edit that completed it also sends the goal. */
 export const uncompleteTaskInputSchema = taskIdInputSchema.extend({
 	dueDate: calendarDateSchema.optional(),
@@ -304,7 +311,7 @@ export const tasksContract = {
 	complete: oc
 		.errors(taskErrors)
 		.input(completeTaskInputSchema)
-		.output(z.object({ task: taskSchema })),
+		.output(completeTaskOutputSchema),
 	uncomplete: oc
 		.errors(taskErrors)
 		.input(uncompleteTaskInputSchema)
