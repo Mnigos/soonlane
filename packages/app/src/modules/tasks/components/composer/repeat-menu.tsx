@@ -17,6 +17,7 @@ import {
 import { X } from 'lucide-react'
 import { useState } from 'react'
 import { FOOTER_BUTTON_CLASS } from '../../helpers/composer-chip.constants'
+import { PRESET_REPEAT_UNITS } from '../../helpers/repeat-choice.helper'
 import { RepeatIcon } from './date-picker-icons'
 import { RepeatCustomForm } from './repeat-custom-form'
 
@@ -26,13 +27,6 @@ interface RepeatMenuProps {
 	onChange: (repeat: RepeatInput | undefined) => void
 }
 
-const PRESET_UNITS = [
-	'day',
-	'week',
-	'weekday',
-	'month',
-	'year',
-] as const satisfies readonly RepeatUnit[]
 const CUSTOM = 'custom'
 
 /** Todoist's Repeat button: presets labelled from the due date, Custom, and a clear button once a rule is set. */
@@ -82,7 +76,7 @@ export function RepeatMenu({
 							value?.interval === 1 && !value.fromCompletion ? value.unit : null
 						}
 					>
-						{PRESET_UNITS.map(unit => (
+						{PRESET_REPEAT_UNITS.map(unit => (
 							<MenuRadioItem key={unit} value={unit}>
 								{formatRepeatRule({
 									unit,

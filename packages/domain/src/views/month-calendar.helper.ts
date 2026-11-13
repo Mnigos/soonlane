@@ -8,6 +8,7 @@ import {
 	getWeekStart,
 	getWeekdayIndex,
 	isBefore,
+	isWeekend,
 } from '../dates/calendar-date.helper'
 import type { CalendarDate } from '../dates/calendar-date.schema'
 import {
@@ -17,6 +18,9 @@ import {
 } from '../dates/calendar.constants'
 
 const MONTHS_PER_YEAR = 12
+
+/** How the date picker draws a day: past days faint and inert, today in coral, weekends grey. */
+export type CalendarDayTone = 'past' | 'today' | 'weekend' | 'weekday'
 
 /** The weeks of a month for a Monday-first grid; days of other months are `undefined`. */
 function getMonthWeeks(monthStart: CalendarDate) {
@@ -32,6 +36,16 @@ function getMonthWeeks(monthStart: CalendarDate) {
 		weeks.push(cells.slice(start, start + DAYS_PER_WEEK))
 
 	return weeks
+}
+
+export function getCalendarDayTone(
+	date: CalendarDate,
+	today: CalendarDate
+): CalendarDayTone {
+	if (isBefore(date, today)) return 'past'
+	if (date === today) return 'today'
+
+	return isWeekend(date) ? 'weekend' : 'weekday'
 }
 
 /** A month's weeks from today's week on, like Todoist's picker, which never shows earlier weeks. */
