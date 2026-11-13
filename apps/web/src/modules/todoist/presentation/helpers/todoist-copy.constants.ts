@@ -3,7 +3,6 @@ import type { PluralCopy } from './plural-copy.helper'
 
 export const TODOIST_COPY = {
 	menuEntry: 'Import from Todoist',
-	desktopOpenedInBrowser: 'Import from Todoist opened in your browser.',
 	introTitle: 'Import from Todoist',
 	introBody:
 		'Soonlane will ask Todoist for read-only access and show you a preview first. Nothing is saved until you confirm.',

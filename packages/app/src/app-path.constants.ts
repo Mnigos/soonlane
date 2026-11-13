@@ -7,5 +7,6 @@ export const APP_PATHS = {
 	completed: '/app/completed',
 	label: '/app/labels/$name',
 	project: '/app/projects/$name',
+	/** Only the desktop app serves it, in its own window. */
 	quickAdd: '/app/quick-add',
 } as const

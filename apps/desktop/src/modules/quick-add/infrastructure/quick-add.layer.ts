@@ -15,6 +15,8 @@ import {
 import { readMenuAction } from '../../menu/domain/menu-event.helper'
 import { QUICK_ADD_ACTION } from '../../menu/domain/menu.constants'
 import { followNavigation } from '../../navigation/infrastructure/navigation-events.layer'
+import { DesktopSession } from '../../sign-in/application/desktop-session.service'
+import { MainWindow } from '../../window/application/main-window.port'
 import { openAppWindow } from '../../window/infrastructure/app-window.helper'
 import {
 	isQuickAddDone,
@@ -96,52 +98,63 @@ const shortcutPresses = Stream.callback<undefined>(queue =>
 export const QuickAddLive = Layer.effectDiscard(
 	Effect.gen(function* () {
 		const scope = yield* Effect.scope
+		const session = yield* DesktopSession
+		const mainWindow = yield* MainWindow
 		const openWindowId = yield* Ref.make(Option.none<number>())
 
 		const follow = Effect.fn('QuickAdd.follow')(function* (
-			window: BrowserWindow
+			window: BrowserWindow,
+			pageMessages: Stream.Stream<unknown>
 		) {
-			const webviewEvents = (name: string) =>
+			yield* followNavigation(name =>
 				electrobunEvents(`${name}-${window.webview.id}`)
+			)
+			yield* handleEvents(pageMessages, message => {
+				if (isQuickAddDone(message)) return Effect.sync(() => window.close())
 
-			yield* followNavigation(webviewEvents)
-			yield* handleEvents(webviewEvents('host-message'), event => {
-				if (isQuickAddDone(event)) return Effect.sync(() => window.close())
-
-				const isOpen = readSuggestionsOpen(event)
+				const isOpen = readSuggestionsOpen(message)
 
 				return isOpen === undefined
 					? Effect.void
 					: Effect.sync(() => fitSuggestions(window, isOpen))
 			})
 			yield* Stream.runHead(electrobunEvents(`close-${window.id}`))
-		}, Effect.scoped)
+		})
 
 		// The window lives in the fiber that follows it, so its page hears session changes until it closes.
 		const create = Effect.gen(function* () {
-			const window = yield* openAppWindow(APP_PATHS.quickAdd, {
-				title: QUICK_ADD_TITLE,
-				frame: placeQuickAdd(
-					Screen.getAllDisplays(),
-					Screen.getCursorScreenPoint()
-				),
-				titleBarStyle: 'hidden',
-				styleMask: { Resizable: false, Miniaturizable: false },
-			})
+			const { window, pageMessages } = yield* openAppWindow(
+				APP_PATHS.quickAdd,
+				{
+					title: QUICK_ADD_TITLE,
+					frame: placeQuickAdd(
+						Screen.getAllDisplays(),
+						Screen.getCursorScreenPoint()
+					),
+					titleBarStyle: 'hidden',
+					styleMask: { Resizable: false, Miniaturizable: false },
+				}
+			)
 
 			window.setAlwaysOnTop(true)
 			yield* Ref.set(openWindowId, Option.some(window.id))
-			yield* follow(window)
+			yield* follow(window, pageMessages)
 		}).pipe(Effect.scoped, Effect.forkIn(scope))
 
 		// Electrobun forgets a closed window, so the next press opens a new one.
-		const open = Ref.get(openWindowId).pipe(
+		const openQuickAdd = Ref.get(openWindowId).pipe(
 			Effect.map(Option.flatMapNullishOr(BrowserWindow.getById)),
 			Effect.flatMap(
 				Option.match({
 					onSome: window => Effect.sync(() => window.activate()),
 					onNone: () => create,
 				})
+			)
+		)
+		// Signed out, the main window's sign-in screen comes forward instead.
+		const open = session.token.pipe(
+			Effect.flatMap(token =>
+				Option.isSome(token) ? openQuickAdd : mainWindow.activate
 			),
 			Effect.withSpan('QuickAdd.open')
 		)
