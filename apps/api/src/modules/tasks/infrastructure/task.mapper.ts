@@ -1,11 +1,19 @@
-import type { Label, Project, Task } from '@soonlane/contracts'
+import type { Task } from '@soonlane/contracts'
 import type { TaskRow } from '@soonlane/db'
 import type { RepeatRule } from '@soonlane/domain'
 
 /** Postgres returns time(0) as HH:MM:SS; the contract carries HH:MM. */
 const DUE_TIME_LENGTH = 5
 
-export function toTask(row: TaskRow, labels: Label[], project?: Project): Task {
+export function toTask(
+	row: TaskRow,
+	{
+		labels,
+		project,
+		parent,
+		subtasks,
+	}: Pick<Task, 'labels' | 'project' | 'parent' | 'subtasks'>
+): Task {
 	const {
 		repeatUnit: unit,
 		repeatInterval: interval,
@@ -36,6 +44,9 @@ export function toTask(row: TaskRow, labels: Label[], project?: Project): Task {
 						unit: row.goalUnit ?? undefined,
 						progress: row.goalProgress,
 					},
+		parent,
+		depth: row.depth,
+		subtasks,
 	}
 }
 

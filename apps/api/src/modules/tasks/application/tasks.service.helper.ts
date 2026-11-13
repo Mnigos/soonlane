@@ -4,10 +4,12 @@ import type {
 	ListTasksInput,
 	ListTasksOutput,
 	EditTaskInput,
+	Project,
 	Task,
 } from '@soonlane/contracts'
 import {
 	TASK_DURATION_DUE_TIME_CHECK,
+	TASK_PARENT_FOREIGN_KEY,
 	TASK_PROJECT_FOREIGN_KEY,
 } from '@soonlane/db'
 import {
@@ -23,7 +25,11 @@ import {
 	isCheckViolation,
 	isForeignKeyViolation,
 } from '@/platform/db/db.errors'
-import { TaskDurationWithoutTime, TaskNotFound } from '../domain/task.errors'
+import {
+	SubtaskProjectLocked,
+	TaskDurationWithoutTime,
+	TaskNotFound,
+} from '../domain/task.errors'
 
 /** The client's today and the due date it showed; both absent from older clients. */
 export interface CompletionDates {
@@ -83,12 +89,30 @@ export function requireLabel(label: Label | undefined) {
 	return label ? Effect.succeed(label) : Effect.fail(new LabelNotFound())
 }
 
-/** The project passed the owner check but was deleted before the write. */
-export function failDeletedProject(error: DbError) {
+export function requireProject(project: Project | undefined) {
+	return project ? Effect.succeed(project) : Effect.fail(new ProjectNotFound())
+}
+
+/** A subtask keeps its parent's project, so an edit may only send the one it has. */
+export function requireSubtaskProject(
+	{ parent, project }: Task,
+	{ projectId }: Pick<EditTaskInput, 'projectId'>
+) {
+	return parent &&
+		projectId !== undefined &&
+		projectId !== (project?.id ?? null)
+		? Effect.fail(new SubtaskProjectLocked())
+		: Effect.void
+}
+
+/** The project or the parent passed its check but was deleted before the write. */
+export function failDeletedReference(error: DbError) {
 	return Effect.fail(
 		isForeignKeyViolation(error, TASK_PROJECT_FOREIGN_KEY)
 			? new ProjectNotFound()
-			: error
+			: isForeignKeyViolation(error, TASK_PARENT_FOREIGN_KEY)
+				? new TaskNotFound()
+				: error
 	)
 }
 

@@ -8,7 +8,10 @@ import { label, task, taskLabel } from '@soonlane/db'
 import type { LabelId, UserId } from '@soonlane/domain'
 import { and, count, eq, isNull } from 'drizzle-orm'
 import { Context, Effect, Layer } from 'effect'
-import { ownedBy } from '@/modules/tasks/infrastructure/owned-tasks.query'
+import {
+	ownedBy,
+	SHOWN_IN_LISTS,
+} from '@/modules/tasks/infrastructure/owned-tasks.query'
 import type { DbError } from '@/platform/db/db.errors'
 import { Db } from '@/platform/db/db.layer'
 import { labelOrder } from './label-order.query'
@@ -58,7 +61,8 @@ export const LabelRepositoryLive = Layer.effect(
 							and(
 								eq(task.id, taskLabel.taskId),
 								ownedBy(ownerId),
-								isNull(task.completedAt)
+								isNull(task.completedAt),
+								SHOWN_IN_LISTS
 							)
 						)
 						.where(eq(label.ownerId, ownerId))
