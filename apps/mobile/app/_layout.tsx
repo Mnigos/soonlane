@@ -11,6 +11,11 @@ import {
 } from '@tanstack/react-query'
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router'
 import { AppState } from 'react-native'
+import {
+	capture,
+	followUser,
+} from '@/modules/analytics/infrastructure/analytics.client'
+import { askForAnalyticsConsent } from '@/modules/analytics/presentation/consent-prompt.helper'
 import { Toast } from '@/modules/shell/presentation/components/toast'
 import {
 	dismissToast,
@@ -34,8 +39,7 @@ provideRpcLink(rpcLink)
 provideHostPorts({
 	showToast,
 	dismissToast,
-	// Analytics waits for consent (SOON-175).
-	capture: () => undefined,
+	capture,
 	subscribeToResume: onResume =>
 		subscribeToForeground(isActive => {
 			if (isActive) onResume()
@@ -62,7 +66,7 @@ type SessionState = ReturnType<typeof authClient.useSession>
 /** Set once the first session lookup settles, so later re-checks never unmount the navigator. */
 let hasResolvedSession = false
 
-/** Runs before the layout re-renders; only a change of user, or its end, clears the cache and the toast's Undo, never a late reply. */
+/** Runs before the layout re-renders; only a change of user, or its end, clears the cache and the toast's Undo, never a late reply, moves analytics to that user and asks a new one for consent. */
 authClient.$store.atoms.session?.listen(
 	(next: SessionState, previous: SessionState) => {
 		if (!next.isPending || next.data) hasResolvedSession = true
@@ -70,6 +74,8 @@ authClient.$store.atoms.session?.listen(
 
 		queryClient.clear()
 		hideToast()
+		followUser(next.data?.user.id)
+		if (next.data) askForAnalyticsConsent()
 	}
 )
 
