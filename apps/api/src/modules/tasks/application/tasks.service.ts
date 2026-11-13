@@ -1,5 +1,6 @@
 import type {
 	CreateTaskInput,
+	EditTaskInput,
 	ListCompletedTasksInput,
 	ListTasksInput,
 	ListTasksOutput,
@@ -8,7 +9,6 @@ import type {
 	SearchTasksInput,
 	SearchTasksOutput,
 	Task,
-	UpdateTaskInput,
 	UpdateTaskOutput,
 } from '@soonlane/contracts'
 import {
@@ -30,7 +30,7 @@ import {
 	type RestoredOccurrence,
 	failDeletedProject,
 	getAdvance,
-	getEditedSchedule,
+	getScheduleUpdate,
 	requireLabel,
 	requireTask,
 	splitAtToday,
@@ -64,10 +64,10 @@ export class TasksService extends Context.Service<
 			ownerId: UserId,
 			input: CreateTaskInput
 		) => Effect.Effect<Task, ProjectNotFound | DbError>
-		readonly update: (
+		readonly edit: (
 			ownerId: UserId,
 			id: TaskId,
-			input: UpdateTaskInput
+			input: EditTaskInput
 		) => Effect.Effect<
 			UpdateTaskOutput,
 			TaskNotFound | ProjectNotFound | DbError
@@ -212,10 +212,10 @@ export const TasksServiceLive = Layer.effect(
 			return task
 		})
 
-		const update = Effect.fn('TasksService.update')(function* (
+		const edit = Effect.fn('TasksService.edit')(function* (
 			ownerId: UserId,
 			id: TaskId,
-			{ today, ...input }: UpdateTaskInput
+			{ today, ...input }: EditTaskInput
 		) {
 			const current = yield* requireTask(
 				yield* repository.find({ ownerId, id })
@@ -231,7 +231,7 @@ export const TasksServiceLive = Layer.effect(
 						...input,
 						ownerId,
 						id,
-						...getEditedSchedule(current, input, today),
+						...getScheduleUpdate(current, input, today),
 						editedAt,
 					})
 					.pipe(Effect.catchTag('DbError', failDeletedProject))
@@ -342,7 +342,7 @@ export const TasksServiceLive = Layer.effect(
 			get,
 			listOpen,
 			create,
-			update,
+			edit,
 			delete: remove,
 			complete,
 			uncomplete,

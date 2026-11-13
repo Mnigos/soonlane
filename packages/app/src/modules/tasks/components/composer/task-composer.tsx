@@ -17,6 +17,7 @@ import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
 import { describeFailure } from '../../../shell/helpers/maintenance.helper'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import {
+	getChanged,
 	getChangedGoal,
 	getChangedLabelIds,
 	isRepeatChanged,
@@ -103,6 +104,8 @@ export function TaskComposer({
 		pickLabels,
 		reset,
 	} = useTypedTitle(task, today, defaultLabels)
+	// oxlint-disable-next-line react/hook-use-state -- the task as the card opened on, never set, so a refetch while it is open is not an edit
+	const [openedTask] = useState(task)
 	const [description, setDescription] = useState(task?.description ?? '')
 	const [dueDate, setDueDate] = useState<CalendarDate | undefined>(
 		defaultDueDate
@@ -112,9 +115,10 @@ export function TaskComposer({
 	const pickedDate = typedDueDate ?? dueDate ?? (repeat && today)
 	// Every weekday moves a weekend pick to Monday, as the server does, so the chip shows the real date.
 	const scheduledDate =
-		pickedDate && getEditedDueDate(task, pickedDate, repeat?.unit)
+		pickedDate && getEditedDueDate(openedTask, pickedDate, repeat?.unit)
 	// The labels name the anchor the save keeps, e.g. the 31st of a monthly task now due Feb 28.
-	const savedRule = scheduledDate && getSavedRule(task, scheduledDate, repeat)
+	const savedRule =
+		scheduledDate && getSavedRule(openedTask, scheduledDate, repeat)
 	const [goal, setGoal] = useState<GoalInput | undefined>(
 		task?.goal && { target: task.goal.target, unit: task.goal.unit }
 	)
@@ -131,30 +135,35 @@ export function TaskComposer({
 		if (savedTitle.trim() === '') titleRef.current?.focus()
 		if (!canSubmit || isSubmittingRef.current) return
 
-		if (task) {
-			const labelIds = getChangedLabelIds(task, pickedLabels)
-			const changedGoal = getChangedGoal(task, goal)
+		if (openedTask) {
+			const dueTimeEdit = getChanged(
+				dueTime ?? null,
+				openedTask.dueTime ?? null
+			)
+			const repeatEdit = isRepeatChanged(openedTask, repeat)
+				? (repeat ?? null)
+				: undefined
+			// A time or rule needs its date in the same edit.
+			const isDateSent =
+				scheduledDate !== openedTask.dueDate ||
+				Boolean(dueTimeEdit) ||
+				Boolean(repeatEdit)
 			const edited = {
-				id: task.id,
-				title: savedTitle.trim(),
-				description: description.trim() || undefined,
-				dueDate: scheduledDate,
-				dueTime,
-				priority,
-				repeat: repeat ?? null,
-				labelIds,
-				goal: changedGoal,
-				today,
+				title: getChanged(savedTitle.trim(), openedTask.title),
+				description: getChanged(
+					description.trim() || null,
+					openedTask.description ?? null
+				),
+				dueDate: isDateSent ? (scheduledDate ?? null) : undefined,
+				dueTime: dueTimeEdit,
+				priority: getChanged(priority, openedTask.priority),
+				repeat: repeatEdit,
+				labelIds: getChangedLabelIds(openedTask, pickedLabels),
+				goal: getChangedGoal(openedTask, goal),
 			}
-			const isChanged =
-				labelIds !== undefined ||
-				changedGoal !== undefined ||
-				(
-					['title', 'description', 'dueDate', 'dueTime', 'priority'] as const
-				).some(field => edited[field] !== task[field]) ||
-				isRepeatChanged(task, repeat)
 
-			if (isChanged) updateTask(edited)
+			if (Object.values(edited).some(value => value !== undefined))
+				updateTask({ ...edited, id: openedTask.id, today })
 			onSaved?.()
 			return
 		}

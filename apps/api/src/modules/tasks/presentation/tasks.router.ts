@@ -43,7 +43,17 @@ export const tasksRouter = {
 	}) {
 		const tasksService = yield* TasksService
 
-		return yield* tasksService.update(context.user.id, input.id, input)
+		return yield* tasksService.edit(context.user.id, input.id, {
+			...input,
+			description: input.description ?? null,
+			dueDate: input.dueDate ?? null,
+			dueTime: input.dueTime ?? null,
+		})
+	}),
+	edit: os.tasks.edit.use(requireUser).effect(function* ({ context, input }) {
+		const tasksService = yield* TasksService
+
+		return yield* tasksService.edit(context.user.id, input.id, input)
 	}),
 	delete: os.tasks.delete.use(requireUser).effect(function* ({
 		context,
