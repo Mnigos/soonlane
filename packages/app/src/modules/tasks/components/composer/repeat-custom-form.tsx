@@ -3,6 +3,7 @@ import { REPEAT_INTERVAL_MAX, type RepeatUnit } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { type KeyboardEvent, useState } from 'react'
+import { FOOTER_FIELD_CLASS } from '../../helpers/composer-chip.constants'
 
 interface RepeatCustomFormProps {
 	initial: RepeatInput | undefined
@@ -17,9 +18,6 @@ const CUSTOM_UNIT_LABELS = {
 } as const satisfies Partial<Record<RepeatUnit, string>>
 
 type CustomUnit = keyof typeof CUSTOM_UNIT_LABELS
-
-const FIELD_CLASS =
-	'h-8 rounded-md border bg-popover px-2 text-label text-foreground [color-scheme:dark] outline-none focus-visible:border-border-strong'
 
 function isCustomUnit(unit: string): unit is CustomUnit {
 	return Object.hasOwn(CUSTOM_UNIT_LABELS, unit)
@@ -63,7 +61,7 @@ export function RepeatCustomForm({
 				<input
 					aria-invalid={!isValid}
 					aria-label="Repeat every"
-					className={cn(FIELD_CLASS, 'w-14')}
+					className={cn(FOOTER_FIELD_CLASS, 'w-14')}
 					max={REPEAT_INTERVAL_MAX}
 					min={1}
 					onChange={event => setCount(event.target.value)}
@@ -74,7 +72,7 @@ export function RepeatCustomForm({
 				/>
 				<select
 					aria-label="Repeat unit"
-					className={cn(FIELD_CLASS, 'min-w-0 flex-1')}
+					className={cn(FOOTER_FIELD_CLASS, 'min-w-0 flex-1')}
 					onChange={event => {
 						if (isCustomUnit(event.target.value)) setUnit(event.target.value)
 					}}

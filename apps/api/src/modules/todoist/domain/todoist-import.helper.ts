@@ -5,6 +5,7 @@ import {
 	findTypedRepeatRules,
 	getFirstOccurrence,
 	getToday,
+	isDurationInRange,
 	LABEL_COLORS,
 	LABEL_NAME_MAX_LENGTH,
 	type LabelColor,
@@ -32,6 +33,7 @@ export interface TaskDraft {
 	title: string
 	description?: string
 	due?: DraftDue
+	durationMinutes?: number
 	priority: TaskPriority
 	labelNames: string[]
 	projectName?: string
@@ -107,6 +109,18 @@ function toLocalDue(due: DraftDue, timeZone: string) {
 	}
 }
 
+/** Todoist's minutes on a task with a due time; a length in days or out of range is dropped. */
+function readDurationMinutes(item: TodoistItem) {
+	const amount =
+		item.duration?.unit === 'minute' ? item.duration.amount : undefined
+
+	return amount !== undefined &&
+		readDue(item)?.time !== undefined &&
+		isDurationInRange(amount)
+		? amount
+		: undefined
+}
+
 /** The due date, time and repeat rule a task gets: none without a due, a UTC time moves into `timeZone`, and a kept rule starts as a new task's would. */
 export function toTaskDue(due: DraftDue | undefined, timeZone: string) {
 	if (!due) return {}
@@ -134,7 +148,8 @@ const TASK_CHANGES = {
 	repeating: item => item.due?.is_recurring === true && !readDue(item)?.repeat,
 	subtasks: item => Boolean(item.parent_id),
 	deadlines: item => Boolean(item.deadline),
-	durations: item => Boolean(item.duration),
+	durations: item =>
+		Boolean(item.duration) && readDurationMinutes(item) === undefined,
 	longTitles: item => isTooLong(item.content, TASK_TITLE_MAX_LENGTH),
 	longDescriptions: item =>
 		isTooLong(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH),
@@ -230,6 +245,7 @@ export function planTodoistImport(
 			description:
 				cut(item.description ?? '', TASK_DESCRIPTION_MAX_LENGTH) || undefined,
 			due: readDue(item),
+			durationMinutes: readDurationMinutes(item),
 			priority: PRIORITY_FROM_TODOIST[item.priority] ?? DEFAULT_TASK_PRIORITY,
 			labelNames: toNames(item.labels, LABEL_NAME_MAX_LENGTH),
 			projectName:

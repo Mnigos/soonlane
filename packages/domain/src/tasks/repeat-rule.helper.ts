@@ -36,6 +36,7 @@ interface TaskSchedule {
 /** The due date, time and complete rule a task has before a field-level edit. */
 interface StoredSchedule extends TaskSchedule {
 	dueTime?: string
+	durationMinutes?: number
 	repeat?: Required<RepeatRule>
 }
 
@@ -43,6 +44,7 @@ interface StoredSchedule extends TaskSchedule {
 interface ScheduleEdit {
 	dueDate?: CalendarDate | null
 	dueTime?: string | null
+	durationMinutes?: number | null
 	repeat?: Omit<RepeatRule, 'anchor'> | null
 }
 
@@ -138,20 +140,33 @@ export function getEditedRule(
 }
 
 /**
- * The due date, time and rule a field-level edit leaves: absent keeps the task's, null clears it, and no due date clears the
- * time and the rule. A new due date snaps and re-anchors against the kept or edited rule.
+ * The due date, time, duration and rule a field-level edit leaves: absent keeps the task's, null clears it, no due date clears the
+ * time, duration and rule, and no time clears the duration. A new due date snaps and re-anchors against the kept or edited rule.
  */
 export function getEditedSchedule(task: StoredSchedule, edit: ScheduleEdit) {
 	if (edit.dueDate === null)
-		return { dueDate: undefined, dueTime: undefined, repeat: undefined }
+		return {
+			dueDate: undefined,
+			dueTime: undefined,
+			durationMinutes: undefined,
+			repeat: undefined,
+		}
 
 	const dueTime =
 		edit.dueTime === undefined ? task.dueTime : (edit.dueTime ?? undefined)
+	const durationMinutes =
+		edit.durationMinutes === undefined
+			? task.durationMinutes
+			: (edit.durationMinutes ?? undefined)
+	const times = {
+		dueTime,
+		durationMinutes: dueTime === undefined ? undefined : durationMinutes,
+	}
 
 	if (edit.dueDate === undefined)
 		return {
 			dueDate: task.dueDate,
-			dueTime,
+			...times,
 			repeat: edit.repeat === null ? undefined : task.repeat,
 		}
 
@@ -159,7 +174,7 @@ export function getEditedSchedule(task: StoredSchedule, edit: ScheduleEdit) {
 		edit.repeat === undefined ? task.repeat : (edit.repeat ?? undefined)
 	const dueDate = getEditedDueDate(task, edit.dueDate, rule?.unit)
 
-	return { dueDate, dueTime, repeat: getEditedRule(task, dueDate, rule) }
+	return { dueDate, ...times, repeat: getEditedRule(task, dueDate, rule) }
 }
 
 /**

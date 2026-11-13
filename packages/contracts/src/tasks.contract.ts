@@ -2,6 +2,8 @@ import { type ErrorMap, oc } from '@orpc/contract'
 import {
 	type CalendarDate,
 	calendarDateSchema,
+	DURATION_MINUTES_MAX,
+	DURATION_MINUTES_MIN,
 	labelIdSchema,
 	projectIdSchema,
 	REPEAT_INTERVAL_MAX,
@@ -22,6 +24,10 @@ import { labelSchema } from './labels.contract'
 import { projectNotFound, projectSchema } from './projects.contract'
 
 const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
+const durationMinutesSchema = z
+	.int()
+	.min(DURATION_MINUTES_MIN)
+	.max(DURATION_MINUTES_MAX)
 const prioritySchema = z.union(
 	TASK_PRIORITIES.map(priority => z.literal(priority))
 )
@@ -36,6 +42,7 @@ export const taskSchema = z.object({
 	description: z.string().optional(),
 	dueDate: storedCalendarDateSchema.optional(),
 	dueTime: dueTimeSchema.optional(),
+	durationMinutes: durationMinutesSchema.optional(),
 	priority: prioritySchema,
 	createdAt: z.date(),
 	completedAt: z.date().optional(),
@@ -139,6 +146,7 @@ const taskInputSchema = z.object({
 	description: z.string().trim().max(TASK_DESCRIPTION_MAX_LENGTH).optional(),
 	dueDate: calendarDateSchema.optional(),
 	dueTime: dueTimeSchema.optional(),
+	durationMinutes: durationMinutesSchema.optional(),
 	priority: prioritySchema.optional(),
 	repeat: repeatInputSchema.optional(),
 	labelIds: z
@@ -172,24 +180,31 @@ const undatedTaskRule = {
 	message: 'A due time or repeat rule needs a due date.',
 }
 
+const durationWithoutTime = { message: 'A duration needs a due time.' }
+
 /** An absent due date creates a task without one. */
-export const createTaskInputSchema = taskInputSchema.refine(
-	isDatedWhenTimedOrRepeating,
-	undatedTaskRule
-)
+export const createTaskInputSchema = taskInputSchema
+	.refine(isDatedWhenTimedOrRepeating, undatedTaskRule)
+	.refine(
+		({ dueTime, durationMinutes }) =>
+			durationMinutes === undefined || dueTime !== undefined,
+		{ ...durationWithoutTime, path: ['durationMinutes'] }
+	)
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 /**
  * For desktop apps that bundle a UI from before `tasks.edit`; the API maps it onto an edit until it can ask outdated apps to update.
- * Replaces every field (an absent description, due date or time clears it) but four that an absent value keeps for clients from before they could be edited
- * and for edits that do not show them: the repeat rule (cleared anyway without a due date), the goal and the project (null clears them) and the labels
- * (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels). A `projectId` that is not the owner's project fails with NOT_FOUND.
+ * Replaces every field (an absent description, due date or time clears it) but five that an absent value keeps for clients from before they could be edited
+ * and for edits that do not show them: the repeat rule (cleared anyway without a due date), the duration (cleared anyway without a due time), the goal and
+ * the project (null clears them) and the labels (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels).
+ * A `projectId` that is not the owner's project fails with NOT_FOUND; a duration the edit leaves without a due time fails with BAD_REQUEST.
  * A goal at or below the progress of an open task completes it like a log reaching the target; `today` places a repeating task's next occurrence.
  */
 export const updateTaskInputSchema = taskInputSchema
 	.extend({
 		id: taskIdSchema,
 		priority: prioritySchema,
+		durationMinutes: durationMinutesSchema.nullable().optional(),
 		repeat: repeatInputSchema.nullable().optional(),
 		goal: goalInputSchema.nullable().optional(),
 		projectId: projectIdSchema.nullable().optional(),
@@ -199,8 +214,9 @@ export const updateTaskInputSchema = taskInputSchema
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
 
 /**
- * Writes only the fields it carries: absent keeps the stored value, null clears the description, due date, due time, repeat rule,
- * goal or project, and no due date also clears the time and the rule. `labelIds` and `today` work as in `tasks.update`.
+ * Writes only the fields it carries: absent keeps the stored value, null clears the description, due date, due time, duration,
+ * repeat rule, goal or project, no due date also clears the time, duration and rule, and no due time the duration.
+ * `labelIds`, `today` and the duration's BAD_REQUEST work as in `tasks.update`.
  */
 export const editTaskInputSchema = taskInputSchema
 	.partial()
@@ -209,6 +225,7 @@ export const editTaskInputSchema = taskInputSchema
 		description: taskInputSchema.shape.description.nullable(),
 		dueDate: calendarDateSchema.nullable().optional(),
 		dueTime: dueTimeSchema.nullable().optional(),
+		durationMinutes: durationMinutesSchema.nullable().optional(),
 		repeat: repeatInputSchema.nullable().optional(),
 		goal: goalInputSchema.nullable().optional(),
 		projectId: projectIdSchema.nullable().optional(),
@@ -298,11 +315,11 @@ export const tasksContract = {
 		.input(createTaskInputSchema)
 		.output(z.object({ task: taskSchema })),
 	update: oc
-		.errors(taskErrors)
+		.errors({ ...taskErrors, BAD_REQUEST: durationWithoutTime })
 		.input(updateTaskInputSchema)
 		.output(updateTaskOutputSchema),
 	edit: oc
-		.errors(taskErrors)
+		.errors({ ...taskErrors, BAD_REQUEST: durationWithoutTime })
 		.input(editTaskInputSchema)
 		.output(updateTaskOutputSchema),
 	delete: oc.errors(taskErrors).input(taskIdInputSchema).output(z.void()),

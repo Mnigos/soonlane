@@ -48,8 +48,8 @@ export function TaskItem({
 	const due =
 		task.dueDate &&
 		(showsDueDay
-			? getDueChipLabel(task.dueDate, task.dueTime, today)
-			: getDueLabel(task.dueDate, task.dueTime, today))
+			? getDueChipLabel(task.dueDate, task, today)
+			: getDueLabel(task.dueDate, task, today))
 	const buttonId = useId()
 	const titleId = useId()
 	const { updateTask } = useUpdateTask(today)

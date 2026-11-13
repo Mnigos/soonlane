@@ -24,12 +24,16 @@ import { Analytics } from '@/modules/analytics/application/analytics.port'
 import type { LabelNotFound } from '@/modules/labels/domain/label.errors'
 import { ProjectNotFound } from '@/modules/projects/domain/project.errors'
 import type { DbError } from '@/platform/db/db.errors'
-import type { TaskNotFound } from '../domain/task.errors'
+import type {
+	TaskDurationWithoutTime,
+	TaskNotFound,
+} from '../domain/task.errors'
 import { TaskRepository } from '../infrastructure/task.repository'
 import {
 	type CompletionDates,
 	type RestoredOccurrence,
 	failDeletedProject,
+	failTimelessDuration,
 	getAdvance,
 	getScheduleUpdate,
 	requireLabel,
@@ -71,7 +75,7 @@ export class TasksService extends Context.Service<
 			input: EditTaskInput
 		) => Effect.Effect<
 			UpdateTaskOutput,
-			TaskNotFound | ProjectNotFound | DbError
+			TaskNotFound | ProjectNotFound | TaskDurationWithoutTime | DbError
 		>
 		readonly delete: (
 			ownerId: UserId,
@@ -233,6 +237,7 @@ export const TasksServiceLive = Layer.effect(
 
 			if (input.projectId) yield* requireProject(ownerId, input.projectId)
 
+			const schedule = yield* getScheduleUpdate(current, input, today)
 			const editedAt = new Date(yield* Clock.currentTimeMillis)
 
 			return yield* requireTask(
@@ -241,10 +246,13 @@ export const TasksServiceLive = Layer.effect(
 						...input,
 						ownerId,
 						id,
-						...getScheduleUpdate(current, input, today),
+						...schedule,
 						editedAt,
 					})
-					.pipe(Effect.catchTag('DbError', failDeletedProject))
+					.pipe(
+						Effect.catchTag('DbError', failDeletedProject),
+						Effect.catchTag('DbError', failTimelessDuration)
+					)
 			)
 		})
 

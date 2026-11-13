@@ -23,7 +23,9 @@ const itemSchema = Schema.Struct({
 	priority: Schema.Number,
 	due: nullable(dueSchema),
 	deadline: nullable(Schema.Unknown),
-	duration: nullable(Schema.Unknown),
+	duration: nullable(
+		Schema.Struct({ amount: Schema.Number, unit: Schema.String })
+	),
 	checked: Schema.optionalKey(Schema.Boolean),
 	is_deleted: Schema.optionalKey(Schema.Boolean),
 })

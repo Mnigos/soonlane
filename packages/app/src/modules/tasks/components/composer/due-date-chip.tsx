@@ -20,17 +20,20 @@ import { RepeatIcon } from './date-picker-icons'
 import { DueCalendarIcon } from './due-calendar-icon'
 import { DueDatePicker } from './due-date-picker'
 import { DueTimeField } from './due-time-field'
+import { DurationMenu } from './duration-menu'
 import { RepeatMenu } from './repeat-menu'
 
 interface DueDateChipProps {
 	dueDate: CalendarDate | undefined
 	dueTime: string | undefined
+	durationMinutes: number | undefined
 	repeat: RepeatRule | undefined
 	today: CalendarDate
 	onDateChange: (date: CalendarDate) => void
 	/** Clears the date with its time and repeat rule. */
 	onNoDate: () => void
 	onTimeChange: (time: string | undefined) => void
+	onDurationChange: (minutes: number | undefined) => void
 	onRepeatChange: (repeat: RepeatInput | undefined) => void
 	onKeyDown?: (event: KeyboardEvent<HTMLElement>) => void
 }
@@ -43,11 +46,13 @@ interface DueDateChipProps {
 export function DueDateChip({
 	dueDate,
 	dueTime,
+	durationMinutes,
 	repeat,
 	today,
 	onDateChange,
 	onNoDate,
 	onTimeChange,
+	onDurationChange,
 	onRepeatChange,
 	onKeyDown,
 }: Readonly<DueDateChipProps>) {
@@ -55,7 +60,7 @@ export function DueDateChip({
 	const [isOpen, setIsOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const label = dueDate
-		? getDueChipLabel(dueDate, dueTime, today)
+		? getDueChipLabel(dueDate, { dueTime, durationMinutes }, today)
 		: { text: 'No date', tone: 'later' as const }
 	const repeatText = repeat && formatRepeatRule(repeat, 'long')
 
@@ -64,7 +69,9 @@ export function DueDateChip({
 			<PopoverTrigger
 				aria-label={
 					dueDate
-						? [`Due ${label.text}`, repeatText].filter(Boolean).join(', ')
+						? [`Due ${label.spokenText ?? label.text}`, repeatText]
+								.filter(Boolean)
+								.join(', ')
 						: 'No due date'
 				}
 				className={cn(COMPOSER_CHIP_CLASS, DUE_TONE_CLASSES[label.tone])}
@@ -110,6 +117,13 @@ export function DueDateChip({
 					{dueDate && (
 						<>
 							<DueTimeField onChange={onTimeChange} value={dueTime} />
+
+							{dueTime && (
+								<DurationMenu
+									onChange={onDurationChange}
+									value={durationMinutes}
+								/>
+							)}
 
 							<RepeatMenu
 								dueDate={dueDate}

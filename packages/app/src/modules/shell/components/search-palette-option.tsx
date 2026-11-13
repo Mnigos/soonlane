@@ -53,7 +53,7 @@ export function SearchPaletteOption({
 					<TaskMeta
 						due={
 							item.task.dueDate &&
-							getDueChipLabel(item.task.dueDate, item.task.dueTime, today)
+							getDueChipLabel(item.task.dueDate, item.task, today)
 						}
 						task={item.task}
 					/>

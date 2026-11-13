@@ -1,5 +1,7 @@
 import {
 	type CalendarDate,
+	DURATION_MINUTES_MAX,
+	DURATION_MINUTES_MIN,
 	REPEAT_INTERVAL_MAX,
 	REPEAT_UNITS,
 	type RepeatUnit,
@@ -30,6 +32,7 @@ import { user } from './auth.schema'
 import { project } from './projects.schema'
 
 export const TASK_PROJECT_FOREIGN_KEY = 'task_project_id_project_id_fkey'
+export const TASK_DURATION_DUE_TIME_CHECK = 'task_duration_due_time'
 
 function toSqlList(values: readonly string[]) {
 	return sql.raw(values.map(value => `'${value}'`).join(', '))
@@ -48,6 +51,7 @@ export const task = pgTable(
 		// A calendar day without a time zone: the owner's local day when the task was planned; null for a task without a date.
 		dueDate: date('due_date', { mode: 'string' }).$type<CalendarDate>(),
 		dueTime: time('due_time', { precision: 0 }),
+		durationMinutes: smallint('duration_minutes'),
 		priority: smallint('priority').notNull().default(4).$type<TaskPriority>(),
 		createdAt: timestamp('created_at', { withTimezone: true })
 			.notNull()
@@ -78,6 +82,14 @@ export const task = pgTable(
 			foreignColumns: [project.id],
 		}).onDelete('set null'),
 		check('task_priority_range', sql`${table.priority} between 1 and 4`),
+		check(
+			'task_duration_range',
+			sql`${table.durationMinutes} between ${sql.raw(String(DURATION_MINUTES_MIN))} and ${sql.raw(String(DURATION_MINUTES_MAX))}`
+		),
+		check(
+			TASK_DURATION_DUE_TIME_CHECK,
+			sql`${table.durationMinutes} is null or ${table.dueTime} is not null`
+		),
 		check(
 			'task_repeat_all_or_none',
 			sql`num_nulls(${table.repeatUnit}, ${table.repeatInterval}, ${table.repeatAnchor}) in (0, 3)`

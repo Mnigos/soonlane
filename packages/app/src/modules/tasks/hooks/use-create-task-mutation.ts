@@ -25,6 +25,7 @@ export function useCreateTaskMutation(
 					source,
 					hasDescription: task.description !== undefined,
 					hasTime: task.dueTime !== undefined,
+					hasDuration: task.durationMinutes !== undefined,
 					isOverdue: (properties.dueInDays ?? 0) < 0,
 				})
 				await refreshTaskLists(queryClient)

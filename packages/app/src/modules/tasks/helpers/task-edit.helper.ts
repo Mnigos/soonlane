@@ -16,6 +16,14 @@ export function getChanged<T>(value: T, previous: T) {
 	return value === previous ? undefined : value
 }
 
+/** {@link getChanged} for an optional field: null when the edit removes it. */
+export function getChangedOptional<T>(
+	value: T | undefined,
+	previous: T | undefined
+) {
+	return value === previous ? undefined : (value ?? null)
+}
+
 interface DueDateChange {
 	dueDate: CalendarDate | undefined
 }

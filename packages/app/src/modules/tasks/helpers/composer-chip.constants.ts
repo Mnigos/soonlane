@@ -13,6 +13,10 @@ export const CHIP_ICON_STROKE = 1.5
 export const FOOTER_BUTTON_CLASS =
 	'flex h-8 w-full cursor-pointer items-center justify-center gap-2 rounded-md border text-label font-semibold text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary [&_svg]:size-4 [&_svg]:shrink-0'
 
+/** A typed value in the date picker's footer (a custom repeat or duration). */
+export const FOOTER_FIELD_CLASS =
+	'h-8 rounded-md border bg-popover px-2 text-label text-foreground [color-scheme:dark] outline-none focus-visible:border-border-strong'
+
 /** The text field at the top of a chip's popover (the date picker, the label picker). */
 export const PICKER_FIELD_ROW_CLASS =
 	'flex h-10 shrink-0 items-center border-b px-3'

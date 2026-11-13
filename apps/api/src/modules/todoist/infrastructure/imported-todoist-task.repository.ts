@@ -151,6 +151,7 @@ export const ImportedTodoistTaskRepositoryLive = Layer.effect(
 										description: draft.description ?? null,
 										dueDate: draft.dueDate ?? null,
 										dueTime: draft.dueTime ?? null,
+										durationMinutes: draft.durationMinutes ?? null,
 										priority: draft.priority,
 										...toRepeatColumns(draft.repeat),
 										projectId: draft.projectName
