@@ -1,12 +1,4 @@
-import { useTasksQuery } from '@soonlane/app/tasks/hooks/use-tasks-query'
-import type { Task } from '@soonlane/contracts'
-import {
-	type CalendarDate,
-	formatDayMonth,
-	formatWeekday,
-	getToday,
-} from '@soonlane/domain'
-import { useState } from 'react'
+import { formatDayMonth, formatWeekday } from '@soonlane/domain'
 import {
 	ActivityIndicator,
 	FlatList,
@@ -15,13 +7,9 @@ import {
 	View,
 } from 'react-native'
 import { COLORS } from './theme.constants'
+import { type TodayRow, useTodayRows } from './use-today-rows'
 
-interface Row {
-	task: Task
-	overdue: boolean
-}
-
-function TaskRow({ task, overdue }: Readonly<Row>) {
+function TaskRow({ task, overdue }: Readonly<TodayRow>) {
 	return (
 		<View style={styles.row}>
 			<View
@@ -41,20 +29,9 @@ function TaskRow({ task, overdue }: Readonly<Row>) {
 	)
 }
 
-/** Today: overdue tasks, then the ones due today, from the shared `tasks.list` query. */
+/** Today styled with plain StyleSheet and token values copied into `theme.constants.ts`. */
 export function TodayScreen() {
-	// Spike: read once; the real app re-reads at midnight and on foreground.
-	// oxlint-disable-next-line react/hook-use-state
-	const [today] = useState<CalendarDate>(() => getToday(new Date()))
-	const { data, isPending, isError, error } = useTasksQuery({
-		today,
-		from: today,
-		to: today,
-	})
-	const rows: Row[] = [
-		...(data?.overdue ?? []).map(task => ({ task, overdue: true })),
-		...(data?.scheduled ?? []).map(task => ({ task, overdue: false })),
-	]
+	const { today, rows, zodParsed, query } = useTodayRows()
 
 	return (
 		<View style={styles.screen}>
@@ -64,9 +41,18 @@ export function TodayScreen() {
 				{formatWeekday(today, 'long')}, {formatDayMonth(today)}
 			</Text>
 
-			{isPending && <ActivityIndicator color={COLORS.primary} />}
+			{zodParsed !== undefined && (
+				<Text style={styles.check}>
+					StyleSheet · Zod {zodParsed ? 'parsed' : 'rejected'} {rows.length}{' '}
+					tasks on Hermes
+				</Text>
+			)}
 
-			{isError && <Text style={styles.overdue}>{String(error)}</Text>}
+			{query.isPending && <ActivityIndicator color={COLORS.primary} />}
+
+			{query.isError && (
+				<Text style={styles.overdue}>{String(query.error)}</Text>
+			)}
 
 			<FlatList
 				data={rows}
@@ -91,6 +77,7 @@ const styles = StyleSheet.create({
 		marginBottom: 16,
 		marginTop: 2,
 	},
+	check: { color: COLORS.faintForeground, fontSize: 11, marginBottom: 8 },
 	row: {
 		flexDirection: 'row',
 		gap: 12,

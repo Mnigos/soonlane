@@ -145,8 +145,22 @@ export default defineConfig({
 				'oxfmt.config.mts',
 				'.railway/railway.ts',
 				'tooling/oxlint-plugin/soonlane.plugin.mts',
+				'apps/mobile/postcss.config.mjs',
 			],
 			rules: { 'import/no-default-export': 'off' },
+		},
+		{
+			// Metro and Babel load these only as untyped CommonJS.
+			files: ['apps/mobile/metro.config.js', 'apps/mobile/babel.config.js'],
+			rules: {
+				'unicorn/prefer-module': 'off',
+				'unicorn/no-anonymous-default-export': 'off',
+				'typescript/no-unsafe-argument': 'off',
+				'typescript/no-unsafe-assignment': 'off',
+				'typescript/no-unsafe-call': 'off',
+				'typescript/no-unsafe-member-access': 'off',
+				'typescript/no-unsafe-return': 'off',
+			},
 		},
 		{
 			// The one brand cast, in fromUtcDate (soonlane/no-brand-cast).

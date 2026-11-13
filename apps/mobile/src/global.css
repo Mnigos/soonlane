@@ -1,0 +1,9 @@
+@import 'tailwindcss/theme.css' layer(theme);
+@import 'tailwindcss/preflight.css' layer(base);
+@import 'tailwindcss/utilities.css';
+@import 'nativewind/theme';
+
+/* The web app's DESIGN.md tokens, shared as is; theme.css itself adds html/body base rules the app has no use for. */
+@import '@soonlane/tailwind-config/tokens';
+
+@source './';
