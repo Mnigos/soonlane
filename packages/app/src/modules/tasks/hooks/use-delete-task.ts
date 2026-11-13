@@ -1,8 +1,7 @@
-import { capture } from '@soonlane/analytics/client'
 import type { Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from '../helpers/task-event.helper'
@@ -15,6 +14,7 @@ import {
 /** Deletes a task at once (optimistically); a failure puts it back. */
 export function useDeleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
+	const { capture, dismissToast } = getHostPorts()
 
 	const { mutate } = useMutation(
 		orpcQuery.tasks.delete.mutationOptions({
@@ -27,7 +27,7 @@ export function useDeleteTask(today: CalendarDate) {
 			},
 			onSuccess: (_output, { id }, context) => {
 				// Undo on this task's completion toast would fail once it is gone; a failed delete keeps it.
-				toast.dismiss(id)
+				dismissToast(id)
 
 				const deleted = context?.removed[0]?.placement.task
 

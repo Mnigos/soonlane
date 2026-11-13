@@ -1,5 +1,4 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
-import { capture } from '@soonlane/analytics/client'
 import type { Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -11,6 +10,7 @@ import {
 import { cn } from '@soonlane/ui/cn'
 import { Check } from 'lucide-react'
 import { type KeyboardEvent, useId, useRef, useState } from 'react'
+import { getHostPorts } from '../../../../host-ports.client'
 import { isShortcutKeydown } from '../../../../utils/keyboard-shortcut.util'
 import { getMenuEdit } from '../../helpers/task-edit.helper'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
@@ -41,6 +41,7 @@ export function TaskItem({
 	onComplete,
 	showsDueDay,
 }: Readonly<TaskItemProps>) {
+	const { capture } = getHostPorts()
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 	const isEditing = openEditorId === task.id
 	const [shouldFocusMenu, setShouldFocusMenu] = useState(false)

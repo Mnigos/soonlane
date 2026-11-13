@@ -1,8 +1,8 @@
-import { capture } from '@soonlane/analytics/client'
 import type { Task } from '@soonlane/contracts'
 import { type CalendarDate, getDayHeading } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { type Ref, useRef, useState } from 'react'
+import { getHostPorts } from '../../../../host-ports.client'
 import { useOpenEditor } from '../../hooks/use-open-editor'
 import { TaskComposer } from '../composer/task-composer'
 import { AddTaskRow } from './add-task-row'
@@ -28,6 +28,7 @@ export function DaySection({
 	hasAddTask = true,
 	ref,
 }: Readonly<DaySectionProps>) {
+	const { capture } = getHostPorts()
 	const { openEditorId, setOpenEditorId } = useOpenEditor()
 	const isAdding = openEditorId === date
 	const [shouldFocusAddTask, setShouldFocusAddTask] = useState(false)

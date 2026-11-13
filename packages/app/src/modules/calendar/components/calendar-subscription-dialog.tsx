@@ -1,10 +1,10 @@
-import { capture } from '@soonlane/analytics/client'
 import { DATE_LOCALE } from '@soonlane/domain'
 import { Button } from '@soonlane/ui/components/button'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import { describeFailure } from '../../shell/helpers/maintenance.helper'
 import { CalendarLinkField } from './calendar-link-field'
@@ -23,6 +23,7 @@ interface CalendarSubscriptionDialogProps {
 export function CalendarSubscriptionDialog({
 	onClose,
 }: Readonly<CalendarSubscriptionDialogProps>) {
+	const { capture } = getHostPorts()
 	const queryClient = useQueryClient()
 	const [isConfirmingRevoke, setIsConfirmingRevoke] = useState(false)
 	const subscriptionQuery = useQuery(
