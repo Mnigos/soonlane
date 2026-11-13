@@ -30,7 +30,7 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	>
 	/** Route paths (`/app/labels/$name`) whose params are user content or a secret, sent as `:name`. */
 	privateRoutes: readonly string[]
-	/** The environment's cookie prefix, which names the consent cookie. */
+	/** The environment's cookie prefix, which names the consent cookie and PostHog's cookies. */
 	cookiePrefix: string
 	/** The signed-in user on the current page, identified when analytics is granted. */
 	getUser?: (router: TRouter) => AnalyticsUser | undefined
@@ -83,16 +83,16 @@ function getSuperProperties({
 }
 
 async function startPostHog(
-	{ key, privateRoutes }: Tracking,
+	{ key, privateRoutes, cookiePrefix }: Tracking,
 	consent: Exclude<ConsentState, 'unanswered'>
 ) {
 	try {
 		const { default: posthog } = await import('posthog-js')
 
+		if (consent !== 'granted') await clearPostHogStorage(cookiePrefix)
 		// Back into the desktop sign-in while loading: its fresh document starts PostHog later, if at all.
 		if (location.pathname.startsWith(DESKTOP_SIGN_IN_PREFIX)) return undefined
-		if (consent !== 'granted') clearPostHogStorage()
-		posthog.init(key, createPostHogConfig(privateRoutes))
+		posthog.init(key, createPostHogConfig(privateRoutes, cookiePrefix))
 		if (consent === 'granted')
 			posthog.opt_in_capturing({ captureEventName: false })
 
@@ -219,7 +219,7 @@ export function applyConsent(choice: ConsentChoice, source: ConsentSource) {
 				posthog.opt_in_capturing({ captureEventName: false })
 			else {
 				posthog.opt_out_capturing()
-				clearPostHogStorage()
+				void clearPostHogStorage(current.cookiePrefix)
 			}
 			registerContext(posthog, current, getSuperProperties(current))
 		})
