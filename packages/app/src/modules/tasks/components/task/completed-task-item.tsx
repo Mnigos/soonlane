@@ -1,17 +1,21 @@
 import type { Task } from '@soonlane/contracts'
 import { Check } from 'lucide-react'
 import { useId } from 'react'
+import { ParentTaskLink } from './parent-task-link'
 
 interface CompletedTaskItemProps {
 	task: Task
 	isDisabled: boolean
 	onReopen: () => void
+	/** Under its parent's subtasks, which leave out the link to the parent. */
+	isInParent?: boolean
 }
 
 export function CompletedTaskItem({
 	task,
 	isDisabled,
 	onReopen,
+	isInParent,
 }: Readonly<CompletedTaskItemProps>) {
 	const buttonId = useId()
 	const titleId = useId()
@@ -31,12 +35,20 @@ export function CompletedTaskItem({
 				<Check aria-hidden className="size-3" strokeWidth={3} />
 			</button>
 
-			<p
-				className="ph-mask min-w-0 flex-1 text-sm text-muted-foreground line-through"
-				id={titleId}
-			>
-				{task.title}
-			</p>
+			<div className="flex min-w-0 flex-1 flex-col gap-0.5">
+				<p
+					className="ph-mask text-sm text-muted-foreground line-through"
+					id={titleId}
+				>
+					{task.title}
+				</p>
+
+				{task.parent && !isInParent && (
+					<p className="flex text-caption">
+						<ParentTaskLink parent={task.parent} />
+					</p>
+				)}
+			</div>
 		</li>
 	)
 }

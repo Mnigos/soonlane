@@ -25,8 +25,10 @@ export function DeleteTaskDialog({
 			<h2 className="text-base font-semibold">Delete task?</h2>
 
 			<p className="mt-2 text-sm text-secondary-foreground">
-				The &quot;<span className="ph-mask">{task.title}</span>&quot; task will
-				be permanently deleted.
+				The &quot;<span className="ph-mask">{task.title}</span>&quot; task
+				{task.subtasks
+					? ' and its subtasks will be permanently deleted.'
+					: ' will be permanently deleted.'}
 			</p>
 
 			<div className="mt-6 flex justify-end gap-2">
