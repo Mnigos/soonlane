@@ -1,9 +1,13 @@
 import { Button } from '@soonlane/ui/components/button'
-import { useRouter } from '@tanstack/react-router'
+import { type ErrorComponentProps, useRouter } from '@tanstack/react-router'
+import { isConnectionError } from '../helpers/connection.helper'
+import { NoConnectionScreen } from './no-connection-screen'
 
-/** A view that failed to load; never shows the error itself. */
-export function RouteError() {
+/** A view that failed to load; never shows the error itself. Without a connection, the screen that reconnects on its own. */
+export function RouteError({ error }: Readonly<ErrorComponentProps>) {
 	const router = useRouter()
+
+	if (isConnectionError(error)) return <NoConnectionScreen />
 
 	return (
 		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-4 px-6">
