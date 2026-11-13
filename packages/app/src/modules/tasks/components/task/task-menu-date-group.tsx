@@ -1,5 +1,5 @@
 import type { DatePickerChoice } from '@soonlane/analytics'
-import { type CalendarDate, getDueDateShortcuts } from '@soonlane/domain'
+import type { CalendarDate } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import {
 	MenuGroup,
@@ -10,11 +10,12 @@ import {
 import { Tooltip } from '@soonlane/ui/components/tooltip'
 import { Ellipsis } from 'lucide-react'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
+import { DUE_DATE_SHORTCUT_CHOICES } from '../../helpers/due-date-choice.constants'
 import {
-	DUE_DATE_SHORTCUT_CHOICES,
 	DUE_DATE_SHORTCUT_ICONS,
 	NO_DATE_ICON,
 } from '../../helpers/due-date-shortcut.constants'
+import { getMenuDateShortcuts } from '../../helpers/task-edit.helper'
 
 interface TaskMenuDateGroupProps {
 	today: CalendarDate
@@ -33,9 +34,7 @@ export function TaskMenuDateGroup({
 	noDateHint,
 	onMoreDates,
 }: Readonly<TaskMenuDateGroupProps>) {
-	const shortcuts = getDueDateShortcuts(today).filter(
-		({ id }) => id !== 'next-weekend'
-	)
+	const shortcuts = getMenuDateShortcuts(today)
 	const { icon: NoDateIcon } = NO_DATE_ICON
 
 	return (

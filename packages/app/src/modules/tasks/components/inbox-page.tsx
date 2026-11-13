@@ -1,6 +1,6 @@
 import type { CalendarDate } from '@soonlane/domain'
 import { useState } from 'react'
-import { getTodayListInput } from '../helpers/dock-badge.helper'
+import { getTodayListInput } from '../helpers/task-list-key.helper'
 import { useCompleteTask } from '../hooks/use-complete-task'
 import { useOpenEditor } from '../hooks/use-open-editor'
 import { useTasksQuery } from '../hooks/use-tasks-query'
