@@ -63,15 +63,15 @@ export function removeFromCompleted(queryClient: QueryClient, id: string) {
 export function announceCompletion(
 	completed: Task,
 	today: CalendarDate,
-	completedVia: ClientEvents['task_completed']['completed_via'],
+	completedVia: ClientEvents['task_completed']['completedVia'],
 	undo: () => void
 ) {
 	const properties = getTaskEventProperties(completed, today)
 
 	capture('task_completed', {
 		...properties,
-		was_overdue: (properties.due_in_days ?? 0) < 0,
-		completed_via: completedVia,
+		wasOverdue: (properties.dueInDays ?? 0) < 0,
+		completedVia,
 	})
 	toast('Task completed', {
 		// A newer completion of this task replaces the toast, so an older Undo cannot revert it.
@@ -84,7 +84,7 @@ export function announceCompletion(
 export function getUndoCallbacks(
 	queryClient: QueryClient,
 	today: CalendarDate,
-	uncompletedVia: ClientEvents['task_uncompleted']['completed_via'] = 'undo'
+	uncompletedVia: ClientEvents['task_uncompleted']['completedVia'] = 'undo'
 ) {
 	return {
 		onMutate: async ({ id }: { id: string }) => {
@@ -100,7 +100,7 @@ export function getUndoCallbacks(
 			context?: { reopened?: Task }
 		) => {
 			if (context?.reopened) addToCompleted(queryClient, context.reopened)
-			capture('task_completion_failed', { task_id: id, action: 'uncomplete' })
+			capture('task_completion_failed', { taskId: id, action: 'uncomplete' })
 			toastFailure(error, 'Could not restore the task. Try again.')
 		},
 		onSuccess: ({ task }: { task: Task }) => {
@@ -108,8 +108,8 @@ export function getUndoCallbacks(
 
 			capture('task_uncompleted', {
 				...properties,
-				was_overdue: (properties.due_in_days ?? 0) < 0,
-				completed_via: uncompletedVia,
+				wasOverdue: (properties.dueInDays ?? 0) < 0,
+				completedVia: uncompletedVia,
 			})
 		},
 		onSettled: async () => await refreshTaskAndLabelLists(queryClient),

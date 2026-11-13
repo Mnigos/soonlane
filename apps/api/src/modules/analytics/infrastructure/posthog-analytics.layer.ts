@@ -1,3 +1,4 @@
+import { toSnakeCaseKeys } from '@soonlane/analytics'
 import type { UserId } from '@soonlane/domain'
 import { Effect, Layer } from 'effect'
 import { PostHog } from 'posthog-node'
@@ -51,7 +52,11 @@ export const PostHogAnalyticsLive = Layer.effect(
 		if (!posthogKey) return disabledAnalytics
 
 		const context = yield* Effect.context()
-		const buildProperties = { app_version: version, commit, environment }
+		const buildProperties = toSnakeCaseKeys({
+			appVersion: version,
+			commit,
+			environment,
+		})
 		const client = yield* Effect.acquireRelease(
 			Effect.sync(() => {
 				const created = new PostHog(posthogKey, {
@@ -87,7 +92,7 @@ export const PostHogAnalyticsLive = Layer.effect(
 			client.capture({
 				distinctId: userId,
 				event,
-				properties: { ...buildProperties, ...properties },
+				properties: { ...buildProperties, ...toSnakeCaseKeys(properties) },
 			})
 		})
 

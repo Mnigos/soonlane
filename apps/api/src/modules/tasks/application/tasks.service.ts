@@ -206,7 +206,7 @@ export const TasksServiceLive = Layer.effect(
 
 			if (count === 1)
 				yield* analytics.capture(ownerId, 'first_task_created', {
-					task_id: task.id,
+					taskId: task.id,
 				})
 
 			return task

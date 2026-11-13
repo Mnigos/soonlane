@@ -14,7 +14,9 @@ Each app passes what only it knows. `trackRouter(router, options)` takes the Pos
 
 ## Naming
 
-Event names and their properties are typed in `packages/analytics/src/analytics-event.types.ts` (browser) and `apps/api/src/modules/analytics/domain/analytics-event.types.ts` (server); a misspelled name or property does not compile. Names are `object_action` in snake_case and the past tense. Properties are snake_case and hold only ids, enums, counts, booleans and durations: never task titles, descriptions, label names, emails or names.
+Event names and their properties are typed in `packages/analytics/src/analytics-event.types.ts` (browser) and `apps/api/src/modules/analytics/domain/analytics-event.types.ts` (server); a misspelled name or property does not compile. Names are `object_action` in snake_case and the past tense. Properties hold only ids, enums, counts, booleans and durations: never task titles, descriptions, label names, emails or names.
+
+Code writes property keys in camelCase (`dueInDays`), and `capture` on both sides sends them to PostHog in snake_case (`due_in_days`) with `toSnakeCaseKeys` from `@soonlane/analytics`. Keys starting with `$` stay as they are, the keys inside `$set` and `$set_once` are converted too, and values never change. The tables below use the names PostHog receives. `ClientWireKey` and `ServerWireKey` list those names by hand next to the event types, so a renamed or new property fails `bun run typecheck` until its list, this page and any PostHog insight that uses it change too.
 
 ## Events
 

@@ -49,7 +49,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 	const loadMore = useCallback(
 		(trigger: RangeLoadTrigger) => {
 			capture('upcoming_range_loaded', {
-				weeks_loaded: weekCount + UPCOMING_WEEKS_PER_LOAD,
+				weeksLoaded: weekCount + UPCOMING_WEEKS_PER_LOAD,
 				trigger,
 			})
 			setWeekCount(count => count + UPCOMING_WEEKS_PER_LOAD)
@@ -61,7 +61,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 	function goTo(day: CalendarDate, direction: UpcomingNavigation) {
 		capture('upcoming_day_navigated', {
 			direction,
-			distance_days: Math.abs(getDaysBetween(activeDay, day)),
+			distanceDays: Math.abs(getDaysBetween(activeDay, day)),
 		})
 		scrollToDay(day)
 	}

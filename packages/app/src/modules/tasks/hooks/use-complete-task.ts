@@ -50,7 +50,7 @@ export function useCompleteTask(today: CalendarDate) {
 			onError: (error, { id }, context) => {
 				removeFromCompleted(queryClient, id)
 				restoreCachedTask(queryClient, context?.removed)
-				capture('task_completion_failed', { task_id: id, action: 'complete' })
+				capture('task_completion_failed', { taskId: id, action: 'complete' })
 				toastFailure(error, 'Could not complete the task. Try again.')
 			},
 			onSuccess: ({ task }, input) => {

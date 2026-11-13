@@ -8,9 +8,9 @@ export function getTaskEventProperties(
 	today: CalendarDate
 ): TaskEventProperties {
 	return {
-		task_id: task.id,
+		taskId: task.id,
 		priority: task.priority,
-		due_in_days:
+		dueInDays:
 			task.dueDate === undefined
 				? undefined
 				: getDaysBetween(today, task.dueDate),
