@@ -8,6 +8,7 @@ export const TODOIST_IMPORT_CHANGES = [
 	'repeating',
 	'alreadyImported',
 	'subtasks',
+	'deepSubtasks',
 	'sections',
 	'deadlines',
 	'durations',
