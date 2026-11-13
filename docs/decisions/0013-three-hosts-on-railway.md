@@ -102,6 +102,16 @@ The app moved to `app.soonlane.com` (`app.staging.soonlane.com` on staging); thi
 - **The API trusts only the app's origin.** `TRUSTED_ORIGINS` and `APP_URL` are `https://app.soonlane.com` (`https://app.staging.soonlane.com` on staging); `soonlane.com` left the list. Calendar events link to the app's `/`. The cookie prefix and domain stay, so nobody signs in again, and Google's redirect URI stays on the API host.
 - **One PostHog identity across both hosts.** With analytics granted, posthog-js keeps its identity in a cookie for the shared domain as well as localStorage; withdrawing consent deletes it there too.
 
+## Update 2026-11-13 (SOON-128)
+
+The landing, blog, changelog and legal pages moved to `apps/site`, a static app served by its own Railway service `site`; this replaces the One service, two hosts point and the server-kept site of the 2026-11-12 update.
+
+- **A static site.** `apps/site` keeps the site's TanStack routes, head tags, MDX content and OG images, and TanStack Start prerenders every page at build time, with `robots.txt`, `sitemap.xml`, `blog/rss.xml` and a `404.html`. Caddy serves the files (`apps/site/Dockerfile`, `apps/site/Caddyfile`); nothing runs at request time. `soonlane.com` and `staging.soonlane.com` are the service's only domains.
+- **Two build inputs.** `APP_ENV` picks robots (production allows crawling, other environments block it), the blog's draft filter and the app's and API's origins and cookie prefix from a constant map in the site; `VITE_POSTHOG_KEY` turns analytics and the consent banner on. Canonical URLs keep the fixed `https://soonlane.com`.
+- **`web` serves only the app**, at root paths on any host, with a `robots.txt` that blocks every crawler. The host rewrite, the `/site` prefix, the prerender and the site's routes are gone. The app links to the legal pages and the changelog by absolute URL on `VITE_SITE_URL`.
+- **`/ingest` is on the API host** (`https://api.soonlane.com/ingest`), with the same upstreams, header allowlist, timeouts and client IP as before. It answers CORS for `APP_URL` and the new `SITE_URL` only, without credentials. Both browser apps set PostHog's `api_host` to it.
+- **A release rebuilds the site.** The `site` service watches `CHANGELOG.md` and `version.json`, and `/changelog` is prerendered from `CHANGELOG.md`. A post dated in the future still waits for the next production build.
+
 ## Options considered
 
 - **Stay on Vercel and add a separate API.** The app would keep the function model it works around today, and the product would run on two platforms. Igor chose to leave Vercel.
