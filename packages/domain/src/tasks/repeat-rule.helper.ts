@@ -27,6 +27,25 @@ export interface RepeatRule {
 	fromCompletion?: boolean
 }
 
+/** The due date and repeat rule a task has before an edit. */
+interface TaskSchedule {
+	dueDate?: CalendarDate
+	repeat?: RepeatRule
+}
+
+/** The due date, time and complete rule a task has before a field-level edit. */
+interface StoredSchedule extends TaskSchedule {
+	dueTime?: string
+	repeat?: Required<RepeatRule>
+}
+
+/** A field-level edit of a task's schedule: an absent field keeps the task's, null clears it. */
+interface ScheduleEdit {
+	dueDate?: CalendarDate | null
+	dueTime?: string | null
+	repeat?: Omit<RepeatRule, 'anchor'> | null
+}
+
 const MONTHS_PER_YEAR = 12
 const ORDINAL_SUFFIXES: Partial<Record<Intl.LDMLPluralRule, string>> = {
 	one: 'st',
@@ -87,7 +106,7 @@ export function getFirstOccurrence(
 
 /** Snaps like a new task unless the edit keeps the stored due date and unit, e.g. a weekday task rescheduled to a Saturday. */
 export function getEditedDueDate(
-	task: { dueDate?: CalendarDate; repeat?: { unit: RepeatUnit } } | undefined,
+	task: TaskSchedule | undefined,
 	dueDate: CalendarDate,
 	unit: RepeatUnit | undefined
 ) {
@@ -98,10 +117,7 @@ export function getEditedDueDate(
 
 /** An edit keeps the stored anchor unless it changes the due date or the rule's unit or interval; the rule counts from completion only when the edit says so. */
 export function getEditedRule(
-	task: {
-		dueDate?: CalendarDate
-		repeat?: RepeatRule
-	},
+	task: TaskSchedule,
 	dueDate: CalendarDate,
 	repeat: Omit<RepeatRule, 'anchor'> | undefined
 ): Required<RepeatRule> | undefined {
@@ -125,18 +141,7 @@ export function getEditedRule(
  * The due date, time and rule a field-level edit leaves: absent keeps the task's, null clears it, and no due date clears the
  * time and the rule. A new due date snaps and re-anchors against the kept or edited rule.
  */
-export function getEditedSchedule(
-	task: {
-		dueDate?: CalendarDate
-		dueTime?: string
-		repeat?: Required<RepeatRule>
-	},
-	edit: {
-		dueDate?: CalendarDate | null
-		dueTime?: string | null
-		repeat?: Omit<RepeatRule, 'anchor'> | null
-	}
-) {
+export function getEditedSchedule(task: StoredSchedule, edit: ScheduleEdit) {
 	if (edit.dueDate === null)
 		return { dueDate: undefined, dueTime: undefined, repeat: undefined }
 

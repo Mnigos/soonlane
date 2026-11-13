@@ -15,6 +15,12 @@ import { orpcQuery } from '../../../rpc-query.client'
 import { usePickedLabels } from '../../labels/hooks/use-picked-labels'
 import { toRepeatInput } from '../helpers/task-edit.helper'
 
+/** Which typed words the title reads: a chip picked by hand stops its kind from being read. */
+interface TitleReads {
+	isDateRead: boolean
+	isRepeatRead: boolean
+}
+
 const NO_LABELS: Label[] = []
 
 /** Whether `next` only drops tokens of `previous`; deleting a token keeps a chip pick. */
@@ -37,7 +43,7 @@ function parseTitle(
 	labels: Label[],
 	dismissedWords: string[],
 	today: CalendarDate,
-	reads: { isDateRead: boolean; isRepeatRead: boolean }
+	reads: TitleReads
 ) {
 	const labelWords = parseTypedLabels(title, labels)
 	const repeatPhrases = findTypedRepeatRules(title, labelWords, today)

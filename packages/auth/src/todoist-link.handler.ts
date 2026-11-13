@@ -10,6 +10,11 @@ import {
 	TODOIST_SYNC_URL,
 } from './todoist.constants'
 
+/** The signed-in user who started linking Todoist. */
+interface LinkingUser {
+	email: string
+}
+
 const TODOIST_TIMEOUT_MS = 10_000
 
 const syncUserSchema = z.object({
@@ -25,7 +30,7 @@ const issuedTokens = new WeakMap<object, OAuth2Tokens>()
  */
 async function readTodoistUser(
 	accessToken: string | undefined,
-	link: { email: string } | undefined
+	link: LinkingUser | undefined
 ) {
 	if (!(accessToken && link)) return null
 
