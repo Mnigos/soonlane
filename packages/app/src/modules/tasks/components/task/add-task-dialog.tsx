@@ -1,6 +1,6 @@
-import { capture } from '@soonlane/analytics/client'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { useRef } from 'react'
+import { getHostPorts } from '../../../../host-ports.client'
 import { useToday } from '../../hooks/use-today'
 import { TaskComposer } from '../composer/task-composer'
 
@@ -10,6 +10,7 @@ interface AddTaskDialogProps {
 
 /** The global Add task: the task composer in a dialog, due today by default. */
 export function AddTaskDialog({ onClose }: Readonly<AddTaskDialogProps>) {
+	const { capture } = getHostPorts()
 	const today = useToday()
 	// Escape in the composer reaches both the composer and the dialog.
 	const isDismissedRef = useRef(false)

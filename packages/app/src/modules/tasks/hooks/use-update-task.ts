@@ -10,7 +10,7 @@ import {
 	useMutation,
 	useQueryClient,
 } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
@@ -45,6 +45,7 @@ function getEditedGoal(
  */
 export function useUpdateTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
+	const { dismissToast } = getHostPorts()
 	const listKey = orpcQuery.tasks.list.key()
 	const uncomplete = useMutation(
 		orpcQuery.tasks.uncomplete.mutationOptions(
@@ -64,7 +65,7 @@ export function useUpdateTask(today: CalendarDate) {
 				} = updateTaskInputSchema.parse(variables)
 
 				// An Undo from an earlier completion would overwrite this edit's date.
-				toast.dismiss(id)
+				dismissToast(id)
 				await queryClient.cancelQueries({ queryKey: listKey })
 				const lists = queryClient.getQueriesData<ListTasksOutput>({
 					queryKey: listKey,

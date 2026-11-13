@@ -7,9 +7,12 @@
   "exports": {
     "./app-paths": "./src/app-path.constants.ts",
     "./host-app": "./src/host-app.context.ts",
+    "./host-ports": "./src/host-ports.client.ts",
     "./rpc-query": "./src/rpc-query.client.ts",
     "./calendar/components/*": "./src/modules/calendar/components/*.tsx",
     "./labels/helpers/*": "./src/modules/labels/helpers/*.ts",
+    "./labels/hooks/*": "./src/modules/labels/hooks/*.ts",
+    "./projects/hooks/*": "./src/modules/projects/hooks/*.ts",
     "./shell/components/*": "./src/modules/shell/components/*.tsx",
     "./shell/helpers/*": "./src/modules/shell/helpers/*.ts",
     "./tasks/components/*": "./src/modules/tasks/components/*.tsx",

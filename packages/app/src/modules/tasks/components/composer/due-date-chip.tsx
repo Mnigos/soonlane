@@ -1,4 +1,3 @@
-import { capture } from '@soonlane/analytics/client'
 import type { RepeatInput } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -13,6 +12,7 @@ import {
 	PopoverTrigger,
 } from '@soonlane/ui/components/popover'
 import { type KeyboardEvent, useRef, useState } from 'react'
+import { getHostPorts } from '../../../../host-ports.client'
 import { COMPOSER_CHIP_CLASS } from '../../helpers/composer-chip.constants'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { getNoDateHint } from '../../helpers/task-edit.helper'
@@ -51,6 +51,7 @@ export function DueDateChip({
 	onRepeatChange,
 	onKeyDown,
 }: Readonly<DueDateChipProps>) {
+	const { capture } = getHostPorts()
 	const [isOpen, setIsOpen] = useState(false)
 	const inputRef = useRef<HTMLInputElement>(null)
 	const label = dueDate

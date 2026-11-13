@@ -1,5 +1,4 @@
 import type { RangeLoadTrigger, UpcomingNavigation } from '@soonlane/analytics'
-import { capture } from '@soonlane/analytics/client'
 import {
 	type CalendarDate,
 	addDays,
@@ -14,6 +13,7 @@ import {
 } from '@soonlane/domain'
 import { useCallback, useState } from 'react'
 import { flushSync } from 'react-dom'
+import { getHostPorts } from '../../../../host-ports.client'
 import { useActiveDay } from '../../hooks/use-active-day'
 import { useCompleteTask } from '../../hooks/use-complete-task'
 import { useTasksQuery } from '../../hooks/use-tasks-query'
@@ -30,6 +30,7 @@ interface UpcomingPageProps {
 }
 
 export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
+	const { capture } = getHostPorts()
 	const [weekCount, setWeekCount] = useState(UPCOMING_WEEK_COUNT)
 	const ranges = getUpcomingRanges(today, weekCount)
 	const lastDay = getUpcomingLastDay(today, weekCount)
@@ -54,7 +55,7 @@ export function UpcomingPage({ today }: Readonly<UpcomingPageProps>) {
 			})
 			setWeekCount(count => count + UPCOMING_WEEKS_PER_LOAD)
 		},
-		[weekCount]
+		[weekCount, capture]
 	)
 	const loadMoreOnScroll = useCallback(() => loadMore('scroll'), [loadMore])
 

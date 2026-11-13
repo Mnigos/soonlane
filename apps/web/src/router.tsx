@@ -1,10 +1,16 @@
 import type { RPCJsonSerialization } from '@orpc/client'
-import { captureException, trackRouter } from '@soonlane/analytics/client'
+import {
+	capture,
+	captureException,
+	trackRouter,
+} from '@soonlane/analytics/client'
+import { provideHostPorts } from '@soonlane/app/host-ports'
 import { orpcQuery, provideRpcLink } from '@soonlane/app/rpc-query'
 import { syncDockBadge } from '@soonlane/app/tasks/helpers/dock-badge.helper'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRouter } from '@tanstack/react-router'
 import { setupRouterSsrQueryIntegration } from '@tanstack/react-router-ssr-query'
+import { toast } from 'sonner'
 import { NotFound } from './components/not-found'
 import { RouteError } from './components/route-error'
 import { BROWSER_ANALYTICS_OPTIONS } from './modules/analytics/presentation/browser-analytics.constants'
@@ -17,6 +23,20 @@ import {
 } from './utils/stale-chunk.util'
 
 provideRpcLink(rpcLink)
+provideHostPorts({
+	showToast: (message, options) => {
+		toast(message, options)
+	},
+	dismissToast: id => {
+		toast.dismiss(id)
+	},
+	capture,
+	subscribeToResume: onResume => {
+		document.addEventListener('visibilitychange', onResume)
+
+		return () => document.removeEventListener('visibilitychange', onResume)
+	},
+})
 
 export interface RouterContext {
 	queryClient: QueryClient

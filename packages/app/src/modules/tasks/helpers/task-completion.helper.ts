@@ -1,5 +1,4 @@
 import type { ClientEvents } from '@soonlane/analytics'
-import { capture } from '@soonlane/analytics/client'
 import type { ListCompletedTasksOutput, Task } from '@soonlane/contracts'
 import {
 	type CalendarDate,
@@ -7,7 +6,7 @@ import {
 	type TaskCompletedOrderKey,
 } from '@soonlane/domain'
 import type { QueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import { getTaskEventProperties } from './task-event.helper'
@@ -66,6 +65,7 @@ export function announceCompletion(
 	completedVia: ClientEvents['task_completed']['completedVia'],
 	undo: () => void
 ) {
+	const { capture, showToast } = getHostPorts()
 	const properties = getTaskEventProperties(completed, today)
 
 	capture('task_completed', {
@@ -73,7 +73,7 @@ export function announceCompletion(
 		wasOverdue: (properties.dueInDays ?? 0) < 0,
 		completedVia,
 	})
-	toast('Task completed', {
+	showToast('Task completed', {
 		// A newer completion of this task replaces the toast, so an older Undo cannot revert it.
 		id: completed.id,
 		action: { label: 'Undo', onClick: undo },
@@ -86,6 +86,8 @@ export function getUndoCallbacks(
 	today: CalendarDate,
 	uncompletedVia: ClientEvents['task_uncompleted']['completedVia'] = 'undo'
 ) {
+	const { capture } = getHostPorts()
+
 	return {
 		onMutate: async ({ id }: { id: string }) => {
 			await queryClient.cancelQueries({

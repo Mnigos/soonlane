@@ -33,9 +33,12 @@ const ORDINAL_SUFFIXES: Partial<Record<Intl.LDMLPluralRule, string>> = {
 	two: 'nd',
 	few: 'rd',
 }
-const ordinalRules = new Intl.PluralRules(DATE_LOCALE, { type: 'ordinal' })
+/** Created on first use: an engine without `Intl.PluralRules` (Hermes) must still import the domain. */
+let ordinalRules: Intl.PluralRules | undefined
 
 function formatOrdinal(value: number) {
+	ordinalRules ??= new Intl.PluralRules(DATE_LOCALE, { type: 'ordinal' })
+
 	return `${value}${ORDINAL_SUFFIXES[ordinalRules.select(value)] ?? 'th'}`
 }
 

@@ -1,11 +1,11 @@
 import type { ClientEvents } from '@soonlane/analytics'
-import { capture } from '@soonlane/analytics/client'
 import type { SessionUser, Task } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Button } from '@soonlane/ui/components/button'
 import { Toaster } from '@soonlane/ui/components/toaster'
 import { PanelLeftOpen } from 'lucide-react'
 import { type PropsWithChildren, useMemo, useState } from 'react'
+import { getHostPorts } from '../../../host-ports.client'
 import { AddTaskDialog } from '../../tasks/components/task/add-task-dialog'
 import { EditTaskDialog } from '../../tasks/components/task/edit-task-dialog'
 import { useDockBadgeQuery } from '../../tasks/hooks/use-dock-badge-query'
@@ -49,6 +49,7 @@ export function Shell({
 	initialSidebarPreference,
 	user,
 }: Readonly<ShellProps>) {
+	const { capture } = getHostPorts()
 	const [preference, setPreference] = useState(initialSidebarPreference)
 	const [isOverlayOpen, setIsOverlayOpen] = useState(false)
 	const [isAddingTask, setIsAddingTask] = useState(false)

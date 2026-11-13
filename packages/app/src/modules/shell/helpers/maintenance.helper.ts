@@ -1,5 +1,5 @@
 import { MAINTENANCE_ERROR } from '@soonlane/contracts'
-import { toast } from 'sonner'
+import { getHostPorts } from '../../../host-ports.client'
 
 /** oRPC errors and Better Auth's error objects both carry the code the API refuses calls with during maintenance. */
 function isRefusedForMaintenance(error: unknown) {
@@ -18,7 +18,9 @@ export function describeFailure(error: unknown, fallback: string) {
 
 /** Toasts a failed change; refused changes share one toast, so a burst of them shows a single notice. */
 export function toastFailure(error: unknown, fallback: string) {
+	const { showToast } = getHostPorts()
+
 	if (isRefusedForMaintenance(error))
-		toast(MAINTENANCE_ERROR.message, { id: MAINTENANCE_ERROR.code })
-	else toast(fallback)
+		showToast(MAINTENANCE_ERROR.message, { id: MAINTENANCE_ERROR.code })
+	else showToast(fallback)
 }

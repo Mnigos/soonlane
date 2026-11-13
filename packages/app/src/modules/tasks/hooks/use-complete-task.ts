@@ -1,7 +1,7 @@
-import { capture } from '@soonlane/analytics/client'
 import { completeTaskInputSchema, type Task } from '@soonlane/contracts'
 import type { CalendarDate } from '@soonlane/domain'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { getHostPorts } from '../../../host-ports.client'
 import { orpcQuery } from '../../../rpc-query.client'
 import { toastFailure } from '../../shell/helpers/maintenance.helper'
 import {
@@ -22,6 +22,7 @@ const seenProgress = new Map<string, number | undefined>()
 /** Completes a task at once (optimistically) and offers Undo in a toast. */
 export function useCompleteTask(today: CalendarDate) {
 	const queryClient = useQueryClient()
+	const { capture } = getHostPorts()
 
 	async function refreshLists() {
 		await refreshTaskLists(queryClient)
