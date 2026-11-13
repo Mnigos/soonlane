@@ -1,8 +1,6 @@
 /** ⌥Space, Todoist's default Quick Add shortcut; macOS binds nothing to it. */
 export const QUICK_ADD_SHORTCUT = 'Alt+Space'
 export const QUICK_ADD_TITLE = 'Quick Add'
-/** The web app's Quick Add page: the task composer on its own. */
-export const QUICK_ADD_PATH = '/app/quick-add'
 /** Fits the task composer and its error line. */
 export const QUICK_ADD_SIZE = { width: 600, height: 136 }
 /** Also fits the "@" label suggestions under the task name: seven 32px rows and an error line. */

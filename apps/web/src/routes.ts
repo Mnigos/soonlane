@@ -44,10 +44,6 @@ export const routes = rootRoute('routes/__root.tsx', [
 			'/desktop/sign-in',
 			'modules/identity/presentation/routes/desktop-sign-in.route.tsx'
 		),
-		route(
-			'/desktop/callback',
-			'modules/identity/presentation/routes/desktop-callback.route.tsx'
-		),
 	]),
 	route('/today', 'modules/shell/presentation/routes/legacy-today.route.tsx'),
 	route('/robots[.]txt', 'modules/site/presentation/routes/robots.route.ts'),

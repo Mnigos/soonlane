@@ -6,8 +6,8 @@ import { NavigationLive } from '../modules/navigation/application/navigation.ser
 import { ElectrobunSystemBrowserLive } from '../modules/navigation/infrastructure/electrobun-system-browser.layer'
 import { NavigationEventsLive } from '../modules/navigation/infrastructure/navigation-events.layer'
 import { QuickAddLive } from '../modules/quick-add/infrastructure/quick-add.layer'
-import { DesktopSignInLive } from '../modules/sign-in/application/desktop-sign-in.service'
-import { SignInEventsLive } from '../modules/sign-in/infrastructure/sign-in-events.layer'
+import { DesktopSessionLive } from '../modules/sign-in/application/desktop-session.service'
+import { KeychainTokenStoreLive } from '../modules/sign-in/infrastructure/keychain-token-store.layer'
 import { FileFrameStoreLive } from '../modules/window/infrastructure/file-frame-store.layer'
 import { MainWindowLive } from '../modules/window/infrastructure/main-window.layer'
 import { DesktopConfigLive } from './config/desktop.config'
@@ -15,15 +15,14 @@ import { DesktopConfigLive } from './config/desktop.config'
 export const AppLive = Layer.mergeAll(
 	AppMenuLive,
 	NavigationEventsLive,
-	SignInEventsLive,
 	QuickAddLive,
 	DockBadgeEventsLive
 ).pipe(
-	Layer.provide(Layer.mergeAll(NavigationLive, DesktopSignInLive)),
-	Layer.provide(
-		Layer.mergeAll(ElectrobunSystemBrowserLive, AppKitDockBadgeLive)
-	),
+	Layer.provide(Layer.mergeAll(NavigationLive, AppKitDockBadgeLive)),
 	Layer.provideMerge(MainWindowLive),
 	Layer.provide(FileFrameStoreLive),
+	Layer.provideMerge(DesktopSessionLive),
+	Layer.provide(KeychainTokenStoreLive),
+	Layer.provideMerge(ElectrobunSystemBrowserLive),
 	Layer.provideMerge(DesktopConfigLive)
 )

@@ -1,7 +1,7 @@
 import { dlopen, FFIType } from 'bun:ffi'
+import { APP_PATHS } from '@soonlane/app/app-paths'
 import { Effect, Layer, Option, Queue, Ref, Stream } from 'effect'
 import { BrowserWindow, GlobalShortcut, Screen } from 'electrobun'
-import { DesktopConfig } from '../../../platform/config/desktop.config'
 import {
 	electrobunEvents,
 	handleEvents,
@@ -22,7 +22,6 @@ import {
 } from '../domain/quick-add-event.helper'
 import { placeQuickAdd } from '../domain/quick-add-frame.helper'
 import {
-	QUICK_ADD_PATH,
 	QUICK_ADD_SHORTCUT,
 	QUICK_ADD_SIZE,
 	QUICK_ADD_SUGGESTIONS_HEIGHT,
@@ -96,7 +95,6 @@ const shortcutPresses = Stream.callback<undefined>(queue =>
 
 export const QuickAddLive = Layer.effectDiscard(
 	Effect.gen(function* () {
-		const { appUrl } = yield* DesktopConfig
 		const scope = yield* Effect.scope
 		const openWindowId = yield* Ref.make(Option.none<number>())
 
@@ -119,27 +117,22 @@ export const QuickAddLive = Layer.effectDiscard(
 			yield* Stream.runHead(electrobunEvents(`close-${window.id}`))
 		}, Effect.scoped)
 
+		// The window lives in the fiber that follows it, so its page hears session changes until it closes.
 		const create = Effect.gen(function* () {
-			const window = yield* Effect.sync(() => {
-				const created = openAppWindow(appUrl, {
-					title: QUICK_ADD_TITLE,
-					url: new URL(QUICK_ADD_PATH, appUrl).href,
-					frame: placeQuickAdd(
-						Screen.getAllDisplays(),
-						Screen.getCursorScreenPoint()
-					),
-					titleBarStyle: 'hidden',
-					styleMask: { Resizable: false, Miniaturizable: false },
-				})
-
-				created.setAlwaysOnTop(true)
-
-				return created
+			const window = yield* openAppWindow(APP_PATHS.quickAdd, {
+				title: QUICK_ADD_TITLE,
+				frame: placeQuickAdd(
+					Screen.getAllDisplays(),
+					Screen.getCursorScreenPoint()
+				),
+				titleBarStyle: 'hidden',
+				styleMask: { Resizable: false, Miniaturizable: false },
 			})
 
+			window.setAlwaysOnTop(true)
 			yield* Ref.set(openWindowId, Option.some(window.id))
-			yield* Effect.forkIn(follow(window), scope)
-		})
+			yield* follow(window)
+		}).pipe(Effect.scoped, Effect.forkIn(scope))
 
 		// Electrobun forgets a closed window, so the next press opens a new one.
 		const open = Ref.get(openWindowId).pipe(

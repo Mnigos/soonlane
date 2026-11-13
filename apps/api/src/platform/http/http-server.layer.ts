@@ -1,4 +1,4 @@
-import { AUTH_BASE_PATH } from '@soonlane/auth/server'
+import { AUTH_BASE_PATH } from '@soonlane/auth'
 import { Context, Effect, Layer, Redacted } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { createCalendarFeedHandler } from '@/modules/calendar/presentation/calendar-feed.handler'

@@ -4,26 +4,34 @@ type DesktopHostMessage =
 	| { type: 'quick-add-suggestions'; isOpen: boolean }
 	| { type: 'dock-badge'; count: number }
 
-declare global {
-	interface Window {
-		/** Defined by the Electrobun preload on every page the desktop app loads. */
-		__electrobunSendToHost?: (message: DesktopHostMessage) => void
-	}
+/**
+ * The Electrobun preload's `__electrobunSendToHost`, read without declaring it
+ * on `Window`: the desktop app also loads Electrobun's own declaration of it.
+ */
+function getHostSender() {
+	const send: unknown =
+		typeof window === 'undefined'
+			? undefined
+			: Reflect.get(window, '__electrobunSendToHost')
+
+	return typeof send === 'function' ? send : undefined
 }
 
 export function isDesktopShell() {
 	return (
 		typeof document !== 'undefined' &&
 		document.documentElement.dataset.shell === 'desktop' &&
-		typeof window.__electrobunSendToHost === 'function'
+		getHostSender() !== undefined
 	)
 }
 
 /** Whether the message reached the desktop app; outside it nothing is sent. */
 export function sendToDesktopHost(message: DesktopHostMessage) {
-	if (!isDesktopShell()) return false
+	const send = getHostSender()
 
-	window.__electrobunSendToHost?.(message)
+	if (!(send && isDesktopShell())) return false
+
+	Reflect.apply(send, window, [message])
 
 	return true
 }
