@@ -2,8 +2,7 @@
   "extends": "@soonlane/typescript-config/react-app.json",
   "compilerOptions": {
     "paths": {
-      "@/*": ["./src/*"],
-      "content-collections": ["./.content-collections/generated"]
+      "@/*": ["./src/*"]
     }
   },
   "include": [
@@ -11,8 +10,7 @@
     "src/**/*.tsx",
     "scripts/**/*.ts",
     "scripts/**/*.tsx",
-    "*.ts",
-    ".content-collections/generated/**/*"
+    "*.ts"
   ],
   "exclude": ["node_modules", ".output", ".nitro"]
 }

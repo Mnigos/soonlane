@@ -12,8 +12,6 @@ import { toSnakeCaseKeys } from './utils/snake-case-keys.util'
 
 /** The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there. */
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
-const SITE_LAYOUT_ROUTE_ID = '/site'
-const BLOG_ROUTE_ID_PREFIX = '/site/blog'
 
 interface AnalyticsUser {
 	id: string
@@ -24,6 +22,8 @@ interface AnalyticsUser {
 export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	/** The PostHog project key; without one nothing is loaded or sent. */
 	key: string | undefined
+	/** The PostHog proxy on the API host (`<API origin>/ingest`). */
+	apiHost: string
 	buildProperties: Pick<
 		SuperProperties,
 		'appVersion' | 'commit' | 'environment'
@@ -34,9 +34,11 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	cookiePrefix: string
 	/** The signed-in user on the current page, identified when analytics is granted. */
 	getUser?: (router: TRouter) => AnalyticsUser | undefined
+	/** The part of the product the page with this route id belongs to. */
+	getSurface: (routeId: string | undefined) => SuperProperties['surface']
 }
 
-/** The part of a router match that tells the landing site from the app. */
+/** `AnyRouter` types its matches as `any`; annotating the one field read keeps the route id typed. */
 interface RouteMatch {
 	routeId: string
 }
@@ -44,10 +46,12 @@ interface RouteMatch {
 interface Tracking {
 	router: AnyRouter
 	key: string
+	apiHost: string
 	buildProperties: BrowserAnalyticsOptions<AnyRouter>['buildProperties']
 	privateRoutes: readonly string[]
 	cookiePrefix: string
 	getUser: () => AnalyticsUser | undefined
+	getSurface: BrowserAnalyticsOptions<AnyRouter>['getSurface']
 }
 
 let posthogReady: Promise<PostHog | undefined> | undefined
@@ -58,32 +62,26 @@ function isDesktopShell() {
 	return document.documentElement.dataset.shell === 'desktop'
 }
 
-/** The blog's pages share the public site's layout but count as their own surface. */
-function getSurface(routeIds: string[]): SuperProperties['surface'] {
-	if (routeIds.at(-1)?.startsWith(BLOG_ROUTE_ID_PREFIX)) return 'blog'
-
-	return routeIds.includes(SITE_LAYOUT_ROUTE_ID) ? 'landing' : 'app'
-}
-
 function getSuperProperties({
 	router,
 	buildProperties,
+	getSurface,
 }: Tracking): SuperProperties {
-	const routeIds = router.state.matches.map(
-		({ routeId }: RouteMatch) => routeId
-	)
+	const route = router.state.matches
+		.map(({ routeId }: RouteMatch) => routeId)
+		.at(-1)
 
 	return {
 		...buildProperties,
 		platform: isDesktopShell() ? 'desktop' : 'web',
-		surface: getSurface(routeIds),
+		surface: getSurface(route),
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-		route: routeIds.at(-1),
+		route,
 	}
 }
 
 async function startPostHog(
-	{ key, privateRoutes, cookiePrefix }: Tracking,
+	{ key, apiHost, privateRoutes, cookiePrefix }: Tracking,
 	consent: Exclude<ConsentState, 'unanswered'>
 ) {
 	try {
@@ -92,7 +90,7 @@ async function startPostHog(
 		if (consent !== 'granted') await clearPostHogStorage(cookiePrefix)
 		// Back into the desktop sign-in while loading: its fresh document starts PostHog later, if at all.
 		if (location.pathname.startsWith(DESKTOP_SIGN_IN_PREFIX)) return undefined
-		posthog.init(key, createPostHogConfig(privateRoutes, cookiePrefix))
+		posthog.init(key, createPostHogConfig(apiHost, privateRoutes, cookiePrefix))
 		if (consent === 'granted')
 			posthog.opt_in_capturing({ captureEventName: false })
 
@@ -171,10 +169,12 @@ export function trackRouter<TRouter extends AnyRouter>(
 	router: TRouter,
 	{
 		key,
+		apiHost,
 		buildProperties,
 		privateRoutes,
 		cookiePrefix,
 		getUser,
+		getSurface,
 	}: BrowserAnalyticsOptions<TRouter>
 ) {
 	if (typeof window === 'undefined' || !key) return
@@ -182,10 +182,12 @@ export function trackRouter<TRouter extends AnyRouter>(
 	const current: Tracking = {
 		router,
 		key,
+		apiHost,
 		buildProperties,
 		privateRoutes,
 		cookiePrefix,
 		getUser: () => getUser?.(router),
+		getSurface,
 	}
 
 	tracking = current

@@ -1,0 +1,6 @@
+@import '@soonlane/tailwind-config/theme';
+@source "../../../packages/ui/src";
+@source "../../../packages/analytics/src";
+
+/* The head script in the root route marks <html data-signed-in> from the signed-in hint cookie before first paint. */
+@custom-variant signed-in (&:where([data-signed-in], [data-signed-in] *));

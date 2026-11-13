@@ -48,6 +48,7 @@ export class AppConfig extends Context.Service<
 		readonly version: string
 		readonly baseUrl: string
 		readonly appUrl: string
+		readonly siteUrl: string
 		readonly trustedOrigins: readonly string[]
 		readonly cookiePrefix: string
 		readonly cookieDomain?: string
@@ -97,6 +98,8 @@ const appConfig = Config.all({
 	baseUrl: originConfig('API_URL'),
 	// The web app's origin: the target of Better Auth's errors and the host of event links; calendar subscription links use API_URL.
 	appUrl: originConfig('APP_URL'),
+	// The public site's origin, which may send PostHog events through `/ingest`.
+	siteUrl: originConfig('SITE_URL'),
 	trustedOrigins: Config.schema(originsSchema, 'TRUSTED_ORIGINS').pipe(
 		Config.map(urls => urls.map(url => url.origin))
 	),

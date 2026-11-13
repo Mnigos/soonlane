@@ -28,7 +28,7 @@ const HOSTS = {
 } as const
 const PORT = 8080
 const REGION = 'europe-west4-drams3a'
-/** What the web build reads besides its own app; a change elsewhere, such as `apps/api` or `packages/db`, leaves the site alone. */
+/** What the web build reads besides its own app; a change elsewhere, such as `apps/api` or `packages/db`, leaves the app alone. */
 const WEB_WATCH_PATTERNS = [
 	'/apps/web/**',
 	'/packages/analytics/**',
@@ -39,8 +39,25 @@ const WEB_WATCH_PATTERNS = [
 	'/packages/ui/**',
 	'/tooling/tailwind-config/**',
 	'/tooling/typescript-config/**',
+	'/tooling/vite-config/**',
+	'/version.json',
+	'/package.json',
+	'/bun.lock',
+	'/bunfig.toml',
+]
+/** What the site's image build reads; a release PR's `CHANGELOG.md` rebuilds `/changelog`. */
+const SITE_WATCH_PATTERNS = [
+	'/apps/site/**',
+	'/packages/analytics/**',
+	'/packages/auth/**',
+	'/packages/domain/**',
+	'/packages/ui/**',
+	'/tooling/tailwind-config/**',
+	'/tooling/typescript-config/**',
+	'/tooling/vite-config/**',
 	'/version.json',
 	'/CHANGELOG.md',
+	'/.dockerignore',
 	'/package.json',
 	'/bun.lock',
 	'/bunfig.toml',
@@ -103,6 +120,7 @@ export default defineRailway(ctx => {
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
 			APP_URL: `https://${hosts.app}`,
+			SITE_URL: `https://${hosts.site}`,
 			TRUSTED_ORIGINS: `https://${hosts.app}`,
 			AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			AUTH_COOKIE_DOMAIN: hosts.cookieDomain,
@@ -134,18 +152,13 @@ export default defineRailway(ctx => {
 		// Covers the server's 15 s graceful close (SERVER_SHUTDOWN_TIMEOUT) and its 5 s forced close before SIGKILL.
 		deploy: { drainingSeconds: 30 },
 		regions: { [REGION]: 1 },
-		// One service answers both hosts and tells them apart by the request's host (`host-rewrite.helper.ts`).
-		domains: [
-			{ domain: hosts.site, port: PORT },
-			{ domain: hosts.app, port: PORT },
-		],
+		domains: [{ domain: hosts.app, port: PORT }],
 		env: {
 			PORT: String(PORT),
 			SERVER_SHUTDOWN_TIMEOUT: '15',
-			// Read at build time: the analytics environment, the blog's draft filter, the browser's API and the two hosts.
+			// Read at build time: the analytics environment, the browser's API and the site the app links to.
 			APP_ENV: environment,
 			VITE_API_URL: `https://${hosts.api}`,
-			VITE_APP_URL: `https://${hosts.app}`,
 			VITE_SITE_URL: `https://${hosts.site}`,
 			VITE_AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			// Server rendering reaches the API inside the environment, over plain http.
@@ -155,7 +168,25 @@ export default defineRailway(ctx => {
 		},
 	})
 
+	// Static files from `apps/site/Dockerfile`; the build reads only these two variables (`site-environment.constants.ts`).
+	const site = service('site', {
+		source: isProduction ? PRODUCTION_SOURCE : undefined,
+		build: {
+			builder: 'DOCKERFILE',
+			dockerfilePath: 'apps/site/Dockerfile',
+			watchPatterns: isProduction ? SITE_WATCH_PATTERNS : null,
+		},
+		healthcheck: '/health',
+		regions: { [REGION]: 1 },
+		domains: [{ domain: hosts.site, port: PORT }],
+		env: {
+			PORT: String(PORT),
+			APP_ENV: environment,
+			VITE_POSTHOG_KEY: preserve(),
+		},
+	})
+
 	return project('Soonlane', {
-		resources: database ? [database, api, web] : [api, web],
+		resources: database ? [database, api, web, site] : [api, web, site],
 	})
 })

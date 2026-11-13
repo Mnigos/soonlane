@@ -12,6 +12,7 @@ coverage/
 .env*
 !.env.example
 .DS_Store
-apps/web/public/og/blog/
+apps/site/public/og/blog/
 apps/api/commit.env
+apps/site/commit.env
 apps/web/commit.env

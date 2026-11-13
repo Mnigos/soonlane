@@ -137,7 +137,8 @@ export default defineConfig({
 			// Their tool loads them only through the default export: Vite, content-collections, Drizzle Kit, Electrobun, commitlint, oxlint (config and plugin), oxfmt and Railway.
 			files: [
 				'apps/web/vite.config.ts',
-				'apps/web/content-collections.ts',
+				'apps/site/vite.config.ts',
+				'apps/site/content-collections.ts',
 				'packages/db/drizzle.config.ts',
 				'apps/desktop/electrobun.config.ts',
 				'commitlint.config.ts',
@@ -163,11 +164,16 @@ export default defineConfig({
 			},
 		},
 		{
-			files: ['scripts/**', 'apps/web/scripts/**', 'packages/db/scripts/**'],
+			files: [
+				'scripts/**',
+				'apps/web/scripts/**',
+				'apps/site/scripts/**',
+				'packages/db/scripts/**',
+			],
 			rules: { 'no-console': 'off' },
 		},
 		{
-			files: ['apps/web/**', 'packages/app/**'],
+			files: ['apps/web/**', 'apps/site/**', 'packages/app/**'],
 			rules: { 'soonlane/hook-query-naming': 'error' },
 		},
 		{
@@ -177,6 +183,7 @@ export default defineConfig({
 		{
 			files: [
 				'apps/web/**',
+				'apps/site/**',
 				'apps/api/src/**',
 				'apps/desktop/src/**',
 				'packages/*/src/**',

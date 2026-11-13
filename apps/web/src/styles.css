@@ -2,6 +2,3 @@
 @source "../../../packages/ui/src";
 @source "../../../packages/analytics/src";
 @source "../../../packages/app/src";
-
-/* The head script in the root route marks <html data-signed-in> from the signed-in hint cookie before first paint. */
-@custom-variant signed-in (&:where([data-signed-in], [data-signed-in] *));

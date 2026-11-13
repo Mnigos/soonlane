@@ -54,7 +54,7 @@ bun --no-env-file scripts/release.ts prepare --summary <summary file> [--version
 ## 5. Parse check
 
 ```sh
-bun -e "import { parseChangelog } from './apps/web/src/modules/changelog/infrastructure/changelog.parser.ts'; console.log(parseChangelog(await Bun.file(process.argv[1]).text())[0])" <dir>/CHANGELOG.md
+bun -e "import { parseChangelog } from './apps/site/src/modules/changelog/infrastructure/changelog.parser.ts'; console.log(parseChangelog(await Bun.file(process.argv[1]).text())[0])" <dir>/CHANGELOG.md
 ```
 
 It throws on any line outside the format, as the build would. The first release it prints must have a `summary` and the groups.
