@@ -103,6 +103,7 @@ export default defineRailway(ctx => {
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
 			APP_URL: `https://${hosts.app}`,
+			SITE_URL: `https://${hosts.site}`,
 			TRUSTED_ORIGINS: `https://${hosts.app}`,
 			AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			AUTH_COOKIE_DOMAIN: hosts.cookieDomain,
