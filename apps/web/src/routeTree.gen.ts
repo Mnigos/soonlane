@@ -10,41 +10,35 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as modulesIdentityPresentationRoutesSessionDotrouteRouteImport } from './modules/identity/presentation/routes/session.route'
-import { Route as modulesSitePresentationRoutesSiteDotrouteRouteImport } from './modules/site/presentation/routes/site.route'
 import { Route as modulesHostingPresentationRoutesHealthDotrouteRouteImport } from './modules/hosting/presentation/routes/health.route'
 import { Route as modulesSitePresentationRoutesRobotsDotrouteRouteImport } from './modules/site/presentation/routes/robots.route'
-import { Route as modulesSitePresentationRoutesSitemapDotrouteRouteImport } from './modules/site/presentation/routes/sitemap.route'
-import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport } from './modules/shell/presentation/routes/legacy-today.route'
+import { Route as modulesSitePresentationRoutesSiteDotrouteRouteImport } from './modules/site/presentation/routes/site.route'
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
+import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
+import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
 import { Route as modulesBlogPresentationRoutesBlogDotrouteRouteImport } from './modules/blog/presentation/routes/blog.route'
 import { Route as modulesChangelogPresentationRoutesChangelogDotrouteRouteImport } from './modules/changelog/presentation/routes/changelog.route'
 import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
+import { Route as modulesSitePresentationRoutesSitemapDotrouteRouteImport } from './modules/site/presentation/routes/sitemap.route'
 import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
-import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './modules/blog/presentation/routes/rss.route'
-import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesCompletedDotrouteRouteImport } from './modules/tasks/presentation/routes/completed.route'
 import { Route as modulesTasksPresentationRoutesInboxDotrouteRouteImport } from './modules/tasks/presentation/routes/inbox.route'
-import { Route as modulesTasksPresentationRoutesQuickAddDotrouteRouteImport } from './modules/tasks/presentation/routes/quick-add.route'
 import { Route as modulesTasksPresentationRoutesSearchDotrouteRouteImport } from './modules/tasks/presentation/routes/search.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesTodoistPresentationRoutesTodoistDotrouteRouteImport } from './modules/todoist/presentation/routes/todoist.route'
 import { Route as modulesIdentityPresentationRoutesDesktopCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-callback.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
 import { Route as modulesBlogPresentationRoutesPostDotrouteRouteImport } from './modules/blog/presentation/routes/post.route'
+import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './modules/blog/presentation/routes/rss.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
 import { Route as modulesProjectsPresentationRoutesProjectDotrouteRouteImport } from './modules/projects/presentation/routes/project.route'
 
 const modulesIdentityPresentationRoutesSessionDotrouteRoute =
   modulesIdentityPresentationRoutesSessionDotrouteRouteImport.update({
     id: '/_session',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const modulesSitePresentationRoutesSiteDotrouteRoute =
-  modulesSitePresentationRoutesSiteDotrouteRouteImport.update({
-    id: '/_site',
     getParentRoute: () => rootRouteImport,
   } as any)
 const modulesHostingPresentationRoutesHealthDotrouteRoute =
@@ -59,22 +53,15 @@ const modulesSitePresentationRoutesRobotsDotrouteRoute =
     path: '/robots.txt',
     getParentRoute: () => rootRouteImport,
   } as any)
-const modulesSitePresentationRoutesSitemapDotrouteRoute =
-  modulesSitePresentationRoutesSitemapDotrouteRouteImport.update({
-    id: '/sitemap.xml',
-    path: '/sitemap.xml',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const modulesShellPresentationRoutesLegacyTodayDotrouteRoute =
-  modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport.update({
-    id: '/today',
-    path: '/today',
+const modulesSitePresentationRoutesSiteDotrouteRoute =
+  modulesSitePresentationRoutesSiteDotrouteRouteImport.update({
+    id: '/site',
+    path: '/site',
     getParentRoute: () => rootRouteImport,
   } as any)
 const modulesShellPresentationRoutesShellDotrouteRoute =
   modulesShellPresentationRoutesShellDotrouteRouteImport.update({
-    id: '/app',
-    path: '/app',
+    id: '/_shell',
     getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
 const modulesIdentityPresentationRoutesLoginDotrouteRoute =
@@ -82,6 +69,18 @@ const modulesIdentityPresentationRoutesLoginDotrouteRoute =
     id: '/login',
     path: '/login',
     getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
+  } as any)
+const modulesTasksPresentationRoutesQuickAddDotrouteRoute =
+  modulesTasksPresentationRoutesQuickAddDotrouteRouteImport.update({
+    id: '/quick-add',
+    path: '/quick-add',
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
+  } as any)
+const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
+  modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport.update({
+    id: '/ingest/$',
+    path: '/ingest/$',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const modulesSitePresentationRoutesHomeDotrouteRoute =
   modulesSitePresentationRoutesHomeDotrouteRouteImport.update({
@@ -107,23 +106,17 @@ const modulesSitePresentationRoutesPrivacyDotrouteRoute =
     path: '/privacy',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
+const modulesSitePresentationRoutesSitemapDotrouteRoute =
+  modulesSitePresentationRoutesSitemapDotrouteRouteImport.update({
+    id: '/site/sitemap.xml',
+    path: '/site/sitemap.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesSitePresentationRoutesTermsDotrouteRoute =
   modulesSitePresentationRoutesTermsDotrouteRouteImport.update({
     id: '/terms',
     path: '/terms',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
-  } as any)
-const modulesBlogPresentationRoutesRssDotrouteRoute =
-  modulesBlogPresentationRoutesRssDotrouteRouteImport.update({
-    id: '/blog/rss.xml',
-    path: '/blog/rss.xml',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
-  modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport.update({
-    id: '/ingest/$',
-    path: '/ingest/$',
-    getParentRoute: () => rootRouteImport,
   } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
   modulesTasksPresentationRoutesUpcomingDotrouteRouteImport.update({
@@ -142,12 +135,6 @@ const modulesTasksPresentationRoutesInboxDotrouteRoute =
     id: '/inbox',
     path: '/inbox',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
-  } as any)
-const modulesTasksPresentationRoutesQuickAddDotrouteRoute =
-  modulesTasksPresentationRoutesQuickAddDotrouteRouteImport.update({
-    id: '/app/quick-add',
-    path: '/app/quick-add',
-    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
 const modulesTasksPresentationRoutesSearchDotrouteRoute =
   modulesTasksPresentationRoutesSearchDotrouteRouteImport.update({
@@ -185,6 +172,12 @@ const modulesBlogPresentationRoutesPostDotrouteRoute =
     path: '/blog/$slug',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
+const modulesBlogPresentationRoutesRssDotrouteRoute =
+  modulesBlogPresentationRoutesRssDotrouteRouteImport.update({
+    id: '/site/blog/rss.xml',
+    path: '/site/blog/rss.xml',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesLabelsPresentationRoutesLabelDotrouteRoute =
   modulesLabelsPresentationRoutesLabelDotrouteRouteImport.update({
     id: '/labels/$name',
@@ -199,87 +192,84 @@ const modulesProjectsPresentationRoutesProjectDotrouteRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/health': typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
-  '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
-  '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
-  '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  '/site': typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
+  '/site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
-  '/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
-  '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
-  '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
-  '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
-  '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
-  '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
-  '/app/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
-  '/app/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
-  '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  '/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
-  '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
-  '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
+  '/site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
+  '/site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
+  '/site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  '/site/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
+  '/site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
+  '/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  '/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
+  '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
-  '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
-  '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
-  '/app/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
+  '/site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
+  '/site/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/health': typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
-  '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
-  '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  '/site': typeof modulesSitePresentationRoutesHomeDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
-  '/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
-  '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
-  '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
-  '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
-  '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
-  '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
-  '/app/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
-  '/app/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
-  '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  '/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
-  '/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
-  '/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
+  '/site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
+  '/site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
+  '/site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  '/site/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
+  '/site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
+  '/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  '/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
+  '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
-  '/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
-  '/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
-  '/app/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
+  '/site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
+  '/site/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_session': typeof modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren
-  '/_site': typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
   '/health': typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
-  '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
-  '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
-  '/_site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
-  '/_session/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
+  '/site': typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
+  '/site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/_session/_shell': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
-  '/_site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
-  '/_site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
-  '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
-  '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
-  '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/_session/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
-  '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
-  '/_session/app/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
-  '/_session/app/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
-  '/_session/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
-  '/_session/app/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
-  '/_session/app/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
-  '/_session/app/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
+  '/site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
+  '/site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
+  '/site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
+  '/site/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
+  '/site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/_session/_shell/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/_session/_shell/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
+  '/_session/_shell/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  '/_session/_shell/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
+  '/_session/_shell/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
+  '/_session/_shell/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/_session/desktop/callback': typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
-  '/_site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
-  '/_session/app/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
-  '/_session/app/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
+  '/site/blog/$slug': typeof modulesBlogPresentationRoutesPostDotrouteRoute
+  '/site/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  '/_session/_shell/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
+  '/_session/_shell/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -287,94 +277,90 @@ export interface FileRouteTypes {
     | '/'
     | '/health'
     | '/robots.txt'
-    | '/sitemap.xml'
-    | '/today'
-    | '/app'
+    | '/site'
+    | '/site/'
     | '/login'
-    | '/blog'
-    | '/changelog'
-    | '/privacy'
-    | '/terms'
-    | '/blog/rss.xml'
+    | '/quick-add'
     | '/ingest/$'
-    | '/app/'
-    | '/app/completed'
-    | '/app/inbox'
-    | '/app/quick-add'
-    | '/app/search'
-    | '/app/today'
-    | '/app/todoist'
+    | '/site/blog'
+    | '/site/changelog'
+    | '/site/privacy'
+    | '/site/sitemap.xml'
+    | '/site/terms'
+    | '/completed'
+    | '/inbox'
+    | '/search'
+    | '/today'
+    | '/todoist'
     | '/desktop/callback'
     | '/desktop/sign-in'
-    | '/blog/$slug'
-    | '/app/labels/$name'
-    | '/app/projects/$name'
+    | '/site/blog/$slug'
+    | '/site/blog/rss.xml'
+    | '/labels/$name'
+    | '/projects/$name'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/health'
     | '/robots.txt'
-    | '/sitemap.xml'
-    | '/today'
+    | '/site'
     | '/login'
-    | '/blog'
-    | '/changelog'
-    | '/privacy'
-    | '/terms'
-    | '/blog/rss.xml'
+    | '/quick-add'
     | '/ingest/$'
-    | '/app'
-    | '/app/completed'
-    | '/app/inbox'
-    | '/app/quick-add'
-    | '/app/search'
-    | '/app/today'
-    | '/app/todoist'
+    | '/site/blog'
+    | '/site/changelog'
+    | '/site/privacy'
+    | '/site/sitemap.xml'
+    | '/site/terms'
+    | '/completed'
+    | '/inbox'
+    | '/search'
+    | '/today'
+    | '/todoist'
     | '/desktop/callback'
     | '/desktop/sign-in'
-    | '/blog/$slug'
-    | '/app/labels/$name'
-    | '/app/projects/$name'
+    | '/site/blog/$slug'
+    | '/site/blog/rss.xml'
+    | '/labels/$name'
+    | '/projects/$name'
   id:
     | '__root__'
     | '/_session'
-    | '/_site'
     | '/health'
     | '/robots.txt'
-    | '/sitemap.xml'
-    | '/today'
-    | '/_site/'
-    | '/_session/app'
+    | '/site'
+    | '/site/'
+    | '/_session/_shell'
     | '/_session/login'
-    | '/_site/blog'
-    | '/_site/changelog'
-    | '/_site/privacy'
-    | '/_site/terms'
-    | '/blog/rss.xml'
+    | '/_session/quick-add'
     | '/ingest/$'
-    | '/_session/app/'
-    | '/_session/app/completed'
-    | '/_session/app/inbox'
-    | '/_session/app/quick-add'
-    | '/_session/app/search'
-    | '/_session/app/today'
-    | '/_session/app/todoist'
+    | '/site/blog'
+    | '/site/changelog'
+    | '/site/privacy'
+    | '/site/sitemap.xml'
+    | '/site/terms'
+    | '/_session/_shell/'
+    | '/_session/_shell/completed'
+    | '/_session/_shell/inbox'
+    | '/_session/_shell/search'
+    | '/_session/_shell/today'
+    | '/_session/_shell/todoist'
     | '/_session/desktop/callback'
     | '/_session/desktop/sign-in'
-    | '/_site/blog/$slug'
-    | '/_session/app/labels/$name'
-    | '/_session/app/projects/$name'
+    | '/site/blog/$slug'
+    | '/site/blog/rss.xml'
+    | '/_session/_shell/labels/$name'
+    | '/_session/_shell/projects/$name'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   modulesIdentityPresentationRoutesSessionDotrouteRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren
-  modulesSitePresentationRoutesSiteDotrouteRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
   modulesHostingPresentationRoutesHealthDotrouteRoute: typeof modulesHostingPresentationRoutesHealthDotrouteRoute
   modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
-  modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
-  modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
-  modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
+  modulesSitePresentationRoutesSiteDotrouteRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteWithChildren
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
+  modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
+  modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -384,13 +370,6 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_site': {
-      id: '/_site'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/health': {
@@ -407,24 +386,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRouteImport
+    '/site': {
+      id: '/site'
+      path: '/site'
+      fullPath: '/site'
+      preLoaderRoute: typeof modulesSitePresentationRoutesSiteDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/today': {
-      id: '/today'
-      path: '/today'
-      fullPath: '/today'
-      preLoaderRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_session/app': {
-      id: '/_session/app'
-      path: '/app'
-      fullPath: '/app'
+    '/_session/_shell': {
+      id: '/_session/_shell'
+      path: ''
+      fullPath: '/'
       preLoaderRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
@@ -435,47 +407,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
-    '/_site/': {
-      id: '/_site/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof modulesSitePresentationRoutesHomeDotrouteRouteImport
-      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
-    }
-    '/_site/blog': {
-      id: '/_site/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof modulesBlogPresentationRoutesBlogDotrouteRouteImport
-      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
-    }
-    '/_site/changelog': {
-      id: '/_site/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof modulesChangelogPresentationRoutesChangelogDotrouteRouteImport
-      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
-    }
-    '/_site/privacy': {
-      id: '/_site/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof modulesSitePresentationRoutesPrivacyDotrouteRouteImport
-      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
-    }
-    '/_site/terms': {
-      id: '/_site/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof modulesSitePresentationRoutesTermsDotrouteRouteImport
-      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
-    }
-    '/blog/rss.xml': {
-      id: '/blog/rss.xml'
-      path: '/blog/rss.xml'
-      fullPath: '/blog/rss.xml'
-      preLoaderRoute: typeof modulesBlogPresentationRoutesRssDotrouteRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_session/quick-add': {
+      id: '/_session/quick-add'
+      path: '/quick-add'
+      fullPath: '/quick-add'
+      preLoaderRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
     '/ingest/$': {
       id: '/ingest/$'
@@ -484,52 +421,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_session/app/': {
-      id: '/_session/app/'
+    '/site/': {
+      id: '/site/'
       path: '/'
-      fullPath: '/app/'
+      fullPath: '/site/'
+      preLoaderRoute: typeof modulesSitePresentationRoutesHomeDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/site/blog': {
+      id: '/site/blog'
+      path: '/blog'
+      fullPath: '/site/blog'
+      preLoaderRoute: typeof modulesBlogPresentationRoutesBlogDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/site/changelog': {
+      id: '/site/changelog'
+      path: '/changelog'
+      fullPath: '/site/changelog'
+      preLoaderRoute: typeof modulesChangelogPresentationRoutesChangelogDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/site/privacy': {
+      id: '/site/privacy'
+      path: '/privacy'
+      fullPath: '/site/privacy'
+      preLoaderRoute: typeof modulesSitePresentationRoutesPrivacyDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/site/sitemap.xml': {
+      id: '/site/sitemap.xml'
+      path: '/site/sitemap.xml'
+      fullPath: '/site/sitemap.xml'
+      preLoaderRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/site/terms': {
+      id: '/site/terms'
+      path: '/terms'
+      fullPath: '/site/terms'
+      preLoaderRoute: typeof modulesSitePresentationRoutesTermsDotrouteRouteImport
+      parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
+    }
+    '/_session/_shell/': {
+      id: '/_session/_shell/'
+      path: '/'
+      fullPath: '/'
       preLoaderRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/app/completed': {
-      id: '/_session/app/completed'
+    '/_session/_shell/completed': {
+      id: '/_session/_shell/completed'
       path: '/completed'
-      fullPath: '/app/completed'
+      fullPath: '/completed'
       preLoaderRoute: typeof modulesTasksPresentationRoutesCompletedDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/app/inbox': {
-      id: '/_session/app/inbox'
+    '/_session/_shell/inbox': {
+      id: '/_session/_shell/inbox'
       path: '/inbox'
-      fullPath: '/app/inbox'
+      fullPath: '/inbox'
       preLoaderRoute: typeof modulesTasksPresentationRoutesInboxDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/app/quick-add': {
-      id: '/_session/app/quick-add'
-      path: '/app/quick-add'
-      fullPath: '/app/quick-add'
-      preLoaderRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRouteImport
-      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
-    }
-    '/_session/app/search': {
-      id: '/_session/app/search'
+    '/_session/_shell/search': {
+      id: '/_session/_shell/search'
       path: '/search'
-      fullPath: '/app/search'
+      fullPath: '/search'
       preLoaderRoute: typeof modulesTasksPresentationRoutesSearchDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/app/today': {
-      id: '/_session/app/today'
+    '/_session/_shell/today': {
+      id: '/_session/_shell/today'
       path: '/today'
-      fullPath: '/app/today'
+      fullPath: '/today'
       preLoaderRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/app/todoist': {
-      id: '/_session/app/todoist'
+    '/_session/_shell/todoist': {
+      id: '/_session/_shell/todoist'
       path: '/todoist'
-      fullPath: '/app/todoist'
+      fullPath: '/todoist'
       preLoaderRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
@@ -547,24 +519,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
-    '/_site/blog/$slug': {
-      id: '/_site/blog/$slug'
+    '/site/blog/$slug': {
+      id: '/site/blog/$slug'
       path: '/blog/$slug'
-      fullPath: '/blog/$slug'
+      fullPath: '/site/blog/$slug'
       preLoaderRoute: typeof modulesBlogPresentationRoutesPostDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
-    '/_session/app/labels/$name': {
-      id: '/_session/app/labels/$name'
+    '/site/blog/rss.xml': {
+      id: '/site/blog/rss.xml'
+      path: '/site/blog/rss.xml'
+      fullPath: '/site/blog/rss.xml'
+      preLoaderRoute: typeof modulesBlogPresentationRoutesRssDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_session/_shell/labels/$name': {
+      id: '/_session/_shell/labels/$name'
       path: '/labels/$name'
-      fullPath: '/app/labels/$name'
+      fullPath: '/labels/$name'
       preLoaderRoute: typeof modulesLabelsPresentationRoutesLabelDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
-    '/_session/app/projects/$name': {
-      id: '/_session/app/projects/$name'
+    '/_session/_shell/projects/$name': {
+      id: '/_session/_shell/projects/$name'
       path: '/projects/$name'
-      fullPath: '/app/projects/$name'
+      fullPath: '/projects/$name'
       preLoaderRoute: typeof modulesProjectsPresentationRoutesProjectDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
@@ -667,20 +646,18 @@ const modulesSitePresentationRoutesSiteDotrouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   modulesIdentityPresentationRoutesSessionDotrouteRoute:
     modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren,
-  modulesSitePresentationRoutesSiteDotrouteRoute:
-    modulesSitePresentationRoutesSiteDotrouteRouteWithChildren,
   modulesHostingPresentationRoutesHealthDotrouteRoute:
     modulesHostingPresentationRoutesHealthDotrouteRoute,
   modulesSitePresentationRoutesRobotsDotrouteRoute:
     modulesSitePresentationRoutesRobotsDotrouteRoute,
-  modulesSitePresentationRoutesSitemapDotrouteRoute:
-    modulesSitePresentationRoutesSitemapDotrouteRoute,
-  modulesShellPresentationRoutesLegacyTodayDotrouteRoute:
-    modulesShellPresentationRoutesLegacyTodayDotrouteRoute,
-  modulesBlogPresentationRoutesRssDotrouteRoute:
-    modulesBlogPresentationRoutesRssDotrouteRoute,
+  modulesSitePresentationRoutesSiteDotrouteRoute:
+    modulesSitePresentationRoutesSiteDotrouteRouteWithChildren,
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:
     modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute,
+  modulesSitePresentationRoutesSitemapDotrouteRoute:
+    modulesSitePresentationRoutesSitemapDotrouteRoute,
+  modulesBlogPresentationRoutesRssDotrouteRoute:
+    modulesBlogPresentationRoutesRssDotrouteRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

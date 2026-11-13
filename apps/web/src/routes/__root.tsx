@@ -38,6 +38,7 @@ function RootComponent() {
 			<ConsentProvider
 				cookiePrefix={AUTH_COOKIE_PREFIX}
 				isAnalyticsEnabled={IS_ANALYTICS_ENABLED}
+				privacyPolicyPath="/site/privacy"
 			>
 				<Outlet />
 			</ConsentProvider>

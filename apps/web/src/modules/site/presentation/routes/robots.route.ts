@@ -3,16 +3,13 @@ import { SITE_URL } from '../site.constants'
 
 const CANONICAL_ROBOTS = `User-agent: *
 Allow: /
-Disallow: /app
 Disallow: /api/
 Disallow: /calendar/
-Disallow: /login
-Disallow: /desktop/
 
 Sitemap: ${SITE_URL}/sitemap.xml
 `
 
-/** Staging, Railway's generated hosts and www serve the same pages, so only the canonical host may be crawled. */
+/** The app host, staging, Railway's generated hosts and www are never crawled; only the canonical host may be. */
 const BLOCKING_ROBOTS = `User-agent: *
 Disallow: /
 `

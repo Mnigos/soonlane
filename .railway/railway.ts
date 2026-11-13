@@ -13,15 +13,15 @@ export const partial = 'soonlane'
 const HOSTS = {
 	production: {
 		api: 'api.soonlane.com',
-		app: 'https://soonlane.com',
-		trustedOrigins: 'https://soonlane.com',
+		site: 'soonlane.com',
+		app: 'app.soonlane.com',
 		cookiePrefix: 'soonlane',
 		cookieDomain: 'soonlane.com',
 	},
 	staging: {
 		api: 'api.staging.soonlane.com',
-		app: 'https://staging.soonlane.com',
-		trustedOrigins: 'https://staging.soonlane.com',
+		site: 'staging.soonlane.com',
+		app: 'app.staging.soonlane.com',
 		cookiePrefix: 'soonlane-staging',
 		cookieDomain: 'staging.soonlane.com',
 	},
@@ -102,8 +102,8 @@ export default defineRailway(ctx => {
 			PORT: String(PORT),
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
-			APP_URL: hosts.app,
-			TRUSTED_ORIGINS: hosts.trustedOrigins,
+			APP_URL: `https://${hosts.app}`,
+			TRUSTED_ORIGINS: `https://${hosts.app}`,
 			AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			AUTH_COOKIE_DOMAIN: hosts.cookieDomain,
 			// Production holds `${{Postgres.DATABASE_URL}}`, entered by hand.
@@ -134,13 +134,19 @@ export default defineRailway(ctx => {
 		// Covers the server's 15 s graceful close (SERVER_SHUTDOWN_TIMEOUT) and its 5 s forced close before SIGKILL.
 		deploy: { drainingSeconds: 30 },
 		regions: { [REGION]: 1 },
-		domains: [{ domain: new URL(hosts.app).host, port: PORT }],
+		// One service answers both hosts and tells them apart by the request's host (`host-rewrite.helper.ts`).
+		domains: [
+			{ domain: hosts.site, port: PORT },
+			{ domain: hosts.app, port: PORT },
+		],
 		env: {
 			PORT: String(PORT),
 			SERVER_SHUTDOWN_TIMEOUT: '15',
-			// Read at build time: the analytics environment, the blog's draft filter and the browser's API.
+			// Read at build time: the analytics environment, the blog's draft filter, the browser's API and the two hosts.
 			APP_ENV: environment,
 			VITE_API_URL: `https://${hosts.api}`,
+			VITE_APP_URL: `https://${hosts.app}`,
+			VITE_SITE_URL: `https://${hosts.site}`,
 			VITE_AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			// Server rendering reaches the API inside the environment, over plain http.
 			API_INTERNAL_URL: `http://api.railway.internal:${PORT}`,

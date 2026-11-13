@@ -14,6 +14,7 @@ import { toast } from 'sonner'
 import { NotFound } from './components/not-found'
 import { RouteError } from './components/route-error'
 import { BROWSER_ANALYTICS_OPTIONS } from './modules/analytics/presentation/browser-analytics.constants'
+import { hostRewrite } from './modules/hosting/presentation/helpers/host-rewrite.helper'
 import { serializer } from './platform/rpc/rpc-serializer.constants'
 import { rpcLink } from './platform/rpc/rpc.client'
 import { routeTree } from './routeTree.gen'
@@ -69,6 +70,7 @@ export function getRouter() {
 
 	const router = createRouter({
 		routeTree,
+		rewrite: hostRewrite,
 		scrollRestoration: true,
 		defaultPreloadStaleTime: 0,
 		context: { queryClient, orpc: orpcQuery },

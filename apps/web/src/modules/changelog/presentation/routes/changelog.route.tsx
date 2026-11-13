@@ -13,7 +13,7 @@ import { ChangelogPage } from '../components/changelog-page'
 const getReleases = createServerFn({ method: 'GET' }).handler(() => RELEASES)
 const DESCRIPTION = 'What changed in every stable release of Soonlane.'
 
-export const Route = createFileRoute('/_site/changelog')({
+export const Route = createFileRoute('/site/changelog')({
 	loader: async () => await getReleases(),
 	head: ({ loaderData }) => {
 		const latest = loaderData?.[0]

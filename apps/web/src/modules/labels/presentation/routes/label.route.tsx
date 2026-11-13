@@ -5,7 +5,7 @@ import { getTaskViewTitle } from '@soonlane/app/tasks/helpers/task-view.helper'
 import { useToday } from '@soonlane/app/tasks/hooks/use-today'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_session/app/labels/$name')({
+export const Route = createFileRoute('/_session/_shell/labels/$name')({
 	loader: async ({ context }) => {
 		const { data } = await safe(
 			context.queryClient.query(context.orpc.labels.list.queryOptions())

@@ -54,7 +54,12 @@ export function hasAnalyticsConsent(headers: Headers, cookiePrefix: string) {
  * cookie stays host-only because the browser rejects a domain the host is not under.
  */
 export function getConsentCookieDomain(hostname: string) {
-	return CONSENT_COOKIE_DOMAINS.find(
+	return getSharedCookieDomains(hostname)[0]
+}
+
+/** Every domain above this host that its environment's hosts share, the most specific first: PostHog's cross-subdomain cookie lives on one of them. */
+export function getSharedCookieDomains(hostname: string) {
+	return CONSENT_COOKIE_DOMAINS.filter(
 		domain => hostname === domain || hostname.endsWith(`.${domain}`)
 	)
 }

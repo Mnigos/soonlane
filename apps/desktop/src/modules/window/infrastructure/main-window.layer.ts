@@ -64,7 +64,7 @@ export const MainWindowLive = Layer.effect(
 		const window = yield* Effect.sync(() =>
 			openAppWindow(appUrl, {
 				title: WINDOW_TITLE,
-				url: new URL('/app', appUrl).href,
+				url: new URL('/', appUrl).href,
 				frame: restoreFrame(
 					Option.getOrUndefined(saved),
 					Screen.getAllDisplays().map(({ workArea }) => workArea)

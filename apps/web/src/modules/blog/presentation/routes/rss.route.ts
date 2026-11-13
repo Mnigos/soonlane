@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { buildRss } from '../helpers/rss.helper'
 
-export const Route = createFileRoute('/blog/rss.xml')({
+export const Route = createFileRoute('/site/blog/rss.xml')({
 	server: {
 		handlers: {
 			GET: () =>
