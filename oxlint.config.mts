@@ -66,8 +66,11 @@ export default defineConfig({
 		'.agents/skills/impeccable/scripts/**',
 		'**/.nitro',
 		'**/.output',
-		'**/routeTree.gen.ts',
+		'**/*.gen.ts',
 		'packages/db/migrations/**',
+		'apps/mobile/.expo',
+		'apps/mobile/ios',
+		'apps/mobile/android',
 	],
 	jsPlugins: ['./tooling/oxlint-plugin/soonlane.plugin.mts'],
 	options: { typeAware: true },
@@ -134,12 +137,13 @@ export default defineConfig({
 	},
 	overrides: [
 		{
-			// Their tool loads them only through the default export: Vite, content-collections, Drizzle Kit, Electrobun, commitlint, oxlint (config and plugin), oxfmt and Railway.
+			// Their tool loads them only through the default export: Vite, content-collections, Drizzle Kit, Electrobun, Expo Router, commitlint, oxlint (config and plugin), oxfmt and Railway.
 			files: [
 				'apps/web/vite.config.ts',
 				'apps/web/content-collections.ts',
 				'packages/db/drizzle.config.ts',
 				'apps/desktop/electrobun.config.ts',
+				'apps/mobile/app/**',
 				'commitlint.config.ts',
 				'oxlint.config.mts',
 				'oxfmt.config.mts',
@@ -163,11 +167,23 @@ export default defineConfig({
 			},
 		},
 		{
+			// Metro loads its config only as untyped CommonJS.
+			files: ['apps/mobile/metro.config.js'],
+			rules: {
+				'unicorn/prefer-module': 'off',
+				'typescript/no-unsafe-argument': 'off',
+				'typescript/no-unsafe-assignment': 'off',
+				'typescript/no-unsafe-call': 'off',
+				'typescript/no-unsafe-member-access': 'off',
+				'typescript/no-unsafe-return': 'off',
+			},
+		},
+		{
 			files: ['scripts/**', 'apps/web/scripts/**', 'packages/db/scripts/**'],
 			rules: { 'no-console': 'off' },
 		},
 		{
-			files: ['apps/web/**', 'packages/app/**'],
+			files: ['apps/web/**', 'apps/mobile/**', 'packages/app/**'],
 			rules: { 'soonlane/hook-query-naming': 'error' },
 		},
 		{
@@ -179,6 +195,7 @@ export default defineConfig({
 				'apps/web/**',
 				'apps/api/src/**',
 				'apps/desktop/src/**',
+				'apps/mobile/src/**',
 				'packages/*/src/**',
 				'packages/*/schema/**',
 			],

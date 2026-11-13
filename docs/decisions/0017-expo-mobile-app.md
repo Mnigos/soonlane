@@ -53,6 +53,10 @@ Defaults from the project brief, to which Igor has not objected:
   - `bearer` on mobile. The app would need a code exchange of its own, like the desktop app's, and the Expo plugin with the iOS sign-in sheet already covers that step.
   - The Expo mechanism on desktop. The plugin adds `?cookie=` only to a redirect that is not `http:` or `https:`, so the loopback return gets no cookie. Electrobun registers `soonlane://` only on macOS, where any app can claim it, and it writes every URL a window loads to the unified log. A webview page cannot send the stored cookie as a `Cookie` header.
 
+## Update 2026-11-13 (SOON-167)
+
+Styling uses React Native's `StyleSheet`, not NativeWind. `apps/mobile/scripts/generate-tokens.ts` writes `src/tokens.gen.ts` (gitignored) from `tooling/tailwind-config/tokens.css` and Tailwind's type scale on install, typecheck and start, so the colors still come from the one token file. On SDK 58 Babel keeps classes native, so oRPC's classes need no `noClassCalls` assumption.
+
 ## Related
 
 - [ADR 0007](0007-desktop-sign-in-through-the-system-browser.md), [ADR 0009](0009-open-sign-in.md), [ADR 0013](0013-three-hosts-on-railway.md), [ADR 0015](0015-desktop-app-with-its-own-ui.md)

@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "name": "Soonlane",
+    "slug": "soonlane",
+    "version": "0.0.0",
+    "scheme": "soonlane",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "bundleIdentifier": "com.mnigos.soonlane",
+      "supportsTablet": false
+    },
+    "plugins": ["expo-router"]
+  }
+}
