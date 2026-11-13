@@ -1,8 +1,13 @@
 import { RPCJsonSerializer } from '@orpc/client'
+import { provideHostPorts } from '@soonlane/app/host-ports'
+import { provideRpcLink } from '@soonlane/app/rpc-query'
 import { syncDockBadge } from '@soonlane/app/tasks/helpers/dock-badge.helper'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createHashHistory, createRouter } from '@tanstack/react-router'
+import { toast } from 'sonner'
 import { RouteError } from './components/route-error'
+import { apiLink } from './platform/rpc/api-link.client'
+import { desktopHost } from './platform/rpc/desktop-host.client'
 import { rootRoute, sessionRoute, signInRoute } from './routes/session.route'
 import { shellRoute } from './routes/shell.route'
 import {
@@ -10,6 +15,25 @@ import {
 	quickAddRoute,
 	taskViewRoutes,
 } from './routes/task-views.route'
+
+// Before anything below reads them: syncDockBadge checks the host ports while this module loads.
+provideRpcLink(apiLink)
+provideHostPorts({
+	showToast: (message, options) => {
+		toast(message, options)
+	},
+	dismissToast: id => {
+		toast.dismiss(id)
+	},
+	// The desktop app asks for no analytics consent yet, so it sends no events.
+	capture: () => undefined,
+	subscribeToResume: onResume => {
+		document.addEventListener('visibilitychange', onResume)
+
+		return () => document.removeEventListener('visibilitychange', onResume)
+	},
+	sendToDesktop: desktopHost.sendToMain,
+})
 
 const serializer = new RPCJsonSerializer()
 
