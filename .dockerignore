@@ -1,0 +1,13 @@
+# Only apps/site builds with Docker; the context is the repo root.
+.git
+**/node_modules
+**/dist
+**/.output
+**/.nitro
+**/.tanstack
+**/.content-collections
+**/.turbo
+**/.cache
+**/.env*
+!**/.env.example
+apps/site/public/og/blog
