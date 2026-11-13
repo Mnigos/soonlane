@@ -9,6 +9,7 @@ export type ComposerSource =
 	| 'project_view'
 	| 'quick_add'
 	| 'sidebar_dialog'
+	| 'subtask'
 	| 'task_row'
 
 export type DatePickerChoice =
