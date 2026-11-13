@@ -5,6 +5,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { toast } from 'sonner'
 import { apiLink } from './platform/rpc/api-link.client'
+import { desktopHost } from './platform/rpc/desktop-host.client'
 import { router } from './router'
 import './styles.css'
 
@@ -23,6 +24,7 @@ provideHostPorts({
 
 		return () => document.removeEventListener('visibilitychange', onResume)
 	},
+	sendToDesktop: desktopHost.sendToMain,
 })
 
 const root = document.querySelector('#root')

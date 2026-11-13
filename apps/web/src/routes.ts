@@ -35,10 +35,6 @@ export const routes = rootRoute('routes/__root.tsx', [
 				'modules/todoist/presentation/routes/todoist.route.tsx'
 			),
 		]),
-		route(
-			'/app/quick-add',
-			'modules/tasks/presentation/routes/quick-add.route.tsx'
-		),
 		route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
 		route(
 			'/desktop/sign-in',
