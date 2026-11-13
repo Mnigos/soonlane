@@ -26,6 +26,7 @@
     "expo-router": "~58.0.31",
     "expo-secure-store": "~58.0.3",
     "expo-web-browser": "~58.0.8",
+    "intl-pluralrules": "2.0.1",
     "react": "catalog:",
     "react-native": "0.88.1",
     "react-native-safe-area-context": "~5.11.1",

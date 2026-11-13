@@ -33,6 +33,20 @@ interface PriorityChange {
 	priority: TaskPriority
 }
 
+/** What an edit card holds when saved, with the due date it shows. */
+export interface TaskDraft {
+	title: string
+	description: string
+	dueDate: CalendarDate | undefined
+	dueTime: string | undefined
+	durationMinutes: number | undefined
+	priority: TaskPriority
+	repeat: RepeatInput | undefined
+	labels: Label[]
+	goal: GoalInput | undefined
+	project: Project | undefined
+}
+
 /** The label ids an edit sends: undefined while they match the task's, so the save keeps them. */
 export function getChangedLabelIds(task: Task, picked: Label[]) {
 	const ids = picked.map(({ id }) => id)
@@ -54,6 +68,39 @@ export function getChangedGoal(task: Task, goal: GoalInput | undefined) {
 		return undefined
 
 	return goal ?? null
+}
+
+/** The `tasks.edit` fields of an edit card's save: only those that differ from the task, undefined when none do. */
+export function getTaskEdit(task: Task, draft: TaskDraft) {
+	const dueTime = getChangedOptional(draft.dueTime, task.dueTime)
+	const repeat = isRepeatChanged(task, draft.repeat)
+		? (draft.repeat ?? null)
+		: undefined
+	// A time or rule needs its date in the same edit.
+	const isDateSent =
+		draft.dueDate !== task.dueDate || Boolean(dueTime) || Boolean(repeat)
+	const edit = {
+		title: getChanged(draft.title.trim(), task.title),
+		description: getChanged(
+			draft.description.trim() || null,
+			task.description ?? null
+		),
+		dueDate: isDateSent ? (draft.dueDate ?? null) : undefined,
+		dueTime,
+		durationMinutes: getChangedOptional(
+			draft.durationMinutes,
+			task.durationMinutes
+		),
+		priority: getChanged(draft.priority, task.priority),
+		repeat,
+		labelIds: getChangedLabelIds(task, draft.labels),
+		goal: getChangedGoal(task, draft.goal),
+		projectId: getChangedProjectId(task, draft.project),
+	}
+
+	return Object.values(edit).some(value => value !== undefined)
+		? edit
+		: undefined
 }
 
 /** The rule an edit sends to keep the task's own, "every!" included. */

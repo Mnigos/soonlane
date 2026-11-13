@@ -11,15 +11,7 @@ import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
-import {
-	getChanged,
-	getChangedGoal,
-	getChangedOptional,
-	getChangedLabelIds,
-	getChangedProjectId,
-	getScheduledDate,
-	isRepeatChanged,
-} from '../../helpers/task-edit.helper'
+import { getScheduledDate, getTaskEdit } from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
 import { useTypedTitle } from '../../hooks/use-typed-title'
 import { useUpdateTask } from '../../hooks/use-update-task'
@@ -139,36 +131,20 @@ export function TaskComposer({
 		if (!canSubmit || isSubmittingRef.current) return
 
 		if (openedTask) {
-			const dueTimeEdit = getChangedOptional(dueTime, openedTask.dueTime)
-			const repeatEdit = isRepeatChanged(openedTask, repeat)
-				? (repeat ?? null)
-				: undefined
-			// A time or rule needs its date in the same edit.
-			const isDateSent =
-				scheduledDate !== openedTask.dueDate ||
-				Boolean(dueTimeEdit) ||
-				Boolean(repeatEdit)
-			const edited = {
-				title: getChanged(savedTitle.trim(), openedTask.title),
-				description: getChanged(
-					description.trim() || null,
-					openedTask.description ?? null
-				),
-				dueDate: isDateSent ? (scheduledDate ?? null) : undefined,
-				dueTime: dueTimeEdit,
-				durationMinutes: getChangedOptional(
-					durationMinutes,
-					openedTask.durationMinutes
-				),
-				priority: getChanged(priority, openedTask.priority),
-				repeat: repeatEdit,
-				labelIds: getChangedLabelIds(openedTask, pickedLabels),
-				goal: getChangedGoal(openedTask, goal),
-				projectId: getChangedProjectId(openedTask, project),
-			}
+			const edit = getTaskEdit(openedTask, {
+				title: savedTitle,
+				description,
+				dueDate: scheduledDate,
+				dueTime,
+				durationMinutes,
+				priority,
+				repeat,
+				labels: pickedLabels,
+				goal,
+				project,
+			})
 
-			if (Object.values(edited).some(value => value !== undefined))
-				updateTask({ ...edited, id: openedTask.id, today })
+			if (edit) updateTask({ ...edit, id: openedTask.id, today })
 			onSaved?.()
 			return
 		}
