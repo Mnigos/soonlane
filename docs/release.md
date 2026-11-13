@@ -22,13 +22,13 @@ Ask an agent for a stable release; it runs the `release` skill locally (`--out <
 6. **Actions → Release → Run workflow** on `main` with channel `stable` runs the same job, to publish again after a failed run. A tag `vX.Y.Z` that already points at the nightly's commit is kept, and the run publishes its release.
 7. GitHub refuses the workflow's tag push when a file under `.github/workflows` changed on `main` after the pinned nightly, since the workflow token may not create a ref that changes workflow files. Then push the tag yourself (`git push origin <nightly tag>^{commit}:refs/tags/vX.Y.Z`) and run step 6.
 
-Nightly and stable share a concurrency group, so they never run at the same time. The merge commit goes through CI like any other push, and Railway deploys it to production with the new `/changelog` ([deploy-railway.md](deploy-railway.md#production)).
+Nightly and stable share a concurrency group, so they never run at the same time. The merge commit goes through CI like any other push, and Railway rebuilds the `site` service, which watches `CHANGELOG.md`, with the new `/changelog` ([deploy-railway.md](deploy-railway.md#production)).
 
 ## Version in the app
 
 The build reads `version.json` and the commit: `RAILWAY_GIT_COMMIT_SHA` on Railway's GitHub deploys, `commit.env` on staging deploys, `dev` locally. `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to that version's section on `/changelog` (GitHub Releases for prerelease versions).
 
-`/changelog` is prerendered from `CHANGELOG.md` at build time; a line outside the format below fails the build. Nightlies are listed only on GitHub Releases.
+`/changelog` is prerendered from `CHANGELOG.md` when `apps/site` builds; a line outside the format below fails the build. Nightlies are listed only on GitHub Releases.
 
 ## Changelog format
 
