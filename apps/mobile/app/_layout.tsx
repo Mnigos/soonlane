@@ -1,4 +1,4 @@
-// Hermes has no Array.prototype.toSorted, which the shared list helpers use for optimistic updates.
+// Hermes has no Array.prototype.toSorted, which the shared list helpers and the title parser use.
 import 'core-js/stable/array/to-sorted'
 import { provideHostPorts } from '@soonlane/app/host-ports'
 import { provideRpcLink } from '@soonlane/app/rpc-query'
