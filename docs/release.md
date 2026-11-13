@@ -24,6 +24,15 @@ Ask an agent for a stable release; it runs the `release` skill locally (`--out <
 
 Nightly and stable share a concurrency group, so they never run at the same time. The merge commit goes through CI like any other push, and Railway deploys it to production with the new `/changelog` ([deploy-railway.md](deploy-railway.md#production)).
 
+## Mobile
+
+The iPhone app ships to TestFlight from **Actions → Mobile → Run workflow** (`.github/workflows/mobile.yml`), on the branch to ship, normally `main`. It never runs on its own. The job runs `eas build` with the `production` profile of `apps/mobile/eas.json` (the production API and cookie prefix, plus the variables of EAS's `production` environment such as the PostHog key) and `--auto-submit`, so EAS uploads the finished build to TestFlight; the job waits for both and fails when either does.
+
+1. It needs the `EXPO_TOKEN` repository secret, the EAS project id in `apps/mobile/app.json` (`extra.eas.projectId`, which `eas init` prints), the App Store Connect app id and Apple team id in `submit.production.ios` of `eas.json`, and the signing credentials and App Store Connect API key stored on EAS. While the ids are still placeholders the job stops before building.
+2. The version users see is `version.json`'s, read by `apps/mobile/app.config.ts` and shown in Settings. The build number comes from EAS's remote counter, which every production build raises, so nothing is bumped by hand. Builds between two stable releases share the last stable version with higher build numbers.
+3. Once Apple releases `X.Y.Z` on the App Store, it takes no more builds of that version; the next upload waits for the next stable release.
+4. Release notes follow the `mobile` scope: iPhone changes a user notices are `feat(mobile)` and `fix(mobile)` commits, so they reach the nightly notes and `CHANGELOG.md` like any product scope. TestFlight's "What to Test" and the App Store's "What's New" repeat the `mobile` entries released since the previous upload.
+
 ## Version in the app
 
 The build reads `version.json` and the commit: `RAILWAY_GIT_COMMIT_SHA` on Railway's GitHub deploys, `commit.env` on staging deploys, `dev` locally. `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to that version's section on `/changelog` (GitHub Releases for prerelease versions).
