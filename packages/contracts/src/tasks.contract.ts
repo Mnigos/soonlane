@@ -150,10 +150,10 @@ const taskInputSchema = z.object({
 	projectId: projectIdSchema.optional(),
 })
 
-/** The fields of a create or update input that schedule a task; an update may send `repeat: null` to clear the rule. */
+/** The fields of a create, update or edit input that schedule a task; an update or edit may send null to clear them. */
 interface TaskScheduleInput {
-	dueDate?: CalendarDate
-	dueTime?: string
+	dueDate?: CalendarDate | null
+	dueTime?: string | null
 	repeat?: RepeatInput | null
 }
 
@@ -163,7 +163,7 @@ function isDatedWhenTimedOrRepeating({
 	dueTime,
 	repeat,
 }: TaskScheduleInput) {
-	return dueDate !== undefined || (dueTime === undefined && !repeat)
+	return Boolean(dueDate) || (!dueTime && !repeat)
 }
 
 const undatedTaskRule = {
@@ -179,6 +179,7 @@ export const createTaskInputSchema = taskInputSchema.refine(
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
 /**
+ * For desktop apps that bundle a UI from before `tasks.edit`; the API maps it onto an edit until it can ask outdated apps to update.
  * Replaces every field (an absent description, due date or time clears it) but four that an absent value keeps for clients from before they could be edited
  * and for edits that do not show them: the repeat rule (cleared anyway without a due date), the goal and the project (null clears them) and the labels
  * (`labelIds`, `[]` included, replaces them, leaving out ids that are not the owner's labels). A `projectId` that is not the owner's project fails with NOT_FOUND.
@@ -195,6 +196,25 @@ export const updateTaskInputSchema = taskInputSchema
 	})
 	.refine(isDatedWhenTimedOrRepeating, undatedTaskRule)
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>
+
+/**
+ * Writes only the fields it carries: absent keeps the stored value, null clears the description, due date, due time, repeat rule,
+ * goal or project, and no due date also clears the time and the rule. `labelIds` and `today` work as in `tasks.update`.
+ */
+export const editTaskInputSchema = taskInputSchema
+	.partial()
+	.extend({
+		id: taskIdSchema,
+		description: taskInputSchema.shape.description.nullable(),
+		dueDate: calendarDateSchema.nullable().optional(),
+		dueTime: dueTimeSchema.nullable().optional(),
+		repeat: repeatInputSchema.nullable().optional(),
+		goal: goalInputSchema.nullable().optional(),
+		projectId: projectIdSchema.nullable().optional(),
+		today: calendarDateSchema.optional(),
+	})
+	.refine(isDatedWhenTimedOrRepeating, undatedTaskRule)
+export type EditTaskInput = z.infer<typeof editTaskInputSchema>
 
 /** `completed` when the edit's goal completed the task: the due date it was completed on (none for a task without one) and the goal and progress Undo restores. */
 export const updateTaskOutputSchema = z.object({
@@ -279,6 +299,10 @@ export const tasksContract = {
 	update: oc
 		.errors(taskErrors)
 		.input(updateTaskInputSchema)
+		.output(updateTaskOutputSchema),
+	edit: oc
+		.errors(taskErrors)
+		.input(editTaskInputSchema)
 		.output(updateTaskOutputSchema),
 	delete: oc.errors(taskErrors).input(taskIdInputSchema).output(z.void()),
 	complete: oc

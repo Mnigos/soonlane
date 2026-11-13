@@ -5,6 +5,11 @@ import {
 	getEditedDueDate,
 } from '@soonlane/domain'
 
+/** The value an edit sends for a field: undefined while it matches the task's, so the save keeps it. */
+export function getChanged<T>(value: T, previous: T) {
+	return value === previous ? undefined : value
+}
+
 /** The label ids an edit sends: undefined while they match the task's, so the save keeps them. */
 export function getChangedLabelIds(task: Task, picked: Label[]) {
 	const ids = picked.map(({ id }) => id)
@@ -53,32 +58,24 @@ export function getNoDateHint(dueTime: string | undefined, hasRepeat: boolean) {
 }
 
 /**
- * The `tasks.update` input of a task's "…" menu: the edit card's save with only the due date or the
- * priority changed, so a weekday rule moves a weekend pick to Monday and the goal and labels stay.
- * No date also drops the due time and the repeat rule. Undefined when the choice is what the task already has.
+ * The `tasks.edit` input of a task's "…" menu: only the due date (null for No date, which also drops the time and the rule)
+ * or the priority, so a change made elsewhere stays. Undefined when the choice is what the task already has.
  */
 export function getMenuEdit(
 	task: Task,
 	today: CalendarDate,
 	change: { dueDate: CalendarDate | undefined } | { priority: TaskPriority }
 ) {
-	const dueDate =
-		'dueDate' in change
-			? change.dueDate &&
-				getEditedDueDate(task, change.dueDate, task.repeat?.unit)
-			: task.dueDate
-	const priority = 'priority' in change ? change.priority : task.priority
+	if ('priority' in change)
+		return change.priority === task.priority
+			? undefined
+			: { id: task.id, today, priority: change.priority }
 
-	if (dueDate === task.dueDate && priority === task.priority) return undefined
+	const { dueDate } = change
+	const isSame =
+		dueDate === undefined
+			? task.dueDate === undefined
+			: getEditedDueDate(task, dueDate, task.repeat?.unit) === task.dueDate
 
-	return {
-		id: task.id,
-		title: task.title,
-		description: task.description,
-		dueDate,
-		dueTime: dueDate === undefined ? undefined : task.dueTime,
-		priority,
-		repeat: dueDate === undefined ? null : (toRepeatInput(task) ?? null),
-		today,
-	}
+	return isSame ? undefined : { id: task.id, today, dueDate: dueDate ?? null }
 }

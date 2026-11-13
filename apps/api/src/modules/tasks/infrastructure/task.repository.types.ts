@@ -1,7 +1,7 @@
 import type {
 	CreateTaskInput,
+	EditTaskInput,
 	GoalInput,
-	UpdateTaskInput,
 } from '@soonlane/contracts'
 import type {
 	CalendarDate,
@@ -37,15 +37,10 @@ export interface NewTask extends Omit<CreateTaskInput, 'repeat'> {
 	repeat?: RepeatRule
 }
 
-/** `dueDate` null clears it; `nextDueDate` is where the edited rule moves the task when its new goal completes it. */
-export interface TaskUpdate extends Omit<
-	UpdateTaskInput,
-	'dueDate' | 'repeat' | 'today'
-> {
+/** Absent keeps a column and null clears it; `nextDueDate` is where the task's rule moves it when the goal the edit leaves completes it. */
+export interface TaskUpdate extends Omit<EditTaskInput, 'repeat' | 'today'> {
 	ownerId: UserId
-	id: TaskId
-	dueDate: CalendarDate | null
-	repeat?: RepeatRule
+	repeat?: RepeatRule | null
 	nextDueDate?: CalendarDate
 	editedAt: Date
 }

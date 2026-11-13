@@ -2,9 +2,9 @@ import {
 	type GoalInput,
 	type ListTasksOutput,
 	type Task,
-	updateTaskInputSchema,
+	editTaskInputSchema,
 } from '@soonlane/contracts'
-import { type CalendarDate, getEditedRule } from '@soonlane/domain'
+import { type CalendarDate, getEditedSchedule } from '@soonlane/domain'
 import {
 	notifyManager,
 	useMutation,
@@ -53,15 +53,10 @@ export function useUpdateTask(today: CalendarDate) {
 	)
 
 	const update = useMutation(
-		orpcQuery.tasks.update.mutationOptions({
+		orpcQuery.tasks.edit.mutationOptions({
 			onMutate: async variables => {
-				const {
-					id,
-					labelIds,
-					goal,
-					today: _today,
-					...changes
-				} = updateTaskInputSchema.parse(variables)
+				const edit = editTaskInputSchema.parse(variables)
+				const { id, labelIds, goal, description } = edit
 
 				// An Undo from an earlier completion would overwrite this edit's date.
 				toast.dismiss(id)
@@ -83,25 +78,18 @@ export function useUpdateTask(today: CalendarDate) {
 				const knownLabels =
 					queryClient.getQueryData(orpcQuery.labels.list.queryKey())?.labels ??
 					current.labels
-				// Like the server, an absent description, date or time clears it; an absent rule stays and null clears it, and no date clears it too.
 				const task = {
 					...current,
-					description: undefined,
-					dueDate: undefined,
-					dueTime: undefined,
-					...changes,
+					title: edit.title ?? current.title,
+					description:
+						description === undefined
+							? current.description
+							: description || undefined,
+					priority: edit.priority ?? current.priority,
+					...getEditedSchedule(current, edit),
 					labels: labelIds
 						? knownLabels.filter(label => labelIds.includes(label.id))
 						: current.labels,
-					repeat:
-						changes.dueDate &&
-						getEditedRule(
-							current,
-							changes.dueDate,
-							changes.repeat === undefined
-								? current.repeat
-								: (changes.repeat ?? undefined)
-						),
 					goal: editedGoal,
 				}
 
@@ -157,7 +145,7 @@ export function useUpdateTask(today: CalendarDate) {
 				setTimeout(() => {
 					if (
 						!queryClient.isMutating({
-							mutationKey: orpcQuery.tasks.update.mutationKey(),
+							mutationKey: orpcQuery.tasks.edit.mutationKey(),
 						})
 					)
 						void refreshTaskLists(queryClient)

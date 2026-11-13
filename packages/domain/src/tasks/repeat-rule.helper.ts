@@ -119,6 +119,42 @@ export function getEditedRule(
 }
 
 /**
+ * The due date, time and rule a field-level edit leaves: absent keeps the task's, null clears it, and no due date clears the
+ * time and the rule. A new due date snaps and re-anchors against the kept or edited rule.
+ */
+export function getEditedSchedule(
+	task: {
+		dueDate?: CalendarDate
+		dueTime?: string
+		repeat?: Required<RepeatRule>
+	},
+	edit: {
+		dueDate?: CalendarDate | null
+		dueTime?: string | null
+		repeat?: Omit<RepeatRule, 'anchor'> | null
+	}
+) {
+	if (edit.dueDate === null)
+		return { dueDate: undefined, dueTime: undefined, repeat: undefined }
+
+	const dueTime =
+		edit.dueTime === undefined ? task.dueTime : (edit.dueTime ?? undefined)
+
+	if (edit.dueDate === undefined)
+		return {
+			dueDate: task.dueDate,
+			dueTime,
+			repeat: edit.repeat === null ? undefined : task.repeat,
+		}
+
+	const rule =
+		edit.repeat === undefined ? task.repeat : (edit.repeat ?? undefined)
+	const dueDate = getEditedDueDate(task, edit.dueDate, rule?.unit)
+
+	return { dueDate, dueTime, repeat: getEditedRule(task, dueDate, rule) }
+}
+
+/**
  * The due date after completing: one step past the due date, then on until it is not before today when known.
  * An "every!" rule takes one step from today, the completion day, as if the rule had been set on it.
  */

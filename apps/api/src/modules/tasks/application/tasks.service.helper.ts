@@ -3,14 +3,13 @@ import type {
 	Label,
 	ListTasksInput,
 	ListTasksOutput,
+	EditTaskInput,
 	Task,
-	UpdateTaskInput,
 } from '@soonlane/contracts'
 import { TASK_PROJECT_FOREIGN_KEY } from '@soonlane/db'
 import {
 	type CalendarDate,
-	getEditedDueDate,
-	getEditedRule,
+	getEditedSchedule,
 	getNextDueDate,
 } from '@soonlane/domain'
 import { Effect } from 'effect'
@@ -43,24 +42,20 @@ export function getAdvance(
 	return { from, to: getNextDueDate(from, repeat, today) }
 }
 
-/** A task without a due date keeps no repeat rule, even when the edit leaves `repeat` out to keep the stored one. */
-export function getEditedSchedule(
+/** The schedule columns an edit writes: none when it carries neither a due date nor a rule; `nextDueDate` from the date and rule it leaves. */
+export function getScheduleUpdate(
 	current: Task,
-	{ dueDate: editedDate, repeat: editedRepeat }: UpdateTaskInput,
+	edit: EditTaskInput,
 	today: CalendarDate | undefined
 ) {
-	if (editedDate === undefined)
-		return { dueDate: null, repeat: undefined, nextDueDate: undefined }
-
-	const repeat =
-		editedRepeat === undefined ? current.repeat : (editedRepeat ?? undefined)
-	const dueDate = getEditedDueDate(current, editedDate, repeat?.unit)
-	const rule = getEditedRule(current, dueDate, repeat)
+	const { dueDate, repeat } = getEditedSchedule(current, edit)
+	const isRuleWritten = edit.dueDate !== undefined || edit.repeat !== undefined
 
 	return {
-		dueDate,
-		repeat: rule,
-		nextDueDate: rule && getNextDueDate(dueDate, rule, today),
+		dueDate: edit.dueDate === undefined ? undefined : (dueDate ?? null),
+		dueTime: edit.dueDate === null ? null : edit.dueTime,
+		repeat: isRuleWritten ? (repeat ?? null) : undefined,
+		nextDueDate: repeat && dueDate && getNextDueDate(dueDate, repeat, today),
 	}
 }
 
