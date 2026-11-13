@@ -9,8 +9,8 @@ const RECONNECT_INTERVAL_MS = 5000
 /** Shown while the API cannot be reached; once a ping answers, the routes load again on their own. */
 export function NoConnectionScreen() {
 	const router = useRouter()
-	const reconnect = async () => {
-		await pingApi()
+	const reconnect = async (signal?: AbortSignal) => {
+		await pingApi(signal)
 		await router.invalidate()
 
 		return true
@@ -18,12 +18,14 @@ export function NoConnectionScreen() {
 
 	useQuery({
 		queryKey: ['desktop', 'reconnect'],
-		queryFn: reconnect,
+		queryFn: async ({ signal }) => await reconnect(signal),
 		refetchInterval: RECONNECT_INTERVAL_MS,
 		gcTime: 0,
 	})
 
-	const { mutate: retry, isPending } = useMutation({ mutationFn: reconnect })
+	const { mutate: retry, isPending } = useMutation({
+		mutationFn: async () => await reconnect(),
+	})
 
 	return (
 		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-4 px-6">
