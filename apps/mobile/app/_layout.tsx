@@ -95,6 +95,8 @@ export default function RootLayout() {
 
 						<Stack.Screen name="settings" />
 
+						<Stack.Screen name="search" />
+
 						<Stack.Screen name="labels/[name]" />
 
 						<Stack.Screen name="projects/[name]" />

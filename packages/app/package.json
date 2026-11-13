@@ -17,7 +17,8 @@
     "./shell/helpers/*": "./src/modules/shell/helpers/*.ts",
     "./tasks/components/*": "./src/modules/tasks/components/*.tsx",
     "./tasks/helpers/*": "./src/modules/tasks/helpers/*.ts",
-    "./tasks/hooks/*": "./src/modules/tasks/hooks/*.ts"
+    "./tasks/hooks/*": "./src/modules/tasks/hooks/*.ts",
+    "./tasks/project-view": "./src/modules/tasks/project-view.context.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
