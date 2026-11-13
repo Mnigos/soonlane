@@ -14,12 +14,12 @@ Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist 
 
 ### Scope
 
-- **Inbox** (`/app/inbox`): open tasks without a due date and without a project, then an "Add task" row whose task starts without a date. Upcoming and Today show the same tasks in an "Inbox" section.
-- **Upcoming** (default view at `/app`): the week strip, the Inbox section, the Overdue section, then one section per day with an "Add task" row.
-- **Today** (`/app/today`): Inbox, Overdue and today's tasks.
+- **Inbox** (`/inbox`): open tasks without a due date and without a project, then an "Add task" row whose task starts without a date. Upcoming and Today show the same tasks in an "Inbox" section.
+- **Upcoming** (default view at `/`): the week strip, the Inbox section, the Overdue section, then one section per day with an "Add task" row.
+- **Today** (`/today`): Inbox, Overdue and today's tasks.
 - **Tasks without a date**: "No date" in the date picker or a task's "…" menu removes the due date, with its time and repeat rule. Such tasks sit above Overdue: in the Inbox section when they have no project, and in a label's or project's view in its "No date" section; both sections share one collapse remembered on the device. They are never overdue, never counted in the Dock badge and never in the calendar feed.
-- **Labels**: tags on tasks, listed in the sidebar; each label's view (`/app/labels/$name`) lists its open tasks without a date, then by day.
-- **Projects**: named lists, listed in the sidebar; a task belongs to at most one project and keeps its labels; each project's view (`/app/projects/$name`) lists its open tasks without a date, then by day. A task without a project is the normal case. Projects are free on every plan. Deleting a project keeps its tasks; they only lose the project.
+- **Labels**: tags on tasks, listed in the sidebar; each label's view (`/labels/$name`) lists its open tasks without a date, then by day.
+- **Projects**: named lists, listed in the sidebar; a task belongs to at most one project and keeps its labels; each project's view (`/projects/$name`) lists its open tasks without a date, then by day. A task without a project is the normal case. Projects are free on every plan. Deleting a project keeps its tasks; they only lose the project.
 - **Calendar subscription** (Pro): one private, read-only link per account that shows open tasks on their days in Apple Calendar or any calendar app; replaced or revoked from the user menu.
 - **Sign in with Google**; anyone can sign up, and anyone can delete their account with all its tasks.
 - **Plans**: Free and Pro. The task list (Inbox, Upcoming, Today, labels, projects, the Mac app) is free; integrations, starting with the calendar subscription, need Pro.

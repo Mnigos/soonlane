@@ -1,6 +1,6 @@
 # Deploy on Railway
 
-Soonlane runs as two services in the Railway project `Soonlane`, each with one replica in Amsterdam (`europe-west4-drams3a`), in two environments ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). `api` (`apps/api`) serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`) at https://api.soonlane.com and https://api.staging.soonlane.com. `web` (`apps/web`) is a Bun server for the landing, the blog, the changelog, the legal pages and the app under `/app` at https://soonlane.com and https://staging.soonlane.com; its pages call the API from the browser with credentials and from server rendering over the private network with the proxy secret ([Web app](#web-app)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
+Soonlane runs as two services in the Railway project `Soonlane`, each with one replica in Amsterdam (`europe-west4-drams3a`), in two environments ([ADR 0013](decisions/0013-three-hosts-on-railway.md)). `api` (`apps/api`) serves Better Auth (`/api/auth/*`), the oRPC API (`/api/rpc/*`) and the calendar feed (`/calendar/*`) at https://api.soonlane.com and https://api.staging.soonlane.com. `web` (`apps/web`) is one Bun server for the landing, the blog, the changelog and the legal pages at https://soonlane.com and https://staging.soonlane.com, and for the app at https://app.soonlane.com and https://app.staging.soonlane.com, telling the hosts apart by the request's host; its pages call the API from the browser with credentials and from server rendering over the private network with the proxy secret ([Web app](#web-app)). Staging has its own Railway Postgres (the `Postgres` service, same region, volume `postgres-volume`), reached at `postgres.railway.internal`; production uses Neon until its data moves to Railway.
 
 ## Configuration
 
@@ -26,8 +26,8 @@ The `api` service:
 | `PORT`            | `8080`                     | `8080`                             |
 | `APP_ENV`         | `production`               | `staging`                          |
 | `API_URL`         | `https://api.soonlane.com` | `https://api.staging.soonlane.com` |
-| `APP_URL`              | `https://soonlane.com`     | `https://staging.soonlane.com`     |
-| `TRUSTED_ORIGINS` | `https://soonlane.com`     | `https://staging.soonlane.com`     |
+| `APP_URL`              | `https://app.soonlane.com` | `https://app.staging.soonlane.com` |
+| `TRUSTED_ORIGINS` | `https://app.soonlane.com` | `https://app.staging.soonlane.com` |
 | `AUTH_COOKIE_PREFIX` | `soonlane`              | `soonlane-staging`                 |
 | `AUTH_COOKIE_DOMAIN` | `soonlane.com`          | `staging.soonlane.com`             |
 | `DATABASE_URL`    | `${{Postgres.DATABASE_URL}}`, entered by hand | `${{Postgres.DATABASE_URL}}` |
@@ -38,13 +38,13 @@ The `api` service:
 | `POSTHOG_KEY`          | optional, the PostHog project key | optional                    |
 | `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` | optional, both or neither: the Todoist app for Import from Todoist | the same app |
 
-`.railway/railway.ts` sets the plain values and marks the secrets `preserve()`, so an apply keeps what was entered by hand. `TRUSTED_ORIGINS` is a comma-separated list of exact origins that may call `/api/auth` and `/api/rpc` from the browser (CORS with credentials) and that sign-in may return to; any other `Origin` gets 403. `API_URL` is the API's public origin: Better Auth's base URL (Google returns to `<API_URL>/api/auth/callback/google`) and the host of calendar links. `APP_URL` is the web app's: Better Auth sends its errors to `<APP_URL>/login`, and the feed's events link there. `AUTH_COOKIE_PREFIX` names every cookie and must equal the web build's `VITE_AUTH_COOKIE_PREFIX`; `AUTH_COOKIE_DOMAIN` is the domain the cookies cover, so the web app's host receives them. Production's cookies cover `soonlane.com`, so the browser sends them to the staging hosts too: the staging API receives a production session token on every browser call from someone signed in to production. Staging's Better Auth ignores them, because its prefix and its `AUTH_SECRET` differ, and its web server forwards only `soonlane-staging.*` cookies, but only during server rendering; nothing filters the browser's direct calls. Code deployed to staging could copy that token, so staging runs only trusted refs, and the API never logs the cookie header. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
+`.railway/railway.ts` sets the plain values and marks the secrets `preserve()`, so an apply keeps what was entered by hand. `TRUSTED_ORIGINS` is a comma-separated list of exact origins that may call `/api/auth` and `/api/rpc` from the browser (CORS with credentials) and that sign-in may return to; any other `Origin` gets 403. `API_URL` is the API's public origin: Better Auth's base URL (Google returns to `<API_URL>/api/auth/callback/google`) and the host of calendar links. `APP_URL` is the app's origin: Better Auth sends its errors to `<APP_URL>/login`, and the feed's events link to `<APP_URL>/`. Only the app's origin is trusted; the public site never calls the API. `AUTH_COOKIE_PREFIX` names every cookie and must equal the web build's `VITE_AUTH_COOKIE_PREFIX`; `AUTH_COOKIE_DOMAIN` is the domain the cookies cover, so the web app's host receives them. Production's cookies cover `soonlane.com`, so the browser sends them to the staging hosts too: the staging API receives a production session token on every browser call from someone signed in to production. Staging's Better Auth ignores them, because its prefix and its `AUTH_SECRET` differ, and its web server forwards only `soonlane-staging.*` cookies, but only during server rendering; nothing filters the browser's direct calls. Code deployed to staging could copy that token, so staging runs only trusted refs, and the API never logs the cookie header. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys. `railway up` uploads no git metadata, so the staging workflow writes `APP_COMMIT=<sha>` to `apps/api/commit.env` (gitignored, kept in the upload by `.railwayignore`) and the build inlines it into the bundle, ignoring any `APP_COMMIT` variable, so the commit always belongs to the uploaded code. The API refuses to start when a variable is missing or malformed and names it in the log.
 
 Locally the API reads `apps/api/.env.local` (Bun loads it from the working directory): the same names, with `PORT=4000`, `APP_ENV=development`, `API_URL=http://localhost:4000`, `APP_URL` and `TRUSTED_ORIGINS` `http://localhost:3000`, `AUTH_COOKIE_PREFIX=soonlane-dev` and no `AUTH_COOKIE_DOMAIN` (localhost cookies reach every port), any `APP_COMMIT`, and an `API_PROXY_SECRET` equal to the web app's.
 
 ## Web app
 
-`apps/web` builds one Bun server for the landing, the blog, the changelog, the legal pages and the app under `/app`. `bun run --cwd apps/web build` writes it to `apps/web/.output` with Nitro's `bun` preset: `server/index.mjs` and `public/` (Vite's assets, the files of `apps/web/public` and the prerendered pages). `bun run --cwd apps/web start` runs `bun .output/server/index.mjs`, which listens on `PORT` (3000 without it). It needs Bun 1.4; Bun 1.3 cannot parse the bundled router. The build ends with `apps/web/scripts/check-server.ts`: it starts the built server from a copy outside the repo, so nothing resolves from the workspace's `node_modules`, and fails the build unless robots answer per host and gzipped, a prerendered page is read from disk and comes gzipped with `no-cache`, an existing asset comes as its brotli copy and immutable, a missing one is a 404 with `no-store`, and `/health` answers.
+`apps/web` builds one Bun server for the public site and the app. The host of `VITE_APP_URL` gets the app at its own paths (Upcoming at `/`, `/today`, `/labels/<name>`, `/login`); every other host gets the public pages, and each answers 404 for the other's pages. `/health`, `/ingest` and `/robots.txt` answer on both. `bun run --cwd apps/web build` writes it to `apps/web/.output` with Nitro's `bun` preset: `server/index.mjs` and `public/` (Vite's assets, the files of `apps/web/public` and the prerendered pages). `bun run --cwd apps/web start` runs `bun .output/server/index.mjs`, which listens on `PORT` (3000 without it). It needs Bun 1.4; Bun 1.3 cannot parse the bundled router. The build ends with `apps/web/scripts/check-server.ts`: it starts the built server from a copy outside the repo, so nothing resolves from the workspace's `node_modules`, and fails the build unless robots answer per host and gzipped, a prerendered page is read from disk on the site host and comes gzipped with `no-cache`, the app host renders `/` instead, the site host answers 404 for `/today` and `/login` and the app host for `/privacy`, an existing asset comes as its brotli copy and immutable, a missing one is a 404 with `no-store`, and `/health` answers on both hosts.
 
 What the server sends:
 
@@ -58,12 +58,14 @@ What the server sends:
 | `APP_ENV`                 | build   | `production`               | `staging`                          | unset (`development`)   |
 | `VITE_API_URL`            | build   | `https://api.soonlane.com` | `https://api.staging.soonlane.com` | `http://localhost:4000` |
 | `VITE_AUTH_COOKIE_PREFIX` | build   | `soonlane`                 | `soonlane-staging`                 | `soonlane-dev`          |
+| `VITE_APP_URL`            | build   | `https://app.soonlane.com` | `https://app.staging.soonlane.com` | unset (`http://localhost:3000`) |
+| `VITE_SITE_URL`           | build   | `https://soonlane.com`     | `https://staging.soonlane.com`     | unset (`http://127.0.0.1:3000`) |
 | `VITE_POSTHOG_KEY`        | build   | optional, `phc_…`          | optional                           | optional                |
 | `API_INTERNAL_URL`        | run     | `http://api.railway.internal:8080` | `http://api.railway.internal:8080` | `http://localhost:4000` |
 | `API_PROXY_SECRET`        | run     | the `api` service's value  | the `api` service's value          | the local API's value   |
 | `PORT`                    | run     | set by the service         | set by the service                 | 3000                    |
 
-`APP_ENV` names the analytics `environment`, and a `production` build leaves drafts and future posts out of the blog ([blog.md](blog.md)). A `production` or `staging` build fails when `VITE_API_URL` or `VITE_AUTH_COOKIE_PREFIX` is missing, naming it: without them the pages call no API and look signed out. Development falls back to `soonlane-dev`, which matches no deployed environment. The `VITE_*` values are public and baked into the bundle, so a change needs a new build. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys, else from `APP_COMMIT` in `apps/web/commit.env`, which the staging workflow writes like the API's, else `dev`.
+`APP_ENV` names the analytics `environment`, and a `production` build leaves drafts and future posts out of the blog ([blog.md](blog.md)). A `production` or `staging` build fails when `VITE_API_URL`, `VITE_AUTH_COOKIE_PREFIX`, `VITE_APP_URL` or `VITE_SITE_URL` is missing, naming it: without the first two the pages call no API and look signed out, without the origins the server cannot tell the app's host from the site's. Development falls back to `soonlane-dev`, the app on `http://localhost:3000` (the origin the local API trusts) and the site on `http://127.0.0.1:3000`. `VITE_SITE_URL` is where app pages link to the public pages; canonical links and the sitemap keep the fixed `SITE_URL`. The `VITE_*` values are public and baked into the bundle, so a change needs a new build. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys, else from `APP_COMMIT` in `apps/web/commit.env`, which the staging workflow writes like the API's, else `dev`.
 
 `.railway/railway.ts` sets these too. `API_PROXY_SECRET` is a reference to the `api` service's variable, so each environment's secret is entered once, on `api`; `VITE_POSTHOG_KEY` is `preserve()`, entered by hand.
 
@@ -111,11 +113,11 @@ The browser calls `/api/auth` and `/api/rpc` directly. Checks on staging:
 
 ```sh
 # a trusted origin's preflight: 204 with that exact origin, credentials, GET, POST, content-type, max-age 7200, Vary: Origin
-curl -si -X OPTIONS -H 'Origin: https://staging.soonlane.com' -H 'Access-Control-Request-Method: POST' https://api.staging.soonlane.com/api/rpc/identity/me
-# another subdomain, production's origin or the API's own: 403 for the preflight and the request
+curl -si -X OPTIONS -H 'Origin: https://app.staging.soonlane.com' -H 'Access-Control-Request-Method: POST' https://api.staging.soonlane.com/api/rpc/identity/me
+# another subdomain, the public site, production's origin or the API's own: 403 for the preflight and the request
 curl -s -o /dev/null -w '%{http_code}\n' -X POST -H 'Origin: https://evil.staging.soonlane.com' -H 'content-type: application/json' -d '{"json":null}' https://api.staging.soonlane.com/api/rpc/identity/me
 # return addresses: a foreign host, a relative path, the API host or no body callbackURL is 400
-curl -s -X POST -H 'Origin: https://staging.soonlane.com' -H 'content-type: application/json' -d '{"provider":"google","callbackURL":"/app"}' https://api.staging.soonlane.com/api/auth/sign-in/social
+curl -s -X POST -H 'Origin: https://app.staging.soonlane.com' -H 'content-type: application/json' -d '{"provider":"google","callbackURL":"/"}' https://api.staging.soonlane.com/api/auth/sign-in/social
 ```
 
 A deploy replaces the API before the web app, so for a few minutes a page loaded from the previous web build may call the new API: harmless while the cookie names and origins stay the same, but a change to either signs those tabs out until they reload. A cached preflight (2 hours in Chrome, up to a day in Firefox) can hide a CORS change; test in a fresh profile.
@@ -131,6 +133,10 @@ curl https://staging.soonlane.com/health
 # {"ok":true,"environment":"staging","commit":"<short sha>"}
 curl https://staging.soonlane.com/robots.txt
 # User-agent: * and Disallow: /
+curl -s -o /dev/null -w '%{http_code}\n' https://staging.soonlane.com/today
+# 404: the app is on app.staging.soonlane.com
+curl https://app.staging.soonlane.com/health
+# the same answer as staging.soonlane.com
 ```
 
 ## Production
@@ -173,6 +179,10 @@ Records in Cloudflare (`soonlane.com` zone), with SSL mode Full (strict) for the
 | `www.soonlane.com`         | CNAME | `www`                         | `soonlane.com`                                                         | Proxied   |
 | `staging.soonlane.com`     | CNAME | `staging`                     | `xb4shabo.up.railway.app`                                              | DNS only  |
 | `staging.soonlane.com`     | TXT   | `_railway-verify.staging`     | `railway-verify=…` (`railway domain status staging.soonlane.com`)      | DNS only  |
+| `app.soonlane.com`         | CNAME | `app`                         | the target `railway domain app.soonlane.com` prints                    | Proxied   |
+| `app.soonlane.com`         | TXT   | `_railway-verify.app`         | `railway-verify=…` (`railway domain status app.soonlane.com`)          | DNS only  |
+| `app.staging.soonlane.com` | CNAME | `app.staging`                 | the target `railway domain app.staging.soonlane.com` prints            | DNS only  |
+| `app.staging.soonlane.com` | TXT   | `_railway-verify.app.staging` | `railway-verify=…` (`railway domain status app.staging.soonlane.com`)  | DNS only  |
 
 The `www` redirect rule (Rules, Redirect Rules): when the hostname equals `www.soonlane.com`, redirect to the dynamic URL `concat("https://soonlane.com", http.request.uri.path)` with status 301, preserving the query string.
 
@@ -182,7 +192,7 @@ Igor's steps, in order. Each one says how to check it. Variable and record value
 
 1. **Staging secrets** on the `api` service in `staging`: `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: `railway variables --service api --environment staging --json | jq 'keys'` lists the names.
 2. **Staging DNS**: the `staging` and `api.staging` CNAMEs and their `_railway-verify` TXT records from the table. Check: `railway domain status staging.soonlane.com` and `railway domain status api.staging.soonlane.com` report the domain verified and the certificate issued.
-3. **Staging deploy**: run **Deploy staging** with the ref to test. Check: the curl commands under [Staging](#staging), then sign in on https://staging.soonlane.com and open `/app`.
+3. **Staging deploy**: run **Deploy staging** with the ref to test. Check: the curl commands under [Staging](#staging), then sign in on https://app.staging.soonlane.com.
 4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (Neon `main`, direct), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
 5. **The `web` service and the site's domain**: `web` does not exist in production before this step, and a domain needs its service. Apply a copy of `.railway/railway.ts` without the production `web` custom domain (`railway config apply --file <copy> --environment production`), which creates `web` with its variables, health check and GitHub source, and Railway deploys `main` to it. Then `railway domain soonlane.com --service web --environment production --port 8080`, which prints the CNAME target and the TXT value.
 6. **The final apply**: `railway config apply --file .railway/railway.ts --environment production` with the unmodified file from `main`, after the PRs are on `main`; the domain exists by now, so it changes nothing. Check: `railway config plan --file .railway/railway.ts --environment production` reports nothing to change, and `railway deployment list --service web --environment production` and the same for `api` show a successful deployment.
@@ -202,6 +212,37 @@ curl https://api.soonlane.com/health
 # {"ok":true,"environment":"production","commit":"<sha>"}
 ```
 
-Then sign in on https://soonlane.com, open `/app`, add and complete a task, and check that the Mac app still loads.
+Then sign in on https://app.soonlane.com, add and complete a task, and check that the Mac app still loads.
 
 **Going back**: production runs on Railway behind Cloudflare's proxy (the apex and `www` CNAMEs proxied, the `www` redirect rule to the apex). To go back, replace the apex CNAME with the record Vercel's domain settings list, DNS only; the proxied `www` record and its redirect rule keep sending `www` to the apex. Vercel still serves the build of `fcbd5f2`, and the Neon schema fits it as long as no migration has landed since; once one lands, this way back closes. Railway's services can keep running meanwhile.
+
+## The app host
+
+The app moved from `soonlane.com/app` to `app.soonlane.com` ([ADR 0013](decisions/0013-three-hosts-on-railway.md), update of 2026-11-13). The `web` service has two custom domains per environment, the most Railway's Hobby plan allows. Igor's steps, in order:
+
+1. **Staging domain**: `railway domain app.staging.soonlane.com --service web --environment staging --port 8080`, then its CNAME and TXT records from the [DNS](#dns) table. Check: `railway domain status app.staging.soonlane.com` reports it verified with a certificate.
+2. **Staging config and deploy**: `railway config apply --file .railway/railway.ts --environment staging` from the branch, then **Deploy staging** with the branch. Check: the curl commands under [Staging](#staging), sign in on https://app.staging.soonlane.com, and "Open app" on https://staging.soonlane.com leads there.
+3. **Production domain**: `railway domain app.soonlane.com --service web --environment production --port 8080`, then its proxied CNAME and its TXT. Check: `railway domain status app.soonlane.com`. Until the merge it serves the current build.
+4. **The Mac app**: the release that loads `https://app.soonlane.com` ([SOON-125](https://linear.app/rigtch/issue/SOON-125)) ships with the switch; installed builds for `https://soonlane.com` show a 404 from then on.
+5. **Before the merge, by hand**: give production's `web` the new origins without a deploy (the running build ignores them), let `api` trust both origins, today's and the new one, and point `api`'s `APP_URL` (Better Auth's error page and the calendar events' link) at the app host, whose domain already serves the current build. Check: once `api` has redeployed, the preflight under [CORS](#cors-and-return-addresses), pointed at `api.soonlane.com`, answers 204 for both `https://soonlane.com` and `https://app.soonlane.com`, and the app at `soonlane.com/app` still works.
+
+   ```sh
+   railway variable set VITE_APP_URL=https://app.soonlane.com VITE_SITE_URL=https://soonlane.com --service web --environment production --skip-deploys
+   railway variable set TRUSTED_ORIGINS=https://soonlane.com,https://app.soonlane.com APP_URL=https://app.soonlane.com --service api --environment production
+   ```
+
+6. **Merge**: Railway builds `web` from `main` with its variables in place, and `api` too. The old `web` serves until the new one is live, and both origins are trusted all along. Check: signing in on https://app.soonlane.com works without signing in again, and:
+
+   ```sh
+   curl -s -o /dev/null -w '%{http_code}\n' https://soonlane.com/app
+   # 404
+   curl -sI https://app.soonlane.com/ | grep -i -E '^HTTP|^location'
+   # 307 to /login when signed out
+   curl https://app.soonlane.com/robots.txt
+   # User-agent: * and Disallow: /
+   ```
+
+7. **Apply**: once the new `web` deployment is live, run `railway config apply --file .railway/railway.ts --environment production` from `main`. It drops `soonlane.com` from `TRUSTED_ORIGINS`; `web` and `APP_URL` already have their values. Check: `railway config plan --file .railway/railway.ts --environment production` reports nothing to change, the preflight answers 204 for `https://app.soonlane.com` and 403 for `https://soonlane.com`, and sign-in on the app still works.
+8. **PostHog**: add `https://app.soonlane.com` and `https://app.staging.soonlane.com` to the project's authorized URLs. Google's and Todoist's redirect URIs are on the API host and do not change.
+
+No step leaves the app without a trusted origin: the old app's origin stays trusted until the new app is live. Staging takes the shorter order of steps 1 and 2: between the apply and the end of **Deploy staging**, the old staging build cannot call the API, which only affects testers.
