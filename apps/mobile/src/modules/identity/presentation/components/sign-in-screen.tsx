@@ -5,7 +5,7 @@ import { OutlineButton } from '@/modules/shell/presentation/components/outline-b
 import { signInWithGoogle } from '@/platform/auth/auth.client'
 import { COLORS, TEXT } from '@/tokens.gen'
 
-const SIGN_IN_FAILED = 'Sign-in failed. Try again.'
+export const SIGN_IN_FAILED = 'Sign-in failed. Try again.'
 
 /** The only screen a signed-out user sees; the root layout opens the app once the sheet hands back a session. */
 export function SignInScreen() {
