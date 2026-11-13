@@ -6,19 +6,21 @@ Production: the app at https://app.soonlane.com, the site at https://soonlane.co
 
 ## Monorepo
 
-| Directory                   | Purpose and main technology                                                                       |
-| --------------------------- | ------------------------------------------------------------------------------------------------- |
-| `apps/web`                  | Site and web app: TanStack Start (React 19, Router, Query), oRPC v2, Tailwind 4, as a Bun server. |
-| `apps/api`                  | API on Railway: a Bun server on Effect 4 ([docs/deploy-railway.md](docs/deploy-railway.md)).      |
-| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                           |
-| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                       |
-| `packages/domain`           | Branded types and their Zod schemas, such as `CalendarDate`.                                      |
-| `packages/db`               | Drizzle schema, migrations and the migrator for Postgres.                                         |
-| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.              |
-| `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.           |
-| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                         |
-| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                                |
-| `tooling/oxlint-plugin`     | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.              |
+| Directory                   | Purpose and main technology                                                                  |
+| --------------------------- | -------------------------------------------------------------------------------------------- |
+| `apps/web`                  | The web app: TanStack Start (React 19, Router, Query), oRPC v2, Tailwind 4, as a Bun server. |
+| `apps/site`                 | The public site: TanStack Start prerendered to static files, served by Caddy.                |
+| `apps/api`                  | API on Railway: a Bun server on Effect 4 ([docs/deploy-railway.md](docs/deploy-railway.md)). |
+| `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                      |
+| `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                  |
+| `packages/domain`           | Branded types and their Zod schemas, such as `CalendarDate`.                                 |
+| `packages/db`               | Drizzle schema, migrations and the migrator for Postgres.                                    |
+| `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.         |
+| `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.      |
+| `tooling/typescript-config` | tsconfig presets every workspace extends.                                                    |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                           |
+| `tooling/vite-config`       | The build info (environment, version, commit) both Vite configs inline.                      |
+| `tooling/oxlint-plugin`     | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.         |
 
 Layout, package layering, request flow and the server boundary: [ARCHITECTURE.md](ARCHITECTURE.md). Product and design: [PRODUCT.md](PRODUCT.md), [DESIGN.md](DESIGN.md). Rules for file names, layering and tests: [AGENTS.md](AGENTS.md) and [apps/web/AGENTS.md](apps/web/AGENTS.md).
 
@@ -33,21 +35,21 @@ bun run db:migrate
 bun run dev
 ```
 
-The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expects it). The same server shows the public site on any other host name, such as http://127.0.0.1:3000 (`VITE_APP_URL` and `VITE_SITE_URL` change the two, docs/deploy-railway.md).
+The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expects it), the public site at http://localhost:3001 and the API at http://localhost:4000.
 
 ## Scripts
 
 Run with `bun run <script>` from the root.
 
-| Script                | Purpose                                                                                              |
-| --------------------- | ---------------------------------------------------------------------------------------------------- |
-| `dev`                 | Web development server on port 3000.                                                                 |
-| `build`               | Production build: the web server in `apps/web/.output`, checked after the build, and the API bundle. |
-| `typecheck`           | TypeScript in every package.                                                                         |
-| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                                                                  |
-| `commit`              | Commitizen prompt for a conventional commit.                                                         |
-| `db:generate`         | Drizzle migration from `packages/db/schema`.                                                         |
-| `db:migrate`          | Apply migrations to the database in `apps/api/.env.local`.                                           |
+| Script                | Purpose                                                                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dev`                 | The app on port 3000, the public site on 3001 and the API on 4000.                                                                                       |
+| `build`               | Production build: the web server in `apps/web/.output` and the static site in `apps/site/dist/client`, each checked after the build, and the API bundle. |
+| `typecheck`           | TypeScript in every package.                                                                                                                             |
+| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                                                                                                                      |
+| `commit`              | Commitizen prompt for a conventional commit.                                                                                                             |
+| `db:generate`         | Drizzle migration from `packages/db/schema`.                                                                                                             |
+| `db:migrate`          | Apply migrations to the database in `apps/api/.env.local`.                                                                                               |
 
 ## Desktop
 
