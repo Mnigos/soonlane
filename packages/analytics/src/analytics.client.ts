@@ -8,6 +8,7 @@ import type {
 	ConsentState,
 } from './consent.types'
 import { clearPostHogStorage, createPostHogConfig } from './posthog.config'
+import { toSnakeCaseKeys } from './utils/snake-case-keys.util'
 
 /** The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there. */
 const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
@@ -25,7 +26,7 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	key: string | undefined
 	buildProperties: Pick<
 		SuperProperties,
-		'app_version' | 'commit' | 'environment'
+		'appVersion' | 'commit' | 'environment'
 	>
 	/** Route paths (`/app/labels/$name`) whose params are user content or a secret, sent as `:name`. */
 	privateRoutes: readonly string[]
@@ -109,7 +110,7 @@ function registerContext(
 ) {
 	const user = getUser()
 
-	posthog.register(properties)
+	posthog.register(toSnakeCaseKeys(properties))
 	if (
 		user &&
 		posthog.has_opted_in_capturing() &&
@@ -150,7 +151,7 @@ export function capture<TEvent extends keyof ClientEvents>(
 	properties: ClientEvents[TEvent]
 ) {
 	void withPostHog(posthog => {
-		posthog.capture(event, properties)
+		posthog.capture(event, toSnakeCaseKeys(properties))
 	})
 }
 
@@ -231,6 +232,6 @@ export function resetAnalytics() {
 
 		posthog.reset()
 		posthog.opt_in_capturing({ captureEventName: false })
-		posthog.register(getSuperProperties(current))
+		posthog.register(toSnakeCaseKeys(getSuperProperties(current)))
 	})
 }

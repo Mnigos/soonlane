@@ -73,7 +73,7 @@ export function TaskItem({
 		triggerRef.current?.focus()
 		capture('date_picker_used', {
 			choice,
-			has_time: task.dueTime !== undefined,
+			hasTime: task.dueTime !== undefined,
 		})
 		const edit = getMenuEdit(task, today, { dueDate })
 

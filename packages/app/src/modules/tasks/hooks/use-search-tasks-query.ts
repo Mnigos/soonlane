@@ -21,7 +21,7 @@ export function useSearchTasksQuery(query: string) {
 
 			if (capturedQuery.current !== query) {
 				capturedQuery.current = query
-				capture('tasks_searched', { result_count: result.tasks.length })
+				capture('tasks_searched', { resultCount: result.tasks.length })
 			}
 
 			return result

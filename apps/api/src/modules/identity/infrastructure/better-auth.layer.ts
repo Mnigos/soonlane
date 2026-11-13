@@ -64,8 +64,8 @@ export const BetterAuthLive = Layer.effect(
 						analytics
 							.capture(userIdSchema.parse(id), 'user_signed_up', {
 								$set_once: {
-									created_at: createdAt.toISOString(),
-									signup_date: createdAt.toISOString().slice(0, 10),
+									createdAt: createdAt.toISOString(),
+									signupDate: createdAt.toISOString().slice(0, 10),
 								},
 							})
 							.pipe(withRequestConsent(config.cookiePrefix, headers))

@@ -212,10 +212,10 @@ export const TodoistServiceLive = Layer.effect(
 
 			yield* analytics.capture(ownerId, 'todoist_imported', {
 				tasks: summary.tasks,
-				changed_tasks: summary.changedTasks,
-				left_out: summary.leftOut,
-				new_labels: summary.newLabels,
-				new_projects: summary.newProjects,
+				changedTasks: summary.changedTasks,
+				leftOut: summary.leftOut,
+				newLabels: summary.newLabels,
+				newProjects: summary.newProjects,
 			})
 
 			return summary

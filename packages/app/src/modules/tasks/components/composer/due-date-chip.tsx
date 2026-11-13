@@ -91,7 +91,7 @@ export function DueDateChip({
 					onDateChange={(date, choice) => {
 						capture('date_picker_used', {
 							choice,
-							has_time: dueTime !== undefined,
+							hasTime: dueTime !== undefined,
 						})
 						onDateChange(date)
 						setIsOpen(false)
@@ -99,7 +99,7 @@ export function DueDateChip({
 					onNoDate={() => {
 						capture('date_picker_used', {
 							choice: 'no_date',
-							has_time: dueTime !== undefined,
+							hasTime: dueTime !== undefined,
 						})
 						onNoDate()
 						setIsOpen(false)

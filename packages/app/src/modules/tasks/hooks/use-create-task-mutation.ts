@@ -21,9 +21,9 @@ export function useCreateTaskMutation(
 				capture('task_created', {
 					...properties,
 					source,
-					has_description: task.description !== undefined,
-					has_time: task.dueTime !== undefined,
-					is_overdue: (properties.due_in_days ?? 0) < 0,
+					hasDescription: task.description !== undefined,
+					hasTime: task.dueTime !== undefined,
+					isOverdue: (properties.dueInDays ?? 0) < 0,
 				})
 				await refreshTaskAndLabelLists(queryClient)
 			},
