@@ -26,7 +26,6 @@
   "globalDependencies": ["apps/web/.env.local", "version.json", "CHANGELOG.md"],
   "globalPassThroughEnv": [
     "DATABASE_URL",
-    "DATABASE_URL_UNPOOLED",
     "AUTH_SECRET",
     "APP_URL",
     "ALLOWED_EMAILS",
