@@ -23,8 +23,8 @@ import {
 	PICKER_FIELD_ROW_CLASS,
 	PICKER_NOTE_CLASS,
 } from '../../tasks/helpers/composer-chip.constants'
-import { searchLabels } from '../../tasks/helpers/label-search.helper'
 import { SEARCH_DELAY_MS } from '../../tasks/helpers/task-search.constants'
+import { filterByName } from '../../tasks/helpers/task-view.helper'
 import { useDebouncedValue } from '../../tasks/hooks/use-debounced-value'
 import { useSearchTasksQuery } from '../../tasks/hooks/use-search-tasks-query'
 import { useToday } from '../../tasks/hooks/use-today'
@@ -51,6 +51,7 @@ const GROUP_LABEL_CLASS =
 
 function getItemKey(item: PaletteItem) {
 	if (item.kind === 'view') return item.view.view
+	if (item.kind === 'project') return item.project.id
 	if (item.kind === 'label') return item.label.id
 	if (item.kind === 'task') return item.task.id
 
@@ -68,13 +69,19 @@ export function SearchPalette({
 	const search = query.trim()
 	const settledQuery = useDebouncedValue(search, SEARCH_DELAY_MS)
 	const { data: labelData } = useQuery(orpcQuery.labels.list.queryOptions())
-	const recent = useRecentItems(labelData?.labels)
+	const { data: projectData } = useQuery(orpcQuery.projects.list.queryOptions())
+	const recent = useRecentItems(labelData?.labels, projectData?.projects)
 	const { data, isPlaceholderData } = useSearchTasksQuery(settledQuery)
 	const navigation: PaletteItem[] = [
-		...VIEW_SHORTCUTS.filter(view =>
-			view.name.toLowerCase().includes(search.toLowerCase())
-		).map(view => ({ kind: 'view' as const, view })),
-		...searchLabels(labelData?.labels ?? [], search).matches.map(label => ({
+		...filterByName(VIEW_SHORTCUTS, search).map(view => ({
+			kind: 'view' as const,
+			view,
+		})),
+		...filterByName(projectData?.projects ?? [], search).map(project => ({
+			kind: 'project' as const,
+			project,
+		})),
+		...filterByName(labelData?.labels ?? [], search).map(label => ({
 			kind: 'label' as const,
 			label,
 		})),
@@ -114,6 +121,11 @@ export function SearchPalette({
 		}
 
 		if (item.kind === 'view') void navigate({ to: APP_PATHS[item.view.view] })
+		else if (item.kind === 'project')
+			void navigate({
+				to: APP_PATHS.project,
+				params: { name: item.project.name },
+			})
 		else if (item.kind === 'label')
 			void navigate({ to: APP_PATHS.label, params: { name: item.label.name } })
 		else void navigate({ to: APP_PATHS.search, state: handoff })

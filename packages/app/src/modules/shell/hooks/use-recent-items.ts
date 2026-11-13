@@ -1,5 +1,5 @@
 import { ORPCError } from '@orpc/client'
-import type { Label } from '@soonlane/contracts'
+import type { Label, ListedProject } from '@soonlane/contracts'
 import { useQueries } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { orpcQuery } from '../../../rpc-query.client'
@@ -10,8 +10,11 @@ import {
 import { VIEW_SHORTCUTS } from '../keyboard-shortcuts.constants'
 import type { PaletteItem } from '../search-palette.types'
 
-/** The palette's Recent rows: labels resolved against `labels`, tasks through `tasks.get`; a deleted task also leaves storage. */
-export function useRecentItems(labels: Label[] | undefined): PaletteItem[] {
+/** The palette's Recent rows: projects and labels resolved against their lists, tasks through `tasks.get`; a deleted task also leaves storage. */
+export function useRecentItems(
+	labels: Label[] | undefined,
+	projects: ListedProject[] | undefined
+): PaletteItem[] {
 	const views = useMemo(() => readRecentViews(), [])
 	const tasks = useQueries({
 		queries: views.flatMap(view => {
@@ -47,6 +50,12 @@ export function useRecentItems(labels: Label[] | undefined): PaletteItem[] {
 			return VIEW_SHORTCUTS.filter(shortcut => shortcut.view === view.id).map(
 				shortcut => ({ kind: 'view', view: shortcut })
 			)
+
+		if (view.kind === 'project') {
+			const project = projects?.find(({ id }) => id === view.id)
+
+			return project ? [{ kind: 'project', project }] : []
+		}
 
 		if (view.kind === 'label') {
 			const label = labels?.find(({ id }) => id === view.id)
