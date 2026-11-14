@@ -24,6 +24,7 @@ import {
 	expoSignIn,
 	isPendingAppSignIn,
 } from './expo-sign-in.handler'
+import { MOBILE_APP, MOBILE_APP_HEADER } from './mobile-sign-in.constants'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
@@ -151,6 +152,14 @@ function bearerSessions() {
 	return { id, hooks: { before: hooks.before } } satisfies BetterAuthPlugin
 }
 
+/** A code exchange is the desktop app's unless the Android app says it sent it; the label only names the analytics method. */
+function toSignInMethod(path?: string, headers?: Headers): SignInMethod {
+	if (path !== DESKTOP_EXCHANGE_PATH && path !== DESKTOP_TOKEN_PATH)
+		return 'google'
+
+	return headers?.get(MOBILE_APP_HEADER) === MOBILE_APP ? 'mobile' : 'desktop'
+}
+
 function refuse(message: string) {
 	return new APIError('FORBIDDEN', { code: 'PROVIDER_NOT_ALLOWED', message })
 }
@@ -159,8 +168,9 @@ function refuse(message: string) {
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
  * signed-in hint cookie, the hand-off of a browser sign-in to the desktop
- * app with the signed bearer token its session uses, the mobile app's
- * sign-in through Better Auth's Expo plugin and, when configured,
+ * app with the signed bearer token its session uses, and to the Android
+ * app through a verified App Link, the iPhone app's sign-in through Better
+ * Auth's Expo plugin and, when configured,
  * linking Todoist for an import: Todoist is only linked, Google only signs
  * in, and provider tokens are stored encrypted.
  */
@@ -314,10 +324,7 @@ export function createAuth(options: CreateAuthOptions) {
 					after: async ({ userId }, context) =>
 						await options.events.sessionCreated(
 							userId,
-							context?.path === DESKTOP_EXCHANGE_PATH ||
-								context?.path === DESKTOP_TOKEN_PATH
-								? 'desktop'
-								: 'google',
+							toSignInMethod(context?.path, context?.headers),
 							context?.headers
 						),
 				},

@@ -9,6 +9,7 @@ import {
 import Constants from 'expo-constants'
 import { getItem, setItem } from 'expo-secure-store'
 import { PostHog, type PostHogOptions } from 'posthog-react-native'
+import { Platform } from 'react-native'
 
 /** A public project key, like the web's; a build without one asks nothing and sends nothing. */
 const POSTHOG_KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY
@@ -59,7 +60,7 @@ function registerSuperProperties(client: PostHog) {
 		toWireProperties({
 			appVersion: Constants.expoConfig?.version,
 			environment: ENVIRONMENT,
-			platform: 'ios',
+			platform: Platform.OS === 'android' ? 'android' : 'ios',
 			surface: 'app',
 			timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
 		} satisfies Partial<SuperProperties>)

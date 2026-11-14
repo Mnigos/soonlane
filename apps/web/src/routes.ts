@@ -48,11 +48,23 @@ export const routes = rootRoute('routes/__root.tsx', [
 			'/desktop/callback',
 			'modules/identity/presentation/routes/desktop-callback.route.tsx'
 		),
+		route(
+			'/android/sign-in',
+			'modules/identity/presentation/routes/android-sign-in.route.tsx'
+		),
 	]),
+	route(
+		'/android/callback',
+		'modules/identity/presentation/routes/android-callback.route.tsx'
+	),
 	route('/today', 'modules/shell/presentation/routes/legacy-today.route.tsx'),
 	route('/robots[.]txt', 'modules/site/presentation/routes/robots.route.ts'),
 	route('/sitemap[.]xml', 'modules/site/presentation/routes/sitemap.route.ts'),
 	route('/blog/rss[.]xml', 'modules/blog/presentation/routes/rss.route.ts'),
 	route('/ingest/$', 'modules/analytics/presentation/routes/ingest.$.route.ts'),
 	route('/health', 'modules/hosting/presentation/routes/health.route.ts'),
+	route(
+		'/.well-known/assetlinks[.]json',
+		'modules/hosting/presentation/routes/asset-links.route.ts'
+	),
 ])

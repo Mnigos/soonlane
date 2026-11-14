@@ -7,11 +7,13 @@ import {
 import { setSessionCookie } from 'better-auth/cookies'
 import { generateRandomString, makeSignature } from 'better-auth/crypto'
 import { z } from 'zod'
-import { CODE_CHALLENGE_PATTERN } from './desktop-sign-in.constants'
+import {
+	CODE_CHALLENGE_PATTERN,
+	SIGN_IN_CODE_PATTERN,
+} from './desktop-sign-in.constants'
 import { toCodeChallenge } from './desktop-sign-in.helper'
 
 const CODE_LENGTH = 32
-const CODE_PATTERN = new RegExp(String.raw`^[\w-]{${CODE_LENGTH}}$`, 'u')
 const CODE_TTL_MS = 2 * 60 * 1000
 const CODE_IDENTIFIER_PREFIX = 'desktop-sign-in:'
 /** Trades the code for a session cookie in the app's window. */
@@ -29,7 +31,7 @@ const storedCodeSchema = z.object({
 })
 
 const exchangeBodySchema = z.object({
-	code: z.string().regex(CODE_PATTERN),
+	code: z.string().regex(SIGN_IN_CODE_PATTERN),
 	verifier: z.string().regex(CODE_CHALLENGE_PATTERN),
 })
 

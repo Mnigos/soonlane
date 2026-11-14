@@ -20,12 +20,12 @@ Code writes property keys in camelCase (`dueInDays`), and `capture` on both side
 
 ## Events
 
-Each event has one source. The server sends what only the database knows; the browser sends the rest, because only the browser knows the local day, the entry point and the UI choice. The iPhone app sends the same client events from its screens, through the `capture` it hands to `provideHostPorts`; `platform: ios` tells them apart. Events fire from event handlers and mutation callbacks, never from render.
+Each event has one source. The server sends what only the database knows; the browser sends the rest, because only the browser knows the local day, the entry point and the UI choice. The iPhone and Android app sends the same client events from its screens, through the `capture` it hands to `provideHostPorts`; `platform: ios` or `platform: android` tells them apart. Events fire from event handlers and mutation callbacks, never from render.
 
 | Event                    | Fires when                                                                                               | Source | Properties                                                                                     |
 | ------------------------ | -------------------------------------------------------------------------------------------------------- | ------ | ---------------------------------------------------------------------------------------------- |
 | `user_signed_up`         | Better Auth creates the user (the first sign-in only)                                                    | server | `$set_once`: `created_at`, `signup_date`                                                       |
-| `user_signed_in`         | Better Auth creates a session                                                                            | server | `method`: `google` \| `desktop`                                                                |
+| `user_signed_in`         | Better Auth creates a session                                                                            | server | `method`: `google` \| `desktop` \| `mobile`                                                     |
 | `user_signed_out`        | sign-out succeeds, before `reset()` (on the iPhone when sign-out starts, which always ends the session on the phone) | client | none                                                                                           |
 | `first_task_created`     | a user's first task is inserted                                                                          | server | `task_id`                                                                                      |
 | `todoist_imported`       | an import from Todoist commits                                                                           | server | `tasks`, `changed_tasks`, `new_labels`, `new_projects` (counts only)                            |
@@ -52,7 +52,7 @@ Each event has one source. The server sends what only the database knows; the br
 Details:
 
 - The four server events are identified, so the server sends them only when that request carries the granted consent cookie; without it they are not sent at all ([Consent](#consent)).
-- `user_signed_in` with `method: desktop` is the desktop sign-in completing: the desktop window exchanged its one-time code for a session (`/desktop/callback`). The system browser's own Google sign-in before it counts as `method: google`. A sign-up is followed by its `user_signed_in`.
+- `user_signed_in` with `method: desktop` is the desktop sign-in completing: the desktop window exchanged its one-time code for a session (`/desktop/callback`). `method: mobile` is the Android app's code exchange (it sends `x-soonlane-app: mobile`). The system browser's own Google sign-in before either counts as `method: google`, as does the iPhone app's sign-in. A sign-up is followed by its `user_signed_in`.
 - `todoist_imported` counts what the import saved: `tasks` created (tasks imported before are skipped), `changed_tasks` among them that arrived changed, and the labels and projects it created. Never a name, a text or a Todoist id.
 - `first_task_created` fires when the user's task count right after the insert is 1. Two first creates that commit at the same moment both count 2, so neither fires; this is accepted, not locked against.
 - `source` is `day_row` (Add task under a day in Today or Upcoming), `inbox_view` (Add task in the Inbox view), `label_view` (Add task in a label's view), `project_view` (Add task in a project's view), `quick_add` (the desktop Quick Add window, opened with ⌥Space or from the File menu), `sidebar_dialog` (Add task in the rail or the sidebar, which opens the dialog) or `task_row` (Edit in a task's "…" menu, which edits it in place; an edit never sends `task_created`).
@@ -62,7 +62,7 @@ Details:
 - `distance_days` is the number of days between the active day before the click and the target day. Passive scrolling is not navigation.
 - `weeks_loaded` is the Upcoming list's week count after the append (8 at first, plus 4 per append). `trigger: navigation` is the next arrow stepping past the last rendered day.
 - `sidebar_toggled` counts the user's clicks only: the docked sidebar from `xl`, and the overlay below it (open button, collapse button, backdrop). The overlay closing on navigation or on Add task is not counted.
-- `consent_updated` with `source: gpc` fires once per page load in a browser that sends Global Privacy Control and has no stored answer; count the opt-in rate from `banner` and `settings` only. A choice made on a `/desktop/*` screen is applied at the next page outside them and sends no `consent_updated`. The dialog's Save is `settings`, even when the banner opened it. `prompt` is the iPhone app's first question; only its Accept is sent, because a Reject there leaves PostHog unstarted. The iPhone's Settings switch is `settings`, and turning it off sends the denial as the last event before the SDK stops.
+- `consent_updated` with `source: gpc` fires once per page load in a browser that sends Global Privacy Control and has no stored answer; count the opt-in rate from `banner` and `settings` only. A choice made on a `/desktop/*` or `/android/*` screen is applied at the next page outside them and sends no `consent_updated`. The dialog's Save is `settings`, even when the banner opened it. `prompt` is the iPhone app's first question; only its Accept is sent, because a Reject there leaves PostHog unstarted. The iPhone's Settings switch is `settings`, and turning it off sends the denial as the last event before the SDK stops.
 
 ## Identity
 
@@ -77,7 +77,7 @@ Details:
 
 Every event the app captures carries `app_version` (`version.json`), `commit`, `platform` (`web` or `desktop`, from `<html data-shell="desktop">`), `surface` (`blog` on `/blog` and its posts; `landing` on the other public site routes under the `/_site` layout: `/`, `/changelog`, `/privacy`, `/terms`; `app` everywhere else, the app under `/app`, `/login` and the desktop screens), `environment` (`production`, `staging` or `development`, from `APP_ENV` at build time), `timezone` and `route` (the matched route id, such as `/_session/app/today` or `/_site/privacy`). `route` and `surface` are registered before `identify` and before each `$pageview`, and again with the rest after `reset()`, opting in or out, so exceptions carry it too. The SDK's own internal events (`$set`, replay `$snapshot` envelopes) do not carry super properties. Server events carry `app_version`, `commit` and `environment`.
 
-The iPhone app's events carry `app_version` (`version.json`, through `apps/mobile/app.config.ts`), `environment` (`EXPO_PUBLIC_APP_ENV`, set per EAS profile: `development`, `staging` for preview, `production`), `platform: ios`, `surface: app` and `timezone`; no `commit` and no `route`, because it sends no screens.
+The iPhone app's events carry `app_version` (`version.json`, through `apps/mobile/app.config.ts`), `environment` (`EXPO_PUBLIC_APP_ENV`, set per EAS profile: `development`, `staging` for preview, `production`), `platform: ios` or `android`, `surface: app` and `timezone`; no `commit` and no `route`, because it sends no screens.
 
 ## Consent
 
@@ -100,7 +100,7 @@ The iPhone app's events carry `app_version` (`version.json`, through `apps/mobil
 | Server exceptions | always, with the user id when signed in | same | same |
 | Cookies and storage | the essential cookies only | posthog-js keys in localStorage and sessionStorage (`ph_<key>_posthog`, `ph_<key>_window_id`, `ph_<key>_session_registered_properties`, `ph_<key>_primary_window_exists`, `__ph_opt_in_out_<key>`), no PostHog cookies | the essential cookies only; nothing of PostHog's is kept (see Legal reasoning) |
 
-On `/desktop/*` (the desktop sign-in and callback screens) posthog-js never starts, whatever the answer: it starts at the first page outside them, so their one-time codes never reach it. Going back into one of them after it started (the browser's Back button) stops replay and loads that page as a fresh document, so the SDK is gone there too.
+On `/desktop/*` and `/android/*` (the desktop and Android sign-in and callback screens) posthog-js never starts, whatever the answer: it starts at the first page outside them, so their one-time codes never reach it. Going back into one of them after it started (the browser's Back button) stops replay and loads that page as a fresh document, so the SDK is gone there too.
 
 ### Legal reasoning
 
@@ -180,7 +180,7 @@ The dialog's Privacy policy link opens `/privacy` and closes the dialog. The ban
 ## Privacy
 
 - No autocapture, no dead-click or heatmap capture: they would record clicked element text, which includes task titles.
-- URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…` and `/desktop/callback#code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them.
+- URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…`, `/desktop/callback#code=…`, `/android/sign-in?challenge=…` and `/android/callback?code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them. Replay keeps the query of a link's `href` unless it carries `challenge`, `code` or `verifier`, in the query or the fragment; then both go.
 - Label and project names are part of their views' paths, so the same rewrite sends `/app/labels/:name` and `/app/projects/:name` in their place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). Each app lists its private paths in the options it passes to `trackRouter` (`browser-analytics.constants.ts` in `apps/web`), the web ones typed against its router's paths. `route` already carries the route id (`/_session/app/labels/$name`, `/_session/app/projects/$name`). A calendar link is a secret, so any path under `/calendar/` is sent as `/calendar/:token` the same way.
 - `$pageview` is sent without `title`: the label and project views' document titles are their names.
 - RPC calls are `POST /api/rpc/<procedure>` with the input in the body, so label names and task content never appear in a request URL.

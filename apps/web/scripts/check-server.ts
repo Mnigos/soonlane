@@ -7,8 +7,9 @@ import { SITE_URL } from '../src/modules/site/presentation/site.constants'
  * Starts the built server from a copy outside the repo, as Railway runs it, so
  * a module Nitro did not bundle cannot resolve from the workspace
  * node_modules, and checks what the hosting depends on: robots per host, a
- * prerendered page read from disk, compression, the asset cache headers and
- * the health route.
+ * prerendered page read from disk, compression, the asset cache headers, the
+ * health route, Android's asset links and the hand-off pages' headers in any
+ * letter case.
  */
 const OUTPUT_DIR = path.resolve(import.meta.dirname, '../.output')
 const IMMUTABLE = 'immutable'
@@ -16,6 +17,8 @@ const BLOCKING_ROBOTS = 'User-agent: *\nDisallow: /\n'
 /** Added to the copy's prerendered page only, so seeing it proves the server read the file instead of rendering the page. */
 const DISK_MARKER = '<!-- read from disk -->'
 const PRERENDERED_PAGE = 'privacy'
+/** A made-up certificate hash the copy's server lists in `assetlinks.json`; malformed entries next to it are dropped. */
+const FINGERPRINT = Array.from({ length: 32 }, () => 'AB').join(':')
 const START_TIMEOUT_MS = 10_000
 const POLL_INTERVAL_MS = 100
 
@@ -109,6 +112,31 @@ const CASES: Case[] = [
 		path: '/health',
 		check: (response, body) => response.ok && body.includes('"ok":true'),
 	},
+	{
+		name: "Android's asset links, as JSON without a redirect",
+		path: '/.well-known/assetlinks.json',
+		check: (response, body) =>
+			response.status === 200 &&
+			response.headers.get('content-type') ===
+				'application/json;charset=utf-8' &&
+			body ===
+				`[{"relation":["delegate_permission/common.handle_all_urls"],"target":{"namespace":"android_app","package_name":"com.mnigos.soonlane","sha256_cert_fingerprints":["${FINGERPRINT}"]}}]`,
+	},
+	{
+		name: "Android's callback page, kept out of caches and referrers",
+		path: '/android/callback?code=x',
+		check: response =>
+			response.ok &&
+			response.headers.get('cache-control') === 'no-store' &&
+			response.headers.get('referrer-policy') === 'no-referrer',
+	},
+	{
+		name: "Another letter case of Android's callback page, refused and kept out of caches",
+		path: '/Android/callback?code=x',
+		check: response =>
+			response.status === 404 &&
+			response.headers.get('cache-control') === 'no-store',
+	},
 ]
 
 const copyDir = await mkdtemp(path.join(tmpdir(), 'soonlane-web-server-'))
@@ -128,7 +156,11 @@ await Bun.write(pagePath, `${await Bun.file(pagePath).text()}${DISK_MARKER}`)
 
 const server = Bun.spawn(['bun', '.output/server/index.mjs'], {
 	cwd: copyDir,
-	env: { ...process.env, PORT: String(port) },
+	env: {
+		...process.env,
+		PORT: String(port),
+		ANDROID_CERT_FINGERPRINTS: ` ${FINGERPRINT.toLowerCase()}, not-a-hash`,
+	},
 	stdout: 'ignore',
 	stderr: 'inherit',
 })

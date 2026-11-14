@@ -146,6 +146,8 @@ export default defineRailway(ctx => {
 			API_INTERNAL_URL: `http://api.railway.internal:${PORT}`,
 			API_PROXY_SECRET: api.env.API_PROXY_SECRET,
 			VITE_POSTHOG_KEY: preserve(),
+			// Read per request: the SHA-256 of the Android signing certificates `assetlinks.json` lists, entered by hand.
+			ANDROID_CERT_FINGERPRINTS: preserve(),
 		},
 	})
 

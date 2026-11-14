@@ -10,8 +10,8 @@ import type {
 import { clearPostHogStorage, createPostHogConfig } from './posthog.config'
 import { toSnakeCaseKeys } from './utils/snake-case-keys.util'
 
-/** The desktop sign-in URLs carry one-time codes, so PostHog never starts, records or tracks a page there. */
-const DESKTOP_SIGN_IN_PREFIX = '/desktop/'
+/** The desktop and Android sign-in URLs carry one-time codes and challenges, so PostHog never starts, records or tracks a page there. */
+const HAND_OFF_PREFIXES = ['/desktop/', '/android/']
 const SITE_LAYOUT_ROUTE_ID = '/_site'
 const BLOG_ROUTE_ID_PREFIX = '/_site/blog'
 
@@ -54,6 +54,13 @@ let posthogReady: Promise<PostHog | undefined> | undefined
 let tracking: Tracking | undefined
 let trackedPath: string | undefined
 
+/** The router matches paths case-insensitively, so `/Android/callback` is a hand-off page too. */
+function isHandOffPath(pathname: string) {
+	return HAND_OFF_PREFIXES.some(prefix =>
+		pathname.toLowerCase().startsWith(prefix)
+	)
+}
+
 function isDesktopShell() {
 	return document.documentElement.dataset.shell === 'desktop'
 }
@@ -89,8 +96,8 @@ async function startPostHog(
 	try {
 		const { default: posthog } = await import('posthog-js')
 
-		// Back into the desktop sign-in while loading: its fresh document starts PostHog later, if at all.
-		if (location.pathname.startsWith(DESKTOP_SIGN_IN_PREFIX)) return undefined
+		// Back into a hand-off page while loading: its fresh document starts PostHog later, if at all.
+		if (isHandOffPath(location.pathname)) return undefined
 		if (consent !== 'granted') clearPostHogStorage()
 		posthog.init(key, createPostHogConfig(privateRoutes))
 		if (consent === 'granted')
@@ -127,8 +134,7 @@ function registerContext(
 function trackLocation(current: Tracking, consent: ConsentState) {
 	const { pathname } = current.router.state.location
 
-	if (pathname.startsWith(DESKTOP_SIGN_IN_PREFIX) || pathname === trackedPath)
-		return
+	if (isHandOffPath(pathname) || pathname === trackedPath) return
 	if (!posthogReady) {
 		if (consent === 'unanswered') return
 
@@ -189,13 +195,9 @@ export function trackRouter<TRouter extends AnyRouter>(
 	}
 
 	tracking = current
-	// A running SDK cannot be unloaded, so back into the desktop sign-in after it started is a fresh document.
+	// A running SDK cannot be unloaded, so back into a hand-off page after it started is a fresh document.
 	router.subscribe('onBeforeNavigate', ({ toLocation }) => {
-		if (
-			!posthogReady ||
-			!toLocation.pathname.startsWith(DESKTOP_SIGN_IN_PREFIX)
-		)
-			return
+		if (!posthogReady || !isHandOffPath(toLocation.pathname)) return
 
 		void withPostHog(posthog => {
 			posthog.stopSessionRecording()
