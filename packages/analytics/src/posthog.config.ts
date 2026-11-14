@@ -9,6 +9,8 @@ const PATH_ORIGIN = 'http://path.invalid'
 const POSTHOG_STORAGE_KEY = /^(?:__)?ph_|^_postHogToolbarParams$/u
 /** `$name` or `{$name}.ext` in a route path. */
 const ROUTE_PARAM = /^\{?\$(\w+)/u
+/** The parameters a sign-in hand-off puts in a query or a fragment: its challenge, its one-time code and the app's verifier. */
+const HAND_OFF_PARAMS = ['challenge', 'code', 'verifier']
 /** A private route's path split into segments. */
 type RouteSegments = string[]
 
@@ -53,9 +55,17 @@ function withoutPrivateParams(
 	].join('/')
 }
 
+function carriesHandOffParam({ searchParams, hash }: URL) {
+	const hashParams = new URLSearchParams(hash.slice(1))
+
+	return HAND_OFF_PARAMS.some(
+		name => searchParams.has(name) || hashParams.has(name)
+	)
+}
+
 /**
  * Sends `/labels/:name` instead of a label's name and `/calendar/:token` instead of a calendar link, and drops the query and hash unless `keepQuery`
- * (desktop sign-in URLs carry one-time codes and challenges there). Takes an absolute URL or a path and
+ * (sign-in hand-off URLs carry one-time codes and challenges there, so those lose them anyway). Takes an absolute URL or a path and
  * returns the same form; anything else comes back as is.
  */
 function sanitizeUrl(
@@ -68,11 +78,12 @@ function sanitizeUrl(
 	if (!parsed) return url
 
 	const pathname = withoutPrivateParams(privateRoutes, parsed.pathname)
+	const keepsQuery = keepQuery && !carriesHandOffParam(parsed)
 
-	if (keepQuery && pathname === parsed.pathname) return url
+	if (keepsQuery && pathname === parsed.pathname) return url
 
 	parsed.pathname = pathname
-	if (!keepQuery) {
+	if (!keepsQuery) {
 		parsed.search = ''
 		parsed.hash = ''
 	}

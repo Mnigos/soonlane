@@ -1,4 +1,5 @@
 import { hasAnalyticsConsent } from '@soonlane/analytics'
+import { MOBILE_APP, MOBILE_APP_HEADER } from '@soonlane/auth'
 import {
 	type AuthLogLevel,
 	createAuth,
@@ -23,9 +24,6 @@ const LOG_BY_LEVEL = {
 	AuthLogLevel,
 	(...message: readonly unknown[]) => Effect.Effect<void>
 >
-/** The mobile app's API calls send it with `mobile`; its Keychain takes refreshed cookies only from the auth client's own calls, so their lookup never refreshes the session. */
-const MOBILE_APP_HEADER = 'x-soonlane-app'
-
 function withRequestConsent(cookiePrefix: string, headers?: Headers) {
 	return Effect.provideService(
 		AnalyticsConsent,
@@ -88,8 +86,9 @@ export const BetterAuthLive = Layer.effect(
 				const { headers: responseHeaders, response: result } =
 					await auth.api.getSession({
 						headers,
+						// The phone keeps refreshed cookies only from the auth client's own calls, so the app's API calls never refresh the session.
 						query: {
-							disableRefresh: headers.get(MOBILE_APP_HEADER) === 'mobile',
+							disableRefresh: headers.get(MOBILE_APP_HEADER) === MOBILE_APP,
 						},
 						returnHeaders: true,
 					})

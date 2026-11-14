@@ -16,6 +16,7 @@ import {
 	followUser,
 } from '@/modules/analytics/infrastructure/analytics.client'
 import { askForAnalyticsConsent } from '@/modules/analytics/presentation/consent-prompt.helper'
+import { ActionSheet } from '@/modules/shell/presentation/components/action-sheet'
 import { Toast } from '@/modules/shell/presentation/components/toast'
 import {
 	dismissToast,
@@ -116,6 +117,8 @@ export default function RootLayout() {
 				</Stack>
 
 				<Toast />
+
+				<ActionSheet />
 			</ThemeProvider>
 		</QueryClientProvider>
 	)

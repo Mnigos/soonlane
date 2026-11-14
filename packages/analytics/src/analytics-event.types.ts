@@ -79,7 +79,7 @@ export interface SuperProperties {
 	appVersion: string
 	commit: string
 	environment: AppEnvironment
-	platform: 'web' | 'desktop' | 'ios'
+	platform: 'web' | 'desktop' | 'ios' | 'android'
 	surface: 'app' | 'landing' | 'blog'
 	timezone: string
 	route?: string

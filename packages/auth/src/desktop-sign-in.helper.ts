@@ -1,6 +1,7 @@
 const VERIFIER_BYTES = 32
 
-function toBase64Url(bytes: Uint8Array) {
+/** Base64url without padding (RFC 7636), the form of verifiers, challenges and stored codes. */
+export function toBase64Url(bytes: Uint8Array) {
 	return btoa(String.fromCodePoint(...bytes))
 		.replaceAll('+', '-')
 		.replaceAll('/', '_')
