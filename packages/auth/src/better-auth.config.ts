@@ -11,6 +11,7 @@ import {
 import { symmetricDecrypt } from 'better-auth/crypto'
 import { bearer } from 'better-auth/plugins'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import { androidSignIn } from './android-sign-in.handler'
 import { canSignUp } from './auth-policy.helper'
 import { AUTH_BASE_PATH, DESKTOP_TOKEN_PATH } from './desktop-sign-in.constants'
 import { desktopSignIn } from './desktop-sign-in.handler'
@@ -21,6 +22,7 @@ import {
 	expoSignIn,
 	isPendingAppSignIn,
 } from './expo-sign-in.handler'
+import { ANDROID_EXCHANGE_PATH } from './mobile-sign-in.constants'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
@@ -147,6 +149,13 @@ function bearerSessions() {
 	return { id, hooks: { before: hooks.before } } satisfies BetterAuthPlugin
 }
 
+/** A token exchange is the desktop app's and a cookie exchange the Android app's; the label only names the analytics method. */
+function toSignInMethod(path?: string): SignInMethod {
+	if (path === DESKTOP_TOKEN_PATH) return 'desktop'
+
+	return path === ANDROID_EXCHANGE_PATH ? 'mobile' : 'google'
+}
+
 function refuse(message: string) {
 	return new APIError('FORBIDDEN', { code: 'PROVIDER_NOT_ALLOWED', message })
 }
@@ -155,8 +164,9 @@ function refuse(message: string) {
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
  * signed-in hint cookie, the hand-off of a browser sign-in to the desktop
- * app with the signed bearer token its session uses, the mobile app's
- * sign-in through Better Auth's Expo plugin and, when configured,
+ * app with the signed bearer token its session uses, and to the Android
+ * app through a verified App Link, the iPhone app's sign-in through Better
+ * Auth's Expo plugin and, when configured,
  * linking Todoist for an import: Todoist is only linked, Google only signs
  * in, and provider tokens are stored encrypted.
  */
@@ -207,6 +217,7 @@ export function createAuth(options: CreateAuthOptions) {
 				'/link-social': SIGN_IN_RATE_LIMIT,
 				'/desktop-sign-in/code': SIGN_IN_RATE_LIMIT,
 				[DESKTOP_TOKEN_PATH]: SIGN_IN_RATE_LIMIT,
+				[ANDROID_EXCHANGE_PATH]: SIGN_IN_RATE_LIMIT,
 				[EXPO_PROXY_PATH]: SIGN_IN_RATE_LIMIT,
 				'/delete-user': { window: 3600, max: 5 },
 			},
@@ -309,7 +320,7 @@ export function createAuth(options: CreateAuthOptions) {
 					after: async ({ userId }, context) =>
 						await options.events.sessionCreated(
 							userId,
-							context?.path === DESKTOP_TOKEN_PATH ? 'desktop' : 'google',
+							toSignInMethod(context?.path),
 							context?.headers
 						),
 				},
@@ -318,6 +329,7 @@ export function createAuth(options: CreateAuthOptions) {
 		plugins: [
 			bearerSessions(),
 			desktopSignIn(),
+			androidSignIn(),
 			returnAddresses(options.trustedOrigins, appSchemes),
 			...(options.todoist ? [todoistLink(options.todoist)] : []),
 			// Last, so its after hook strips the browser's cookies after every other plugin's callback hook.

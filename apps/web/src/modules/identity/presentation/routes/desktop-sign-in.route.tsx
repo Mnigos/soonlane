@@ -1,7 +1,8 @@
 import { CODE_CHALLENGE_PATTERN } from '@soonlane/auth'
 import { createFileRoute } from '@tanstack/react-router'
 import { z } from 'zod'
-import { DesktopSignInScreen } from '../components/desktop-sign-in-screen'
+import { HandOffSignInScreen } from '../components/hand-off-sign-in-screen'
+import { HAND_OFF_PAGE_HEADERS } from '../hand-off.constants'
 
 const desktopSignInSearchSchema = z.object({
 	challenge: z
@@ -17,6 +18,7 @@ const desktopSignInSearchSchema = z.object({
 
 export const Route = createFileRoute('/_session/desktop/sign-in')({
 	validateSearch: desktopSignInSearchSchema,
+	headers: () => HAND_OFF_PAGE_HEADERS,
 	head: () => ({ meta: [{ title: 'Desktop sign-in · Soonlane' }] }),
 	component: DesktopSignInRoute,
 })
@@ -26,7 +28,8 @@ function DesktopSignInRoute() {
 	const { challenge, error, fresh, port } = Route.useSearch()
 
 	return (
-		<DesktopSignInScreen
+		<HandOffSignInScreen
+			app="desktop"
 			challenge={challenge}
 			fresh={fresh}
 			oauthError={error}

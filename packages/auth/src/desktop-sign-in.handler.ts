@@ -1,4 +1,4 @@
-import type { BetterAuthPlugin } from 'better-auth'
+import type { AuthContext, BetterAuthPlugin } from 'better-auth'
 import {
 	APIError,
 	createAuthEndpoint,
@@ -26,8 +26,49 @@ const storedCodeSchema = z.object({
 	sessionCreatedAt: z.coerce.date().catch(() => new Date(0)),
 })
 
+/** What an app sends to trade its code: the code and the verifier of the challenge it was minted for. */
+export const exchangeBodySchema = z.object({
+	code: z.string().regex(SIGN_IN_CODE_PATTERN),
+	verifier: z.string().regex(CODE_CHALLENGE_PATTERN),
+})
+
 async function toCodeIdentifier(code: string) {
 	return `${CODE_IDENTIFIER_PREFIX}${await toCodeChallenge(code)}`
+}
+
+/**
+ * Spends the code and, when the verifier matches its challenge, starts a
+ * session of its own for the user who made it, as old as the browser session
+ * that minted the code. The one check every code exchange runs, the desktop
+ * app's token and the Android app's cookie alike.
+ */
+export async function startHandOffSession(
+	adapter: AuthContext['internalAdapter'],
+	{ code, verifier }: z.infer<typeof exchangeBodySchema>
+) {
+	// Consumed before the verifier is checked, so a wrong guess spends the code too.
+	const stored = await adapter.consumeVerificationValue(
+		await toCodeIdentifier(code)
+	)
+	const pending = stored
+		? storedCodeSchema.parse(JSON.parse(stored.value))
+		: undefined
+	const verified = pending?.challenge === (await toCodeChallenge(verifier))
+	const user =
+		pending && verified ? await adapter.findUserById(pending.userId) : null
+
+	if (!(pending && user))
+		throw new APIError('BAD_REQUEST', { message: INVALID_CODE_MESSAGE })
+
+	// Keep the browser session's age, so a hand-off never yields a fresher session.
+	const session = await adapter.createSession(
+		user.id,
+		false,
+		{ createdAt: pending.sessionCreatedAt },
+		true
+	)
+
+	return { session, user }
 }
 
 /**
@@ -35,7 +76,8 @@ async function toCodeIdentifier(code: string) {
  * browser trades the app's challenge for a short-lived code, which travels to
  * the app's loopback address; only the app holds the verifier that turns the
  * code into a session of its own, returned as the signed token its main
- * process keeps.
+ * process keeps. The Android app's codes come from the same `/code`
+ * (`androidSignIn`).
  */
 export function desktopSignIn() {
 	return {
@@ -69,38 +111,11 @@ export function desktopSignIn() {
 			),
 			exchangeDesktopSignInCode: createAuthEndpoint(
 				DESKTOP_TOKEN_PATH,
-				{
-					method: 'POST',
-					body: z.object({
-						code: z.string().regex(SIGN_IN_CODE_PATTERN),
-						verifier: z.string().regex(CODE_CHALLENGE_PATTERN),
-					}),
-				},
+				{ method: 'POST', body: exchangeBodySchema },
 				async ctx => {
-					const { internalAdapter } = ctx.context
-					// Consumed before the verifier is checked, so a wrong guess spends the code too.
-					const stored = await internalAdapter.consumeVerificationValue(
-						await toCodeIdentifier(ctx.body.code)
-					)
-					const pending = stored
-						? storedCodeSchema.parse(JSON.parse(stored.value))
-						: undefined
-					const verified =
-						pending?.challenge === (await toCodeChallenge(ctx.body.verifier))
-					const user =
-						pending && verified
-							? await internalAdapter.findUserById(pending.userId)
-							: null
-
-					if (!(pending && user))
-						throw new APIError('BAD_REQUEST', { message: INVALID_CODE_MESSAGE })
-
-					// Keep the browser session's age, so a hand-off never yields a fresher session.
-					const session = await internalAdapter.createSession(
-						user.id,
-						false,
-						{ createdAt: pending.sessionCreatedAt },
-						true
+					const { session } = await startHandOffSession(
+						ctx.context.internalAdapter,
+						ctx.body
 					)
 					// Signed like the session cookie: the `bearer` plugin accepts only signed tokens.
 					const signature = await makeSignature(

@@ -29,6 +29,18 @@ export const routes = rootRoute('routes/__root.tsx', [
 			'/desktop/sign-in',
 			'modules/identity/presentation/routes/desktop-sign-in.route.tsx'
 		),
+		route(
+			'/android/sign-in',
+			'modules/identity/presentation/routes/android-sign-in.route.tsx'
+		),
 	]),
+	route(
+		'/android/callback',
+		'modules/identity/presentation/routes/android-callback.route.tsx'
+	),
 	route('/health', 'modules/hosting/presentation/routes/health.route.ts'),
+	route(
+		'/.well-known/assetlinks[.]json',
+		'modules/hosting/presentation/routes/asset-links.route.ts'
+	),
 ])

@@ -1,6 +1,12 @@
 import { useMutation } from '@tanstack/react-query'
+import { useSyncExternalStore } from 'react'
 import { Alert } from 'react-native'
 import { OutlineButton } from '@/modules/shell/presentation/components/outline-button'
+import {
+	cancelHandOff,
+	isHandOffCancellable,
+	subscribeToHandOff,
+} from '@/platform/auth/android-hand-off.client'
 import {
 	signInWithGoogle,
 	storedSessionToken,
@@ -13,7 +19,7 @@ import {
 	type Account,
 } from '../hooks/use-delete-account-mutation'
 import { useSignOutMutation } from '../hooks/use-sign-out-mutation'
-import { SIGN_IN_FAILED } from './sign-in-screen'
+import { SIGN_IN_FAILED, signInFailureMessage } from './sign-in-screen'
 
 const DELETE_ACCOUNT_TITLE = 'Delete your account?'
 const FRESH_SIGN_IN_REQUIRED =
@@ -25,7 +31,7 @@ interface AccountActionsProps {
 }
 
 /**
- * Signs in again in the sheet and returns the user the server says that
+ * Signs in again (the iOS sheet, or the Android hand-off) and returns the user the server says that
  * sign-in belongs to. Undefined when the server could not say: the phone is
  * then signed out, so no screen names one user while the Keychain holds another.
  */
@@ -56,9 +62,13 @@ export function AccountActions({ account }: Readonly<AccountActionsProps>) {
 			else if (user.id === startedFor.id) confirmDeletion(user)
 			else alertOtherAccount(user, startedFor)
 		},
-		onError: (_error, startedFor) =>
-			askForFreshSignIn(SIGN_IN_FAILED, startedFor),
+		onError: (error, startedFor) =>
+			askForFreshSignIn(signInFailureMessage(error), startedFor),
 	})
+	const isCancellable = useSyncExternalStore(
+		subscribeToHandOff,
+		isHandOffCancellable
+	)
 	const isBusy =
 		signOutMutation.isPending || deletion.isPending || freshSignIn.isPending
 
@@ -115,6 +125,10 @@ export function AccountActions({ account }: Readonly<AccountActionsProps>) {
 			>
 				{deletion.isPending ? 'Deleting…' : 'Delete account'}
 			</OutlineButton>
+
+			{freshSignIn.isPending && isCancellable && (
+				<OutlineButton onPress={cancelHandOff}>Cancel</OutlineButton>
+			)}
 		</>
 	)
 }
