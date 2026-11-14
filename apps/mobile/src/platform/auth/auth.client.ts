@@ -1,6 +1,13 @@
 import { expoClient } from '@better-auth/expo/client'
+import { MOBILE_APP, MOBILE_APP_HEADER } from '@soonlane/auth'
 import { createAuthClient } from 'better-auth/react'
 import { getItem, getItemAsync, setItem, setItemAsync } from 'expo-secure-store'
+import { Platform } from 'react-native'
+import {
+	cancelHandOff,
+	claimHandOff,
+	handOffFromBrowser,
+} from './android-hand-off.client'
 
 /** The API origin; the EAS profile or `.env.local` sets it. */
 export const API_URL = process.env.EXPO_PUBLIC_API_URL
@@ -10,6 +17,8 @@ const AUTH_COOKIE_PREFIX = process.env.EXPO_PUBLIC_AUTH_COOKIE_PREFIX
 const SIGN_IN_RETURN_URL = 'soonlane://'
 /** Asks Google for a new login, as the web's fresh sign-in does; Google may still skip the password after its own risk check. */
 const FORCED_GOOGLE_LOGIN_PARAMS = { prompt: 'login', max_age: '0' }
+/** Trades the Android hand-off's code and verifier for a session cookie, as the desktop window does. */
+const HAND_OFF_EXCHANGE_PATH = '/desktop-sign-in/exchange'
 /** The requests a session end sends itself; their replies pass the boundary. */
 const SESSION_END_PATHS = ['/sign-out', '/delete-user']
 /** Better Auth's reply once the user is gone; with an email step configured it would answer 'Verification email sent' and delete nothing. */
@@ -93,11 +102,13 @@ interface GoogleSignInOptions {
 	fresh?: boolean
 }
 
-/** Opens Google in the system sign-in sheet once any session end has settled; resolves once the sheet closes, with no error when it was closed. */
+/** Opens Google once any session end has settled, in the iOS sheet or the Android hand-off; no error when the user closed or cancelled it, and a rejection with `HAND_OFF_TIMED_OUT` when Android waited too long. */
 export async function signInWithGoogle({
 	loginHint,
 	fresh = false,
 }: GoogleSignInOptions = {}) {
+	if (Platform.OS === 'android') return await signInThroughBrowser(fresh)
+
 	await sessionEndsSettled()
 
 	return await authClient.signIn.social({
@@ -107,6 +118,31 @@ export async function signInWithGoogle({
 		loginHint,
 		additionalParams: fresh ? FORCED_GOOGLE_LOGIN_PARAMS : undefined,
 	})
+}
+
+const HAND_OFF_EXCHANGE_TIMEOUT_MS = 30_000
+
+/** Android skips the Expo sheet, whose return any app can claim (ADR 0017, SOON-177); the attempt exists from the tap, and a sign-out or deletion before the code is claimed wins over it. */
+async function signInThroughBrowser(fresh: boolean) {
+	const attempt = claimHandOff()
+
+	await sessionEndsSettled()
+
+	const epoch = authEpoch
+	const handOff = await handOffFromBrowser(attempt, fresh)
+
+	if (!handOff || epoch !== authEpoch || pendingSessionEnd)
+		return { error: null }
+
+	const { error } = await authClient.$fetch(HAND_OFF_EXCHANGE_PATH, {
+		method: 'POST',
+		body: handOff,
+		headers: { [MOBILE_APP_HEADER]: MOBILE_APP },
+		// React Native's Android networking never times out, and Cancel is gone once the code is claimed.
+		timeout: HAND_OFF_EXCHANGE_TIMEOUT_MS,
+	})
+
+	return { error }
 }
 
 /** Ends the session on the server when it can and on the phone always; a failed request leaves the server session until it expires. */
@@ -205,6 +241,7 @@ async function endSessionWith<T>(end: () => Promise<T>): Promise<T> {
 	}
 
 	authEpoch++
+	cancelHandOff()
 
 	const ending = end()
 	const settled: Promise<void> = ending.then(noop, noop).finally(() => {

@@ -1,6 +1,6 @@
 import { DUE_DATE_SHORTCUT_CHOICES } from '@soonlane/app/tasks/helpers/due-date-choice.constants'
 import type { CalendarDate, DueDateShortcut } from '@soonlane/domain'
-import { ActionSheetIOS } from 'react-native'
+import { showActionSheet } from '@/modules/shell/presentation/action-sheet.client'
 
 type DueDateChoice =
 	| (typeof DUE_DATE_SHORTCUT_CHOICES)[keyof typeof DUE_DATE_SHORTCUT_CHOICES]
@@ -14,7 +14,7 @@ interface DueDateSheetOptions {
 	onChange: (date: CalendarDate | undefined, choice: DueDateChoice) => void
 }
 
-/** The web's quick dates as an iOS action sheet, each with its weekday hint as in the web's aria-labels ("Tomorrow, Sat"). */
+/** The web's quick dates as an action sheet, each with its weekday hint as in the web's aria-labels ("Tomorrow, Sat"). */
 export function showDueDateSheet({
 	shortcuts,
 	hasNoDate,
@@ -27,20 +27,12 @@ export function showDueDateSheet({
 		'Cancel',
 	]
 
-	ActionSheetIOS.showActionSheetWithOptions(
-		{
-			title: 'Date',
-			options,
-			cancelButtonIndex: options.length - 1,
-			userInterfaceStyle: 'dark',
-		},
-		index => {
-			const shortcut = shortcuts[index]
+	showActionSheet({ title: 'Date', options }, index => {
+		const shortcut = shortcuts[index]
 
-			if (shortcut)
-				onChange(shortcut.date, DUE_DATE_SHORTCUT_CHOICES[shortcut.id])
-			else if (hasNoDate && index === shortcuts.length)
-				onChange(undefined, 'no_date')
-		}
-	)
+		if (shortcut)
+			onChange(shortcut.date, DUE_DATE_SHORTCUT_CHOICES[shortcut.id])
+		else if (hasNoDate && index === shortcuts.length)
+			onChange(undefined, 'no_date')
+	})
 }

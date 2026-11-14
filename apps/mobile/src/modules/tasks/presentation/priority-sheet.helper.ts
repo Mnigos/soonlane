@@ -1,8 +1,8 @@
 import { getHostPorts } from '@soonlane/app/host-ports'
 import { TASK_PRIORITIES, type TaskPriority } from '@soonlane/domain'
-import { ActionSheetIOS } from 'react-native'
+import { showActionSheet } from '@/modules/shell/presentation/action-sheet.client'
 
-/** The web's Priority menu as an iOS action sheet; picking another priority is captured as on the web's chip. */
+/** The web's Priority menu as an action sheet; picking another priority is captured as on the web's chip. */
 export function showPrioritySheet(
 	current: TaskPriority,
 	onChange: (priority: TaskPriority) => void
@@ -12,20 +12,12 @@ export function showPrioritySheet(
 		'Cancel',
 	]
 
-	ActionSheetIOS.showActionSheetWithOptions(
-		{
-			title: 'Priority',
-			options,
-			cancelButtonIndex: options.length - 1,
-			userInterfaceStyle: 'dark',
-		},
-		index => {
-			const picked = TASK_PRIORITIES[index]
-			if (!picked) return
+	showActionSheet({ title: 'Priority', options }, index => {
+		const picked = TASK_PRIORITIES[index]
+		if (!picked) return
 
-			if (picked !== current)
-				getHostPorts().capture('priority_set', { priority: picked })
-			onChange(picked)
-		}
-	)
+		if (picked !== current)
+			getHostPorts().capture('priority_set', { priority: picked })
+		onChange(picked)
+	})
 }

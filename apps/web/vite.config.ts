@@ -73,6 +73,8 @@ const SERVER_RENDERED_PATHS = [
 	'/app',
 	'/login',
 	'/desktop',
+	'/android',
+	'/.well-known',
 	'/api',
 	'/calendar',
 	'/robots.txt',
@@ -146,8 +148,12 @@ export default defineConfig(({ command }) => ({
 			preset: 'bun',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
-			// Nitro adds the immutable header for /assets/; a 4xx or 5xx gets errorCacheMiddleware's header instead.
-			routeRules: { '/**': { headers: { 'cache-control': 'no-cache' } } },
+			// Nitro adds the immutable header for /assets/; a 4xx or 5xx gets errorCacheMiddleware's header instead. The sign-in hand-off pages carry a challenge or a code; handOffPathMiddleware refuses the letter cases these rules miss.
+			routeRules: {
+				'/**': { headers: { 'cache-control': 'no-cache' } },
+				'/desktop/**': { headers: { 'cache-control': 'no-store' } },
+				'/android/**': { headers: { 'cache-control': 'no-store' } },
+			},
 		}),
 		react(),
 	],

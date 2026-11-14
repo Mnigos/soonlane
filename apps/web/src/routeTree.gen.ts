@@ -15,6 +15,7 @@ import { Route as modulesHostingPresentationRoutesHealthDotrouteRouteImport } fr
 import { Route as modulesSitePresentationRoutesRobotsDotrouteRouteImport } from './modules/site/presentation/routes/robots.route'
 import { Route as modulesSitePresentationRoutesSitemapDotrouteRouteImport } from './modules/site/presentation/routes/sitemap.route'
 import { Route as modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport } from './modules/shell/presentation/routes/legacy-today.route'
+import { Route as modulesHostingPresentationRoutesAssetLinksDotrouteRouteImport } from './modules/hosting/presentation/routes/asset-links.route'
 import { Route as modulesShellPresentationRoutesShellDotrouteRouteImport } from './modules/shell/presentation/routes/shell.route'
 import { Route as modulesIdentityPresentationRoutesLoginDotrouteRouteImport } from './modules/identity/presentation/routes/login.route'
 import { Route as modulesSitePresentationRoutesHomeDotrouteRouteImport } from './modules/site/presentation/routes/home.route'
@@ -22,8 +23,10 @@ import { Route as modulesBlogPresentationRoutesBlogDotrouteRouteImport } from '.
 import { Route as modulesChangelogPresentationRoutesChangelogDotrouteRouteImport } from './modules/changelog/presentation/routes/changelog.route'
 import { Route as modulesSitePresentationRoutesPrivacyDotrouteRouteImport } from './modules/site/presentation/routes/privacy.route'
 import { Route as modulesSitePresentationRoutesTermsDotrouteRouteImport } from './modules/site/presentation/routes/terms.route'
+import { Route as modulesIdentityPresentationRoutesAndroidCallbackDotrouteRouteImport } from './modules/identity/presentation/routes/android-callback.route'
 import { Route as modulesBlogPresentationRoutesRssDotrouteRouteImport } from './modules/blog/presentation/routes/rss.route'
 import { Route as modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport } from './modules/analytics/presentation/routes/ingest.$.route'
+import { Route as modulesIdentityPresentationRoutesAndroidSignInDotrouteRouteImport } from './modules/identity/presentation/routes/android-sign-in.route'
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesCompletedDotrouteRouteImport } from './modules/tasks/presentation/routes/completed.route'
 import { Route as modulesTasksPresentationRoutesInboxDotrouteRouteImport } from './modules/tasks/presentation/routes/inbox.route'
@@ -71,6 +74,12 @@ const modulesShellPresentationRoutesLegacyTodayDotrouteRoute =
     path: '/today',
     getParentRoute: () => rootRouteImport,
   } as any)
+const modulesHostingPresentationRoutesAssetLinksDotrouteRoute =
+  modulesHostingPresentationRoutesAssetLinksDotrouteRouteImport.update({
+    id: '/.well-known/assetlinks.json',
+    path: '/.well-known/assetlinks.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesShellPresentationRoutesShellDotrouteRoute =
   modulesShellPresentationRoutesShellDotrouteRouteImport.update({
     id: '/app',
@@ -113,6 +122,12 @@ const modulesSitePresentationRoutesTermsDotrouteRoute =
     path: '/terms',
     getParentRoute: () => modulesSitePresentationRoutesSiteDotrouteRoute,
   } as any)
+const modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute =
+  modulesIdentityPresentationRoutesAndroidCallbackDotrouteRouteImport.update({
+    id: '/android/callback',
+    path: '/android/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const modulesBlogPresentationRoutesRssDotrouteRoute =
   modulesBlogPresentationRoutesRssDotrouteRouteImport.update({
     id: '/blog/rss.xml',
@@ -124,6 +139,12 @@ const modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute =
     id: '/ingest/$',
     path: '/ingest/$',
     getParentRoute: () => rootRouteImport,
+  } as any)
+const modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute =
+  modulesIdentityPresentationRoutesAndroidSignInDotrouteRouteImport.update({
+    id: '/android/sign-in',
+    path: '/android/sign-in',
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
 const modulesTasksPresentationRoutesUpcomingDotrouteRoute =
   modulesTasksPresentationRoutesUpcomingDotrouteRouteImport.update({
@@ -204,15 +225,18 @@ export interface FileRoutesByFullPath {
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  '/.well-known/assetlinks.json': typeof modulesHostingPresentationRoutesAssetLinksDotrouteRoute
   '/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/android/callback': typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/android/sign-in': typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   '/app/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   '/app/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
@@ -231,14 +255,17 @@ export interface FileRoutesByTo {
   '/robots.txt': typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  '/.well-known/assetlinks.json': typeof modulesHostingPresentationRoutesAssetLinksDotrouteRoute
   '/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/android/callback': typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/app': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/android/sign-in': typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   '/app/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   '/app/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
   '/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
@@ -260,15 +287,18 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   '/today': typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
   '/_site/': typeof modulesSitePresentationRoutesHomeDotrouteRoute
+  '/.well-known/assetlinks.json': typeof modulesHostingPresentationRoutesAssetLinksDotrouteRoute
   '/_session/app': typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   '/_session/login': typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   '/_site/blog': typeof modulesBlogPresentationRoutesBlogDotrouteRoute
   '/_site/changelog': typeof modulesChangelogPresentationRoutesChangelogDotrouteRoute
   '/_site/privacy': typeof modulesSitePresentationRoutesPrivacyDotrouteRoute
   '/_site/terms': typeof modulesSitePresentationRoutesTermsDotrouteRoute
+  '/android/callback': typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute
   '/blog/rss.xml': typeof modulesBlogPresentationRoutesRssDotrouteRoute
   '/ingest/$': typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
   '/_session/app/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
+  '/_session/android/sign-in': typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   '/_session/app/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   '/_session/app/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
   '/_session/app/quick-add': typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
@@ -289,15 +319,18 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/today'
+    | '/.well-known/assetlinks.json'
     | '/app'
     | '/login'
     | '/blog'
     | '/changelog'
     | '/privacy'
     | '/terms'
+    | '/android/callback'
     | '/blog/rss.xml'
     | '/ingest/$'
     | '/app/'
+    | '/android/sign-in'
     | '/app/completed'
     | '/app/inbox'
     | '/app/quick-add'
@@ -316,14 +349,17 @@ export interface FileRouteTypes {
     | '/robots.txt'
     | '/sitemap.xml'
     | '/today'
+    | '/.well-known/assetlinks.json'
     | '/login'
     | '/blog'
     | '/changelog'
     | '/privacy'
     | '/terms'
+    | '/android/callback'
     | '/blog/rss.xml'
     | '/ingest/$'
     | '/app'
+    | '/android/sign-in'
     | '/app/completed'
     | '/app/inbox'
     | '/app/quick-add'
@@ -344,15 +380,18 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/today'
     | '/_site/'
+    | '/.well-known/assetlinks.json'
     | '/_session/app'
     | '/_session/login'
     | '/_site/blog'
     | '/_site/changelog'
     | '/_site/privacy'
     | '/_site/terms'
+    | '/android/callback'
     | '/blog/rss.xml'
     | '/ingest/$'
     | '/_session/app/'
+    | '/_session/android/sign-in'
     | '/_session/app/completed'
     | '/_session/app/inbox'
     | '/_session/app/quick-add'
@@ -373,6 +412,8 @@ export interface RootRouteChildren {
   modulesSitePresentationRoutesRobotsDotrouteRoute: typeof modulesSitePresentationRoutesRobotsDotrouteRoute
   modulesSitePresentationRoutesSitemapDotrouteRoute: typeof modulesSitePresentationRoutesSitemapDotrouteRoute
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRoute
+  modulesHostingPresentationRoutesAssetLinksDotrouteRoute: typeof modulesHostingPresentationRoutesAssetLinksDotrouteRoute
+  modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute
   modulesBlogPresentationRoutesRssDotrouteRoute: typeof modulesBlogPresentationRoutesRssDotrouteRoute
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute
 }
@@ -419,6 +460,13 @@ declare module '@tanstack/react-router' {
       path: '/today'
       fullPath: '/today'
       preLoaderRoute: typeof modulesShellPresentationRoutesLegacyTodayDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/assetlinks.json': {
+      id: '/.well-known/assetlinks.json'
+      path: '/.well-known/assetlinks.json'
+      fullPath: '/.well-known/assetlinks.json'
+      preLoaderRoute: typeof modulesHostingPresentationRoutesAssetLinksDotrouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_session/app': {
@@ -470,6 +518,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesSitePresentationRoutesTermsDotrouteRouteImport
       parentRoute: typeof modulesSitePresentationRoutesSiteDotrouteRoute
     }
+    '/android/callback': {
+      id: '/android/callback'
+      path: '/android/callback'
+      fullPath: '/android/callback'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/blog/rss.xml': {
       id: '/blog/rss.xml'
       path: '/blog/rss.xml'
@@ -483,6 +538,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/ingest/$'
       preLoaderRoute: typeof modulesAnalyticsPresentationRoutesIngestDotDotrouteRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_session/android/sign-in': {
+      id: '/_session/android/sign-in'
+      path: '/android/sign-in'
+      fullPath: '/android/sign-in'
+      preLoaderRoute: typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
     '/_session/app/': {
       id: '/_session/app/'
@@ -610,6 +672,7 @@ const modulesShellPresentationRoutesShellDotrouteRouteWithChildren =
 interface modulesIdentityPresentationRoutesSessionDotrouteRouteChildren {
   modulesShellPresentationRoutesShellDotrouteRoute: typeof modulesShellPresentationRoutesShellDotrouteRouteWithChildren
   modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
+  modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   modulesTasksPresentationRoutesQuickAddDotrouteRoute: typeof modulesTasksPresentationRoutesQuickAddDotrouteRoute
   modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute
   modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
@@ -621,6 +684,8 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteChildren: modulesIden
       modulesShellPresentationRoutesShellDotrouteRouteWithChildren,
     modulesIdentityPresentationRoutesLoginDotrouteRoute:
       modulesIdentityPresentationRoutesLoginDotrouteRoute,
+    modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute:
+      modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute,
     modulesTasksPresentationRoutesQuickAddDotrouteRoute:
       modulesTasksPresentationRoutesQuickAddDotrouteRoute,
     modulesIdentityPresentationRoutesDesktopCallbackDotrouteRoute:
@@ -677,6 +742,10 @@ const rootRouteChildren: RootRouteChildren = {
     modulesSitePresentationRoutesSitemapDotrouteRoute,
   modulesShellPresentationRoutesLegacyTodayDotrouteRoute:
     modulesShellPresentationRoutesLegacyTodayDotrouteRoute,
+  modulesHostingPresentationRoutesAssetLinksDotrouteRoute:
+    modulesHostingPresentationRoutesAssetLinksDotrouteRoute,
+  modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute:
+    modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute,
   modulesBlogPresentationRoutesRssDotrouteRoute:
     modulesBlogPresentationRoutesRssDotrouteRoute,
   modulesAnalyticsPresentationRoutesIngestDotDotrouteRoute:

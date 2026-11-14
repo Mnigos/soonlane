@@ -6,7 +6,8 @@ import {
 	type RepeatRule,
 } from '@soonlane/domain'
 import { useState } from 'react'
-import { ActionSheetIOS, StyleSheet, Text } from 'react-native'
+import { StyleSheet, Text } from 'react-native'
+import { showActionSheet } from '@/modules/shell/presentation/action-sheet.client'
 import { COLORS, TEXT } from '@/tokens.gen'
 import { DetailRow } from './detail-row'
 import { RepeatCustomForm } from './repeat-custom-form'
@@ -41,21 +42,13 @@ export function RepeatMenu({
 			'Cancel',
 		]
 
-		ActionSheetIOS.showActionSheetWithOptions(
-			{
-				title: 'Repeat',
-				options,
-				cancelButtonIndex: options.length - 1,
-				userInterfaceStyle: 'dark',
-			},
-			index => {
-				const unit = PRESET_REPEAT_UNITS[index]
+		showActionSheet({ title: 'Repeat', options }, index => {
+			const unit = PRESET_REPEAT_UNITS[index]
 
-				if (unit) onChange({ unit, interval: 1 })
-				else if (index === presets.length) setIsCustom(true)
-				else if (value && index === presets.length + 1) onChange(undefined)
-			}
-		)
+			if (unit) onChange({ unit, interval: 1 })
+			else if (index === presets.length) setIsCustom(true)
+			else if (value && index === presets.length + 1) onChange(undefined)
+		})
 	}
 
 	return (

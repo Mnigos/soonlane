@@ -2,6 +2,7 @@ import { CODE_VERIFIER_PARAM, SIGN_IN_CODE_PARAM } from '@soonlane/auth'
 import { exchangeDesktopSignInCode } from '@soonlane/auth/client'
 import { createFileRoute, redirect } from '@tanstack/react-router'
 import { DesktopCallbackScreen } from '../components/desktop-callback-screen'
+import { HAND_OFF_PAGE_HEADERS } from '../hand-off.constants'
 
 export const Route = createFileRoute('/_session/desktop/callback')({
 	// The desktop app puts the code and its verifier in the fragment, which only the browser can read.
@@ -28,6 +29,7 @@ export const Route = createFileRoute('/_session/desktop/callback')({
 		context.queryClient.clear()
 		throw redirect({ to: '/app', replace: true })
 	},
+	headers: () => HAND_OFF_PAGE_HEADERS,
 	head: () => ({ meta: [{ title: 'Signing in · Soonlane' }] }),
 	pendingMs: 0,
 	pendingComponent: () => <DesktopCallbackScreen failed={false} />,

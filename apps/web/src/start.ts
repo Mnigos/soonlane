@@ -2,6 +2,7 @@ import { createCsrfMiddleware, createStart } from '@tanstack/react-start'
 import { compressionMiddleware } from './modules/hosting/presentation/compression.middleware'
 import { errorCacheMiddleware } from './modules/hosting/presentation/error-cache.middleware'
 import { prerenderedPagesMiddleware } from './modules/hosting/presentation/prerendered-pages.middleware'
+import { handOffPathMiddleware } from './modules/identity/presentation/hand-off-path.middleware'
 
 /**
  * Start adds this check to server function calls only while no start instance
@@ -25,6 +26,7 @@ export const startInstance = createStart(() => ({
 	requestMiddleware: [
 		csrfMiddleware,
 		errorCacheMiddleware,
+		handOffPathMiddleware,
 		compressionMiddleware,
 		prerenderedPagesMiddleware,
 	],

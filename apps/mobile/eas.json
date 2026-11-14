@@ -10,7 +10,11 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://api.staging.soonlane.com",
         "EXPO_PUBLIC_AUTH_COOKIE_PREFIX": "soonlane-staging",
-        "EXPO_PUBLIC_APP_ENV": "development"
+        "EXPO_PUBLIC_APP_ENV": "development",
+        "EXPO_PUBLIC_WEB_URL": "https://staging.soonlane.com"
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "development-simulator": {
@@ -22,7 +26,11 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://api.staging.soonlane.com",
         "EXPO_PUBLIC_AUTH_COOKIE_PREFIX": "soonlane-staging",
-        "EXPO_PUBLIC_APP_ENV": "staging"
+        "EXPO_PUBLIC_APP_ENV": "staging",
+        "EXPO_PUBLIC_WEB_URL": "https://staging.soonlane.com"
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "production": {
@@ -31,7 +39,11 @@
       "env": {
         "EXPO_PUBLIC_API_URL": "https://api.soonlane.com",
         "EXPO_PUBLIC_AUTH_COOKIE_PREFIX": "soonlane",
-        "EXPO_PUBLIC_APP_ENV": "production"
+        "EXPO_PUBLIC_APP_ENV": "production",
+        "EXPO_PUBLIC_WEB_URL": "https://soonlane.com"
+      },
+      "android": {
+        "buildType": "app-bundle"
       }
     }
   },

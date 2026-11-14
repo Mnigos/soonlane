@@ -8,6 +8,7 @@ Disallow: /api/
 Disallow: /calendar/
 Disallow: /login
 Disallow: /desktop/
+Disallow: /android/
 
 Sitemap: ${SITE_URL}/sitemap.xml
 `

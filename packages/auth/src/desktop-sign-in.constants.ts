@@ -14,6 +14,8 @@ export const CODE_VERIFIER_PARAM = 'verifier'
 
 /** 32 bytes in base64url: a challenge from `toCodeChallenge`, and a verifier from `createCodeVerifier`. */
 export const CODE_CHALLENGE_PATTERN = /^[\w-]{43}$/u
+/** The one-time code `/desktop-sign-in/code` returns: 32 characters of Better Auth's `generateRandomString`. */
+export const SIGN_IN_CODE_PATTERN = /^[\w-]{32}$/u
 
 /**
  * The port the desktop app listens on for the sign-in code (RFC 8252). With it,

@@ -54,6 +54,8 @@ What the server sends:
 - Every other success, prerendered HTML included: `cache-control: no-cache`. Every error response: `no-store`.
 - Compression: the files Nitro lists at build time are stored gzip and brotli next to the originals; the server gzips the other text responses (prerendered pages, server-rendered pages, robots, the feeds) for clients that accept gzip.
 - `/health`: `{"ok":true,"environment":"<APP_ENV>","commit":"<short sha>"}`, without calling the API or the database.
+- `/desktop/*` and `/android/*`, the sign-in hand-off pages: `no-store` and `Referrer-Policy: no-referrer`; another letter case of those paths gets a 404.
+- `/.well-known/assetlinks.json`: status 200, `application/json;charset=utf-8`, no redirect. It lists the Android app `com.mnigos.soonlane` with every SHA-256 in `ANDROID_CERT_FINGERPRINTS` (comma-separated, `AB:CD:…` as Play Console and `keytool` print them), and is `[]` without them, so Android verifies no app on that host. Production lists the Play app signing key (Play Console, Test and release, App integrity) and the key EAS signs internal builds with (`eas credentials -p android`); staging lists the EAS key. Google's verifier sends no credentials, so the path must never sit behind Cloudflare Access or another login: staging's hosts are DNS only, which Access cannot cover, and a future Access application on either host needs a Bypass policy for `/.well-known/assetlinks.json`. Check a host with `curl -si https://soonlane.com/.well-known/assetlinks.json` and Google's `https://digitalassetlinks.googleapis.com/v1/statements:list?source.web.site=https://soonlane.com&relation=delegate_permission/common.handle_all_urls`.
 
 | Variable                  | Read at | Production                 | Staging                            | Local                   |
 | ------------------------- | ------- | -------------------------- | ---------------------------------- | ----------------------- |
@@ -64,6 +66,7 @@ What the server sends:
 | `API_INTERNAL_URL`        | run     | `http://api.railway.internal:8080` | `http://api.railway.internal:8080` | `http://localhost:4000` |
 | `API_PROXY_SECRET`        | run     | the `api` service's value  | the `api` service's value          | the local API's value   |
 | `PORT`                    | run     | set by the service         | set by the service                 | 3000                    |
+| `ANDROID_CERT_FINGERPRINTS` | run   | Play app signing key and EAS key, by hand | EAS key, by hand    | unset                   |
 
 `APP_ENV` names the analytics `environment`, and a `production` build leaves drafts and future posts out of the blog ([blog.md](blog.md)). A `production` or `staging` build fails when `VITE_API_URL` or `VITE_AUTH_COOKIE_PREFIX` is missing, naming it: without them the pages call no API and look signed out. Development falls back to `soonlane-dev`, which matches no deployed environment. The `VITE_*` values are public and baked into the bundle, so a change needs a new build. The commit comes from `RAILWAY_GIT_COMMIT_SHA` on GitHub deploys, else from `APP_COMMIT` in `apps/web/commit.env`, which the staging workflow writes like the API's, else `dev`.
 
