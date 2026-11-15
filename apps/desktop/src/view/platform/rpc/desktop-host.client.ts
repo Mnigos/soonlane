@@ -63,12 +63,22 @@ export const desktopHost = {
 		}
 	},
 	signOut: async () => await rpc.request.signOut(undefined),
-	onUpdateReady: (handler: () => void) => updateReadyHandlers.add(handler),
-	/** Downloads a newer version and restarts into it; resolves false when there is none or it failed. */
+	/** Runs the handler now when an update already waits, and again each time one does. */
+	onUpdateReady: (handler: () => void) => {
+		updateReadyHandlers.add(handler)
+		void rpc.request
+			.isUpdateReady(undefined)
+			.then(isReady => {
+				if (isReady) handler()
+			})
+			.catch(() => undefined)
+	},
+	/** Downloads a newer version and restarts into it; resolves false when there is none or either step failed. */
 	installUpdate: async () =>
 		await rpc.request.installUpdate(undefined, {
 			maxRequestTime: INSTALL_TIMEOUT_MS,
 		}),
+	/** Resolves false when the restart did not start. */
 	applyUpdate: async () => await rpc.request.applyUpdate(undefined),
 	sendToMain: (message: DesktopHostMessage) => {
 		rpc.send.pageMessage(message)
