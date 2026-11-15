@@ -6,6 +6,7 @@ import { DockBadge } from '../../dock-badge/application/dock-badge.port'
 import { readBadgeCount } from '../../dock-badge/domain/dock-badge-event.helper'
 import { PAGE_NAVIGATION_RULES } from '../../navigation/domain/navigation.helper'
 import { DesktopSession } from '../../sign-in/application/desktop-session.service'
+import { AppUpdates } from '../../updates/application/app-updates.port'
 
 /**
  * A window on the bundled page at an app path (`APP_PATHS`, served from the
@@ -21,6 +22,7 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 ) {
 	const session = yield* DesktopSession
 	const dockBadge = yield* DockBadge
+	const updates = yield* AppUpdates
 	const context = yield* Effect.context()
 	const pageMessages = yield* PubSub.unbounded<unknown>()
 	const receive = (message: unknown) => {
@@ -48,6 +50,12 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 					await Effect.runPromiseWith(context)(
 						session.signOut.pipe(Effect.as(undefined))
 					),
+				installUpdate: async () =>
+					await Effect.runPromiseWith(context)(updates.install),
+				applyUpdate: async () =>
+					await Effect.runPromiseWith(context)(
+						updates.apply.pipe(Effect.as(undefined))
+					),
 			},
 		},
 	})
@@ -69,6 +77,11 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 					: rpc.send.signInFailed(undefined)
 			)
 		),
+		Effect.forkScoped
+	)
+
+	yield* updates.ready.pipe(
+		Stream.runForEach(() => Effect.sync(() => rpc.send.updateReady(undefined))),
 		Effect.forkScoped
 	)
 

@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createHashHistory, createRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 import { RouteError } from './components/route-error'
+import { UPDATE_COPY } from './helpers/update-copy.constants'
 import { apiLink } from './platform/rpc/api-link.client'
 import { desktopHost } from './platform/rpc/desktop-host.client'
 import {
@@ -77,6 +78,16 @@ export const router = createRouter({
 })
 
 syncDockBadge(queryClient)
+desktopHost.onUpdateReady(() => {
+	toast(UPDATE_COPY.readyToast, {
+		id: 'update-ready',
+		duration: Number.POSITIVE_INFINITY,
+		action: {
+			label: UPDATE_COPY.readyAction,
+			onClick: () => void desktopHost.applyUpdate(),
+		},
+	})
+})
 // Back online, every view loads again without waiting for the next reconnect ping.
 window.addEventListener('online', () => void router.invalidate())
 
