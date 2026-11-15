@@ -50,12 +50,12 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 					await Effect.runPromiseWith(context)(
 						session.signOut.pipe(Effect.as(undefined))
 					),
+				isUpdateReady: async () =>
+					await Effect.runPromiseWith(context)(updates.isReady),
 				installUpdate: async () =>
 					await Effect.runPromiseWith(context)(updates.install),
 				applyUpdate: async () =>
-					await Effect.runPromiseWith(context)(
-						updates.apply.pipe(Effect.as(undefined))
-					),
+					await Effect.runPromiseWith(context)(updates.apply),
 			},
 		},
 	})

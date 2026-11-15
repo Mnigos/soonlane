@@ -15,10 +15,12 @@ export interface PageRpcSchema {
 			signIn: { params: undefined; response: undefined }
 			/** Revokes the desktop session and forgets the token. */
 			signOut: { params: undefined; response: undefined }
-			/** Downloads a newer version and restarts into it; false when there is none or it failed. */
+			/** Whether a downloaded update waits for a restart, for a page that loads after `updateReady`. */
+			isUpdateReady: { params: undefined; response: boolean }
+			/** Downloads a newer version and restarts into it; false when there is none or either step failed. */
 			installUpdate: { params: undefined; response: boolean }
-			/** Restarts into the update that `updateReady` announced. */
-			applyUpdate: { params: undefined; response: undefined }
+			/** Restarts into the update that `updateReady` announced; false when the restart did not start. */
+			applyUpdate: { params: undefined; response: boolean }
 		}
 		messages: {
 			/** Quick Add closing or growing, and the Dock badge count; the main process decodes each before acting on it. */
