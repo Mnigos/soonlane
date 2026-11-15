@@ -9,8 +9,8 @@ let tokenRead: Promise<string | null> | undefined
 let signInStatus: SignInStatus = 'idle'
 const listeners = new Set<() => void>()
 const updateReadyHandlers = new Set<() => void>()
-/** Downloading an update can take minutes on a slow connection. */
-const INSTALL_TIMEOUT_MS = 10 * 60 * 1000
+/** Installing or restarting waits for a download in flight, which can take minutes on a slow connection. */
+const UPDATE_TIMEOUT_MS = 10 * 60 * 1000
 /** How often a page asks whether an update waits before it gives up, and how long it waits in between. */
 const READY_READ_ATTEMPTS = 5
 const READY_READ_DELAY_MS = 3000
@@ -90,10 +90,13 @@ export const desktopHost = {
 	/** Downloads a newer version and restarts into it; resolves false when there is none or either step failed. */
 	installUpdate: async () =>
 		await rpc.request.installUpdate(undefined, {
-			maxRequestTime: INSTALL_TIMEOUT_MS,
+			maxRequestTime: UPDATE_TIMEOUT_MS,
 		}),
 	/** Resolves false when the restart did not start. */
-	applyUpdate: async () => await rpc.request.applyUpdate(undefined),
+	applyUpdate: async () =>
+		await rpc.request.applyUpdate(undefined, {
+			maxRequestTime: UPDATE_TIMEOUT_MS,
+		}),
 	sendToMain: (message: DesktopHostMessage) => {
 		rpc.send.pageMessage(message)
 	},

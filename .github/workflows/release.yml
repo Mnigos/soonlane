@@ -141,8 +141,12 @@ jobs:
       - name: Read the release's desktop state
         id: state
         run: |
-          ATTACHED="$(gh release view "$TAG" --json assets --jq '[.assets[].name] | any(. == "stable-macos-arm64-update-v2.json")')"
-          LATEST="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2>/dev/null)" || LATEST=""
+          ATTACHED="$(gh api "repos/$GITHUB_REPOSITORY/releases/tags/$TAG" --jq '[.assets[] | select(.name == "stable-macos-arm64-update-v2.json" and .state == "uploaded" and .size > 0)] | length > 0')"
+          # Only a 404 means there is no latest release; any other error stops the job rather than move latest back.
+          if ! LATEST="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2> "$RUNNER_TEMP/latest.err")"; then
+            if ! grep -q 'HTTP 404' "$RUNNER_TEMP/latest.err"; then cat "$RUNNER_TEMP/latest.err"; exit 1; fi
+            LATEST=""
+          fi
           PROMOTE="$(LATEST="$LATEST" bun --no-env-file -e 'const { TAG, LATEST } = process.env; console.log(!LATEST || Bun.semver.order(TAG.slice(1), LATEST.slice(1)) > 0)')"
           echo "$TAG: app attached $ATTACHED, latest release ${LATEST:-none}, mark latest $PROMOTE"
           echo "attached=$ATTACHED" >> "$GITHUB_OUTPUT"
@@ -204,12 +208,12 @@ jobs:
           ELECTROBUN_APPLEID: ${{ secrets.APPLE_ID }}
           ELECTROBUN_APPLEIDPASS: ${{ secrets.APPLE_APP_PASSWORD }}
       # The app's updater reads these from the latest release (electrobun.config.ts `release.baseUrl`).
-      # The manifests go last: once stable-macos-arm64-update-v2.json is there, every file it names is too.
+      # The v2 manifest goes last, on its own: once it is uploaded, every other file is too.
       - name: Attach the app and its update files to the release
         if: steps.state.outputs.attached != 'true'
         run: |
-          find apps/desktop/artifacts -maxdepth 1 -type f ! -name '*-update*.json' -print0 | xargs -0 gh release upload "$TAG" --clobber
-          gh release upload "$TAG" apps/desktop/artifacts/*-update*.json --clobber
+          find apps/desktop/artifacts -maxdepth 1 -type f ! -name stable-macos-arm64-update-v2.json -print0 | xargs -0 gh release upload "$TAG" --clobber
+          gh release upload "$TAG" apps/desktop/artifacts/stable-macos-arm64-update-v2.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.stable.outputs.tag }}
