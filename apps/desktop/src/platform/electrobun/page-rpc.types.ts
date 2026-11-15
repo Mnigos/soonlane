@@ -15,6 +15,10 @@ export interface PageRpcSchema {
 			signIn: { params: undefined; response: undefined }
 			/** Revokes the desktop session and forgets the token. */
 			signOut: { params: undefined; response: undefined }
+			/** Downloads a newer version and restarts into it; false when there is none or it failed. */
+			installUpdate: { params: undefined; response: boolean }
+			/** Restarts into the update that `updateReady` announced. */
+			applyUpdate: { params: undefined; response: undefined }
 		}
 		messages: {
 			/** Quick Add closing or growing, and the Dock badge count; the main process decodes each before acting on it. */
@@ -28,6 +32,8 @@ export interface PageRpcSchema {
 			tokenChanged: { token: string | null }
 			/** A sign-in ended without a token: the browser did not open, the wait ran out or the exchange failed. */
 			signInFailed: undefined
+			/** A downloaded update waits for a restart. */
+			updateReady: undefined
 		}
 	}>
 }

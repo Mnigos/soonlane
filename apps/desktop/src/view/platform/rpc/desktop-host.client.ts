@@ -8,6 +8,9 @@ export type SignInStatus = 'idle' | 'waiting' | 'failed'
 let tokenRead: Promise<string | null> | undefined
 let signInStatus: SignInStatus = 'idle'
 const listeners = new Set<() => void>()
+const updateReadyHandlers = new Set<() => void>()
+/** Downloading an update can take minutes on a slow connection. */
+const INSTALL_TIMEOUT_MS = 10 * 60 * 1000
 
 function setSignInStatus(next: SignInStatus) {
 	signInStatus = next
@@ -22,6 +25,9 @@ const rpc = Electroview.defineRPC<PageRpcSchema>({
 			// A fresh page per session: no cache, no pending mutation and no view of the previous user survives.
 			tokenChanged: () => location.reload(),
 			signInFailed: () => setSignInStatus('failed'),
+			updateReady: () => {
+				for (const handler of updateReadyHandlers) handler()
+			},
 		},
 	},
 })
@@ -57,6 +63,13 @@ export const desktopHost = {
 		}
 	},
 	signOut: async () => await rpc.request.signOut(undefined),
+	onUpdateReady: (handler: () => void) => updateReadyHandlers.add(handler),
+	/** Downloads a newer version and restarts into it; resolves false when there is none or it failed. */
+	installUpdate: async () =>
+		await rpc.request.installUpdate(undefined, {
+			maxRequestTime: INSTALL_TIMEOUT_MS,
+		}),
+	applyUpdate: async () => await rpc.request.applyUpdate(undefined),
 	sendToMain: (message: DesktopHostMessage) => {
 		rpc.send.pageMessage(message)
 	},

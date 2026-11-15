@@ -24,6 +24,10 @@ Ask an agent for a stable release; it runs the `release` skill locally (`--out <
 
 Nightly and stable share a concurrency group, so they never run at the same time. The merge commit goes through CI like any other push, and Railway deploys it to production with the new `/changelog` ([deploy-railway.md](deploy-railway.md#production)).
 
+## Desktop app
+
+After the stable job publishes `vX.Y.Z`, the `desktop` job builds the macOS app from that tag on a macOS runner, signs it with the Developer ID certificate, notarizes it and attaches the `.dmg`, the update archive, the channel's update manifest and the patches to the release. Installed apps check `releases/latest/download` (`release.baseUrl` in `apps/desktop/electrobun.config.ts`) at launch and every 6 hours, download a newer version in the background and offer a restart. The job runs only while the repository variable `DESKTOP_RELEASES` is `true`, and needs these secrets: `APPLE_CERTIFICATE_P12` (the Developer ID Application certificate with its private key, base64), `APPLE_CERTIFICATE_PASSWORD`, `APPLE_DEVELOPER_ID` (the identity, `Developer ID Application: <name> (<team id>)`), `APPLE_TEAM_ID`, `APPLE_ID` and `APPLE_APP_PASSWORD` (an app-specific password for notarization). Pull request builds (`desktop.yml`) stay unsigned. Nightlies ship no desktop build.
+
 ## Version in the app
 
 The build reads `version.json` and the commit: `RAILWAY_GIT_COMMIT_SHA` on Railway's GitHub deploys, `commit.env` on staging deploys, `dev` locally. `system.health` returns `{ version, commit }`, and the sidebar footer shows `vX.Y.Z · <short sha>` with a link to that version's section on `/changelog` (GitHub Releases for prerelease versions).

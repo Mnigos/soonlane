@@ -2,7 +2,9 @@ import type { ElectrobunConfig } from 'electrobun'
 import productVersion from '../../version.json' with { type: 'json' }
 import { APP_IDENTIFIER } from './src/platform/config/desktop.constants'
 
-const { APP_URL, API_URL } = process.env
+const { APP_URL, API_URL, ELECTROBUN_DEVELOPER_ID } = process.env
+/** Signed and notarized only where the release workflow provides Igor's Developer ID; pull request and local builds stay unsigned. */
+const isSigned = Boolean(ELECTROBUN_DEVELOPER_ID)
 
 export default {
 	app: {
@@ -27,7 +29,16 @@ export default {
 			// Compiled at launch by carbon-hot-key.helper.ts.
 			'src/platform/macos/carbon-hot-key.c': 'native/carbon-hot-key.c',
 		},
-		mac: { bundleCEF: false, defaultRenderer: 'native' },
+		mac: {
+			bundleCEF: false,
+			defaultRenderer: 'native',
+			codesign: isSigned,
+			notarize: isSigned,
+		},
+	},
+	// The updater reads the stable channel's manifest and patches from the latest GitHub Release's assets.
+	release: {
+		baseUrl: 'https://github.com/Mnigos/soonlane/releases/latest/download',
 	},
 	runtime: { exitOnLastWindowClosed: true },
 } satisfies ElectrobunConfig

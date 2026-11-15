@@ -8,6 +8,7 @@ import { NavigationEventsLive } from '../modules/navigation/infrastructure/navig
 import { QuickAddLive } from '../modules/quick-add/infrastructure/quick-add.layer'
 import { DesktopSessionLive } from '../modules/sign-in/application/desktop-session.service'
 import { KeychainTokenStoreLive } from '../modules/sign-in/infrastructure/keychain-token-store.layer'
+import { ElectrobunAppUpdatesLive } from '../modules/updates/infrastructure/electrobun-app-updates.layer'
 import { FileFrameStoreLive } from '../modules/window/infrastructure/file-frame-store.layer'
 import { MainWindowLive } from '../modules/window/infrastructure/main-window.layer'
 import { DesktopConfigLive } from './config/desktop.config'
@@ -22,6 +23,7 @@ export const AppLive = Layer.mergeAll(
 	Layer.provideMerge(MainWindowLive),
 	Layer.provide(FileFrameStoreLive),
 	Layer.provideMerge(AppKitDockBadgeLive),
+	Layer.provideMerge(ElectrobunAppUpdatesLive),
 	Layer.provideMerge(DesktopSessionLive),
 	Layer.provide(KeychainTokenStoreLive),
 	Layer.provideMerge(ElectrobunSystemBrowserLive),
