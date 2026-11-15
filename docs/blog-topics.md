@@ -11,7 +11,7 @@ Publishing a draft: set `draft: false` and `date` to the publish day, then open 
 | `todoist-free-plan-limits`                 | todoist free plan limits             | know what the free plan stops you from doing        | draft  |
 | `plan-your-week-with-an-upcoming-view`     | plan your week to do list            | plan a week in a day-by-day list                    | draft  |
 | `what-to-do-with-overdue-tasks`            | overdue tasks                        | clear a pile of overdue tasks without guilt         | published |
-| `repeating-tasks`                          | recurring tasks to do list           | set up tasks that repeat on a schedule              | draft  |
+| `repeating-tasks`                          | recurring tasks to do list           | set up tasks that repeat on a schedule              | published |
 | `tasks-in-apple-calendar-and-google-calendar` | to do list in google calendar     | see tasks next to events in their calendar app      | draft  |
 | `labels-instead-of-projects`               | to do list without projects          | organise tasks with labels instead of projects      | draft  |
 | `track-progress-on-a-task`                 | to do list with progress tracking    | count progress toward an amount, like 50 push-ups   | draft  |

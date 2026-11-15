@@ -1,8 +1,8 @@
 ---
 title: How to set up recurring tasks in your to-do list
 description: Set up recurring tasks in a to-do list (daily, weekdays, every few weeks, monthly) and learn what happens when you complete one early or late.
-date: '2026-11-12'
-draft: true
+date: '2026-11-15'
+draft: false
 ---
 
 Some tasks come back. Rent on the 1st, bins on Tuesday, a weekly review on Friday, watering the plants every few days. Writing them down again each time is busywork, and forgetting to write them down is how the rent ends up late.
@@ -15,7 +15,7 @@ A simple test: if you have added the same task three times, make it repeat.
 
 Good candidates have a fixed rhythm. Bills, rubbish collection, a weekly call, taking medication, backups, a monthly budget check. You know when the next one is due without thinking about it.
 
-Tasks with a loose rhythm work too, as long as you pick an interval. "Clean the fridge" does not need a day of the week. Every 3 weeks is close enough, and it is better than never.
+Tasks with a loose rhythm work too, as long as you pick an interval. "Clean the fridge" does not need a day of the week. Every 3 weeks is close enough, and it is better than never. You can even set it to count those 3 weeks from the day you finish, covered below.
 
 Do not repeat tasks that only look regular. If you go to the gym "about twice a week" on whatever days fit, a repeat rule will hand you a gym task on the wrong days. Plan those during your weekly planning instead.
 
@@ -56,6 +56,16 @@ Custom gives you "Every N days", "Every N weeks" or "Every N months", with N fro
 
 Because the menu reads the due date, set the date first. To repeat every month on the 15th, pick the 15th, then choose "Every month on the 15th".
 
+### Type it in the task name
+
+You can also set a repeat rule without opening the menu. While you add or edit a task, type a phrase that starts with "every" in the task name. Soonlane highlights the phrase and strips it when you save, so "Take out the bins every tue" saves as "Take out the bins".
+
+You can type plain units like "every day", "every weekday" or "every workday", "every week", "every month" and "every year". Intervals from 1 to 99 work too, such as "every 3 days", "every 2 weeks", "every 6 months" or "every other week". Phrases like "every 2 weekdays" and "every 2 years" are ignored, because those rules have no interval.
+
+You can also name a specific day: a weekday like "every fri" or "every monday", a day of the month like "every 15th", or a date like "every jan 27" for a yearly task. Naming a day also sets the due date to the next matching day, unless you type a separate date.
+
+If you want to keep the words in your task name, dismiss the highlight. The phrase then stays as plain text.
+
 Three edge cases are worth knowing. "Every weekday" on a Saturday or Sunday starts on the next Monday. A monthly task on the 31st lands on the last day of shorter months, like 30 April, and goes back to the 31st when the month has one. A yearly task on 29 February falls on 28 February in other years.
 
 Once a rule is set, the Repeat button shows it, and an X next to it clears it. In the list, a repeating task has a small repeat icon under its title.
@@ -64,7 +74,7 @@ Once a rule is set, the Repeat button shows it, and an X next to it clears it. I
 
 When you complete a repeating task, it does not leave your list. It moves to its next date and stays open. It keeps its title, description, priority, labels and due time. A toast says "Task completed" with an Undo button, and Undo puts the task back on the date it had before.
 
-The next date counts from the due date, not from the day you clicked. That matters in two cases.
+By default, the next date counts from the due date, not from the day you clicked. That matters in two cases.
 
 If you complete it early, that counts as this occurrence. A weekly review due Friday 13 November that you finish on Wednesday moves to Friday 20 November, not to Friday 13 November again.
 
@@ -77,6 +87,16 @@ If you complete it late, the schedule does not slide. Soonlane steps forward fro
 The last one is on purpose. If you missed three days of watering the plants, you do not owe three waterings. You owe today's.
 
 This means overdue repeating tasks never pile up as copies. There is only one task, with one date. [What to do with overdue tasks](/blog/what-to-do-with-overdue-tasks) covers clearing the rest of the Overdue section.
+
+### Repeat from the day you finish
+
+Sometimes the gap between two completions matters more than the calendar day. Cleaning the fridge, changing a water filter or getting a haircut all work this way. If you clean the fridge a week late, you want the next reminder 3 weeks from today, not 2 weeks from today.
+
+Type "every!" instead of "every" in the task name to count from the completion day. "Clean the fridge every! 3 weeks" completed on 20 November comes back on 11 December, whether it was due on the 14th or the 25th.
+
+"every!" works with plain units and numbers: "every! day", "every! week", "every! month", "every! 3 weeks" or "every! other week". It does not take a day name or a date, so "every! fri" is ignored. The day you finish the task decides the next weekday.
+
+Once saved, the Repeat button shows the rule as "Every 3 weeks after completion". The Repeat menu and Custom... form only set the default schedule, so you always type "every!" in the task name. Using Reschedule or changing the due date keeps the "every!" rule.
 
 ## Moving a repeating task
 
