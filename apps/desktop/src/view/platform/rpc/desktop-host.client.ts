@@ -11,6 +11,9 @@ const listeners = new Set<() => void>()
 const updateReadyHandlers = new Set<() => void>()
 /** Downloading an update can take minutes on a slow connection. */
 const INSTALL_TIMEOUT_MS = 10 * 60 * 1000
+/** How often a page asks whether an update waits before it gives up, and how long it waits in between. */
+const READY_READ_ATTEMPTS = 5
+const READY_READ_DELAY_MS = 3000
 
 function setSignInStatus(next: SignInStatus) {
 	signInStatus = next
@@ -31,6 +34,22 @@ const rpc = Electroview.defineRPC<PageRpcSchema>({
 		},
 	},
 })
+
+/** Runs the handler when an update waits; asks again after a failed read, since nothing else tells a reloaded page of an update that was already waiting. */
+function readUpdateReady(handler: () => void, attempt = 1) {
+	rpc.request
+		.isUpdateReady(undefined)
+		.then(isReady => {
+			if (isReady) handler()
+		})
+		.catch(() => {
+			if (attempt < READY_READ_ATTEMPTS)
+				setTimeout(
+					() => readUpdateReady(handler, attempt + 1),
+					READY_READ_DELAY_MS
+				)
+		})
+}
 
 // oxlint-disable-next-line no-new -- the constructor connects the RPC to the main process
 new Electroview({ rpc })
@@ -66,12 +85,7 @@ export const desktopHost = {
 	/** Runs the handler now when an update already waits, and again each time one does. */
 	onUpdateReady: (handler: () => void) => {
 		updateReadyHandlers.add(handler)
-		void rpc.request
-			.isUpdateReady(undefined)
-			.then(isReady => {
-				if (isReady) handler()
-			})
-			.catch(() => undefined)
+		readUpdateReady(handler)
 	},
 	/** Downloads a newer version and restarts into it; resolves false when there is none or either step failed. */
 	installUpdate: async () =>
