@@ -23,7 +23,7 @@ env:
 
 jobs:
   deploy:
-    name: Deploy the API, the web app and the site
+    name: Deploy the API, the web app and the landing
     runs-on: ubuntu-latest
     timeout-minutes: 40
     steps:
@@ -40,7 +40,7 @@ jobs:
         run: |
           echo "APP_COMMIT=$COMMIT" > apps/api/commit.env
           echo "APP_COMMIT=$COMMIT" > apps/web/commit.env
-          echo "APP_COMMIT=$COMMIT" > apps/site/commit.env
+          echo "APP_COMMIT=$COMMIT" > apps/landing/commit.env
         env:
           COMMIT: ${{ steps.commit.outputs.sha }}
       - name: Build, deploy and wait for the health checks
@@ -62,7 +62,7 @@ jobs:
             done
             return 1
           }
-          # The API goes first, so the app and the site never call an API older than themselves.
+          # The API goes first, so the app and the landing never call an API older than themselves.
           deploy api
           deploy web
-          deploy site
+          deploy landing

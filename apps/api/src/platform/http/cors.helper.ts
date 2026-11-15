@@ -136,7 +136,7 @@ export function withCors(
 	)
 }
 
-/** CORS for the PostHog proxy: the exact app and site origins, never with credentials; a beacon may still carry the shared cookies, which the proxy's header allowlist keeps from PostHog. */
+/** CORS for the PostHog proxy: the exact app and landing origins, never with credentials; a beacon may still carry the shared cookies, which the proxy's header allowlist keeps from PostHog. */
 export function withIngestCors(
 	context: Context.Context<never>,
 	ingestOrigins: readonly string[],

@@ -8,11 +8,11 @@ import { routes } from './src/routes'
 
 const { environment, define } = readBuildInfo(new URL('.', import.meta.url))
 
-/** Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, and without the site's origin the links to the public pages go nowhere, so only development may fall back. */
+/** Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, and without the landing's origin the links to the public pages go nowhere, so only development may fall back. */
 const REQUIRED_VARIABLES = [
 	'VITE_API_URL',
 	'VITE_AUTH_COOKIE_PREFIX',
-	'VITE_SITE_URL',
+	'VITE_LANDING_URL',
 ] as const
 
 for (const name of REQUIRED_VARIABLES)

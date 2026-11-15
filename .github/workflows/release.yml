@@ -202,7 +202,7 @@ jobs:
         env:
           APP_URL: https://app.soonlane.com
           API_URL: https://api.soonlane.com
-          SITE_URL: https://soonlane.com
+          LANDING_URL: https://soonlane.com
           ELECTROBUN_DEVELOPER_ID: ${{ secrets.APPLE_DEVELOPER_ID }}
           ELECTROBUN_TEAMID: ${{ secrets.APPLE_TEAM_ID }}
           ELECTROBUN_APPLEID: ${{ secrets.APPLE_ID }}

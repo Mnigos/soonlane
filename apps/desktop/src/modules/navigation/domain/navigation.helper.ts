@@ -8,7 +8,7 @@ export const PAGE_NAVIGATION_RULES = ['^*', `${DESKTOP_PAGE_ORIGIN}/*`]
 
 /**
  * A link the page cannot follow itself: web, mail and `webcal:` links go to the
- * system's handler, the web app and the public site included; anything else
+ * system's handler, the web app and the landing included; anything else
  * (`file:`, `javascript:`, `data:`, custom schemes) opens nowhere.
  */
 export function resolveExternalLink(href: string) {
