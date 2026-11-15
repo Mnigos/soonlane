@@ -18,7 +18,6 @@ export const APP_MENU = [
 	{
 		label: 'File',
 		submenu: [
-			// Electrobun's global monitor never sees ⌥Space while Soonlane is in front; this key equivalent does.
 			{
 				label: 'Quick Add',
 				action: QUICK_ADD_ACTION,
