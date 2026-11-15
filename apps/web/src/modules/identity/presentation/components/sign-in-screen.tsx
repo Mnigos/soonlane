@@ -1,6 +1,6 @@
 import type { GoogleSignInRedirects } from '@soonlane/auth/client'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
-import { SITE_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
+import { LANDING_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 import { SignInLayout } from './sign-in-layout'
 
@@ -42,11 +42,11 @@ export function SignInScreen({
 
 				<p className="text-caption text-muted-foreground">
 					By continuing you agree to the{' '}
-					<a className={LEGAL_LINK_CLASS} href={`${SITE_ORIGIN}/terms`}>
+					<a className={LEGAL_LINK_CLASS} href={`${LANDING_ORIGIN}/terms`}>
 						Terms
 					</a>{' '}
 					and the{' '}
-					<a className={LEGAL_LINK_CLASS} href={`${SITE_ORIGIN}/privacy`}>
+					<a className={LEGAL_LINK_CLASS} href={`${LANDING_ORIGIN}/privacy`}>
 						Privacy Policy
 					</a>
 					.

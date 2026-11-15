@@ -12,7 +12,7 @@ interface ConsentProviderProps extends PropsWithChildren {
 	isAnalyticsEnabled: boolean
 	/** The environment's cookie prefix, which names the consent cookie. */
 	cookiePrefix: string
-	/** Where the dialog links to the privacy policy: a path on the site, an absolute URL in the app. */
+	/** Where the dialog links to the privacy policy: a path on the landing, an absolute URL in the app. */
 	privacyPolicyUrl: string
 }
 

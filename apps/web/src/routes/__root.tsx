@@ -9,7 +9,7 @@ import {
 import type { PropsWithChildren } from 'react'
 import { LayoutError } from '@/components/route-error'
 import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/domain/analytics.constants'
-import { SITE_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
+import { LANDING_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
 import { AUTH_COOKIE_PREFIX } from '@/modules/identity/presentation/auth-cookie.constants'
 import type { RouterContext } from '../router'
 import appCss from '../styles.css?url'
@@ -37,7 +37,7 @@ function RootComponent() {
 			<ConsentProvider
 				cookiePrefix={AUTH_COOKIE_PREFIX}
 				isAnalyticsEnabled={IS_ANALYTICS_ENABLED}
-				privacyPolicyUrl={`${SITE_ORIGIN}/privacy`}
+				privacyPolicyUrl={`${LANDING_ORIGIN}/privacy`}
 			>
 				<Outlet />
 			</ConsentProvider>

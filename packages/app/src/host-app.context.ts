@@ -6,7 +6,7 @@ export interface HostApp {
 	renderUserMenu: (onShowShortcuts: () => void) => ReactNode
 	appVersion: string
 	appCommit: string
-	/** This build's release notes on the public site. */
+	/** This build's release notes on the landing. */
 	releaseNotesUrl: string
 	/** A link into the Todoist import with the caller's classes; absent when this host offers no import. */
 	renderTodoistImportLink?: (className: string) => ReactNode

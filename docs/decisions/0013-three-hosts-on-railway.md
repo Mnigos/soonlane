@@ -2,7 +2,7 @@
 
 **Status:** Proposed
 **Date:** 2026-11-11
-**Updated:** 2026-11-13
+**Updated:** 2026-11-15
 
 ## Context
 
@@ -115,6 +115,10 @@ The landing, blog, changelog and legal pages moved to `apps/site`, a static app 
 ## Update 2026-11-13 (SOON-129)
 
 The data moved from Neon to Railway Postgres on 2026-11-12 between 22:04 and 22:14 UTC, and the repository names Vercel or Neon only in these records, the privacy policy, the vendored `.agents/skills/impeccable` skill and drizzle-orm's optional peers in `bun.lock`; the move's runbook, `docs/neon-to-railway-move.md`, lives in git history at the parent of the commit that deleted it.
+
+## Update 2026-11-15 (landing rename)
+
+The static app and its Railway service are now called the landing: `apps/landing` (`@soonlane/landing`) and the service `landing`, at the same domains with the same pages and URLs. The API reads the landing's origin from `LANDING_URL` and the web build from `VITE_LANDING_URL`; `SITE_URL` and `VITE_SITE_URL` are gone. The SOON-128 update above keeps the names of its time. The commit scope `site` stays for changes to these pages, so the changelog's history keeps one scope. Steps: [The landing rename](../deploy-railway.md#the-landing-rename).
 
 ## Options considered
 

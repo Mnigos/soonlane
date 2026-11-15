@@ -13,14 +13,14 @@ export const partial = 'soonlane'
 const HOSTS = {
 	production: {
 		api: 'api.soonlane.com',
-		site: 'soonlane.com',
+		landing: 'soonlane.com',
 		app: 'app.soonlane.com',
 		cookiePrefix: 'soonlane',
 		cookieDomain: 'soonlane.com',
 	},
 	staging: {
 		api: 'api.staging.soonlane.com',
-		site: 'staging.soonlane.com',
+		landing: 'staging.soonlane.com',
 		app: 'app.staging.soonlane.com',
 		cookiePrefix: 'soonlane-staging',
 		cookieDomain: 'staging.soonlane.com',
@@ -45,9 +45,9 @@ const WEB_WATCH_PATTERNS = [
 	'/bun.lock',
 	'/bunfig.toml',
 ]
-/** What the site's image build reads; a release PR's `CHANGELOG.md` rebuilds `/changelog`. */
-const SITE_WATCH_PATTERNS = [
-	'/apps/site/**',
+/** What the landing's image build reads; a release PR's `CHANGELOG.md` rebuilds `/changelog`. */
+const LANDING_WATCH_PATTERNS = [
+	'/apps/landing/**',
 	'/packages/analytics/**',
 	'/packages/auth/**',
 	'/packages/domain/**',
@@ -120,7 +120,7 @@ export default defineRailway(ctx => {
 			APP_ENV: environment,
 			API_URL: `https://${hosts.api}`,
 			APP_URL: `https://${hosts.app}`,
-			SITE_URL: `https://${hosts.site}`,
+			LANDING_URL: `https://${hosts.landing}`,
 			TRUSTED_ORIGINS: `https://${hosts.app}`,
 			AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			AUTH_COOKIE_DOMAIN: hosts.cookieDomain,
@@ -157,10 +157,10 @@ export default defineRailway(ctx => {
 		env: {
 			PORT: String(PORT),
 			SERVER_SHUTDOWN_TIMEOUT: '15',
-			// Read at build time: the analytics environment, the browser's API and the site the app links to.
+			// Read at build time: the analytics environment, the browser's API and the landing the app links to.
 			APP_ENV: environment,
 			VITE_API_URL: `https://${hosts.api}`,
-			VITE_SITE_URL: `https://${hosts.site}`,
+			VITE_LANDING_URL: `https://${hosts.landing}`,
 			VITE_AUTH_COOKIE_PREFIX: hosts.cookiePrefix,
 			// Server rendering reaches the API inside the environment, over plain http.
 			API_INTERNAL_URL: `http://api.railway.internal:${PORT}`,
@@ -169,17 +169,17 @@ export default defineRailway(ctx => {
 		},
 	})
 
-	// Static files from `apps/site/Dockerfile`; the build reads only these two variables (`site-environment.constants.ts`).
-	const site = service('site', {
+	// Static files from `apps/landing/Dockerfile`; the build reads only these two variables (`landing-environment.constants.ts`).
+	const landing = service('landing', {
 		source: isProduction ? PRODUCTION_SOURCE : undefined,
 		build: {
 			builder: 'DOCKERFILE',
-			dockerfilePath: 'apps/site/Dockerfile',
-			watchPatterns: isProduction ? SITE_WATCH_PATTERNS : null,
+			dockerfilePath: 'apps/landing/Dockerfile',
+			watchPatterns: isProduction ? LANDING_WATCH_PATTERNS : null,
 		},
 		healthcheck: '/health',
 		regions: { [REGION]: 1 },
-		domains: [{ domain: hosts.site, port: PORT }],
+		domains: [{ domain: hosts.landing, port: PORT }],
 		env: {
 			PORT: String(PORT),
 			APP_ENV: environment,
@@ -188,6 +188,6 @@ export default defineRailway(ctx => {
 	})
 
 	return project('Soonlane', {
-		resources: database ? [database, api, web, site] : [api, web, site],
+		resources: database ? [database, api, web, landing] : [api, web, landing],
 	})
 })

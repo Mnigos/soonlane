@@ -12,7 +12,7 @@ const CONSENT_MAX_AGE_MS = {
 } satisfies Record<ConsentChoice, number>
 
 /**
- * Shared by every host under `CONSENT_COOKIE_DOMAINS`, so one answer covers the site and the app. Named with the
+ * Shared by every host under `CONSENT_COOKIE_DOMAINS`, so one answer covers the landing and the app. Named with the
  * environment's cookie prefix, because production's cookie for `soonlane.com` reaches staging hosts too.
  */
 export function getConsentCookie(cookiePrefix: string) {

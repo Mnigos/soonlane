@@ -2,14 +2,14 @@
 
 Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Inbox, Upcoming, Today and Labels; no projects, filters or reporting. See [PRODUCT.md](PRODUCT.md).
 
-Production: the app at https://app.soonlane.com, the site at https://soonlane.com
+Production: the app at https://app.soonlane.com, the landing at https://soonlane.com
 
 ## Monorepo
 
 | Directory                   | Purpose and main technology                                                                  |
 | --------------------------- | -------------------------------------------------------------------------------------------- |
 | `apps/web`                  | The web app: TanStack Start (React 19, Router, Query), oRPC v2, Tailwind 4, as a Bun server. |
-| `apps/site`                 | The public site: TanStack Start prerendered to static files, served by Caddy.                |
+| `apps/landing`              | The landing: TanStack Start prerendered to static files, served by Caddy.                    |
 | `apps/api`                  | API on Railway: a Bun server on Effect 4 ([docs/deploy-railway.md](docs/deploy-railway.md)). |
 | `apps/desktop`              | macOS app: an Electrobun window that loads the web app.                                      |
 | `packages/contracts`        | oRPC contract and Zod schemas shared by server and browser.                                  |
@@ -35,25 +35,25 @@ bun run db:migrate
 bun run dev
 ```
 
-The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expects it), the public site at http://localhost:3001 and the API at http://localhost:4000.
+The app runs at **http://localhost:3000** (the port is fixed; Google OAuth expects it), the landing at http://localhost:3001 and the API at http://localhost:4000.
 
 ## Scripts
 
 Run with `bun run <script>` from the root.
 
-| Script                | Purpose                                                                                                                                                  |
-| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `dev`                 | The app on port 3000, the public site on 3001 and the API on 4000.                                                                                       |
-| `build`               | Production build: the web server in `apps/web/.output` and the static site in `apps/site/dist/client`, each checked after the build, and the API bundle. |
-| `typecheck`           | TypeScript in every package.                                                                                                                             |
-| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                                                                                                                      |
-| `commit`              | Commitizen prompt for a conventional commit.                                                                                                             |
-| `db:generate`         | Drizzle migration from `packages/db/schema`.                                                                                                             |
-| `db:migrate`          | Apply migrations to the database in `apps/api/.env.local`.                                                                                               |
+| Script                | Purpose                                                                                                                                                        |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `dev`                 | The app on port 3000, the landing on 3001 and the API on 4000.                                                                                                 |
+| `build`               | Production build: the web server in `apps/web/.output` and the static landing in `apps/landing/dist/client`, each checked after the build, and the API bundle. |
+| `typecheck`           | TypeScript in every package.                                                                                                                                   |
+| `check` / `check:fix` | oxlint and oxfmt through Ultracite.                                                                                                                            |
+| `commit`              | Commitizen prompt for a conventional commit.                                                                                                                   |
+| `db:generate`         | Drizzle migration from `packages/db/schema`.                                                                                                                   |
+| `db:migrate`          | Apply migrations to the database in `apps/api/.env.local`.                                                                                                     |
 
 ## Desktop
 
-`apps/desktop` is an Electrobun app on its own bundled UI (ADR 0015): `bun run view` builds the page from `@soonlane/app` with Vite into `dist/view`, which the app serves as `views://app`. The build bakes in `APP_URL` (the web app, where the browser signs in), `API_URL` and `SITE_URL` (the public site, for the release notes). From `apps/desktop`: `bun run dev` builds the page and opens the app against the dev servers on ports 3000 and 4000, `APP_URL=https://app.soonlane.com API_URL=https://api.soonlane.com SITE_URL=https://soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without all three), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`). Sign-in returns to the app through a loopback port, so it works from any folder.
+`apps/desktop` is an Electrobun app on its own bundled UI (ADR 0015): `bun run view` builds the page from `@soonlane/app` with Vite into `dist/view`, which the app serves as `views://app`. The build bakes in `APP_URL` (the web app, where the browser signs in), `API_URL` and `LANDING_URL` (the landing, for the release notes). From `apps/desktop`: `bun run dev` builds the page and opens the app against the dev servers on ports 3000 and 4000, `APP_URL=https://app.soonlane.com API_URL=https://api.soonlane.com LANDING_URL=https://soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without all three), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`). Sign-in returns to the app through a loopback port, so it works from any folder.
 
 ## Commits
 
@@ -73,7 +73,7 @@ Posts are MDX files published by merging to `main`; see [docs/blog.md](docs/blog
 
 ## Deploy
 
-Railway: the site and the API run as two services in Amsterdam, production from `main` after CI, staging on demand. Details: [docs/deploy-railway.md](docs/deploy-railway.md).
+Railway: the landing and the API run as two services in Amsterdam, production from `main` after CI, staging on demand. Details: [docs/deploy-railway.md](docs/deploy-railway.md).
 
 ## License
 

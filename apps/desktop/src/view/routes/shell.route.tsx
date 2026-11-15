@@ -11,7 +11,8 @@ import {
 import { UserMenu } from '../modules/identity/components/user-menu'
 import { sessionRoute } from './session.route'
 
-const RELEASE_NOTES_URL = new URL('/changelog', import.meta.env.SITE_URL).href
+const RELEASE_NOTES_URL = new URL('/changelog', import.meta.env.LANDING_URL)
+	.href
 
 /** The sidebar and the views inside it, around every signed-in view but Quick Add. */
 export const shellRoute = createRoute({

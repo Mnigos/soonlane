@@ -5,10 +5,12 @@ import versionFile from '../../version.json' with { type: 'json' }
 import { electrobunViteAliases } from './.hutch/devkit/api/config/electrobun-vite'
 
 const SHORT_SHA_LENGTH = 7
-const { APP_URL, API_URL, SITE_URL } = process.env
+const { APP_URL, API_URL, LANDING_URL } = process.env
 
-if (!(APP_URL && API_URL && SITE_URL))
-	throw new Error('Set APP_URL, API_URL and SITE_URL to build the desktop page')
+if (!(APP_URL && API_URL && LANDING_URL))
+	throw new Error(
+		'Set APP_URL, API_URL and LANDING_URL to build the desktop page'
+	)
 
 const API_ORIGIN = new URL(API_URL).origin
 
@@ -33,7 +35,7 @@ export default defineConfig({
 	define: {
 		'import.meta.env.APP_URL': JSON.stringify(new URL(APP_URL).origin),
 		'import.meta.env.API_URL': JSON.stringify(API_ORIGIN),
-		'import.meta.env.SITE_URL': JSON.stringify(new URL(SITE_URL).origin),
+		'import.meta.env.LANDING_URL': JSON.stringify(new URL(LANDING_URL).origin),
 		'import.meta.env.APP_VERSION': JSON.stringify(versionFile.version),
 		'import.meta.env.APP_COMMIT': JSON.stringify(
 			(process.env.GITHUB_SHA ?? 'dev').slice(0, SHORT_SHA_LENGTH)

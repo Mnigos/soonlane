@@ -165,7 +165,7 @@ export const CONVENTION_RULES = {
 /** Workspaces that render React screens; `packages/app` also gets HOST_ONLY_IMPORTS. */
 const FRONTEND_WORKSPACES = [
 	'apps/web',
-	'apps/site',
+	'apps/landing',
 	'apps/mobile',
 	'packages/app',
 ] as const
@@ -198,7 +198,7 @@ const TASK_STATEMENT_FILES = [
 
 const ROLE_NAMED_SOURCES = [
 	'apps/web/src/**',
-	'apps/site/src/**',
+	'apps/landing/src/**',
 	'apps/api/src/**',
 	'apps/desktop/src/**',
 	'apps/mobile/src/**',
@@ -281,7 +281,7 @@ export const CONVENTION_OVERRIDES = [
 	{
 		files: [
 			'apps/web/src/modules/**',
-			'apps/site/src/modules/**',
+			'apps/landing/src/modules/**',
 			'apps/api/src/modules/**',
 			'packages/contracts/src/*.contract.ts',
 		],
@@ -311,7 +311,12 @@ export const CONVENTION_OVERRIDES = [
 		rules: { 'promise/prefer-await-to-then': 'error' },
 	},
 	{
-		files: ['apps/web/**', 'apps/site/**', 'apps/mobile/**', 'packages/app/**'],
+		files: [
+			'apps/web/**',
+			'apps/landing/**',
+			'apps/mobile/**',
+			'packages/app/**',
+		],
 		rules: { 'soonlane/no-api-only-import': 'error' },
 	},
 	{

@@ -1,4 +1,4 @@
-# Only apps/site builds with Docker; the context is the repo root.
+# Only apps/landing builds with Docker; the context is the repo root.
 .git
 **/node_modules
 **/dist
@@ -10,4 +10,4 @@
 **/.cache
 **/.env*
 !**/.env.example
-apps/site/public/og/blog
+apps/landing/public/og/blog

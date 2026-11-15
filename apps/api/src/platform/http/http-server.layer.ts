@@ -26,7 +26,7 @@ const IDLE_TIMEOUT_SECONDS = 60
  * Serves the API on `0.0.0.0:$PORT`. `/health` answers Railway's deploy check with the
  * environment and commit and never touches the database, so a database outage cannot block a deploy.
  * Auth and RPC answer CORS first (`withCors`), then resolve the client IP (`withClientIp`); the calendar feed needs neither.
- * `/ingest` forwards the app's and the site's PostHog requests (`withIngestCors`) and answers 404 without a PostHog key.
+ * `/ingest` forwards the app's and the landing's PostHog requests (`withIngestCors`) and answers 404 without a PostHog key.
  */
 export const HttpServerLive = Layer.effectDiscard(
 	Effect.gen(function* () {
@@ -35,7 +35,7 @@ export const HttpServerLive = Layer.effectDiscard(
 			environment,
 			commit,
 			appUrl,
-			siteUrl,
+			landingUrl,
 			trustedOrigins,
 			proxySecret,
 			posthogKey,
@@ -73,7 +73,7 @@ export const HttpServerLive = Layer.effectDiscard(
 			)
 		)
 		const handleIngest = posthogKey
-			? withIngestCors(services, [appUrl, siteUrl], proxyToPostHog)
+			? withIngestCors(services, [appUrl, landingUrl], proxyToPostHog)
 			: async () =>
 					new Response(null, {
 						status: 404,

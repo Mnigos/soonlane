@@ -141,8 +141,8 @@ export default defineConfig({
 			files: [
 				'apps/web/vite.config.ts',
 				'apps/desktop/vite.config.ts',
-				'apps/site/vite.config.ts',
-				'apps/site/content-collections.ts',
+				'apps/landing/vite.config.ts',
+				'apps/landing/content-collections.ts',
 				'packages/db/drizzle.config.ts',
 				'apps/desktop/electrobun.config.ts',
 				'apps/mobile/app/**',
@@ -184,7 +184,7 @@ export default defineConfig({
 			files: [
 				'scripts/**',
 				'apps/web/scripts/**',
-				'apps/site/scripts/**',
+				'apps/landing/scripts/**',
 				'packages/db/scripts/**',
 			],
 			rules: { 'no-console': 'off' },
@@ -192,7 +192,7 @@ export default defineConfig({
 		{
 			files: [
 				'apps/web/**',
-				'apps/site/**',
+				'apps/landing/**',
 				'apps/mobile/**',
 				'packages/app/**',
 			],
@@ -205,7 +205,7 @@ export default defineConfig({
 		{
 			files: [
 				'apps/web/**',
-				'apps/site/**',
+				'apps/landing/**',
 				'apps/api/src/**',
 				'apps/desktop/src/**',
 				'apps/mobile/src/**',

@@ -108,8 +108,8 @@
         "typescript": "catalog:",
       },
     },
-    "apps/site": {
-      "name": "@soonlane/site",
+    "apps/landing": {
+      "name": "@soonlane/landing",
       "dependencies": {
         "@content-collections/core": "0.15.3",
         "@content-collections/mdx": "0.2.2",
@@ -1173,7 +1173,7 @@
 
     "@soonlane/oxlint-plugin": ["@soonlane/oxlint-plugin@workspace:tooling/oxlint-plugin"],
 
-    "@soonlane/site": ["@soonlane/site@workspace:apps/site"],
+    "@soonlane/landing": ["@soonlane/landing@workspace:apps/landing"],
 
     "@soonlane/tailwind-config": ["@soonlane/tailwind-config@workspace:tooling/tailwind-config"],
 

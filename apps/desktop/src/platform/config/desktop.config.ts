@@ -12,7 +12,7 @@ const webOriginSchema = Schema.URLFromString.check(
 export class DesktopConfig extends Context.Service<
 	DesktopConfig,
 	{
-		/** The web app, where the browser signs in and where links to the public site and the Todoist import go. */
+		/** The web app, where the browser signs in and where links to the landing and the Todoist import go. */
 		readonly appUrl: URL
 		/** The API, which the main process calls to trade a sign-in code for a token and to revoke it. */
 		readonly apiUrl: URL
