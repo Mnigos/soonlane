@@ -137,7 +137,21 @@ jobs:
           bun-version-file: package.json
       - name: Install
         run: bun install --frozen-lockfile
+      # A rerun never replaces the files installed apps update from, and never makes an older release latest.
+      - name: Read the release's desktop state
+        id: state
+        run: |
+          ATTACHED="$(gh release view "$TAG" --json assets --jq '[.assets[].name] | any(. == "stable-macos-arm64-update-v2.json")')"
+          LATEST="$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" --jq .tag_name 2>/dev/null)" || LATEST=""
+          PROMOTE="$(LATEST="$LATEST" bun --no-env-file -e 'const { TAG, LATEST } = process.env; console.log(!LATEST || Bun.semver.order(TAG.slice(1), LATEST.slice(1)) > 0)')"
+          echo "$TAG: app attached $ATTACHED, latest release ${LATEST:-none}, mark latest $PROMOTE"
+          echo "attached=$ATTACHED" >> "$GITHUB_OUTPUT"
+          echo "promote=$PROMOTE" >> "$GITHUB_OUTPUT"
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ needs.stable.outputs.tag }}
       - name: Check the signing secrets
+        if: steps.state.outputs.attached != 'true'
         # electrobun.config.ts signs only when ELECTROBUN_DEVELOPER_ID is set, so a missing secret would publish an unsigned app.
         shell: bash
         run: |
@@ -152,6 +166,7 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
       - name: Pin the release version
+        if: steps.state.outputs.attached != 'true'
         # The tag is the promoted nightly's commit, from before the release PR bumped version.json; the app and its page read that file.
         run: |
           jq --arg version "${TAG#v}" '.version = $version' version.json > "$RUNNER_TEMP/version.json"
@@ -159,6 +174,7 @@ jobs:
         env:
           TAG: ${{ needs.stable.outputs.tag }}
       - name: Import the Developer ID certificate
+        if: steps.state.outputs.attached != 'true'
         run: |
           KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
           KEYCHAIN_PASSWORD="$(openssl rand -hex 24)"
@@ -176,6 +192,7 @@ jobs:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
       - name: Build, sign and notarize
+        if: steps.state.outputs.attached != 'true'
         run: bun run package
         working-directory: apps/desktop
         env:
@@ -187,12 +204,17 @@ jobs:
           ELECTROBUN_APPLEID: ${{ secrets.APPLE_ID }}
           ELECTROBUN_APPLEIDPASS: ${{ secrets.APPLE_APP_PASSWORD }}
       # The app's updater reads these from the latest release (electrobun.config.ts `release.baseUrl`).
+      # The manifests go last: once stable-macos-arm64-update-v2.json is there, every file it names is too.
       - name: Attach the app and its update files to the release
-        run: gh release upload "$TAG" apps/desktop/artifacts/* --clobber
+        if: steps.state.outputs.attached != 'true'
+        run: |
+          find apps/desktop/artifacts -maxdepth 1 -type f ! -name '*-update*.json' -print0 | xargs -0 gh release upload "$TAG" --clobber
+          gh release upload "$TAG" apps/desktop/artifacts/*-update*.json --clobber
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ needs.stable.outputs.tag }}
       - name: Mark the release as latest
+        if: steps.state.outputs.promote == 'true'
         run: gh release edit "$TAG" --latest
         env:
           GH_TOKEN: ${{ github.token }}
