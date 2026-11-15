@@ -9,8 +9,12 @@ let tokenRead: Promise<string | null> | undefined
 let signInStatus: SignInStatus = 'idle'
 const listeners = new Set<() => void>()
 const updateReadyHandlers = new Set<() => void>()
-/** Installing or restarting waits for a download in flight, which can take minutes on a slow connection. */
-const UPDATE_TIMEOUT_MS = 10 * 60 * 1000
+/**
+ * Installing or restarting waits for a download in flight, however long it
+ * takes: a timeout would show a failure while the main process still restarts
+ * afterwards, since Electrobun's timeout does not cancel the handler.
+ */
+const UPDATE_TIMEOUT_MS = Number.POSITIVE_INFINITY
 /** How often a page asks whether an update waits before it gives up, and how long it waits in between. */
 const READY_READ_ATTEMPTS = 5
 const READY_READ_DELAY_MS = 3000
