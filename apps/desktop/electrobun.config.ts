@@ -16,10 +16,11 @@ export default {
 		mainProcess: 'bun',
 		bun: {
 			entrypoint: 'src/main.ts',
-			// Bakes the build's APP_URL and API_URL into the app; DesktopConfig validates them at launch.
+			// Bakes the build's APP_URL, API_URL and whether it updates itself into the app; DesktopConfig validates them at launch.
 			define: {
 				...(APP_URL && { 'process.env.APP_URL': JSON.stringify(APP_URL) }),
 				...(API_URL && { 'process.env.API_URL': JSON.stringify(API_URL) }),
+				'process.env.DESKTOP_UPDATES': JSON.stringify(String(isSigned)),
 			},
 		},
 		// The page Vite builds into dist/view (`bun run view`), served as views://app.

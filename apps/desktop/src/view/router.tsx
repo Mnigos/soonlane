@@ -72,6 +72,16 @@ export const router = createRouter({
 	),
 })
 
+/** Restarts into the downloaded update, or says so when the app keeps running. */
+async function applyUpdate() {
+	const hasStarted = await desktopHost.applyUpdate().catch(() => false)
+
+	if (!hasStarted)
+		toast.error(UPDATE_COPY.applyFailedToast, {
+			description: UPDATE_COPY.applyFailedDescription,
+		})
+}
+
 syncDockBadge(queryClient)
 desktopHost.onUpdateReady(() => {
 	toast(UPDATE_COPY.readyToast, {
@@ -79,7 +89,7 @@ desktopHost.onUpdateReady(() => {
 		duration: Number.POSITIVE_INFINITY,
 		action: {
 			label: UPDATE_COPY.readyAction,
-			onClick: () => void desktopHost.applyUpdate(),
+			onClick: () => void applyUpdate(),
 		},
 	})
 })
