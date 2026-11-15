@@ -43,10 +43,13 @@ function fitSuggestions(window: BrowserWindow, isOpen: boolean) {
 const shortcutPresses = Stream.callback<undefined>(queue =>
 	Effect.gen(function* () {
 		const unregister = yield* Effect.acquireRelease(
-			Effect.sync(() =>
+			Effect.try(() =>
 				registerHotKey(SPACE_KEY_CODE, HOT_KEY_MODIFIERS.option, () => {
 					Queue.offerUnsafe(queue, undefined)
 				})
+			).pipe(
+				Effect.tapError(error => Effect.logWarning(error)),
+				Effect.orElseSucceed(() => undefined)
 			),
 			release => Effect.sync(() => release?.())
 		)
