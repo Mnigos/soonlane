@@ -26,6 +26,8 @@ export default {
 		copy: {
 			'dist/view/index.html': 'views/app/index.html',
 			'dist/view/assets': 'views/app/assets',
+			// Compiled at launch by carbon-hot-key.helper.ts.
+			'src/platform/macos/carbon-hot-key.c': 'native/carbon-hot-key.c',
 		},
 		mac: {
 			bundleCEF: false,
