@@ -1,11 +1,4 @@
-import {
-	Effect,
-	Layer,
-	Schedule,
-	Semaphore,
-	Stream,
-	SubscriptionRef,
-} from 'effect'
+import { Effect, Layer, Schedule, Stream, SubscriptionRef } from 'effect'
 import { Updater } from 'electrobun'
 import { DesktopConfig } from '../../../platform/config/desktop.config'
 import { AppUpdates } from '../application/app-updates.port'
@@ -22,7 +15,8 @@ const NoAppUpdates = AppUpdates.of({
 /**
  * Restarts into the downloaded update and tells whether the restart started:
  * the SDK's apply resolves after a failure too, and only a started restart
- * reports `launching-new-version` among the statuses it added.
+ * reports `launching-new-version` among the statuses added since, whatever a
+ * background check adds meanwhile. The SDK first waits for a download in flight.
  */
 async function applyUpdate() {
 	const firstStatus = Updater.getStatusHistory().length
@@ -47,8 +41,6 @@ export const ElectrobunAppUpdatesLive = Layer.effect(
 		if (!updatesEnabled) return NoAppUpdates
 
 		const isReady = yield* SubscriptionRef.make(false)
-		/** One SDK operation at a time, so a background check never interleaves its statuses with an apply. */
-		const updaterCalls = yield* Semaphore.make(1)
 		const syncReady = Effect.suspend(() =>
 			SubscriptionRef.set(isReady, Updater.updateInfo().updateReady)
 		)
@@ -59,7 +51,6 @@ export const ElectrobunAppUpdatesLive = Layer.effect(
 
 			return Updater.updateInfo().updateReady
 		}).pipe(
-			Semaphore.withPermit(updaterCalls),
 			Effect.catch(() =>
 				Effect.logWarning(
 					'Update check failed',
@@ -69,7 +60,6 @@ export const ElectrobunAppUpdatesLive = Layer.effect(
 			Effect.tap(ready => SubscriptionRef.set(isReady, ready))
 		)
 		const apply = Effect.tryPromise(applyUpdate).pipe(
-			Semaphore.withPermit(updaterCalls),
 			Effect.orElseSucceed(() => false),
 			Effect.tap(started =>
 				started
