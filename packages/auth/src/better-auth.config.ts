@@ -55,6 +55,8 @@ export interface AuthEvents {
 		method: SignInMethod,
 		headers?: Headers
 	) => Promise<void>
+	/** Runs after the user row is deleted, whichever app asked. */
+	userDeleted: (userId: string) => Promise<void>
 }
 
 export interface CreateAuthOptions {
@@ -307,6 +309,9 @@ export function createAuth(options: CreateAuthOptions) {
 					},
 					after: async (created, context) =>
 						await options.events.userCreated(created, context?.headers),
+				},
+				delete: {
+					after: async ({ id }) => await options.events.userDeleted(id),
 				},
 			},
 			// Backs the `/link-social` check against two links racing: the later callback's tokens are revoked instead.

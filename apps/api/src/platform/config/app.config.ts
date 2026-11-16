@@ -60,6 +60,8 @@ export class AppConfig extends Context.Service<
 		readonly googleClientSecret: Redacted.Redacted
 		readonly proxySecret: Redacted.Redacted
 		readonly posthogKey?: string
+		/** A PostHog personal API key with `person:write`; unset, deleting an account leaves its PostHog person. */
+		readonly posthogPersonalApiKey?: Redacted.Redacted
 		/** The oldest desktop app version this API serves; unset, every version is. */
 		readonly desktopMinimumVersion?: string
 		readonly todoist?: {
@@ -90,7 +92,7 @@ const todoistConfig = Config.all({
 	)
 )
 
-/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, `POSTHOG_KEY` and the Todoist pair is required: a missing or malformed variable stops the start with its name. */
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys and the Todoist pair is required: a missing or malformed variable stops the start with its name. */
 const appConfig = Config.all({
 	port: Config.Port('PORT'),
 	environment: Config.NonEmptyString('APP_ENV'),
@@ -122,6 +124,9 @@ const appConfig = Config.all({
 	posthogKey: Config.option(Config.NonEmptyString('POSTHOG_KEY')).pipe(
 		Config.map(Option.getOrUndefined)
 	),
+	posthogPersonalApiKey: Config.option(
+		Config.Redacted('POSTHOG_PERSONAL_API_KEY')
+	).pipe(Config.map(Option.getOrUndefined)),
 	todoist: todoistConfig,
 	desktopMinimumVersion: Config.option(
 		Config.schema(

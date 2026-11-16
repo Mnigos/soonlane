@@ -2,7 +2,7 @@ import type { UserId } from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
 import type { ServerEvents } from '../domain/analytics-event.types'
 
-/** Product analytics from the server; capturing never fails, so callers need no error handling. */
+/** Product analytics from the server; no method fails, so callers need no error handling. */
 export class Analytics extends Context.Service<
 	Analytics,
 	{
@@ -16,6 +16,8 @@ export class Analytics extends Context.Service<
 			userId?: UserId,
 			details?: Record<string, string>
 		) => Effect.Effect<void>
+		/** Removes the user's PostHog person with their events and recordings. */
+		readonly deletePerson: (userId: UserId) => Effect.Effect<void>
 	}
 >()('soonlane/Analytics') {}
 
