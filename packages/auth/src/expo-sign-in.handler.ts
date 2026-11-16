@@ -6,6 +6,7 @@ import {
 } from 'better-auth'
 import { createAuthMiddleware } from 'better-auth/api'
 import { z } from 'zod'
+import { parseJson } from './utils/json.util'
 
 /** The mobile app's scheme: Better Auth's trusted list has it, `returnAddresses` accepts it only on a sign-in, and the Expo plugin adds the new session's cookie to it. */
 export const MOBILE_APP_SCHEME = 'soonlane:'
@@ -97,13 +98,4 @@ export async function isPendingAppSignIn(
 				appSchemes.includes(URL.parse(address)?.protocol ?? '')
 		)
 	)
-}
-
-/** `JSON.parse` that answers `undefined` for text that is not JSON, so a corrupt row is refused like a missing one. */
-function parseJson(text: string): unknown {
-	try {
-		return JSON.parse(text)
-	} catch {
-		return undefined
-	}
 }

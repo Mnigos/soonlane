@@ -5,7 +5,7 @@ import { useNavigate } from '@tanstack/react-router'
 
 export const DELETE_ACCOUNT_FAILED = 'Could not delete the account. Try again.'
 
-/** Better Auth deletes only from a session younger than its freshAge (one day). */
+/** The API deletes only from a session that started with a Google login at most five minutes old; otherwise `SESSION_EXPIRED` asks for a fresh sign-in. */
 async function deleteAccount() {
 	const { error } = await authClient.deleteUser()
 

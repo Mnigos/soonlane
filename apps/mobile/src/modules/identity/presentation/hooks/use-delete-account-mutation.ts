@@ -36,7 +36,7 @@ export function alertOtherAccount(user: Account, startedFor: Account) {
 	)
 }
 
-/** Better Auth deletes only from a session younger than its freshAge (one day). */
+/** The API deletes only from a session that started with a Google login at most five minutes old; otherwise `SESSION_EXPIRED` asks for a fresh sign-in. */
 async function deleteAccount({ id }: Account) {
 	const { isDeleted, error, signedInAs } = await deleteUser(id)
 
