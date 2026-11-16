@@ -3,12 +3,15 @@ import 'core-js/stable/array/to-sorted'
 // Nor Intl.PluralRules, which spells the ordinal of a monthly repeat ("Every month on the 13th").
 import 'intl-pluralrules'
 import { provideHostPorts } from '@soonlane/app/host-ports'
-import { provideRpcLink } from '@soonlane/app/rpc-query'
+import { orpcQuery, provideRpcLink } from '@soonlane/app/rpc-query'
 import {
 	focusManager,
 	QueryClient,
 	QueryClientProvider,
+	skipToken,
+	useQuery,
 } from '@tanstack/react-query'
+import Constants from 'expo-constants'
 import { DarkTheme, Stack, ThemeProvider } from 'expo-router'
 import { AppState } from 'react-native'
 import {
@@ -18,6 +21,7 @@ import {
 import { askForAnalyticsConsent } from '@/modules/analytics/presentation/consent-prompt.helper'
 import { ActionSheet } from '@/modules/shell/presentation/components/action-sheet'
 import { Toast } from '@/modules/shell/presentation/components/toast'
+import { UpdateRequiredScreen } from '@/modules/shell/presentation/components/update-required-screen'
 import {
 	dismissToast,
 	hideToast,
@@ -61,6 +65,7 @@ const THEME = {
 	},
 }
 const queryClient = new QueryClient()
+const APP_VERSION = Constants.expoConfig?.version
 
 type SessionState = ReturnType<typeof authClient.useSession>
 
@@ -83,43 +88,68 @@ authClient.$store.atoms.session?.listen(
 /** A signed-out user reaches only the sign-in screen; a session restored from the Keychain opens the app before the API confirms it. */
 export default function RootLayout() {
 	const { data: session } = authClient.useSession()
-	const isSignedIn = session !== null
 
 	if (!hasResolvedSession) return null
 
 	return (
 		<QueryClientProvider client={queryClient}>
-			<ThemeProvider value={THEME}>
-				<Stack
-					screenOptions={{
-						headerBackButtonDisplayMode: 'minimal',
-						headerShadowVisible: false,
-						title: '',
-					}}
-				>
-					<Stack.Protected guard={isSignedIn}>
-						<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+			<RootNavigator isSignedIn={session !== null} />
+		</QueryClientProvider>
+	)
+}
 
-						<Stack.Screen name="settings" />
+interface RootNavigatorProps {
+	isSignedIn: boolean
+}
 
-						<Stack.Screen name="search" />
+/** Opens without waiting for `system.mobileSupport`; only an answer that this version is no longer served shows the update screen instead. */
+function RootNavigator({ isSignedIn }: Readonly<RootNavigatorProps>) {
+	const { data: support } = useQuery(
+		orpcQuery.system.mobileSupport.queryOptions({
+			input: APP_VERSION ? { version: APP_VERSION } : skipToken,
+		})
+	)
 
-						<Stack.Screen name="labels/[name]" />
-
-						<Stack.Screen name="projects/[name]" />
-
-						<Stack.Screen name="tasks/[id]" options={{ title: 'Edit task' }} />
-					</Stack.Protected>
-
-					<Stack.Protected guard={!isSignedIn}>
-						<Stack.Screen name="sign-in" options={{ headerShown: false }} />
-					</Stack.Protected>
-				</Stack>
+	if (support?.isSupported === false)
+		return (
+			<>
+				<UpdateRequiredScreen />
 
 				<Toast />
+			</>
+		)
 
-				<ActionSheet />
-			</ThemeProvider>
-		</QueryClientProvider>
+	return (
+		<ThemeProvider value={THEME}>
+			<Stack
+				screenOptions={{
+					headerBackButtonDisplayMode: 'minimal',
+					headerShadowVisible: false,
+					title: '',
+				}}
+			>
+				<Stack.Protected guard={isSignedIn}>
+					<Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+
+					<Stack.Screen name="settings" />
+
+					<Stack.Screen name="search" />
+
+					<Stack.Screen name="labels/[name]" />
+
+					<Stack.Screen name="projects/[name]" />
+
+					<Stack.Screen name="tasks/[id]" options={{ title: 'Edit task' }} />
+				</Stack.Protected>
+
+				<Stack.Protected guard={!isSignedIn}>
+					<Stack.Screen name="sign-in" options={{ headerShown: false }} />
+				</Stack.Protected>
+			</Stack>
+
+			<Toast />
+
+			<ActionSheet />
+		</ThemeProvider>
 	)
 }

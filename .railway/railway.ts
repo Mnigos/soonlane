@@ -137,6 +137,7 @@ export default defineRailway(ctx => {
 			POSTHOG_KEY: preserve(),
 			POSTHOG_PERSONAL_API_KEY: preserve(),
 			DESKTOP_MINIMUM_VERSION: preserve(),
+			MOBILE_MINIMUM_VERSION: preserve(),
 			TODOIST_CLIENT_ID: preserve(),
 			TODOIST_CLIENT_SECRET: preserve(),
 		},

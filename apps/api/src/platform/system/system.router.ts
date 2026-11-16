@@ -4,6 +4,16 @@ import { AppConfig } from '../config/app.config'
 import { Db } from '../db/db.layer'
 import { os } from '../rpc/rpc.base'
 
+/** Unset, every version is served; with `Bun.semver`, a prerelease of the minimum counts as older. */
+function appSupport(version: string, minimumVersion: string | undefined) {
+	return {
+		isSupported:
+			minimumVersion === undefined ||
+			Bun.semver.order(version, minimumVersion) >= 0,
+		minimumVersion: minimumVersion ?? '0.0.0',
+	}
+}
+
 export const systemRouter = {
 	health: os.system.health.effect(function* () {
 		const db = yield* (yield* Db)
@@ -27,11 +37,11 @@ export const systemRouter = {
 	desktopSupport: os.system.desktopSupport.effect(function* ({ input }) {
 		const { desktopMinimumVersion } = yield* AppConfig
 
-		return {
-			isSupported:
-				desktopMinimumVersion === undefined ||
-				Bun.semver.order(input.version, desktopMinimumVersion) >= 0,
-			minimumVersion: desktopMinimumVersion ?? '0.0.0',
-		}
+		return appSupport(input.version, desktopMinimumVersion)
+	}),
+	mobileSupport: os.system.mobileSupport.effect(function* ({ input }) {
+		const { mobileMinimumVersion } = yield* AppConfig
+
+		return appSupport(input.version, mobileMinimumVersion)
 	}),
 }

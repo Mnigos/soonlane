@@ -83,6 +83,8 @@ export class AppConfig extends Context.Service<
 		readonly posthogPersonalApiKey?: Redacted.Redacted
 		/** The oldest desktop app version this API serves; unset, every version is. */
 		readonly desktopMinimumVersion?: string
+		/** The oldest iPhone and Android app version this API serves; unset, every version is. */
+		readonly mobileMinimumVersion?: string
 		readonly todoist?: OAuthClientConfig
 	}
 >()('soonlane/AppConfig') {}
@@ -93,6 +95,22 @@ function originConfig(name: string) {
 
 function configFailure(message: string) {
 	return Config.fail(new ConfigProvider.SourceError({ message }))
+}
+
+/** An optional app version; a malformed one stops the start with the variable's name. */
+function minimumVersionConfig(name: string) {
+	return Config.option(
+		Config.schema(
+			Schema.String.check(
+				Schema.makeFilter(
+					value =>
+						APP_VERSION_PATTERN.test(value) ||
+						`${name} must be a version such as 0.3.0`
+				)
+			),
+			name
+		)
+	).pipe(Config.map(Option.getOrUndefined))
 }
 
 /** Both variables of an OAuth client or neither: with one set, the other is read as required, so the start fails naming it. */
@@ -168,7 +186,7 @@ const emailConfig = Config.all({
 	})
 )
 
-/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys, the Google and Todoist pairs and the email group is required: a missing or malformed variable stops the start with its name, and so does a server with no way to sign in. */
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys, the Google and Todoist pairs, the email group and the minimum app versions is required: a missing or malformed variable stops the start with its name, and so does a server with no way to sign in. */
 const appConfig = Config.all({
 	port: Config.Port('PORT'),
 	environment: Config.NonEmptyString('APP_ENV'),
@@ -204,18 +222,8 @@ const appConfig = Config.all({
 		Config.Redacted('POSTHOG_PERSONAL_API_KEY')
 	).pipe(Config.map(Option.getOrUndefined)),
 	todoist: oauthClientConfig('TODOIST_CLIENT_ID', 'TODOIST_CLIENT_SECRET'),
-	desktopMinimumVersion: Config.option(
-		Config.schema(
-			Schema.String.check(
-				Schema.makeFilter(
-					value =>
-						APP_VERSION_PATTERN.test(value) ||
-						'DESKTOP_MINIMUM_VERSION must be a version such as 0.3.0'
-				)
-			),
-			'DESKTOP_MINIMUM_VERSION'
-		)
-	).pipe(Config.map(Option.getOrUndefined)),
+	desktopMinimumVersion: minimumVersionConfig('DESKTOP_MINIMUM_VERSION'),
+	mobileMinimumVersion: minimumVersionConfig('MOBILE_MINIMUM_VERSION'),
 })
 
 /**
