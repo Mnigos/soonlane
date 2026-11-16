@@ -97,6 +97,17 @@ Signed-in screenshots without Google: `bun run --cwd apps/api dev:session` upser
 
 Better Auth runs on the API with the API's origin as its base URL, so Google returns to the API host, which sets the session cookie on the environment's domain and redirects to the app. The OAuth client (type **Web application**) needs the redirect URIs `https://api.soonlane.com/api/auth/callback/google`, `https://api.staging.soonlane.com/api/auth/callback/google` and `http://localhost:4000/api/auth/callback/google`. The app sends absolute callback and error URLs on the page's own origin, which must be in the API's `TRUSTED_ORIGINS`; the API refuses relative ones, other hosts and its own.
 
+Account deletion needs Google's `auth_time` claim (SOON-51). Without it, `/delete-user` refuses everyone. Before deploying it, turn on **Session age claims** in Google Auth Platform, Settings, Advanced settings, for the project of the Web client above. The one client serves production, staging and localhost. Under Audience the app must show In production, and Verification Center must show it verified. Google sends the claim only to sign-ins that ask for it, and the API asks on every Google sign-in, so turning the setting on changes nothing else.
+
+To check that Google returns a fresh `auth_time`, deploy to staging and use a browser already signed in to Google:
+
+1. Sign in to `https://app.staging.soonlane.com`, wait more than 5 minutes, open the user menu, choose Delete account and press Delete account. The dialog asks you to sign in again, and the API log shows `[Account deletion] Refused: the Google login is N s old.`
+2. Press Continue with Google. If Google asks for the password, enter it. Back in the dialog, press Delete account within 5 minutes.
+3. The account is deleted when Google returned a fresh login. A second `Refused: the Google login is N s old.` with a large N means Google skipped the password and returned the earlier login. `Refused: the Google ID token has no auth_time.` means the setting is off or the app is not verified.
+4. Repeat on the iPhone app and on the Android app (Settings, Delete account) against staging. Read the API log the same way.
+
+`/delete-user` allows 5 calls an hour per IP, and refusals count, so test the platforms from different networks or an hour apart. A 429 is that limit, not the check.
+
 ## Landing
 
 `apps/landing` has no server at run time. `bun run --cwd apps/landing build` prerenders every page into `apps/landing/dist/client`, with `robots.txt`, `sitemap.xml`, `blog/rss.xml` and `404.html`, and ends with `scripts/check-static.ts`, which fails the build unless every sitemap URL has a page, robots fits `APP_ENV` and the not-found page exists. `dist/server` exists only for the prerender and never ships.

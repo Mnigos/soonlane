@@ -11,6 +11,11 @@ import {
 import { symmetricDecrypt } from 'better-auth/crypto'
 import { bearer } from 'better-auth/plugins'
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
+import {
+	GOOGLE_AUTH_TIME_CLAIMS,
+	isBearerRequest,
+	refuseStaleDeletion,
+} from './account-deletion.handler'
 import { androidSignIn } from './android-sign-in.handler'
 import { canSignUp } from './auth-policy.helper'
 import { AUTH_BASE_PATH, DESKTOP_TOKEN_PATH } from './desktop-sign-in.constants'
@@ -238,6 +243,15 @@ export function createAuth(options: CreateAuthOptions) {
 
 				if (ctx.path === '/sign-in/social' && provider === TODOIST_PROVIDER_ID)
 					throw refuse('Todoist can only be linked to a signed-in account.')
+				// Set here rather than by the clients, so app builds already installed ask for it too.
+				if (ctx.path === '/sign-in/social' && provider === 'google')
+					return {
+						context: {
+							body: { additionalParams: { claims: GOOGLE_AUTH_TIME_CLAIMS } },
+						},
+					}
+				if (ctx.path === '/delete-user')
+					return await refuseStaleDeletion(ctx, options.log)
 				if (
 					ctx.path === EXPO_PROXY_PATH &&
 					!(await isPendingAppSignIn(
@@ -248,11 +262,8 @@ export function createAuth(options: CreateAuthOptions) {
 				)
 					throw refuse('Only a Google sign-in opens from the mobile app.')
 				if (ctx.path !== '/link-social') return
-				// Every before hook sees the request's own headers, so the lookup below would miss a bearer session; the desktop app links Todoist in the browser.
-				if (
-					ctx.request?.headers.has('authorization') ||
-					ctx.headers?.has('authorization')
-				)
+				// The desktop app links Todoist in the browser.
+				if (isBearerRequest(ctx))
 					throw refuse('Todoist can only be linked from the browser.')
 				if (provider !== TODOIST_PROVIDER_ID)
 					throw refuse('Only Todoist can be linked.')
