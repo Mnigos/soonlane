@@ -9,6 +9,7 @@ import type { SessionUser } from '@soonlane/contracts'
 import { Button } from '@soonlane/ui/components/button'
 import { useMutation } from '@tanstack/react-query'
 import { HAND_OFF_COPY, type HandOff } from '../hand-off.constants'
+import { isDesktopAppBrowser } from '../helpers/desktop-app-browser.helper'
 
 /** Android's App Link on this origin or the desktop app's loopback listener (RFC 8252); never an address the opener chose. */
 function toAppLink(handOff: HandOff) {
@@ -21,6 +22,9 @@ function toAppLink(handOff: HandOff) {
 }
 
 async function openApp(handOff: HandOff) {
+	if (handOff.app === 'desktop' && !isDesktopAppBrowser())
+		throw new Error(HAND_OFF_COPY.desktop.error)
+
 	const { data, error } = await createDesktopSignInCode(handOff.challenge)
 
 	if (error) throw new Error(HAND_OFF_COPY[handOff.app].error, { cause: error })

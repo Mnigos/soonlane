@@ -4,12 +4,14 @@ import {
 	LOOPBACK_PORT_PARAM,
 } from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
+import { useSyncExternalStore } from 'react'
 import {
 	HAND_OFF_COPY,
 	HAND_OFF_SIGN_IN_PATHS,
 	type HandOff,
 	type HandOffApp,
 } from '../hand-off.constants'
+import { isDesktopAppBrowser } from '../helpers/desktop-app-browser.helper'
 import { HandOffScreen } from './hand-off-screen'
 import { SignInScreen } from './sign-in-screen'
 
@@ -35,6 +37,26 @@ function toHandOff(
 	return port ? { app, challenge, port } : undefined
 }
 
+/** The browser never changes platform while the page is open. */
+const subscribeToNothing = () => () => undefined
+/** The browser is unknown during SSR and hydration, so nothing actionable renders until it is. */
+const getUnknownBrowser = () => undefined
+
+interface HandOffMessageProps {
+	heading: string
+	text: string
+}
+
+function HandOffMessage({ heading, text }: Readonly<HandOffMessageProps>) {
+	return (
+		<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-1 px-6 py-16 text-sm">
+			<h1 className="font-semibold">{heading}</h1>
+
+			<p className="text-muted-foreground">{text}</p>
+		</main>
+	)
+}
+
 function toReturnUrl(handOff: HandOff) {
 	return `${HAND_OFF_SIGN_IN_PATHS[handOff.app]}?${new URLSearchParams({
 		[CODE_CHALLENGE_PARAM]: handOff.challenge,
@@ -48,7 +70,9 @@ function toReturnUrl(handOff: HandOff) {
  * The system browser's page for a sign-in the desktop or Android app started:
  * Google first when signed out or asked for a fresh sign-in, then the
  * hand-off. A failed fresh sign-in returns here still asking for a fresh one,
- * so it never falls back to handing off the older session.
+ * so it never falls back to handing off the older session. The desktop hand-off
+ * runs only in a browser on the desktop app's platform, so a phone app cannot
+ * open this page with its own challenge and port and receive the code.
  */
 export function HandOffSignInScreen({
 	app,
@@ -58,15 +82,27 @@ export function HandOffSignInScreen({
 	oauthError,
 	port,
 }: Readonly<HandOffSignInScreenProps>) {
+	const canHandOffToDesktop = useSyncExternalStore(
+		subscribeToNothing,
+		isDesktopAppBrowser,
+		getUnknownBrowser
+	)
 	const handOff = toHandOff(app, challenge, port)
 
 	if (!handOff)
 		return (
-			<main className="mx-auto flex min-h-dvh max-w-sm flex-col justify-center gap-1 px-6 py-16 text-sm">
-				<h1 className="font-semibold">{HAND_OFF_COPY[app].startHeading}</h1>
+			<HandOffMessage
+				heading={HAND_OFF_COPY[app].startHeading}
+				text={HAND_OFF_COPY[app].startText}
+			/>
+		)
 
-				<p className="text-muted-foreground">{HAND_OFF_COPY[app].startText}</p>
-			</main>
+	if (handOff.app === 'desktop' && !canHandOffToDesktop)
+		return canHandOffToDesktop === undefined ? null : (
+			<HandOffMessage
+				heading={HAND_OFF_COPY.desktop.otherDeviceHeading}
+				text={HAND_OFF_COPY.desktop.otherDeviceText}
+			/>
 		)
 
 	const returnUrl = toReturnUrl(handOff)

@@ -24,6 +24,9 @@ export const HAND_OFF_COPY = {
 		startHeading: 'Start from the desktop app',
 		startText:
 			'This page finishes a sign-in that the Soonlane desktop app started. Open the app and choose Continue with Google.',
+		otherDeviceHeading: 'Sign in on your Mac',
+		otherDeviceText:
+			'This page only works on the Mac with the desktop app. Open that app and choose Continue with Google, or use the phone app or browser.',
 		heading: 'Sign in to the desktop app',
 		button: 'Open the desktop app',
 		error: 'Could not start the desktop sign-in. Try again.',
