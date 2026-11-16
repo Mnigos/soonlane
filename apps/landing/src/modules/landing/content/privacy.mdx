@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 description: What data Soonlane collects, why, where it is stored and how to delete it.
-updated: '2026-11-13'
+updated: '2026-11-16'
 ---
 
 Soonlane is a task list that anyone can sign up for with a Google account. This policy explains what data Soonlane collects, why, where it is stored and how you can delete it.
@@ -84,7 +84,7 @@ You can change your choice at any time under "Privacy choices" in the account me
 
 When something breaks on Soonlane's server, it sends PostHog an error report with the error's name and stack trace, and your account id when you are signed in. It never includes your tasks. These reports do not depend on your analytics choice, because they are needed to keep Soonlane working.
 
-Deleting your account does not yet remove analytics data from PostHog automatically. Write to [hello@soonlane.com](mailto:hello@soonlane.com) and I will delete it.
+When you delete your account, Soonlane asks PostHog to delete the person linked to your account, its events (including the error reports with your account id), and its session replays. PostHog queues the person's deletion and usually removes it within a few minutes. Session replays are destroyed shortly after the request. Events are deleted in PostHog's weekly deletion runs, which can take up to about nine days. Anonymous visits measured without consent were never linked to your account, so they are not affected. If anything stays behind, you can write to [hello@soonlane.com](mailto:hello@soonlane.com) and I will delete it.
 
 ## Service providers and where your data is stored
 
