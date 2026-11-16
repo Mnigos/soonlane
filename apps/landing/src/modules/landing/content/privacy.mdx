@@ -1,7 +1,7 @@
 ---
 title: Privacy Policy
 description: What data Soonlane collects, why, where it is stored and how to delete it.
-updated: '2026-11-16'
+updated: '2026-11-17'
 ---
 
 Soonlane is a task list that anyone can sign up for with a Google account. This policy explains what data Soonlane collects, why, where it is stored and how you can delete it.
@@ -27,9 +27,11 @@ Soonlane's use and transfer of information received from Google APIs to any othe
 
 ## Data from Todoist
 
-This section applies only if you start an import from Todoist. Soonlane asks Todoist for read-only access using the `data:read` scope. It receives your Todoist user ID, name, and email address, and reads your open tasks, projects, sections, and labels to show you a preview.
+This section applies only if you choose "Import from Todoist" in the account menu while signed in. Soonlane asks Todoist for read-only access using the `data:read` scope and never writes anything to Todoist. Todoist's account response includes your user ID, name and email address. Soonlane does not use or store your email address, and it uses only your user ID and name to connect without storing your name. Soonlane also reads your open tasks, projects, sections and labels to show you a preview. Your tasks, projects, and labels are not imported until you confirm.
 
-Soonlane stores your Todoist account ID and encrypted access and refresh tokens until the preview ends. It revokes and deletes the tokens when you cancel, when reading fails, after 15 minutes, or after the import finishes. In this release, task data is read only to build the preview and is not stored. Nothing is written back to Todoist.
+When you confirm, Soonlane saves your open tasks, your labels, and the projects that hold an imported task into your Soonlane account. For each task, it saves the title, description, due date and time, and priority. Repeat rules come over when Soonlane supports them, and other repeating tasks arrive as one-off tasks. Durations come over on tasks with a due time, within Soonlane's limits. Subtasks stay under their tasks up to 4 levels deep, and a subtask nested deeper moves up under its ancestor at the fourth level. A task keeps at most 50 subtasks, and the rest become top-level tasks. A subtask whose parent is not imported also becomes a top-level task. The preview lists these changes before you confirm. From then on they are ordinary Soonlane tasks, projects and labels. Comments, attachments, reminders, filters and completed tasks are left in Todoist, and sections and deadlines are not imported. For each imported task, Soonlane keeps the Todoist task ID and the time of the import so the same task is not imported twice, even after it is completed or deleted in Soonlane. This list is kept until your account is deleted.
+
+Soonlane stores your Todoist account ID and encrypted access and refresh tokens while the connection is active. The connection can be used for 15 minutes. A cleanup job checks every minute, revokes the tokens at Todoist and deletes them with the account ID once you cancel, when reading fails, when the import finishes, or after the 15 minutes pass. If Todoist does not confirm the revocation, the cleanup keeps trying and deletes the stored tokens anyway once they are more than an hour old. Deleting your Soonlane account deletes any stored Todoist tokens right away without revoking them at Todoist, so the grant may still be listed in Todoist's settings until it expires or you remove it.
 
 Todoist is a separate service with its own privacy policy. Soonlane is not created by, affiliated with, or supported by Todoist.
 
@@ -102,7 +104,7 @@ Some of these providers are based in the United States. When they handle data ou
 
 Your account, your Google data and tokens, and your tasks are kept until you delete your account. A calendar link works until you revoke it or create a new one in the account menu, or until you delete your account. If you have subscribed to Soonlane Pro, deleting your account also deletes Soonlane's copy of your Stripe customer id and subscription state, while Stripe keeps its own records under the [Link Privacy Policy](https://link.com/privacy).
 
-To delete your account, open the account menu in the app and choose "Delete account". Soonlane deletes an account only after a Google sign-in from the last five minutes. It may ask you to sign in with Google again first, for example when your last sign-in is older or you signed in to Google on another device since then. Deletion removes your account, all your sessions, any stored Google and Todoist tokens, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
+To delete your account, open the account menu in the app and choose "Delete account". Soonlane deletes an account only after a Google sign-in from the last five minutes. It may ask you to sign in with Google again first, for example when your last sign-in is older or you signed in to Google on another device since then. Deletion removes your account, all your sessions, any stored Google and Todoist tokens, the list of imported Todoist task IDs, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
 
 Railway backs up the database volume as snapshots of the whole database, which stay inside Railway. For scheduled backups, it keeps a daily backup for 6 days, a weekly backup for 27 days and a monthly backup for 89 days. A deleted account's data stays in those scheduled backups until each backup expires, for up to 89 days. If I make a backup by hand, for example for a restore test or before maintenance, it has no expiry of its own and I delete it once that work is done. The frozen copy at Neon also still holds data from before 12 November 2026 until that project is deleted.
 
