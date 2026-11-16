@@ -76,6 +76,10 @@ export const BetterAuthLive = Layer.effect(
 							.capture(userIdSchema.parse(userId), 'user_signed_in', { method })
 							.pipe(withRequestConsent(config.cookiePrefix, headers))
 					),
+				userDeleted: async userId =>
+					await Effect.runPromiseWith(context)(
+						analytics.deletePerson(userIdSchema.parse(userId))
+					),
 			},
 		})
 

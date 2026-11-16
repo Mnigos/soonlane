@@ -39,6 +39,7 @@ The `api` service:
 | `API_PROXY_SECRET`     | secret, the web server's too | its own secret, the web server's too |
 | `ALLOWED_EMAILS`       | optional                   | optional                           |
 | `POSTHOG_KEY`          | optional, the PostHog project key | optional                    |
+| `POSTHOG_PERSONAL_API_KEY` | optional, a PostHog personal API key with `person:write`, for deleting an account's PostHog person; needs `POSTHOG_KEY` too | optional, the same key |
 | `DESKTOP_MINIMUM_VERSION` | optional, the oldest desktop app version the API serves (`0.3.0`); unset, every version | optional |
 | `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` | optional, both or neither: the Todoist app for Import from Todoist | the same app |
 
@@ -243,10 +244,10 @@ The `www` redirect rule (Rules, Redirect Rules): when the hostname equals `www.s
 
 Igor's steps, in order. Each one says how to check it. Variable and record values never go into the repository, a ticket or a chat.
 
-1. **Staging secrets** on the `api` service in `staging`: `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: `railway variables --service api --environment staging --json | jq 'keys'` lists the names.
+1. **Staging secrets** on the `api` service in `staging`: `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, `POSTHOG_PERSONAL_API_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: `railway variables --service api --environment staging --json | jq 'keys'` lists the names.
 2. **Staging DNS**: the `staging` and `api.staging` CNAMEs and their `_railway-verify` TXT records from the table. Check: `railway domain status staging.soonlane.com` and `railway domain status api.staging.soonlane.com` report the domain verified and the certificate issued.
 3. **Staging deploy**: run **Deploy staging** with the ref to test. Check: the curl commands under [Staging](#staging), then sign in on https://app.staging.soonlane.com.
-4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (`${{Postgres.DATABASE_URL}}`), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
+4. **Production secrets** on the `api` service in `production`: `DATABASE_URL` (`${{Postgres.DATABASE_URL}}`), `AUTH_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `API_PROXY_SECRET`; optional `ALLOWED_EMAILS`, `POSTHOG_KEY`, `POSTHOG_PERSONAL_API_KEY`, and `VITE_POSTHOG_KEY` on `web`. Check: the same `jq 'keys'` listing for `production`.
 5. **The `web` service and the site's domain**: `web` does not exist in production before this step, and a domain needs its service. Apply a copy of `.railway/railway.ts` without the production `web` custom domain (`railway config apply --file <copy> --environment production`), which creates `web` with its variables, health check and GitHub source, and Railway deploys `main` to it. Then `railway domain soonlane.com --service web --environment production --port 8080`, which prints the CNAME target and the TXT value.
 6. **The final apply**: `railway config apply --file .railway/railway.ts --environment production` with the unmodified file from `main`, after the PRs are on `main`; the domain exists by now, so it changes nothing. Check: `railway config plan --file .railway/railway.ts --environment production` reports nothing to change, and `railway deployment list --service web --environment production` and the same for `api` show a successful deployment.
 7. **Railway's GitHub app** must have access to `Mnigos/soonlane`, or step 5 creates a source that never deploys. Check: the deployments in step 6.
