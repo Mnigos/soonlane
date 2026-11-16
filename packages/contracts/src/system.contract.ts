@@ -13,17 +13,23 @@ export type HealthOutput = z.infer<typeof healthOutputSchema>
 export const APP_VERSION_PATTERN =
 	/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-(?:0|[1-9]\d*|\d*[A-Za-z-][\dA-Za-z-]*)(?:\.(?:0|[1-9]\d*|\d*[A-Za-z-][\dA-Za-z-]*))*)?(?:\+[\dA-Za-z-]+(?:\.[\dA-Za-z-]+)*)?$/u
 
-export const desktopSupportOutputSchema = z.object({
+export const appSupportOutputSchema = z.object({
 	isSupported: z.boolean(),
-	/** The oldest desktop app version this API still serves. */
+	/** The oldest version of that app this API still serves. */
 	minimumVersion: z.string(),
 })
-export type DesktopSupportOutput = z.infer<typeof desktopSupportOutputSchema>
+export type AppSupportOutput = z.infer<typeof appSupportOutputSchema>
+
+const appSupportInputSchema = z.object({
+	version: z.string().regex(APP_VERSION_PATTERN),
+})
 
 export const systemContract = {
 	health: oc.output(healthOutputSchema),
 	/** Whether a desktop app of this version may keep calling this API; an older one asks its user to update. */
 	desktopSupport: oc
-		.input(z.object({ version: z.string().regex(APP_VERSION_PATTERN) }))
-		.output(desktopSupportOutputSchema),
+		.input(appSupportInputSchema)
+		.output(appSupportOutputSchema),
+	/** The same for the iPhone and Android app, which share one version. */
+	mobileSupport: oc.input(appSupportInputSchema).output(appSupportOutputSchema),
 }
