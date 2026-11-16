@@ -1,6 +1,6 @@
 ---
 title: 'Todoist vs Soonlane: what stays and what goes'
-description: Todoist vs Soonlane, feature by feature. The day views, dates and labels Soonlane keeps, and the projects, filters and reminders it leaves out.
+description: Todoist vs Soonlane, feature by feature. The day views, dates, projects and labels Soonlane keeps, and the sections, filters and reminders it leaves out.
 date: '2026-11-12'
 draft: true
 ---
@@ -38,20 +38,21 @@ The look follows Todoist's dark theme on purpose: a sidebar on the left, one col
 
 This list is longer, and it should decide your choice more than the first one.
 
-- **No projects.** Labels are the only way to group tasks. Tasks without a due date wait in the Inbox until you pick a day.
-- **No filters.** There is no query language and no saved views beyond Today, Upcoming and one page per label.
+- **No sections.** Projects are named lists in the sidebar with no custom sections inside them. A task belongs to at most one project and keeps its labels. Top-level tasks without a due date and without a project wait in the Inbox, while a project's top-level tasks without a date appear in its "No date" section. Subtasks without a date stay under their parent task.
+- **No filters.** There is no query language and no saved views beyond Today, Upcoming, one page per label and one per project.
 - **No reminders.** Soonlane sends no push notifications and no emails. Todoist's free plan includes task reminders.
 - **No comments.** Tasks can nest up to four levels deep with their own dates, priorities and labels, but I left out comment threads because a title and a description are enough for a personal list.
 - **No sharing.** Your list is private. There are no teams, guests or assigned tasks.
 - **No dates in the task name.** Todoist reads "call mum tomorrow at 4pm" and sets the date for you. Soonlane reads priorities and labels from the name, but the date goes in the date field.
 - **No phone apps.** Phones get the web app, with the sidebar as a drawer. Todoist has apps for iPhone, iPad, Android, Apple Watch and Wear OS.
-- **No import.** There is no way to bring your Todoist tasks over. You add them again by hand.
 
 ## A few things that work differently
 
 **Goals.** A task can carry an amount, like 50 push-ups or 20 pages. You log progress from the task row, and reaching the goal completes the task. On a repeating task, the count starts again at its next date.
 
 **Calendar link.** Soonlane gives you one private link that you subscribe to in Apple Calendar, Google Calendar or any app that reads iCalendar feeds. Your open tasks show up on their days, and you can replace or revoke the link from the account menu. Todoist offers a similar feed on every plan, and its free plan can also connect one Google or Outlook calendar account and show your events inside Todoist. Soonlane does not show calendar events.
+
+**Import from Todoist.** You can bring over your open tasks, their subtasks (up to 4 levels deep), your labels and the projects that hold an imported task from the account menu. Titles, descriptions, due dates and times, and priorities come across, along with supported repeat rules (other repeating tasks become one-off tasks) and durations on tasks with a due time within Soonlane's limits. Before your tasks, projects, and labels are imported, you see a preview of the changes Soonlane plans when you open it; confirming reads Todoist again, so tasks added or changed in Todoist after the preview can be imported without having appeared in it. Comments, attachments, reminders, filters, completed tasks, sections and deadlines stay in Todoist, as access is read-only and Soonlane never writes anything back.
 
 **Mac app.** The Mac app wraps the web app in its own window. Press ⌥Space in any app to open a small Quick Add window, and the Dock icon counts what is overdue or due today. There is no download yet, so for now you build it from the repository.
 
@@ -61,7 +62,7 @@ This list is longer, and it should decide your choice more than the first one.
 | --------------- | ----------------------------------- | --------------------------------- |
 | Price           | Free, Pro is $5/month billed yearly | Free, Pro coming for integrations |
 | Source code     | Closed                              | AGPL-3.0                          |
-| Projects        | 5                                   | None, labels only                 |
+| Projects        | 5                                   | Yes, without sections             |
 | Filters         | 3                                   | None                              |
 | Labels          | Up to 500                           | Yes                               |
 | Reminders       | Yes                                 | No                                |
@@ -88,7 +89,7 @@ Pick Todoist if any of these matter to you:
 - You plan work in projects with sections, or you share lists with a partner or a team.
 - You live on your phone and want a native app with widgets.
 - You rely on filters like "P1 tasks with the @work label due this week".
-- You have years of tasks in Todoist and do not want to retype them.
+- You want to keep your completed task history, comments and file attachments.
 
 Todoist does all of that well, and Soonlane does none of it.
 
