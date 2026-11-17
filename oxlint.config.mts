@@ -195,6 +195,7 @@ export default defineConfig({
 				'apps/web/**',
 				'apps/landing/**',
 				'apps/mobile/**',
+				'apps/desktop/src/view/**',
 				'packages/app/**',
 			],
 			rules: { 'soonlane/hook-query-naming': 'error' },
