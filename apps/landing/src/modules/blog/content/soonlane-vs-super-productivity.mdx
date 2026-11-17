@@ -1,0 +1,111 @@
+---
+title: 'Super Productivity vs Soonlane: local-first or always synced'
+description: Looking for a Super Productivity alternative? Compare Super Productivity and Soonlane across local storage, sync, subtasks, time tracking and day views.
+date: '2026-11-18'
+draft: true
+---
+
+Super Productivity and Soonlane are both free and open source, but they make opposite choices about where your tasks live. I build Soonlane, an [open source Todoist alternative](/). This post is for people looking for a Super Productivity alternative, or deciding between the two.
+
+The Super Productivity facts below come from its website and GitHub repository, checked on 18 November 2026.
+
+## Where your tasks live
+
+Super Productivity keeps your data on your device by default. You do not need an account, and the app works offline. Your tasks sync across devices only if you set up a provider: Nextcloud, WebDAV, Dropbox or SuperSync (an end-to-end encrypted service in beta), while a local file on desktop is a separate single-device backup option. Super Productivity's sync comparison page recommends Nextcloud, WebDAV or Dropbox for production use until SuperSync is stable.
+
+Soonlane takes the hosted route. You sign in with Google, and your tasks live in a Railway Postgres database in Amsterdam. Only your account can read them, and deleting your account from the account menu deletes all its tasks. Open Soonlane in any browser or in the Mac app, and the same list is already there without sync setup. If you prefer to keep everything on your own machine or server, you can also run your own copy of Soonlane from the repository, or look at other [self-hosted Todoist alternatives](/blog/self-hosted-todoist-alternative).
+
+## What both do
+
+Both apps give you a free task list. Super Productivity is 100% free with no trials, no premium tiers and no hidden costs. Soonlane's task list is free too, including Inbox, Upcoming, Today, labels, projects and the Mac app. Soonlane's integrations, starting with the calendar link, will move to a paid Pro plan when it launches, with no Pro price announced yet.
+
+Both projects are open source. Super Productivity is MIT-licensed. Soonlane is licensed under AGPL-3.0.
+
+Day-to-day task management covers similar ground in both:
+
+- **Today view.** Super Productivity's Today view shows tasks whose due day or due time falls within today. Soonlane's Today view shows the Inbox section, Overdue and today's tasks, while Inbox holds tasks with no date and no project.
+- **Projects and tags or labels.** Super Productivity groups tasks with projects and tags. Soonlane has named projects in the sidebar without sections, plus labels that you add with `@` in the task name. Each label gets its own page and an open task count in the sidebar.
+- **Typed dates and repeats.** Super Productivity's add-task bar reads short syntax: `#` for tags, `+` for projects, `@` for due dates like `@friday`, `@tomorrow 19:00` or `@4pm`, and repeats like `@every friday` or `@daily`. Soonlane reads dates in the task name or date field (`fri`, `next week`, `14 Nov`) and repeats in the task name (`every day`, `every weekday`, `every 3 weeks`, `every other month`, `every fri`, `every 15th`), up to an interval of 99. In Soonlane, you set a due time in the date field rather than typing it in the name.
+- **Priorities.** Super Productivity reads `p1` to `p3` in its short syntax. Soonlane uses P1 to P4, and typing `p1` in the task name sets it.
+- **Todoist import.** Both apps can import from Todoist. Super Productivity uses your Todoist API token for an additive import that never changes or removes existing data. Soonlane imports from the account menu with read-only access and shows a preview first.
+
+## Where Super Productivity does more
+
+Super Productivity packs a full workday toolkit around its task list. Soonlane leaves most of these features out on purpose.
+
+- **Time tracking and focus sessions.** Super Productivity has built-in time tracking with timesheets and reports, time estimates in its short syntax, and a focus mode with Pomodoro, Flowtime and countdown sessions. Soonlane has no time tracking.
+- **Issue trackers.** Super Productivity pulls issues from GitHub, GitLab and Jira into your day.
+- **Views beyond a list.** Alongside lists, Super Productivity offers kanban boards and an Eisenhower Matrix. Soonlane has no kanban or calendar views.
+- **Calendars and timeboxing.** Super Productivity brings your calendar into a planner and a schedule timeline next to calendar events, lets you timebox tasks, and supports basic CalDAV integration to import todos from a CalDAV task list and write time blocks to a calendar.
+- **Reminders and deadlines.** Scheduled tasks in Super Productivity can have a due date, an optional due time and a reminder, and its short syntax sets deadlines with `!`. Soonlane sends no reminders or notifications of any kind.
+- **Native apps everywhere.** Super Productivity has downloads for Windows 10 or later (64-bit), macOS on Apple Silicon or Intel, Linux via AppImage, Snap, Flatpak, RPM or DEB, Android on Google Play or as an APK, a native app for iPhone and iPad, and a web app that also works offline. It requires no account.
+
+## Where Soonlane differs
+
+Soonlane is a personal list sorted by day.
+
+<img
+	src="/site/upcoming-desktop.webp"
+	alt="Soonlane's Upcoming view on a laptop: the week strip, three overdue tasks, then the tasks due today and tomorrow."
+	width={1425}
+	height={900}
+/>
+
+- **No sync setup.** Signing in with Google puts your list in every browser on phones, Windows, Linux and macOS. There is no Soonlane app in the App Store or Google Play yet. On phones, the web app turns the sidebar into a drawer.
+- **Upcoming as one scroll.** Soonlane opens on Upcoming: one long scroll with the Inbox section, Overdue, Today, and every day after. A week strip sits on top, and each day has its own "Add task" row, so a task added under Friday is due on Friday. A Reschedule button on the Overdue heading moves all overdue tasks to one day.
+- **Subtasks up to 4 levels.** Super Productivity supports one level of subtasks, so a subtask cannot have subtasks of its own. Soonlane nests subtasks up to 4 levels deep, with up to 50 per task.
+- **Goals.** A task in Soonlane can have a goal, such as 50 push-ups. You log progress from the task row, and reaching the goal completes the task.
+- **Calendar link.** Soonlane gives you one private link to subscribe to in Apple Calendar, Google Calendar or any app that reads iCalendar feeds, so your open tasks show up on their days. Soonlane does not show calendar events inside the app.
+- **Mac app with Quick Add.** Soonlane's Mac app runs the web app in its own window, opens a small Quick Add window from any app on ⌥Space, and shows a count of what is overdue or due today on the Dock icon. There is no download yet, so for now you build it from the repository.
+- **Todoist import depth.** Super Productivity's Todoist import brings active projects (turning the Todoist Inbox into a project named "Inbox (Todoist)" and flattening the nested project hierarchy), active tasks and subtasks while flattening deeper ones into direct subtasks of their top-level task, descriptions and comments into notes, and labels as tags, while leaving out completed tasks and history, sections and reminders. Soonlane's Todoist import keeps open tasks, subtasks up to 4 levels deep, labels and the projects that hold an imported task, while comments, attachments, reminders, filters, completed tasks, sections and deadlines stay in Todoist.
+
+## Side by side
+
+Super Productivity facts as of 18 November 2026.
+
+|                  | Super Productivity                                                    | Soonlane                                             |
+| ---------------- | --------------------------------------------------------------------- | ---------------------------------------------------- |
+| Price            | 100% free, no paid tiers                                              | Free task list; Pro coming for integrations          |
+| License          | MIT                                                                   | AGPL-3.0                                             |
+| Account          | None required                                                         | Google sign-in                                       |
+| Where tasks live | On your device by default                                             | Railway Postgres in Amsterdam (EU), or self-hosted   |
+| Sync             | Optional via Nextcloud, WebDAV, Dropbox or SuperSync (beta)           | Automatic across browsers and the Mac app            |
+| Apps             | Windows, macOS, Linux, Android, iPhone, iPad, offline web app         | Web app, plus Mac app built from source              |
+| Subtask levels   | 1 level                                                               | Up to 4 levels (up to 50 per task)                   |
+| Time tracking    | Built-in, with timesheets, reports and focus sessions                 | No                                                   |
+| Reminders        | Yes                                                                   | No                                                   |
+| Todoist import   | API token; flattens deeper subtasks into 1 level; comments into notes | Read-only with preview; keeps up to 4 subtask levels |
+
+## When Super Productivity is the better choice
+
+Pick Super Productivity if any of these fit how you work:
+
+- You want your tasks stored on your device without creating an account.
+- You track hours, use timesheets, or work in Pomodoro, Flowtime or countdown sessions.
+- You pull tasks straight from GitHub, GitLab or Jira.
+- You need native apps on Windows, Linux, Android, iPhone or iPad, or you need offline use.
+- You rely on task reminders, kanban boards, an Eisenhower Matrix or calendar timeboxing.
+
+## When Soonlane fits
+
+Soonlane fits if you want the same task list in every browser without configuring WebDAV, Dropbox or file sync. It also fits if you plan your week by scrolling day by day, break work into nested subtasks up to four levels deep, and are fine signing in with Google and working without reminders or time tracking. If you want to compare a few more options first, see [apps like Todoist](/blog/apps-like-todoist).
+
+## Sources
+
+All Super Productivity pages and wiki entries below were checked 18 November 2026:
+
+- [Super Productivity home page](https://super-productivity.com/)
+- [Super Productivity pricing](https://super-productivity.com/pricing)
+- [Super Productivity downloads](https://super-productivity.com/download/)
+- [Super Productivity GitHub repository](https://github.com/johannesjo/super-productivity)
+- [Super Productivity license](https://github.com/johannesjo/super-productivity/blob/master/LICENSE)
+- [Wiki: Import from Todoist](https://github.com/johannesjo/super-productivity/wiki/2.20-Import-from-Todoist)
+- [Wiki: Set Up CalDAV](https://github.com/johannesjo/super-productivity/wiki/2.24-Set-Up-CalDAV)
+- [Wiki: Short Syntax](https://github.com/johannesjo/super-productivity/wiki/3.04-Short-Syntax)
+- [Wiki: Sync Integration Comparison](https://github.com/johannesjo/super-productivity/wiki/3.08-Sync-Integration-Comparison)
+- [Wiki: The Today View](https://github.com/johannesjo/super-productivity/wiki/4.01-The-Today-View)
+- [Wiki: Subtasks](https://github.com/johannesjo/super-productivity/wiki/4.11-Subtasks)
+- [Wiki: Scheduled Tasks](https://github.com/johannesjo/super-productivity/wiki/4.12-Scheduled-Tasks)
+- [Wiki: Repeating Tasks](https://github.com/johannesjo/super-productivity/wiki/4.13-Repeating-Tasks)
+
+Soonlane is not affiliated with the Super Productivity project or with Doist, the company behind Todoist. Super Productivity and Todoist are trademarks of their owners.

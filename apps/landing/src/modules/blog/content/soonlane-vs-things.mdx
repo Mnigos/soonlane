@@ -1,0 +1,98 @@
+---
+title: 'Things 3 vs Soonlane: a Things alternative for Windows and Android'
+description: Looking for a Things 3 alternative for Windows or Android? Compare Cultured Code's Apple-only app with Soonlane, a free task list that runs in any browser.
+date: '2026-11-18'
+draft: true
+---
+
+Things 3 is a polished task app with two Apple Design Awards, and it runs only on Apple devices. If you also use Windows, Android or a work PC, you cannot open your list there. I build Soonlane, an [open source Todoist alternative](/), and this post compares it with Things for people looking for a Things 3 alternative for Windows.
+
+The Things facts below come from Cultured Code's own pages and the US App Store listings, checked on 18 November 2026.
+
+## Where Things runs
+
+Things has apps for Mac, iPhone, iPad, Apple Watch and Apple Vision Pro. Each main app is a separate one-time purchase with no subscription and no in-app purchases. On the US App Store, Things 3 costs $49.99 for Mac (requires macOS 13.3 or later), $9.99 for iPhone and Apple Watch (requires iOS 16.4 or later), and $19.99 for iPad (requires iPadOS 16.4 or later). Cultured Code offers a free 15-day trial for the Mac on the Things website.
+
+Things has no web app. Cultured Code's Things Cloud support article puts it plainly: "Can I see my to-dos in an internet browser? No." You must install the Things app on a supported Apple device.
+
+Soonlane runs in a browser on Windows, Linux, Android, iPhone or a Mac. On phones, the sidebar turns into a drawer. There is no Soonlane app in the App Store or Google Play yet. For macOS, there is a Mac app that wraps the web app in its own window, adds ⌥Space Quick Add from any app and shows a count of overdue and due-today tasks on the Dock icon. There is no download yet, so for now you build the Mac app from the repository.
+
+## What feels familiar
+
+Both apps center on an Inbox, a Today list and an Upcoming list. In Soonlane, Upcoming is the first screen you see: one long scroll with the Inbox section, Overdue, Today and every day after, with a week strip on top. Each day has its own "Add task" row, so a task added under Friday is due on Friday. Today shows the Inbox section, Overdue and today's tasks. The Inbox holds tasks with no date and no project.
+
+<img
+	src="/site/upcoming-desktop.webp"
+	alt="Soonlane's Upcoming view on a laptop: the week strip, three overdue tasks, then the tasks due today and tomorrow."
+	width={1425}
+	height={900}
+/>
+
+Both read dates written in plain words. Things has Jump Start, a date popover where you can type things like "Wed 8pm". Soonlane reads dates typed in the task name (`fri`, `next week`, `14 Nov`) or in the date field, which also has quick picks for Today, Tomorrow, This weekend, Next week and Next weekend. A due time is set in the date field, not typed in the name.
+
+Both handle repeating tasks, tags or labels, and projects. In Soonlane you can type repeats in the task name (`every day`, `every weekday`, `every 3 weeks`, `every other month`, `every fri`, `every 15th`), or set a custom interval up to 99. Labels start with `@` in the task name, and each label gets a page and an open-task count in the sidebar. Projects are named lists in the sidebar without sections.
+
+## Where Things does more
+
+Things has years of detail built for Apple's platforms, and Soonlane leaves a lot of that out.
+
+- **More ways to group work.** Things gives you This Evening inside Today for tasks you plan to do later in the day, Someday to put items on hold, areas that group projects in the sidebar, headings inside projects and checklists inside a to-do.
+- **Reminders and deadlines.** Things supports time-based reminders and separate deadlines, and deadlines show up in Upcoming. Soonlane sends no reminders or notifications of any kind.
+- **Calendar events inside the app.** Things can show your Apple Calendar events next to your to-dos in Today and Upcoming. Google, Exchange or Outlook calendars work if you sync them into Apple Calendar first. Soonlane does not show calendar events inside the app.
+- **Apple system features.** Things includes Quick Find (type a project, to-do or tag name to jump there), Siri and Shortcuts, widgets, Markdown notes, a URL scheme and Mail to Things.
+- **Single-device use without an account.** On one Apple device without sync, Things needs no Things Cloud account. When you turn on Things Cloud, it syncs across your Apple devices for free using an email address (not an Apple Account), and data is encrypted in transit using a 2048-bit certificate and encrypted at rest on the server with 256-bit AES. Third-party sync such as iCloud or Dropbox is not supported.
+
+## Where Soonlane differs
+
+Soonlane makes different trade-offs so the same list opens on any computer or phone.
+
+- **Runs in any browser, for free.** The task list is free, including Inbox, Upcoming, Today, labels, projects and the Mac app. Integrations, starting with the calendar link, will move to a paid Pro plan when it launches. No Pro price is announced.
+- **Priorities and nested subtasks.** Tasks have priorities from P1 to P4, and typing `p1` in the task name sets it. Instead of a flat checklist inside a to-do, tasks can have subtasks up to 4 levels deep, up to 50 per task.
+- **Goals and overdue rescheduling.** A task can carry a goal such as 50 push-ups. You log progress from the task row and reaching the goal completes the task. When overdue tasks pile up, a Reschedule button on the Overdue heading moves all of them to one day.
+- **Tasks on your calendar.** Things cannot send to-dos to Apple Calendar. Soonlane gives you one private calendar link you subscribe to in Apple Calendar, Google Calendar or any app that reads iCalendar feeds, so your open tasks show up on their days.
+- **Open source and EU hosting.** Soonlane's code is open under AGPL-3.0, and you can run your own copy using the setup steps in the README on GitHub. On the hosted app, sign-in is Google only, your tasks sit in Railway Postgres in Amsterdam (EU), and deleting your account from the account menu deletes all its tasks.
+
+Neither app supports sharing. Cultured Code states that "Things does not support real-time sharing (collaboration) of to-dos or lists at this time", and Soonlane has no sharing or assigned tasks either.
+
+## Moving from Things
+
+Soonlane has no Things import. It imports from Todoist only: open tasks, subtasks up to 4 levels deep, labels and the projects that hold an imported task, with a preview first and read-only access. Things itself can import from Apple Reminders, Todoist and OmniFocus. If you move from Things to Soonlane today, you move your open tasks by hand.
+
+## Side by side
+
+Things facts as of 18 November 2026.
+
+|                | Things 3                                                           | Soonlane                                     |
+| -------------- | ------------------------------------------------------------------ | -------------------------------------------- |
+| Price          | $49.99 Mac, $9.99 iPhone/Watch, $19.99 iPad (one-time, US store)   | Free task list; Pro coming for integrations  |
+| Platforms      | Mac, iPhone, iPad, Apple Watch, Apple Vision Pro                   | Web browser on any OS; Mac app from source   |
+| Browser access | No                                                                 | Yes                                          |
+| Sync           | Things Cloud, free with purchase, encrypted in transit and at rest | Your account, in any browser and the Mac app |
+| Sharing        | No                                                                 | No                                           |
+| Reminders      | Yes                                                                | No                                           |
+| Calendar       | Shows Apple Calendar events; cannot send to-dos to Apple Calendar  | Sends tasks via iCalendar link; no events    |
+| Subtasks       | Checklists inside a to-do                                          | Subtasks up to 4 levels deep (up to 50)      |
+| Import         | Apple Reminders, Todoist, OmniFocus                                | Todoist                                      |
+
+## When Things is the better choice
+
+Pick Things if you live on Apple hardware and stay there. You pay once per platform, you get native apps across Mac, iPhone, iPad, Watch and Vision Pro, and you can use a single device without creating an account. It is also the clear pick if you rely on time-based reminders, deadlines, This Evening, Someday, areas and project headings, or Siri, Shortcuts and widgets.
+
+## When Soonlane fits
+
+Soonlane fits when you split your day between an iPhone or Mac at home and a Windows PC, Linux machine or Android phone elsewhere, and you want one free list you can open in a browser. It fits if you plan your week day by day in Upcoming and Today and do not need notifications. If you want to compare other cross-platform tools first, see [apps like Todoist](/blog/apps-like-todoist).
+
+## Sources
+
+Every Things detail in this post was checked 18 November 2026 against Cultured Code's pages and the US App Store:
+
+- [Things home page](https://culturedcode.com/things/)
+- [Things features](https://culturedcode.com/things/features/)
+- [Things 3 for Mac on the US App Store](https://apps.apple.com/us/app/things-3/id904280696)
+- [Things 3 for iPhone on the US App Store](https://apps.apple.com/us/app/things-3/id904237743)
+- [Things 3 for iPad on the US App Store](https://apps.apple.com/us/app/things-3/id904244226)
+- [Things Cloud FAQ](https://culturedcode.com/things/support/articles/2803586/)
+- [Using Apple Calendar with Things](https://culturedcode.com/things/support/articles/2803583/)
+- [Importing from other apps into Things](https://culturedcode.com/things/support/articles/2803555/)
+
+Soonlane is not affiliated with Cultured Code, the maker of Things, or with Doist, the company behind Todoist. Things and Todoist are trademarks of their owners.

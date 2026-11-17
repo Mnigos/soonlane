@@ -1,0 +1,101 @@
+---
+title: 'TickTick vs Soonlane: a free TickTick alternative, compared'
+description: See how Soonlane, a free TickTick alternative, handles lists, tasks and dates, and where TickTick does more. TickTick facts checked November 2026.
+date: '2026-11-18'
+draft: true
+---
+
+I build Soonlane, an [open source Todoist alternative](/). TickTick is a common pick for people who want a free app with typed dates and a Today-style plan. This post compares the two for people looking for a free TickTick alternative.
+
+The TickTick facts below come from TickTick's own pricing, home and download pages, and were checked on 18 November 2026.
+
+## What both do
+
+Both apps read dates typed in plain words. TickTick recognises dates and times as you type. In Soonlane you can type a date in the task name (`fri`, `next week`, `14 Nov`) or in the date field, which also has quick picks for Today, Tomorrow, This weekend, Next week and Next weekend. In Soonlane a due time is set in the date field, not typed in the name.
+
+Both handle repeating tasks. TickTick supports weekly, monthly, yearly or custom recurring rules. Soonlane repeats tasks every day, every weekday, every week, month or year, or on a custom interval such as every 3 weeks (up to 99). You can type repeats in the task name too, like `every day`, `every weekday`, `every 3 weeks`, `every other month`, `every fri` or `every 15th`.
+
+Both include priorities, subtasks, and tags or labels. Soonlane uses priorities P1 to P4, where typing `p1` in the task name sets it, and labels typed with `@` in the task name.
+
+Both keep your list in sync across devices. TickTick syncs across phone, computer, tablet and watch. Soonlane opens the same account in any browser and in its Mac app.
+
+## Where TickTick does more
+
+TickTick packs far more tools into one app than Soonlane does.
+
+- **Reminders.** TickTick includes 2 task reminders per task on Free and 5 on Premium. It also has Constant Reminder, where notifications keep ringing until you complete the task, and email reminders on Premium. Soonlane has no reminders or notifications of any kind.
+- **Views.** TickTick's free plan includes list and kanban views, plus a Basic calendar view and Basic Eisenhower Matrix. Across its plans, TickTick offers yearly, monthly, weekly, daily and agenda calendar views, timeline view, split view and sticky note. Soonlane has no kanban or calendar views inside the app, though it gives you one private calendar link you can subscribe to in Apple Calendar, Google Calendar or any app that reads iCalendar feeds.
+- **Focus and tracking tools.** TickTick builds in a Pomodoro timer with 25-minute intervals, a habit tracker (5 habits on Free, 299 on Premium) and countdowns for dates like birthdays (5 on Free, 299 on Premium). Soonlane has no time tracking, habits or countdowns.
+- **Filters.** TickTick has filters, for example "high-priority tasks for this week". Soonlane has no filters or saved searches.
+- **Sharing.** TickTick lets you share lists with friends and colleagues and assign tasks, with 2 members of a shared list on Free and 29 on Premium. Soonlane has no sharing or assigned tasks.
+- **Comments and attachments.** TickTick supports comments, templates and file attachments (1 per day on Free, 199 per day on Premium), plus checklist items (19 per task on Free, 199 on Premium). Soonlane has task descriptions, but no comments and no attachments.
+- **Native apps.** TickTick offers apps for iOS and iPadOS, Android, Windows, macOS, Linux, a browser extension and a web app, plus widgets and integrations with other apps like Notion. Soonlane is a web app in a browser on phones, Windows and Linux, with no app in the App Store or Google Play yet. Its Mac app wraps the web app in its own window, adds a Quick Add window on ⌥Space, and shows overdue or due-today counts on the Dock icon, though for now you build it from the repository.
+
+## Where Soonlane differs
+
+TickTick's free plan caps you at 9 lists and 99 tasks and notes per list. Soonlane sets no limit on lists, projects, labels or tasks on its free plan. Projects are free named lists in the sidebar without sections, and the only count limit is 50 subtasks per task.
+
+Soonlane opens on Upcoming: one long scroll with the Inbox section, Overdue, Today, and every day after, with a week strip on top. Each day has its own "Add task" row, so a task added under Friday is due on Friday. When tasks pile up, a Reschedule button on the Overdue heading moves all overdue tasks to one day.
+
+<img
+	src="/site/upcoming-desktop.webp"
+	alt="Soonlane's Upcoming view on a laptop: the week strip, three overdue tasks, then the tasks due today and tomorrow."
+	width={1425}
+	height={900}
+/>
+
+A few other pieces work differently in Soonlane:
+
+- **Goals.** A task can have a goal, such as 50 push-ups. You log progress from the task row, and reaching the goal completes the task.
+- **Subtasks.** Subtasks nest up to 4 levels deep, up to 50 per task.
+- **Todoist import.** From the account menu, you can import open tasks, subtasks up to 4 levels deep, labels and the projects that hold an imported task, with a preview first. Access is read-only, so Soonlane never writes to Todoist, and comments, attachments, reminders, filters, completed tasks, sections and deadlines stay in Todoist.
+- **Open source and EU data.** Soonlane's code is open source under AGPL-3.0, and you can run your own copy using the setup steps in the README on GitHub. Hosted data lives in Railway Postgres in Amsterdam (EU), and only your account can read your tasks.
+- **Sign-in.** Sign-in is Google only. Deleting your account from the account menu deletes all its tasks.
+
+## Side by side
+
+TickTick facts as of 18 November 2026.
+
+|                     | TickTick                                                                     | Soonlane                                        |
+| ------------------- | ---------------------------------------------------------------------------- | ----------------------------------------------- |
+| Price               | US$0 on Free, US$49.99/year on Premium                                       | Free, Pro coming for integrations               |
+| Lists               | 9 on Free, 299 on Premium                                                    | No limit on projects                            |
+| Tasks per list      | 99 on Free, 999 on Premium                                                   | No limit (up to 50 subtasks per task)           |
+| Reminders per task  | 2 on Free, 5 on Premium                                                      | None                                            |
+| Views               | List, kanban, calendar, timeline, split view, Eisenhower Matrix, sticky note | Upcoming, Today, Inbox, project and label pages |
+| Filters             | Yes                                                                          | None                                            |
+| Sharing             | Shared lists, 2 members on Free, 29 on Premium                               | None                                            |
+| Habits and Pomodoro | Habits (5 on Free, 299 on Premium) and 25-minute Pomodoro timer              | None                                            |
+| Apps                | iOS, iPadOS, Android, Windows, macOS, Linux, browser extension, web          | Web app, plus Mac app built from the repository |
+
+## Price
+
+TickTick's Free plan costs US$0. TickTick Premium costs US$49.99 a year ("less than US$4.17/month"), and the pricing page shows only this annual plan. Premium raises limits to 299 lists and 999 tasks per list, adds multiple calendar views, task duration, email reminders and AI features, and moves calendar view, Eisenhower Matrix, widgets, themes and statistics from Basic to Unlimited. If you buy through Google Play, PayPal or Stripe, TickTick offers refunds within 14 days of purchase. After Premium expires, your data is kept and you continue as a free user.
+
+Soonlane's task list is free, including Inbox, Upcoming, Today, labels, projects and the Mac app. Integrations, starting with the calendar link, will move to a paid Pro plan when it launches. No Pro price is announced yet.
+
+## When TickTick is the better choice
+
+Pick TickTick if you want any of these:
+
+- Reminders popping up on your phone, or Constant Reminder nagging you until a task is done.
+- Calendar views, kanban boards, a timeline or an Eisenhower Matrix next to your task list.
+- A habit tracker, countdowns and a 25-minute Pomodoro timer in the same app.
+- Shared lists where you can assign tasks to someone else.
+- Native apps on Windows, Android, iOS or Linux.
+
+## When Soonlane fits
+
+Soonlane fits if you plan your week by scrolling day by day, and you keep hitting TickTick's free limit of 9 lists or 99 tasks per list. It also fits if you want open source code under AGPL-3.0, your hosted data stored in Amsterdam in the EU, and you are fine working without reminders.
+
+If you want to compare more tools before choosing, read [apps like Todoist](/blog/apps-like-todoist) for other options.
+
+## Sources
+
+All TickTick details in this post come from TickTick's pages, checked 18 November 2026:
+
+- [TickTick pricing and upgrade page](https://ticktick.com/upgrade?language=en_US)
+- [TickTick home page](https://ticktick.com/)
+- [TickTick download page](https://ticktick.com/about/download)
+
+Soonlane is not affiliated with TickTick or with Doist, the company behind Todoist. TickTick and Todoist are trademarks of their owners.
