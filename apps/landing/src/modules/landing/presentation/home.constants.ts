@@ -1,4 +1,4 @@
-import { GITHUB_URL } from './landing.constants'
+import { GITHUB_URL, MAC_DOWNLOAD_URL } from './landing.constants'
 
 /** `width` and `height` are CSS pixels; the WebP files are captured at 2x. */
 export interface HomeImage {
@@ -32,6 +32,8 @@ export const HOME_HERO = {
 	todoistImportLine:
 		'Coming from Todoist? You can import your open tasks, projects, and labels.',
 	githubLabel: 'View on GitHub',
+	macDownloadLabel: 'Download for Mac',
+	macDownloadNote: 'Requires Apple silicon (M1 or later).',
 	desktopImage: {
 		src: '/site/upcoming-desktop.webp',
 		width: 1440,
@@ -123,7 +125,7 @@ export const HOME_OPEN_SOURCE = {
 	paragraphs: [
 		'The task list is free to use, with a paid Pro plan coming for integrations. The code is open source under AGPL-3.0, so you can read everything that happens to your tasks.',
 		'It runs on TanStack Start, React, Effect and Drizzle, hosted on Railway in Amsterdam with Railway Postgres.',
-		'A Mac app is in the works.',
+		'The Mac app is built with Electrobun from the same repository, bundling the same React components as the web app and talking to the same API.',
 	],
 	linkLabel: 'Read the source on GitHub',
 }
@@ -135,6 +137,12 @@ export const HOME_FAQ = {
 			question: 'Is Soonlane free?',
 			answer:
 				'The task list is free, including Upcoming, Today, labels and the Mac app. Sign in with Google to get your own list. Integrations, starting with the calendar link, will move to the paid Pro plan when it launches.',
+		},
+		{
+			question: 'Is there a Mac app?',
+			answer:
+				'Yes, for Macs with Apple silicon (M1 or later). It opens your list in its own window, shows how many tasks are overdue or due today on the Dock icon and lets you press ⌥Space in any app to open Quick Add. The app is free and notarized by Apple. It downloads new versions in the background, then shows a Restart to update button.',
+			link: { label: 'Download the Mac app', href: MAC_DOWNLOAD_URL },
 		},
 		{
 			question: 'What happens to my tasks?',
