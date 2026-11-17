@@ -60,8 +60,8 @@ export interface AuthEvents {
 		method: SignInMethod,
 		headers?: Headers
 	) => Promise<void>
-	/** Runs after the user row is deleted, whichever app asked. */
-	userDeleted: (userId: string) => Promise<void>
+	/** Runs when `/delete-user` has passed its checks, before anything of the user is deleted; a rejection keeps the account whole. */
+	userDeleting: (userId: string) => Promise<void>
 }
 
 export interface CreateAuthOptions {
@@ -233,7 +233,13 @@ export function createAuth(options: CreateAuthOptions) {
 		socialProviders: {
 			google: { ...options.google, disableIdTokenSignIn: true },
 		},
-		user: { deleteUser: { enabled: true } },
+		user: {
+			deleteUser: {
+				enabled: true,
+				// Not the user delete database hook: Better Auth deletes the sessions and accounts before that one runs.
+				beforeDelete: async ({ id }) => await options.events.userDeleting(id),
+			},
+		},
 		// Todoist reports no verified email; its user info carries the linking user's own address.
 		account: {
 			encryptOAuthTokens: true,
@@ -320,9 +326,6 @@ export function createAuth(options: CreateAuthOptions) {
 					},
 					after: async (created, context) =>
 						await options.events.userCreated(created, context?.headers),
-				},
-				delete: {
-					after: async ({ id }) => await options.events.userDeleted(id),
 				},
 			},
 			// Backs the `/link-social` check against two links racing: the later callback's tokens are revoked instead.

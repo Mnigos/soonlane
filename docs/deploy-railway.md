@@ -39,7 +39,7 @@ The `api` service:
 | `API_PROXY_SECRET`     | secret, the web server's too | its own secret, the web server's too |
 | `ALLOWED_EMAILS`       | optional                   | optional                           |
 | `POSTHOG_KEY`          | optional, the PostHog project key | optional                    |
-| `POSTHOG_PERSONAL_API_KEY` | optional, a PostHog personal API key with `person:write`, for deleting an account's PostHog person; needs `POSTHOG_KEY` too | optional, the same key |
+| `POSTHOG_PERSONAL_API_KEY` | a PostHog personal API key with `person:write`, for deleting an account's PostHog person; required whenever `POSTHOG_KEY` is set, or deleted accounts' persons wait in `person_deletion` | the same key, whenever `POSTHOG_KEY` is set |
 | `DESKTOP_MINIMUM_VERSION` | optional, the oldest desktop app version the API serves (`0.3.0`); unset, every version | optional |
 | `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` | optional, both or neither: the Todoist app for Import from Todoist | the same app |
 

@@ -1,8 +1,9 @@
 import type { UserId } from '@soonlane/domain'
 import { Context, type Effect } from 'effect'
 import type { ServerEvents } from '../domain/analytics-event.types'
+import type { PersonDeletionFailed } from '../domain/person-deletion.errors'
 
-/** Product analytics from the server; no method fails, so callers need no error handling. */
+/** Product analytics from the server; only `deletePerson` fails, so its caller can try again. */
 export class Analytics extends Context.Service<
 	Analytics,
 	{
@@ -16,8 +17,10 @@ export class Analytics extends Context.Service<
 			userId?: UserId,
 			details?: Record<string, string>
 		) => Effect.Effect<void>
-		/** Removes the user's PostHog person with their events and recordings. */
-		readonly deletePerson: (userId: UserId) => Effect.Effect<void>
+		/** Asks PostHog to remove the user's person with their events and recordings; succeeds without asking when the API sends PostHog nothing (no `POSTHOG_KEY`). */
+		readonly deletePerson: (
+			userId: UserId
+		) => Effect.Effect<void, PersonDeletionFailed>
 	}
 >()('soonlane/Analytics') {}
 
