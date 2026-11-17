@@ -34,13 +34,13 @@ export const HOME_HERO = {
 	githubLabel: 'View on GitHub',
 	desktopImage: {
 		src: '/site/upcoming-desktop.webp',
-		width: 1425,
+		width: 1440,
 		height: 900,
 		alt: 'Soonlane’s Upcoming view on a laptop: the week strip, three overdue tasks, then the tasks due today and tomorrow.',
 	},
 	phoneImage: {
 		src: '/site/upcoming-phone.webp',
-		width: 375,
+		width: 390,
 		height: 844,
 		alt: 'Upcoming on a phone, with the week strip above the overdue tasks.',
 	},

@@ -28,7 +28,12 @@ export function SidebarDeleteDialog({
 					Cancel
 				</Button>
 
-				<Button disabled={isPending} onClick={onConfirm} size="sm">
+				<Button
+					disabled={isPending}
+					onClick={onConfirm}
+					size="sm"
+					variant="destructive"
+				>
 					Delete
 				</Button>
 			</div>

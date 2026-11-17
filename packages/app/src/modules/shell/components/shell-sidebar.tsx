@@ -63,7 +63,7 @@ export function ShellSidebar({
 			</div>
 
 			<button
-				className="group flex h-8 cursor-pointer items-center gap-2 rounded-md px-1.5 text-sm font-semibold text-danger transition-colors hover:bg-hover"
+				className="group flex h-8 cursor-pointer items-center gap-2 rounded-md px-1.5 text-sm font-semibold text-primary-text transition-colors hover:bg-hover"
 				onClick={onAddTask}
 				type="button"
 			>

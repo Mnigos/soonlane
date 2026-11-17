@@ -68,7 +68,7 @@ export function ShellRail({
 				aria-label="Add task"
 				className={cn(
 					sidebarRailItemVariants(),
-					'text-danger hover:text-danger'
+					'text-primary-text hover:text-primary-text'
 				)}
 				onClick={onAddTask}
 				title="Add task"

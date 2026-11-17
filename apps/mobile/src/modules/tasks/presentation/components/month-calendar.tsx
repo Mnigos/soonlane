@@ -26,7 +26,7 @@ interface MonthCalendarProps {
 
 const DAY_TONE_COLORS = {
 	past: COLORS.faintForeground,
-	today: COLORS.danger,
+	today: COLORS.primaryText,
 	weekend: COLORS.secondaryForeground,
 	weekday: COLORS.foreground,
 } as const satisfies Record<CalendarDayTone, string>

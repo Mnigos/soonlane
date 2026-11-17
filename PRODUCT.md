@@ -37,7 +37,7 @@ Not a project-management tool: no boards, no Gantt charts, no team avatars, no d
 
 ## Design Principles
 
-Look like Todoist's dark theme for now: left sidebar, a centered list column, thin dividers, completion circles, red for actions and overdue state. Familiarity beats novelty here.
+A look of its own on a familiar layout: left sidebar, a centered list column, thin dividers, completion circles. Soonlane's teal marks actions and the current day; coral marks only what is overdue. Someone coming from another task list finds their way around, but the screen never passes for Todoist's, since Soonlane names Todoist in its comparisons and its import and is not affiliated with Doist.
 
 Dates carry the structure. Day headings, the week strip and the Overdue section are the navigation; everything else stays out of their way.
 

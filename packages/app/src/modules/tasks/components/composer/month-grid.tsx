@@ -34,7 +34,7 @@ function focusElement(element: HTMLButtonElement | null) {
 
 const DAY_TONE_CLASSES = {
 	past: 'text-faint-foreground',
-	today: 'font-semibold text-danger',
+	today: 'font-semibold text-primary-text',
 	weekend: 'text-secondary-foreground',
 	weekday: 'text-foreground',
 } as const satisfies Record<CalendarDayTone, string>

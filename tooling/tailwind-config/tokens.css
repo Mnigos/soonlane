@@ -17,12 +17,15 @@
 	--muted-foreground: #a3a3a3;
 	--faint-foreground: #6f6f6f;
 
-	--primary: #cf473a;
-	--primary-hover: #c3392c;
+	--primary: #118576;
+	--primary-hover: #0b6f64;
 	--primary-foreground: #ffffff;
-	--primary-muted: #3d2523;
+	--primary-muted: #1d3532;
+	--primary-text: #4fd0bf;
 
 	--danger: #ff7066;
+	--destructive: #cf473a;
+	--destructive-hover: #c3392c;
 
 	--priority-1: #d1453b;
 	--priority-2: #eb8909;
@@ -84,8 +87,11 @@
 	--color-primary-hover: var(--primary-hover);
 	--color-primary-foreground: var(--primary-foreground);
 	--color-primary-muted: var(--primary-muted);
+	--color-primary-text: var(--primary-text);
 
 	--color-danger: var(--danger);
+	--color-destructive: var(--destructive);
+	--color-destructive-hover: var(--destructive-hover);
 
 	--color-priority-1: var(--priority-1);
 	--color-priority-2: var(--priority-2);

@@ -23,6 +23,11 @@ export function AddTaskRow({ onPress }: Readonly<AddTaskRowProps>) {
 const styles = StyleSheet.create({
 	row: { height: 44, flexDirection: 'row', alignItems: 'center', gap: 10 },
 	pressed: { backgroundColor: COLORS.hover },
-	plus: { ...TEXT.lg, width: 18, textAlign: 'center', color: COLORS.primary },
+	plus: {
+		...TEXT.lg,
+		width: 18,
+		textAlign: 'center',
+		color: COLORS.primaryText,
+	},
 	label: { ...TEXT.sm, color: COLORS.mutedForeground },
 })

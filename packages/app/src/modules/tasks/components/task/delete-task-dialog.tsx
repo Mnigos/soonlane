@@ -43,6 +43,7 @@ export function DeleteTaskDialog({
 						onDeleted?.()
 					}}
 					size="sm"
+					variant="destructive"
 				>
 					Delete
 				</Button>

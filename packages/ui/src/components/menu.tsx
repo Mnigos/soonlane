@@ -72,7 +72,7 @@ export function MenuRadioItem({
 		>
 			{children}
 
-			<BaseMenu.RadioItemIndicator className="ml-auto text-primary">
+			<BaseMenu.RadioItemIndicator className="ml-auto text-primary-text">
 				<Check aria-hidden className="size-4" strokeWidth={2.5} />
 			</BaseMenu.RadioItemIndicator>
 		</BaseMenu.RadioItem>

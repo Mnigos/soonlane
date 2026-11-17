@@ -80,7 +80,11 @@ export function DeleteAccountDialog({
 					</Button>
 
 					{!needsFreshSignIn && (
-						<Button disabled={isPending} onClick={() => mutate()}>
+						<Button
+							disabled={isPending}
+							onClick={() => mutate()}
+							variant="destructive"
+						>
 							{isPending ? 'Deleting…' : 'Delete account'}
 						</Button>
 					)}

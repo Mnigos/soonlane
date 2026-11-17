@@ -10,7 +10,7 @@ const TABS = [
 
 export default function TabsLayout() {
 	return (
-		<NativeTabs tintColor={COLORS.danger}>
+		<NativeTabs tintColor={COLORS.primaryText}>
 			{TABS.map(tab => (
 				<NativeTabs.Trigger key={tab.name} name={tab.name}>
 					<NativeTabs.Trigger.Icon sf={tab.icon} />
