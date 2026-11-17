@@ -7,7 +7,7 @@ import {
 	Effect,
 	Layer,
 	Option,
-	type Redacted,
+	Redacted,
 	Schema,
 	SchemaTransformation,
 } from 'effect'
@@ -40,6 +40,23 @@ const authSecretSchema = Schema.String.check(
 	)
 )
 
+interface OAuthClientConfig {
+	readonly clientId: string
+	readonly clientSecret: Redacted.Redacted
+}
+
+/** Where sign-in codes go: Resend's HTTP API (Railway's Hobby plan blocks SMTP), an SMTP server, or the log in development. */
+export type EmailTransport =
+	| { readonly kind: 'resend'; readonly apiKey: Redacted.Redacted }
+	| { readonly kind: 'smtp'; readonly url: Redacted.Redacted }
+	| { readonly kind: 'log' }
+
+export interface EmailConfig {
+	/** The sender, such as `Soonlane <code@mail.soonlane.com>`. */
+	readonly from: string
+	readonly transport: EmailTransport
+}
+
 export class AppConfig extends Context.Service<
 	AppConfig,
 	{
@@ -56,18 +73,17 @@ export class AppConfig extends Context.Service<
 		readonly databaseUrl: Redacted.Redacted
 		readonly authSecret: Redacted.Redacted
 		readonly allowedEmails: readonly string[]
-		readonly googleClientId: string
-		readonly googleClientSecret: Redacted.Redacted
+		/** Unset, nobody signs in with Google. */
+		readonly google?: OAuthClientConfig
+		/** Unset, nobody signs in with an email code, except in development, where the codes go to the log. */
+		readonly email?: EmailConfig
 		readonly proxySecret: Redacted.Redacted
 		readonly posthogKey?: string
 		/** A PostHog personal API key with `person:write`; unset, deleting an account leaves its PostHog person. */
 		readonly posthogPersonalApiKey?: Redacted.Redacted
 		/** The oldest desktop app version this API serves; unset, every version is. */
 		readonly desktopMinimumVersion?: string
-		readonly todoist?: {
-			readonly clientId: string
-			readonly clientSecret: Redacted.Redacted
-		}
+		readonly todoist?: OAuthClientConfig
 	}
 >()('soonlane/AppConfig') {}
 
@@ -75,24 +91,84 @@ function originConfig(name: string) {
 	return Config.URL(name).pipe(Config.map(url => url.origin))
 }
 
-const todoistClientConfig = Config.all({
-	clientId: Config.NonEmptyString('TODOIST_CLIENT_ID'),
-	clientSecret: Config.Redacted('TODOIST_CLIENT_SECRET'),
-})
+function configFailure(message: string) {
+	return Config.fail(new ConfigProvider.SourceError({ message }))
+}
 
-/** Both Todoist variables or neither: with one set, the other is read as required, so the start fails naming it. */
-const todoistConfig = Config.all({
-	clientId: Config.option(Config.NonEmptyString('TODOIST_CLIENT_ID')),
-	clientSecret: Config.option(Config.Redacted('TODOIST_CLIENT_SECRET')),
-}).pipe(
-	Config.flatMap(({ clientId, clientSecret }) =>
-		Option.isNone(clientId) && Option.isNone(clientSecret)
-			? Config.succeed(undefined)
-			: todoistClientConfig
+/** Both variables of an OAuth client or neither: with one set, the other is read as required, so the start fails naming it. */
+function oauthClientConfig(idName: string, secretName: string) {
+	return Config.all({
+		clientId: Config.option(Config.NonEmptyString(idName)),
+		clientSecret: Config.option(Config.Redacted(secretName)),
+	}).pipe(
+		Config.flatMap(({ clientId, clientSecret }) =>
+			Option.isNone(clientId) && Option.isNone(clientSecret)
+				? Config.succeed(undefined)
+				: Config.all({
+						clientId: Config.NonEmptyString(idName),
+						clientSecret: Config.Redacted(secretName),
+					})
+		)
 	)
+}
+
+/** `code@mail.soonlane.com` or `Soonlane <code@mail.soonlane.com>`, the two shapes Resend and SMTP accept. */
+const SENDER_PATTERN =
+	/^(?:[^<>]+ <[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+>|[^\s<>@]+@[^\s<>@]+\.[^\s<>@]+)$/u
+
+/** Nodemailer takes any string and falls back to localhost, so a typo would advertise email sign-in that never sends. */
+function isSmtpUrl(value: string) {
+	const url = URL.parse(value)
+
+	return (
+		(url?.protocol === 'smtp:' || url?.protocol === 'smtps:') &&
+		url.hostname !== ''
+	)
+}
+
+/** `EMAIL_FROM` with exactly one of `RESEND_API_KEY` and `SMTP_URL`, or none of the three; anything in between stops the start. */
+const emailConfig = Config.all({
+	from: Config.option(
+		Config.schema(
+			Schema.String.check(
+				Schema.makeFilter(
+					value =>
+						SENDER_PATTERN.test(value) ||
+						'EMAIL_FROM must be an address, or a name and an address in angle brackets'
+				)
+			),
+			'EMAIL_FROM'
+		)
+	),
+	resendApiKey: Config.option(Config.Redacted('RESEND_API_KEY')),
+	smtpUrl: Config.option(Config.Redacted('SMTP_URL')),
+}).pipe(
+	Config.flatMap(({ from, resendApiKey, smtpUrl }) => {
+		const transports: EmailTransport[] = [
+			...Option.toArray(resendApiKey).map(apiKey => ({
+				kind: 'resend' as const,
+				apiKey,
+			})),
+			...Option.toArray(smtpUrl).map(url => ({ kind: 'smtp' as const, url })),
+		]
+		const [transport, ...others] = transports
+
+		if (Option.isSome(smtpUrl) && !isSmtpUrl(Redacted.value(smtpUrl.value)))
+			return configFailure(
+				'SMTP_URL must be an smtp:// or smtps:// URL with a host'
+			)
+
+		if (Option.isNone(from) && !transport) return Config.succeed(undefined)
+		if (Option.isNone(from) || !transport || others.length > 0)
+			return configFailure(
+				'Set EMAIL_FROM with exactly one of RESEND_API_KEY and SMTP_URL, or none of them'
+			)
+
+		return Config.succeed({ from: from.value, transport })
+	})
 )
 
-/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys and the Todoist pair is required: a missing or malformed variable stops the start with its name. */
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys, the Google and Todoist pairs and the email group is required: a missing or malformed variable stops the start with its name, and so does a server with no way to sign in. */
 const appConfig = Config.all({
 	port: Config.Port('PORT'),
 	environment: Config.NonEmptyString('APP_ENV'),
@@ -118,8 +194,8 @@ const appConfig = Config.all({
 		Config.withDefault(''),
 		Config.map(parseAllowedEmails)
 	),
-	googleClientId: Config.NonEmptyString('GOOGLE_CLIENT_ID'),
-	googleClientSecret: Config.Redacted('GOOGLE_CLIENT_SECRET'),
+	google: oauthClientConfig('GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'),
+	email: emailConfig,
 	proxySecret: Config.Redacted('API_PROXY_SECRET'),
 	posthogKey: Config.option(Config.NonEmptyString('POSTHOG_KEY')).pipe(
 		Config.map(Option.getOrUndefined)
@@ -127,7 +203,7 @@ const appConfig = Config.all({
 	posthogPersonalApiKey: Config.option(
 		Config.Redacted('POSTHOG_PERSONAL_API_KEY')
 	).pipe(Config.map(Option.getOrUndefined)),
-	todoist: todoistConfig,
+	todoist: oauthClientConfig('TODOIST_CLIENT_ID', 'TODOIST_CLIENT_SECRET'),
 	desktopMinimumVersion: Config.option(
 		Config.schema(
 			Schema.String.check(
@@ -152,10 +228,32 @@ const bundleProvider = ConfigProvider.fromEnvRecord({
 	APP_COMMIT: process.env.APP_COMMIT,
 })
 
+/** In development without email settings, sign-in codes go to the log, so a fresh checkout signs in with neither Google nor a mail provider. */
+const signInConfig = appConfig.pipe(
+	Config.map(config =>
+		config.email || config.environment !== 'development'
+			? config
+			: {
+					...config,
+					email: {
+						from: 'Soonlane <dev@localhost>',
+						transport: { kind: 'log' as const },
+					},
+				}
+	),
+	Config.flatMap(config =>
+		config.google || config.email
+			? Config.succeed(config)
+			: configFailure(
+					'Set up a way to sign in: GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET, or EMAIL_FROM with RESEND_API_KEY or SMTP_URL'
+				)
+	)
+)
+
 export const AppConfigLive = Layer.effect(
 	AppConfig,
 	Effect.gen(function* () {
-		return { ...(yield* appConfig), version: versionFile.version }
+		return { ...(yield* signInConfig), version: versionFile.version }
 	}).pipe(
 		Effect.provideService(
 			ConfigProvider.ConfigProvider,

@@ -130,6 +130,8 @@ export default defineRailway(ctx => {
 			AUTH_SECRET: preserve(),
 			GOOGLE_CLIENT_ID: preserve(),
 			GOOGLE_CLIENT_SECRET: preserve(),
+			EMAIL_FROM: preserve(),
+			RESEND_API_KEY: preserve(),
 			API_PROXY_SECRET: preserve(),
 			ALLOWED_EMAILS: preserve(),
 			POSTHOG_KEY: preserve(),

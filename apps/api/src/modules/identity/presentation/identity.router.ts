@@ -1,4 +1,5 @@
 import { os } from '@/platform/rpc/rpc.base'
+import { Auth } from '../application/auth.port'
 
 export const identityRouter = {
 	me: os.identity.me.handler(({ context }) => {
@@ -14,5 +15,8 @@ export const identityRouter = {
 				image: user.image,
 			},
 		}
+	}),
+	signInMethods: os.identity.signInMethods.effect(function* () {
+		return (yield* Auth).signInMethods
 	}),
 }

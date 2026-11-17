@@ -12,6 +12,7 @@ import {
 	AnalyticsConsent,
 } from '@/modules/analytics/application/analytics.port'
 import { AnalyticsService } from '@/modules/analytics/application/analytics.service'
+import { Email } from '@/modules/email/application/email.port'
 import { AppConfig } from '@/platform/config/app.config'
 import { Db } from '@/platform/db/db.layer'
 import { Auth } from '../application/auth.port'
@@ -39,6 +40,7 @@ export const BetterAuthLive = Layer.effect(
 		const db = yield* Db
 		const analytics = yield* Analytics
 		const analyticsService = yield* AnalyticsService
+		const email = yield* Email
 		const context = yield* Effect.context()
 		const auth = createAuth({
 			database: db.database,
@@ -50,9 +52,14 @@ export const BetterAuthLive = Layer.effect(
 			errorUrl: `${config.appUrl}/login`,
 			secret: Redacted.value(config.authSecret),
 			allowedEmails: config.allowedEmails,
-			google: {
-				clientId: config.googleClientId,
-				clientSecret: Redacted.value(config.googleClientSecret),
+			google: config.google && {
+				clientId: config.google.clientId,
+				clientSecret: Redacted.value(config.google.clientSecret),
+			},
+			emailCode: config.email && {
+				send: async mail => {
+					Effect.runForkWith(context)(email.sendSignInCode(mail))
+				},
 			},
 			todoist: config.todoist && {
 				clientId: config.todoist.clientId,
@@ -93,6 +100,10 @@ export const BetterAuthLive = Layer.effect(
 		return Auth.of({
 			handle: async request => await auth.handler(request),
 			readStoredToken: async stored => await readStoredOAuthToken(auth, stored),
+			signInMethods: {
+				google: Boolean(config.google),
+				emailCode: Boolean(config.email),
+			},
 			getSession: async headers => {
 				const { headers: responseHeaders, response: result } =
 					await auth.api.getSession({

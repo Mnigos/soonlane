@@ -4,6 +4,7 @@ import { PersonDeletionRepositoryLive } from '@/modules/analytics/infrastructure
 import { PostHogAnalyticsLive } from '@/modules/analytics/infrastructure/posthog-analytics.layer'
 import { CalendarServiceLive } from '@/modules/calendar/application/calendar.service'
 import { CalendarSubscriptionRepositoryLive } from '@/modules/calendar/infrastructure/calendar-subscription.repository'
+import { EmailLive } from '@/modules/email/infrastructure/email.layer'
 import { BetterAuthLive } from '@/modules/identity/infrastructure/better-auth.layer'
 import { LabelsServiceLive } from '@/modules/labels/application/labels.service'
 import { LabelRepositoryLive } from '@/modules/labels/infrastructure/label.repository'
@@ -45,7 +46,7 @@ export const ServicesLive = Layer.mergeAll(
 	Layer.provideMerge(
 		AnalyticsServiceLive.pipe(Layer.provide(PersonDeletionRepositoryLive))
 	),
-	Layer.provideMerge(PostHogAnalyticsLive),
+	Layer.provideMerge(Layer.merge(PostHogAnalyticsLive, EmailLive)),
 	Layer.provideMerge(DbLive),
 	Layer.provideMerge(AppConfigLive)
 )

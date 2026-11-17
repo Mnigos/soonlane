@@ -11,7 +11,8 @@ export interface AuthUser {
 	image?: string
 }
 
-function normalizeEmail(email: string) {
+/** Trimmed and lowercased, as every address is compared and stored. */
+export function normalizeEmail(email: string) {
 	return email.trim().toLowerCase()
 }
 

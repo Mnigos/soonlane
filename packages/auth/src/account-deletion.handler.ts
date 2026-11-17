@@ -3,6 +3,8 @@ import { APIError, getSessionFromCtx } from 'better-auth/api'
 import { z } from 'zod'
 import { GOOGLE_LOGIN_NOT_RENEWED } from './account-deletion.constants'
 import type { AuthLogger, AuthLogLevel } from './better-auth.config'
+import type { ReauthMethod } from './email-code.constants'
+import { isFreshEmailCode } from './email-code.handler'
 import { parseJson } from './utils/json.util'
 
 /** Asks Google for `auth_time` in the ID token; Google adds it only while "Session age claims" is on for the OAuth client's project. */
@@ -89,16 +91,34 @@ function findDeletionRefusal(
 	return undefined
 }
 
+/** The sign-in methods this server offers, which decide how a user proves themselves again before deleting the account. */
+export interface DeletionMethods {
+	google: boolean
+	emailCode: boolean
+}
+
+const REAUTH_MESSAGES: Record<string, string> = {
+	'email,google':
+		'Sign in again with an email code or Google to delete your account.',
+	email: 'Sign in again with an email code to delete your account.',
+	google: 'Sign in again with Google to delete your account.',
+	'': "This account can't be deleted because no sign-in method is configured.",
+}
+
 /**
- * The before hook's check on `/delete-user`: lets it through only for a
- * session that started with a Google login at most five minutes old, and
- * otherwise answers `SESSION_EXPIRED`, which the web and the apps turn into a
- * fresh sign-in; with reason `GOOGLE_LOGIN_NOT_RENEWED`, they first ask the
- * user to sign out of Google. Bearer requests are refused, as their session is
- * invisible here; the desktop app deletes nothing.
+ * The before hook's check on `/delete-user`: lets it through for a session
+ * that an email code started at most five minutes ago (or a hand-off from
+ * one), or that started with a Google login at most five minutes old, and
+ * otherwise answers `SESSION_EXPIRED` with `reauth`, the methods this user can
+ * prove themselves with: an email code for everyone while email sign-in is
+ * on, Google for a user with a Google account while Google sign-in is on.
+ * With reason `GOOGLE_LOGIN_NOT_RENEWED`, a client offering Google first asks
+ * the user to sign out of Google. Bearer requests are refused, as their
+ * session is invisible here; the desktop app deletes nothing.
  */
 export async function refuseStaleDeletion(
 	ctx: GenericEndpointContext,
+	methods: DeletionMethods,
 	log: AuthLogger
 ) {
 	if (isBearerRequest(ctx))
@@ -109,23 +129,31 @@ export async function refuseStaleDeletion(
 	const signedIn = await getSessionFromCtx(ctx, { disableCookieCache: true })
 
 	if (!signedIn) throw new APIError('UNAUTHORIZED')
+	if (methods.emailCode && isFreshEmailCode(signedIn.session)) return
 
 	const accounts = await ctx.context.internalAdapter.findAccounts(
 		signedIn.user.id
 	)
-	const refusal = findDeletionRefusal(
-		accounts
-			.filter(({ providerId }) => providerId === 'google')
-			.map(({ idToken }) => idToken),
-		new Date(signedIn.session.createdAt)
-	)
+	const googleIdTokens = accounts
+		.filter(({ providerId }) => providerId === 'google')
+		.map(({ idToken }) => idToken)
+	const offersGoogle = methods.google && googleIdTokens.length > 0
+	const refusal = offersGoogle
+		? findDeletionRefusal(googleIdTokens, new Date(signedIn.session.createdAt))
+		: { level: 'info' as const, message: 'no fresh email code' }
 
 	if (!refusal) return
+
+	const reauth = [
+		...(methods.emailCode ? ['email' as const] : []),
+		...(offersGoogle ? ['google' as const] : []),
+	] satisfies ReauthMethod[]
 
 	log(refusal.level, `[Account deletion] Refused: ${refusal.message}.`)
 	throw new APIError('BAD_REQUEST', {
 		code: 'SESSION_EXPIRED',
-		message: 'Sign in with Google again to delete your account.',
+		message: REAUTH_MESSAGES[reauth.join(',')],
 		reason: refusal.reason,
+		reauth,
 	})
 }
