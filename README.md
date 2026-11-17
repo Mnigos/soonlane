@@ -63,7 +63,7 @@ To update, run `docker compose pull && docker compose up -d`. Data stays in the 
 | `packages/auth`             | Better Auth factory (Google, open sign-up, OAuth proxy) and the browser auth client.         |
 | `packages/ui`               | Shared React primitives (`button`, `dialog`, `popover`, `menu`, `sidebar`, …) and `cn`.      |
 | `tooling/typescript-config` | tsconfig presets every workspace extends.                                                    |
-| `tooling/tailwind-config`   | Tailwind 4 theme and the Todoist-like dark tokens.                                           |
+| `tooling/tailwind-config`   | Tailwind 4 theme and the dark design tokens.                                                 |
 | `tooling/vite-config`       | The build info (environment, version, commit) both Vite configs inline.                      |
 | `tooling/oxlint-plugin`     | `soonlane/*` lint rules for file names, spec pairing, hooks, repositories and style.         |
 

@@ -64,5 +64,5 @@ const styles = StyleSheet.create({
 	message: { ...TEXT.sm, flexShrink: 1, color: COLORS.foreground },
 	action: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: RADIUS.md },
 	pressed: { backgroundColor: COLORS.hover },
-	actionLabel: { ...TEXT.sm, fontWeight: '600', color: COLORS.danger },
+	actionLabel: { ...TEXT.sm, fontWeight: '600', color: COLORS.primaryText },
 })

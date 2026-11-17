@@ -97,7 +97,7 @@ export function SidebarSection({
 }
 
 const SIDEBAR_ITEM_STATES = {
-	active: 'bg-primary-muted text-danger',
+	active: 'bg-primary-muted text-primary-text',
 	inactive: 'text-foreground hover:bg-hover',
 } as const satisfies Record<string, string>
 

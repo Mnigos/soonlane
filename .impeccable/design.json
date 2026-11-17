@@ -36,16 +36,23 @@
       },
       "primary": {
         "role": "primary",
-        "displayName": "Todoist Red",
-        "canonical": "#cf473a",
-        "usage": "Add task actions, the today badge, focus outlines.",
-        "tonalRamp": ["#3d2523", "#c3392c", "#cf473a", "#ff7066"]
+        "displayName": "Lane Teal",
+        "canonical": "#118576",
+        "usage": "Add task actions, the today badge, the chosen day, checked boxes, focus outlines. Lane Mint (#4fd0bf) is the same accent as text or icon on dark surfaces.",
+        "tonalRamp": ["#1d3532", "#0b6f64", "#118576", "#4fd0bf"]
       },
       "danger": {
         "role": "semantic",
         "displayName": "Overdue Coral",
         "canonical": "#ff7066",
-        "usage": "Active sidebar text, Reschedule, overdue dates, errors, today's number in the date picker."
+        "usage": "Reschedule, overdue dates, errors, Delete in menus."
+      },
+      "destructive": {
+        "role": "semantic",
+        "displayName": "Delete Red",
+        "canonical": "#cf473a",
+        "usage": "Fill of the button that confirms a delete in a dialog, nothing else.",
+        "tonalRamp": ["#c3392c", "#cf473a"]
       },
       "priority-1": {
         "role": "semantic",
@@ -152,7 +159,7 @@
     "rules": {
       "do": [
         "Keep the list column centered and at most 768px wide.",
-        "Use red only for actions, the current day and overdue state.",
+        "Use teal only for actions, the current day and the current selection; coral and red only for overdue state, errors and deleting.",
         "Show skeletons until the browser's local date is known."
       ],
       "dont": [

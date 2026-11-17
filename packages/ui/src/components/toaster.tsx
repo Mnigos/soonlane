@@ -12,7 +12,7 @@ export function Toaster() {
 					toast:
 						'flex w-full items-center justify-between gap-4 rounded-md border bg-sidebar px-4 py-3 text-sm text-foreground shadow-lg',
 					actionButton:
-						'cursor-pointer rounded-md px-2 py-1 text-sm font-semibold text-danger transition-colors hover:bg-hover',
+						'cursor-pointer rounded-md px-2 py-1 text-sm font-semibold text-primary-text transition-colors hover:bg-hover',
 				},
 			}}
 		/>

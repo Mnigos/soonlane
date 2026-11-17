@@ -117,7 +117,7 @@ export function ProjectPicker({
 
 								<Check
 									aria-hidden
-									className="ml-auto size-4 shrink-0 text-primary opacity-0 group-data-selected:opacity-100"
+									className="ml-auto size-4 shrink-0 text-primary-text opacity-0 group-data-selected:opacity-100"
 									strokeWidth={2}
 								/>
 							</>

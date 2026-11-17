@@ -13,7 +13,7 @@ The home page (`apps/landing/src/modules/landing`) shows the real app in five We
 ## Steps
 
 1. Start the dev server (`bun run dev`) and create the sample user: `bun run --cwd apps/api dev:session` prints a session cookie for "Sample User" (see `docs/deploy-railway.md`, Local environment). Set that cookie for `localhost` in the browser.
-2. Add a handful of believable tasks: two or three overdue, four due today (one with a description, some with times and priorities), and a few over the next days.
+2. Add a handful of believable tasks: two or three overdue, four due today (one with a description, some with times and priorities), and a few over the next days. The alt texts here and in the blog posts name Friday 6 Nov 2026 as today and 13 Nov as the composer's date, so date the tasks around that day and take the captures with the browser's clock set to it (for example Playwright's `page.clock.setFixedTime`), or update every alt text that names a date.
 3. Open DevTools, turn on the device toolbar, set the viewport (table above) and DPR 2, then use "Capture screenshot" from the device toolbar menu. Leave the browser's scrollbar out of the frame.
 4. Crop only to remove empty space or the browser's scrollbar (for example to the centered list column for the feature rows), never edit the content. Convert each PNG to WebP and check that it stays under about 200 KB:
 
