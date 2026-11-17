@@ -35,7 +35,10 @@ The `api` service:
 | `AUTH_COOKIE_DOMAIN` | `soonlane.com`          | `staging.soonlane.com`             |
 | `DATABASE_URL`    | `${{Postgres.DATABASE_URL}}`, entered by hand | `${{Postgres.DATABASE_URL}}` |
 | `AUTH_SECRET`          | secret, at least 32 characters | its own secret                 |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | the OAuth client | the same client           |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET` | optional, both or neither: the OAuth client | the same client |
+| `EMAIL_FROM`           | the sender of sign-in codes, `Soonlane <code@mail.soonlane.com>` | `Soonlane Staging <code@mail.staging.soonlane.com>` |
+| `RESEND_API_KEY`       | secret, a Resend API key with sending access to `mail.soonlane.com` | its own key, for the staging domain |
+| `SMTP_URL`             | unset (Railway's Hobby plan blocks outbound SMTP) | unset |
 | `API_PROXY_SECRET`     | secret, the web server's too | its own secret, the web server's too |
 | `ALLOWED_EMAILS`       | optional                   | optional                           |
 | `POSTHOG_KEY`          | optional, the PostHog project key | optional                    |
@@ -371,3 +374,11 @@ If step 5 or 6 refuses a commit that is not on `main`, visitors have seen no cha
 4. **Staging**: staging services have no GitHub source, so an apply that deletes `SITE_URL` would redeploy the old `api`, which needs it. First run **Deploy staging** with `main`: `api` and `web` go live with the new variables from step 1, and `landing` fails like production's in step 2. Then run the same apply with `--environment staging`, and **Deploy staging** with `main` once more.
 
 Locally, rename `SITE_URL` to `LANDING_URL` in `apps/api/.env.local` (and `VITE_SITE_URL` in `apps/web/.env.local`, if set), or the local API refuses to start.
+
+## Email codes
+
+Sign-in codes go out through Resend's HTTP API, since Railway's Hobby plan blocks outbound SMTP ([ADR 0009](decisions/0009-open-sign-in.md), SOON-201 update). Igor's steps, in order:
+
+1. **Sending domains**: in Resend, add `mail.soonlane.com` and `mail.staging.soonlane.com`, and create their SPF, DKIM and DMARC records in Cloudflare as Resend lists them, DNS only. Check: Resend shows both domains as Verified.
+2. **Staging**: on the `api` service in `staging`, set `EMAIL_FROM` (`Soonlane Staging <code@mail.staging.soonlane.com>`) and `RESEND_API_KEY` (a sending key for that domain), and redeploy. Check: `curl -s -X POST https://api.staging.soonlane.com/api/rpc/identity/signInMethods -H 'content-type: application/json' -d '{}'` answers `{"json":{"google":true,"emailCode":true}}`; `curl -s -X POST https://api.staging.soonlane.com/api/auth/email-otp/send-verification-otp -H 'origin: https://app.staging.soonlane.com' -H 'content-type: application/json' -d '{"email":"<your address>","type":"sign-in"}'` answers `{"success":true}` and the code arrives within a minute; the API log has no `[Email] A sign-in code was not sent`.
+3. **Production**: set the same two variables on `production` (`Soonlane <code@mail.soonlane.com>` and a key for that domain) only once the web app's email sign-in and deletion are deployed there. Before that, anyone could create an email-code account with curl that no app could delete. Check: as in step 2, on `api.soonlane.com`.
