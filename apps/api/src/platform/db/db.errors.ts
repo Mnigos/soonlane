@@ -8,6 +8,7 @@ export class DbError extends Data.TaggedError('DbError')<{
 const UNIQUE_VIOLATION_CODE = '23505'
 const FOREIGN_KEY_VIOLATION_CODE = '23503'
 const CHECK_VIOLATION_CODE = '23514'
+const TRANSACTION_ABORT_CODES = new Set(['40001', '40P01'])
 
 function hasViolation(
 	cause: unknown,
@@ -47,4 +48,11 @@ export function findDriverErrorCode(cause: unknown): string | undefined {
 	if ('code' in cause && typeof cause.code === 'string') return cause.code
 
 	return 'cause' in cause ? findDriverErrorCode(cause.cause) : undefined
+}
+
+/** A transaction Postgres rolled back as a serialization failure (`40001`) or to break a deadlock (`40P01`); run again, it can succeed. */
+export function isTransactionAbort(error: DbError) {
+	const code = findDriverErrorCode(error.cause)
+
+	return code !== undefined && TRANSACTION_ABORT_CODES.has(code)
 }

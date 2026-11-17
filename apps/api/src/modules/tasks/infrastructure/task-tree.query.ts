@@ -2,8 +2,7 @@ import type { GoalInput, Task } from '@soonlane/contracts'
 import { task, type TaskRow } from '@soonlane/db'
 import type { CalendarDate } from '@soonlane/domain'
 import { and, eq, inArray, isNotNull, isNull, ne, sql } from 'drizzle-orm'
-import type { Database } from '@/platform/db/db.layer'
-import { type OwnedTasks, ownedTasks } from './owned-tasks.query'
+import { type OwnedTasks, ownedTasks, type Queries } from './owned-tasks.query'
 import type {
 	DueDateAdvance,
 	TaskCompletion,
@@ -81,40 +80,38 @@ function getRestoredProgress(
  * an advance) moves the subtasks' dates back by as much; the subtasks the advance reopened stay open.
  */
 export async function setCompletion(
-	database: Database,
+	transaction: Queries,
 	{ ownerId, id, completedAt, dueDate, progress, goal }: TaskCompletion
 ): Promise<Task | undefined> {
-	return await database.transaction(async transaction => {
-		const tasks = ownedTasks(transaction, ownerId)
-		const locked = await tasks.lockPath(id)
+	const tasks = ownedTasks(transaction, ownerId)
+	const locked = await tasks.lockPath(id)
 
-		if (!locked) return undefined
-		if (dueDate && locked.dueDate && dueDate !== locked.dueDate)
-			await tasks.update(
-				{ dueDate: getShiftedDueDate({ from: locked.dueDate, to: dueDate }) },
-				inArray(task.id, tasks.descendantsOf(id))
-			)
+	if (!locked) return undefined
+	if (dueDate && locked.dueDate && dueDate !== locked.dueDate)
+		await tasks.update(
+			{ dueDate: getShiftedDueDate({ from: locked.dueDate, to: dueDate }) },
+			inArray(task.id, tasks.descendantsOf(id))
+		)
 
-		const [row] = await tasks
-			.update(
-				{
-					completedAt: completedAt ? (locked.completedAt ?? completedAt) : null,
-					dueDate,
-					...(goal && { goalTarget: goal.target, goalUnit: goal.unit ?? null }),
-					goalProgress: getRestoredProgress(progress, goal),
-				},
-				eq(task.id, id)
-			)
-			.returning()
+	const [row] = await tasks
+		.update(
+			{
+				completedAt: completedAt ? (locked.completedAt ?? completedAt) : null,
+				dueDate,
+				...(goal && { goalTarget: goal.target, goalUnit: goal.unit ?? null }),
+				goalProgress: getRestoredProgress(progress, goal),
+			},
+			eq(task.id, id)
+		)
+		.returning()
 
-		if (!row) return undefined
+	if (!row) return undefined
 
-		await updateSubtree(tasks, locked, row)
+	await updateSubtree(tasks, locked, row)
 
-		const [updated] = await tasks.withRelations([row])
+	const [updated] = await tasks.withRelations([row])
 
-		return updated
-	})
+	return updated
 }
 
 /**
@@ -122,32 +119,30 @@ export async function setCompletion(
  * completed ancestor that completed it, leaves both as they are.
  */
 export async function advanceDueDate(
-	database: Database,
+	transaction: Queries,
 	{ ownerId, id, from, to }: DueDateAdvance
 ): Promise<Task | undefined> {
-	return await database.transaction(async transaction => {
-		const tasks = ownedTasks(transaction, ownerId)
+	const tasks = ownedTasks(transaction, ownerId)
 
-		await tasks.lockPath(id)
+	await tasks.lockPath(id)
 
-		const [row] = await tasks
-			.update(
-				{ dueDate: to, goalProgress: 0 },
-				and(
-					eq(task.id, id),
-					eq(task.dueDate, from),
-					isNotNull(task.repeatUnit),
-					isNull(task.completedAt)
-				)
+	const [row] = await tasks
+		.update(
+			{ dueDate: to, goalProgress: 0 },
+			and(
+				eq(task.id, id),
+				eq(task.dueDate, from),
+				isNotNull(task.repeatUnit),
+				isNull(task.completedAt)
 			)
-			.returning()
+		)
+		.returning()
 
-		if (!row) return undefined
+	if (!row) return undefined
 
-		await updateSubtree(tasks, row, row, from)
+	await updateSubtree(tasks, row, row, from)
 
-		const [advanced] = await tasks.withRelations([row])
+	const [advanced] = await tasks.withRelations([row])
 
-		return advanced
-	})
+	return advanced
 }

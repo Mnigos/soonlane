@@ -161,68 +161,57 @@ export const TaskRepositoryLive = Layer.effect(
 						await ownedTasks(database, ownerId).list(eq(task.parentId, id))
 				),
 			create: newTask =>
-				db.run(
+				db.transaction(
 					'TaskRepository.create',
-					async database => await createTask(database, newTask)
+					async transaction => await createTask(transaction, newTask)
 				),
 			update: update =>
-				db.run(
+				db.transaction(
 					'TaskRepository.update',
-					async database =>
-						await database.transaction(
-							async transaction => await updateTask(transaction, update)
-						)
+					async transaction => await updateTask(transaction, update)
 				),
 			delete: ({ ownerId, id }) =>
-				db.run(
-					'TaskRepository.delete',
-					async database =>
-						await database.transaction(async transaction => {
-							const tasks = ownedTasks(transaction, ownerId)
+				db.transaction('TaskRepository.delete', async transaction => {
+					const tasks = ownedTasks(transaction, ownerId)
 
-							await tasks.lockPath(id)
+					await tasks.lockPath(id)
 
-							const [row] = await tasks
-								.delete(eq(task.id, id))
-								.returning({ id: task.id })
+					const [row] = await tasks
+						.delete(eq(task.id, id))
+						.returning({ id: task.id })
 
-							return row?.id
-						})
-				),
+					return row?.id
+				}),
 			count: ownerId =>
 				db.run(
 					'TaskRepository.count',
 					async database => await ownedTasks(database, ownerId).count()
 				),
 			setCompletion: completion =>
-				db.run(
+				db.transaction(
 					'TaskRepository.setCompletion',
-					async database => await setCompletion(database, completion)
+					async transaction => await setCompletion(transaction, completion)
 				),
 			advanceDueDate: advance =>
-				db.run(
+				db.transaction(
 					'TaskRepository.advanceDueDate',
-					async database => await advanceDueDate(database, advance)
+					async transaction => await advanceDueDate(transaction, advance)
 				),
 			rescheduleOpen: ({ ownerId, ids, dueDate }) =>
-				db.run(
-					'TaskRepository.rescheduleOpen',
-					async database =>
-						await database.transaction(async transaction => {
-							const tasks = ownedTasks(transaction, ownerId)
+				db.transaction('TaskRepository.rescheduleOpen', async transaction => {
+					const tasks = ownedTasks(transaction, ownerId)
 
-							await tasks.lockPaths(ids)
+					await tasks.lockPaths(ids)
 
-							const rows = await tasks
-								.update(
-									{ dueDate },
-									and(inArray(task.id, ids), isNull(task.completedAt))
-								)
-								.returning()
+					const rows = await tasks
+						.update(
+							{ dueDate },
+							and(inArray(task.id, ids), isNull(task.completedAt))
+						)
+						.returning()
 
-							return await tasks.withRelations(rows)
-						})
-				),
+					return await tasks.withRelations(rows)
+				}),
 			findLabel: ({ ownerId, labelId }) =>
 				db.run('TaskRepository.findLabel', async database => {
 					const [row] = await database
@@ -258,37 +247,33 @@ export const TaskRepositoryLive = Layer.effect(
 					return await tasks.find(id)
 				}),
 			logProgress: log =>
-				db.run(
-					'TaskRepository.logProgress',
-					async database =>
-						await database.transaction(async transaction => {
-							const tasks = ownedTasks(transaction, log.ownerId)
+				db.transaction('TaskRepository.logProgress', async transaction => {
+					const tasks = ownedTasks(transaction, log.ownerId)
 
-							await tasks.lockPath(log.id)
+					await tasks.lockPath(log.id)
 
-							const row = await updateProgress(transaction, log)
+					const row = await updateProgress(transaction, log)
 
-							if (!row) return undefined
-							await updateSubtree(
-								tasks,
-								{ completedAt: row.previousCompletedAt },
-								row,
-								row.dueDate === row.previousDueDate
-									? undefined
-									: row.previousDueDate
-							)
+					if (!row) return undefined
+					await updateSubtree(
+						tasks,
+						{ completedAt: row.previousCompletedAt },
+						row,
+						row.dueDate === row.previousDueDate
+							? undefined
+							: row.previousDueDate
+					)
 
-							const [logged] = await tasks.withRelations([row])
-							const completed = row.completed
-								? {
-										dueDate: row.previousDueDate ?? undefined,
-										progress: row.previousProgress,
-									}
-								: undefined
+					const [logged] = await tasks.withRelations([row])
+					const completed = row.completed
+						? {
+								dueDate: row.previousDueDate ?? undefined,
+								progress: row.previousProgress,
+							}
+						: undefined
 
-							return logged && { task: logged, logged: row.logged, completed }
-						})
-				),
+					return logged && { task: logged, logged: row.logged, completed }
+				}),
 		})
 	})
 )
