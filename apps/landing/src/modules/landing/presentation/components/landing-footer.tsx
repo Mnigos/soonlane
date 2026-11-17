@@ -81,8 +81,9 @@ export function LandingFooter() {
 					</p>
 
 					<p>
-						Todoist is a trademark of Doist, and Soonlane is not created by,
-						affiliated with, or supported by Todoist.
+						Todoist is a trademark of Doist. Soonlane is not affiliated with
+						Doist, and naming Todoist on this site does not mean Doist endorses
+						Soonlane.
 					</p>
 				</div>
 			</div>
