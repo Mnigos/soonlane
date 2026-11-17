@@ -14,6 +14,7 @@ import { Platform } from 'react-native'
 /** A public project key, like the web's; a build without one asks nothing and sends nothing. */
 const POSTHOG_KEY = process.env.EXPO_PUBLIC_POSTHOG_KEY
 const CONSENT_KEY = 'analytics-consent'
+const FLUSH_TIMEOUT_MS = 3000
 const ENVIRONMENT = (
 	['production', 'staging', 'development'] satisfies AppEnvironment[]
 ).find(environment => environment === process.env.EXPO_PUBLIC_APP_ENV)
@@ -95,6 +96,23 @@ export function capture<TEvent extends keyof ClientEvents>(
 	properties: ClientEvents[TEvent]
 ) {
 	posthog?.capture(event, toWireProperties(properties))
+}
+
+/** The SDK's flush retries each failed batch, which can take tens of seconds; this bounds the user's wait. */
+async function wait(milliseconds: number) {
+	// oxlint-disable-next-line promise/avoid-new -- a timer settles it; no library call returns that promise
+	await new Promise<void>(resolve => {
+		setTimeout(resolve, milliseconds)
+	})
+}
+
+/** Sends what the SDK still holds for the user, so it reaches PostHog well before the account's person is deleted; never rejects and gives up after the timeout. */
+export async function flushAnalytics() {
+	try {
+		await Promise.race([posthog?.flush(), wait(FLUSH_TIMEOUT_MS)])
+	} catch {
+		// The SDK keeps a batch that failed and sends it later; PostHog deletes the person minutes after the account.
+	}
 }
 
 /** Follows the session: `userId` is the only thing about the user PostHog ever gets (apps/mobile/AGENTS.md). */

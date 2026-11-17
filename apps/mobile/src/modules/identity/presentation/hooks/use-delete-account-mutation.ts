@@ -1,6 +1,7 @@
 import { GOOGLE_LOGIN_NOT_RENEWED } from '@soonlane/auth'
 import { useMutation } from '@tanstack/react-query'
 import { Alert, Platform } from 'react-native'
+import { flushAnalytics } from '@/modules/analytics/infrastructure/analytics.client'
 import { showToast } from '@/modules/shell/presentation/toast.client'
 import {
 	deleteUser,
@@ -45,6 +46,8 @@ export function alertOtherAccount(user: Account, startedFor: Account) {
  * there it is an ordinary fresh sign-in.
  */
 async function deleteAccount({ id }: Account) {
+	await flushAnalytics()
+
 	const { isDeleted, error, signedInAs } = await deleteUser(id)
 
 	if (isDeleted) return { status: 'deleted' } as const
