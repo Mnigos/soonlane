@@ -5,7 +5,7 @@ date: '2026-11-12'
 draft: true
 ---
 
-Todoist is a hosted service. Your tasks live on Todoist's servers, and you use them through its apps. For most people that is fine. Some people want their tasks on a server they control: they already run a home server, their work does not allow outside services, or they want to keep using the app even if the company behind it changes course.
+Todoist is a hosted service. Your tasks live on Todoist's servers, and you use them through its apps. Some people want their tasks on a server they control: they already run a home server, their work does not allow outside services, or they want to keep running the app on their own terms.
 
 If that is you, you need an app whose code you can run yourself. Below are three that work like Todoist in some way, and what it takes to run each. I build one of them, Soonlane, so I start with it and say plainly where it is harder to run than the others.
 
@@ -54,23 +54,23 @@ If you want a single container with local accounts, Vikunja is the better pick t
 
 ## Vikunja
 
-Vikunja is the most complete self-hosted option here. It is open source under AGPL-3.0, and the team says self-hosting is free with all core features included.
+Vikunja is open source under AGPL-3.0, and its pricing page says self-hosting is free, forever, for any number of users.
 
-It covers most of what Todoist does. You get projects, labels, reminders, repeating tasks and saved filters. Projects can be shown as a list, a kanban board, a Gantt chart or a table. You can share a project with other users, with teams, or with a link that works without an account. It imports from Todoist, Trello and Microsoft To Do, and it has a CalDAV integration, so apps that speak CalDAV can sync with it.
+You get projects, labels, reminders, repeating tasks and saved filters. Projects can be shown as a list, a kanban board, a Gantt chart or a table. You can share a project with other users, with teams, or with a link that works without an account. It imports from Todoist, Trello and Microsoft To Do, and it has a CalDAV integration, so apps that speak CalDAV can sync with it.
 
-Running it is simple. The API and the web interface ship as one binary or one Docker image, `vikunja/vikunja`. The quick start uses the bundled SQLite, so you need no separate database. For more users you can use PostgreSQL, MySQL or MariaDB. There is no default login. You register the first account yourself.
+The API and the web interface ship as one binary or one Docker image, `vikunja/vikunja`. The quick start uses the bundled SQLite, so you need no separate database. For more users you can use PostgreSQL, MySQL or MariaDB. There is no default login. You register the first account yourself.
 
-If you would rather not run it, Vikunja Cloud is the paid hosted version, from 4 euros a month for the Personal plan as of November 2026.
+If you would rather not run it, Vikunja Cloud is the paid hosted version, from 4 euros a month for the Personal plan, checked on 18 November 2026.
 
 ## Nextcloud Tasks
 
 If you already run Nextcloud, you may not need a new app at all. Nextcloud Tasks is an app inside Nextcloud, open source under AGPL-3.0. You turn it on from the Apps page under Organization.
 
-It is a simpler list than Todoist. Tasks have a title, a description, start and due dates, a priority and a status. You can nest subtasks and see smart collections for important, current and upcoming tasks.
+Tasks have a title, a description, start and due dates, a priority and a status. You can nest subtasks and see smart collections for important, current and upcoming tasks.
 
-Its strength is CalDAV. Tasks are stored as standard calendar items, so many other apps can sync them. The project lists Apple Reminders on iPhone and Mac, DAVx5 and Tasks.org on Android, Thunderbird on the desktop, and GNOME and KDE apps on Linux. That answers the phone question better than most self-hosted options do.
+It uses CalDAV. Tasks are stored as standard calendar items, so other CalDAV apps can sync them. The project lists Apple Reminders on iPhone and Mac, DAVx5 and Tasks.org on Android, Thunderbird on the desktop, and GNOME and KDE apps on Linux. Those apps give you a way to add tasks on your phone.
 
-If you do not run Nextcloud already, setting it up only for tasks is a lot of server for one list.
+Without Nextcloud already running, you would set up a whole Nextcloud server for one list.
 
 ## How they compare
 
@@ -93,3 +93,13 @@ Use Nextcloud Tasks if you already have Nextcloud and want your tasks in the sam
 Run Soonlane if you want a personal day-by-day list without filters or sharing, you are fine with Google sign-in, and you do not mind some setup work. Or skip the server and use the hosted copy at soonlane.com, where the task list is free and integrations, starting with the calendar link, will move to the paid Pro plan.
 
 If you are still choosing between hosted apps, [apps like Todoist](/blog/apps-like-todoist) compares seven free ones.
+
+## Sources
+
+These are the pages the facts above come from, each checked on 18 November 2026.
+
+- [Vikunja features](https://vikunja.io/features/): Vikunja's license and features.
+- [Vikunja pricing](https://vikunja.io/pricing/): free self-hosting and the Cloud price.
+- [Installing Vikunja](https://vikunja.io/docs/installing/): the binary, the Docker image and the databases.
+- [Nextcloud Tasks in the Nextcloud app store](https://apps.nextcloud.com/apps/tasks): features and CalDAV apps.
+- [Nextcloud Tasks on GitHub](https://github.com/nextcloud/tasks): the AGPL-3.0 license.
