@@ -24,6 +24,8 @@ import { SIGN_IN_FAILED, signInFailureMessage } from './sign-in-screen'
 const DELETE_ACCOUNT_TITLE = 'Delete your account?'
 const FRESH_SIGN_IN_REQUIRED =
 	'For your safety, sign in again to delete your account.'
+const GOOGLE_SIGN_OUT_REQUIRED =
+	'For your safety, deleting your account requires a fresh sign-in where Google verifies you. Sign out of Google in your phone\'s browser first, then press "Continue with Google".'
 const ALERT_OPTIONS = { userInterfaceStyle: 'dark' } as const
 
 interface AccountActionsProps {
@@ -93,14 +95,24 @@ export function AccountActions({ account }: Readonly<AccountActionsProps>) {
 			onSuccess: ({ status }) => {
 				if (status === 'needs-fresh-sign-in')
 					askForFreshSignIn(DELETE_ACCOUNT_TITLE, confirmed)
+				if (status === 'needs-google-sign-out')
+					askForFreshSignIn(
+						DELETE_ACCOUNT_TITLE,
+						confirmed,
+						GOOGLE_SIGN_OUT_REQUIRED
+					)
 			},
 		})
 	}
 
-	function askForFreshSignIn(title: string, startedFor: Account) {
+	function askForFreshSignIn(
+		title: string,
+		startedFor: Account,
+		message = FRESH_SIGN_IN_REQUIRED
+	) {
 		Alert.alert(
 			title,
-			FRESH_SIGN_IN_REQUIRED,
+			message,
 			[
 				{ text: 'Cancel', style: 'cancel' },
 				{

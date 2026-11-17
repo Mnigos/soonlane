@@ -7,6 +7,11 @@ import {
 } from '../hooks/use-delete-account-mutation'
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
 
+const FRESH_SIGN_IN_REQUIRED =
+	'For your safety, sign in again to delete your account.'
+const GOOGLE_SIGN_OUT_REQUIRED =
+	'For your safety, deleting your account requires a fresh sign-in where Google verifies you. Sign out of Google in this browser first, then press "Continue with Google".'
+
 interface DeleteAccountDialogProps {
 	email: string
 	onClose: () => void
@@ -41,7 +46,9 @@ export function DeleteAccountDialog({
 				{needsFreshSignIn && (
 					<div className="flex flex-col gap-3">
 						<p className="text-sm font-medium" role="alert">
-							For your safety, sign in again to delete your account.
+							{data?.isGoogleLoginStale
+								? GOOGLE_SIGN_OUT_REQUIRED
+								: FRESH_SIGN_IN_REQUIRED}
 						</p>
 
 						<ContinueWithGoogle
