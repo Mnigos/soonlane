@@ -22,6 +22,10 @@ The first desktop shell ([ADR 0004](0004-desktop-shell-with-electrobun.md)) was 
 - A link from a new-window request loads in the window only when it has the app's exact origin. Other web and mail links go to the system browser, and other schemes open nowhere.
 - `effect` is a runtime dependency of the desktop bundle (about 1.3 MB of main-process JavaScript, not shipped to the page).
 
+## Update 2026-11-18 (SOON-223)
+
+The page Vite bundles is now each module's `presentation/` layer in the same tree, and `sign-in` is `identity` ([ADR 0019](0019-desktop-page-as-the-modules-presentation-layer.md)). Effect still runs only in the main process: two TypeScript programs, a build guard and lint keep it out of the page.
+
 ## Related
 
 - `apps/desktop/src/platform/app.layers.ts`, `apps/desktop/src/modules/*`
