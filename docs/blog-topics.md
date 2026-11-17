@@ -16,3 +16,7 @@ Publishing a draft: set `draft: false` and `date` to the publish day, then open 
 | `labels-instead-of-projects`               | to do list without projects          | organise tasks with labels instead of projects      | draft  |
 | `track-progress-on-a-task`                 | to do list with progress tracking    | count progress toward an amount, like 50 push-ups   | draft  |
 | `self-hosted-todoist-alternative`          | self hosted todoist alternative      | run their own copy of a Todoist-style task list     | draft  |
+| `soonlane-vs-ticktick`                     | free ticktick alternative            | see how a free, open source list compares to TickTick | draft  |
+| `soonlane-vs-things`                       | things 3 alternative for windows     | find a Things-style list that runs outside Apple devices | draft  |
+| `soonlane-vs-vikunja`                      | vikunja alternative                  | weigh Vikunja against a hosted, day-based list      | draft  |
+| `soonlane-vs-super-productivity`           | super productivity alternative       | weigh Super Productivity against a simpler synced list | draft  |

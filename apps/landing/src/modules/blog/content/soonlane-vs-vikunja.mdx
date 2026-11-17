@@ -1,0 +1,102 @@
+---
+title: 'Vikunja vs Soonlane: two open source task lists, compared'
+description: Looking for a Vikunja alternative? Compare Vikunja and Soonlane on views, pricing, sharing, CalDAV, self-hosting and day-by-day planning.
+date: '2026-11-18'
+draft: true
+---
+
+Vikunja and Soonlane are both open source task apps under the AGPL, and both store hosted data in the EU. I build Soonlane, an [open source Todoist alternative](/). This post is for people weighing a Vikunja alternative and deciding which app fits how they plan their days.
+
+The Vikunja facts below come from vikunja.io and its source repository, checked on 18 November 2026.
+
+## What they share
+
+Both projects publish their source code under the AGPL. Vikunja uses AGPL-3.0-or-later for most of its code, with GPL-3.0-or-later on its desktop app folder. Soonlane uses AGPL-3.0. You can self-host either one or use the hosted service.
+
+Both keep hosted data in Europe. Vikunja Cloud is made and hosted in the EU. Soonlane stores tasks in Railway Postgres in Amsterdam.
+
+The everyday basics show up in both apps. You get projects, labels, priorities, subtasks and repeating tasks. Both include an importer for Todoist inside the app, so you do not have to rebuild a task list by hand.
+
+Both also read dates and repeats straight from the task title. In Vikunja's Quick Add Magic, you can type phrases like `tomorrow at 5pm` or `every 2 weeks`, along with `*label`, `+Project` and `!1` to `!5` for priority, or turn on a Todoist-compatible shortcut mode in settings. In Soonlane, you can type `fri` or `every 3 weeks` in the task name, `@` for a label and `p1` to `p4` for priority, while a due time goes in the date field.
+
+## Where Vikunja does more
+
+Vikunja is built around projects that you can view and share in several ways. If you need any of the features below, Vikunja has them and Soonlane leaves them out.
+
+- **Four views per project.** Every project in Vikunja starts with list, table, kanban and Gantt views. Soonlane has no kanban or table views.
+- **Saved filters.** Vikunja lets you build filters and save them as views. Soonlane has no filters or saved searches.
+- **Reminders.** Vikunja supports task reminders, including on repeating tasks. Soonlane sends no reminders or notifications of any kind.
+- **Sharing and teams.** In Vikunja, you can share a project with another user, a team, or a public link that needs no account, and assign tasks with `@user`. Soonlane is strictly personal, with no sharing or assigned tasks.
+- **Task relations and attachments.** Vikunja supports relations such as subtasks and blocking tasks, and its Cloud plans include 10GB or 50GB of attachment storage. Soonlane supports subtasks up to 4 levels deep, up to 50 per task, and has no attachments.
+- **CalDAV sync.** Vikunja exposes tasks over CalDAV (VTODO). Vikunja's own CalDAV docs call the integration an early alpha with bugs that works well with some clients and has issues with others. Tested working clients include Evolution, OpenTasks and DAVx5, Tasks on Android, Korganizer, and Apple Reminders on iOS with Vikunja 2.2.0 and later, while Thunderbird 68 is listed as not working.
+- **More importers.** Alongside Todoist, Vikunja imports from Trello, Microsoft To-Do and other platforms. Soonlane imports only from Todoist.
+
+## Where Soonlane differs
+
+Soonlane is built around days rather than projects. When you open it, you land on Upcoming: one long scroll with the Inbox section, Overdue, Today and every day after. A week strip sits at the top, and every day has its own "Add task" row, so a task you add under Friday is due on Friday.
+
+<img
+	src="/site/upcoming-desktop.webp"
+	alt="Soonlane's Upcoming view on a laptop: the week strip, three overdue tasks, then the tasks due today and tomorrow."
+	width={1425}
+	height={900}
+/>
+
+Today narrows that view to the Inbox section, Overdue and today's tasks. Inbox holds tasks with no date and no project. When old tasks pile up, a Reschedule button on the Overdue heading moves all overdue tasks to one day.
+
+A few other pieces work differently from Vikunja:
+
+- **Goals on tasks.** A task in Soonlane can carry a numeric goal, such as 50 push-ups. You log progress from the task row, and reaching the goal completes the task.
+- **Mac app with Quick Add.** Soonlane has a Mac app that puts the web app in its own window, counts overdue and due-today tasks on the Dock icon, and opens a small Quick Add window on ⌥Space from any app. There is no download yet, so for now you build it from the repository. On phones, Windows and Linux, Soonlane runs as a web app in the browser.
+- **Calendar link.** Soonlane gives you one private iCalendar feed link that you subscribe to in Apple Calendar, Google Calendar or any app that reads iCalendar feeds, so your open tasks show up on their days. Soonlane does not show calendar events inside the app.
+- **Free hosted task list.** Soonlane's hosted task list is free, including Inbox, Upcoming, Today, labels, projects and the Mac app. Integrations, starting with the calendar link, will move to a paid Pro plan when it launches, with no Pro price announced yet. Vikunja Cloud has no free plan. Every Cloud plan starts with a 14-day free trial that requires a payment method, and Cloud Personal costs 4€ a month or 40€ billed yearly, VAT included.
+- **Google-only sign-in.** Hosted Soonlane uses Google sign-in only, and deleting your account from the account menu deletes all its tasks.
+
+## Running it yourself
+
+Self-hosting Vikunja is free for any number of users and includes all core features. You can install it with Docker or native binaries. Vikunja also has Vikunja Pro, a separate add-on in private beta for self-hosted instances that adds an admin panel, audit logs and time tracking, and is not for Cloud accounts.
+
+Soonlane is also open source under AGPL-3.0, and the README on GitHub has the setup steps to run your own copy. My post on [self-hosted Todoist alternatives](/blog/self-hosted-todoist-alternative) covers what each one needs.
+
+## Side by side
+
+Vikunja facts as of 18 November 2026.
+
+|                    | Vikunja                                                                         | Soonlane                                             |
+| ------------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| License            | AGPL-3.0-or-later (desktop folder GPL-3.0-or-later)                             | AGPL-3.0                                             |
+| Hosted price       | Personal 4€/month or 40€/year, Family 10€/month, Organization 5€ per user/month | Free task list; Pro planned for integrations         |
+| Self-hosting       | Free, Docker or native binaries                                                 | Free, setup steps in the GitHub README               |
+| Views              | List, table, kanban and Gantt per project                                       | Upcoming, Today, Inbox, plus label and project pages |
+| Filters            | Saved filters and views                                                         | None                                                 |
+| Reminders          | Yes                                                                             | No                                                   |
+| Sharing            | Users, teams, public links and assigned tasks                                   | None                                                 |
+| CalDAV or calendar | CalDAV (VTODO) sync, early alpha                                                | Private iCalendar feed link                          |
+| Todoist import     | Yes (plus Trello, Microsoft To-Do and others)                                   | Yes (read-only, with preview)                        |
+| Data location      | EU (Vikunja Cloud)                                                              | Amsterdam, EU (Railway Postgres)                     |
+
+## When Vikunja is the better choice
+
+Pick Vikunja if you share projects with a household or a team. Vikunja Cloud has a Family plan at 10€ a month (or 99€ yearly) for up to 5 users and an Organization plan at 5€ per user a month (or 50€ per user yearly), and self-hosting is free for any number of users.
+
+Vikunja is also the clear pick if you plan work on a kanban board or a Gantt chart, if you rely on saved filters or task reminders, if you attach files to tasks, or if you want CalDAV sync with apps like Apple Reminders on iOS or Tasks on Android (though CalDAV sync is in early alpha per Vikunja's docs).
+
+## When Soonlane fits
+
+Soonlane fits if you plan alone, one day at a time, and want a free hosted list in the EU without running a server or entering a payment card. You get the continuous Upcoming scroll, one-click rescheduling for overdue tasks, task goals and Quick Add on ⌥Space on a Mac.
+
+If you are coming from Todoist rather than Vikunja, [Todoist vs Soonlane](/blog/soonlane-vs-todoist) goes through what carries over with the Todoist importer, and [apps like Todoist](/blog/apps-like-todoist) compares more options.
+
+## Sources
+
+All Vikunja pages below were checked 18 November 2026:
+
+- [Vikunja home page](https://vikunja.io/)
+- [Vikunja pricing](https://vikunja.io/pricing)
+- [Vikunja features](https://vikunja.io/features)
+- [Vikunja help: Views](https://vikunja.io/help/views/)
+- [Vikunja docs: Quick Add Magic](https://vikunja.io/docs/quick-add-magic/)
+- [Vikunja docs: CalDAV](https://vikunja.io/docs/caldav/)
+- [Vikunja source repository on GitHub](https://github.com/go-vikunja/vikunja)
+
+Soonlane is not affiliated with the Vikunja project or with Doist, the company behind Todoist. Vikunja and Todoist are trademarks of their owners.
