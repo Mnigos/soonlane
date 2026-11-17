@@ -1,0 +1,96 @@
+# Self-hosted Soonlane: Postgres, the API and the web app behind one Caddy proxy on one origin (README, Self-hosting).
+# Put the variables in a `.env` next to this file (`.env.example`), then run `docker compose up -d`.
+name: soonlane
+
+services:
+  postgres:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: soonlane
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: soonlane
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: [CMD-SHELL, pg_isready -U soonlane -d soonlane]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Applies pending migrations, then starts the server.
+  api:
+    image: ghcr.io/mnigos/soonlane-api:${SOONLANE_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      APP_ENV: self-hosted
+      API_URL: ${SOONLANE_URL:-http://localhost:8080}
+      APP_URL: ${SOONLANE_URL:-http://localhost:8080}
+      LANDING_URL: ${SOONLANE_URL:-http://localhost:8080}
+      TRUSTED_ORIGINS: ${SOONLANE_URL:-http://localhost:8080}
+      # Must equal the cookie prefix baked into the web image.
+      AUTH_COOKIE_PREFIX: soonlane
+      DATABASE_URL: postgres://soonlane:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}@postgres:5432/soonlane
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET in .env}
+      API_PROXY_SECRET: ${API_PROXY_SECRET:?set API_PROXY_SECRET in .env}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?set GOOGLE_CLIENT_ID in .env}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?set GOOGLE_CLIENT_SECRET in .env}
+      # Optional: passed on only when .env sets them; an empty Todoist variable would stop the start.
+      ALLOWED_EMAILS:
+      TODOIST_CLIENT_ID:
+      TODOIST_CLIENT_SECRET:
+    stop_grace_period: 30s
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/health]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  web:
+    image: ghcr.io/mnigos/soonlane-web:${SOONLANE_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:8080
+      API_PROXY_SECRET: ${API_PROXY_SECRET:?set API_PROXY_SECRET in .env}
+      SERVER_SHUTDOWN_TIMEOUT: '15'
+    stop_grace_period: 30s
+    healthcheck:
+      test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/health]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  proxy:
+    image: caddy:2.10.2-alpine
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+      web:
+        condition: service_healthy
+    ports:
+      - ${SOONLANE_LISTEN:-127.0.0.1:8080}:8080
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+
+configs:
+  # The API owns /api and /calendar, the web app every other path. X-Real-IP names the connecting address for the API's
+  # rate limits; Caddy trusts no forwarded header, so a client cannot pick the address it is counted under.
+  caddyfile:
+    content: |
+      :8080 {
+        @api path /api/* /calendar/*
+        reverse_proxy @api api:8080 {
+          header_up X-Real-IP {client_ip}
+        }
+        reverse_proxy web:8080 {
+          header_up X-Real-IP {client_ip}
+        }
+      }
+
+volumes:
+  postgres-data:

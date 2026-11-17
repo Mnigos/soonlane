@@ -8,6 +8,47 @@ Production: the app at https://app.soonlane.com, the landing at https://soonlane
 
 <!-- Demo video: paste its github.com/user-attachments URL here, on a line of its own, so GitHub shows the player. -->
 
+## Self-hosting
+
+Soonlane runs Postgres, the API, and the web app on your server with Docker Compose. One Caddy proxy serves them on a single address. The images come from GHCR (`ghcr.io/mnigos/soonlane-api` and `ghcr.io/mnigos/soonlane-web`, for `linux/amd64` and `linux/arm64`). The API applies database migrations each time it starts. You need Docker with Compose 2.23 or newer.
+
+Sign-in is Google only for now, so every instance needs its own Google OAuth client. Email sign-in is planned.
+
+1. Create a Google OAuth client in Google Cloud Console (APIs & Services, Credentials, Create credentials, OAuth client ID, type Web application). Add `<SOONLANE_URL>/api/auth/callback/google` as an authorized redirect URI, such as `https://tasks.example.com/api/auth/callback/google`, or `http://localhost:8080/api/auth/callback/google` to test on your own machine.
+2. Download the Compose file and the example settings into an empty folder.
+
+   ```sh
+   mkdir soonlane && cd soonlane
+   curl -fsSLO https://raw.githubusercontent.com/Mnigos/soonlane/main/self-host/compose.yaml
+   curl -fsSL https://raw.githubusercontent.com/Mnigos/soonlane/main/self-host/.env.example -o .env
+   ```
+
+3. Fill in `.env` using the table below, then start the stack.
+
+   ```sh
+   docker compose up -d
+   ```
+
+4. Open `SOONLANE_URL` and sign in with Google.
+
+| Variable                                     | Required | What it is                                                                                                                                 |
+| -------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `SOONLANE_URL`                               | yes      | The public URL without a trailing slash. Defaults to `http://localhost:8080`.                                                              |
+| `POSTGRES_PASSWORD`                          | yes      | The database password. Use letters and digits only because it goes straight into the database URL.                                         |
+| `AUTH_SECRET`                                | yes      | Signs sessions. Must be at least 32 characters. Generate it with `openssl rand -hex 32`.                                                   |
+| `API_PROXY_SECRET`                           | yes      | Lets the web server pass the visitor's IP address to the API. Generate it the same way.                                                    |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`   | yes      | The Google OAuth client from step 1.                                                                                                       |
+| `ALLOWED_EMAILS`                             | no       | Comma-separated addresses allowed to sign up. If unset, any Google account can sign up. Set your own address to keep the instance private. |
+| `SOONLANE_LISTEN`                            | no       | Host address where the proxy listens. Defaults to `127.0.0.1:8080`. Set `0.0.0.0:8080` to expose it on your network.                       |
+| `SOONLANE_VERSION`                           | no       | The image tag. Defaults to `latest` for the newest release. Use a version like `0.3.0`, or `main` for the latest commit.                   |
+| `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` | no       | Set both or neither. Configures a Todoist app for Import from Todoist with the redirect URI `<SOONLANE_URL>/api/auth/callback/todoist`.    |
+
+The API checks its settings on startup. If a variable is missing or malformed, the API stops and names it in the logs (`docker compose logs api`).
+
+Google accepts a plain `http` redirect only for `localhost`. For any other address, put HTTPS in front of `SOONLANE_LISTEN`. Use a reverse proxy (Caddy, nginx, or Traefik) or a tunnel like Cloudflare Tunnel. The bundled proxy does not trust forwarded headers. Behind your own proxy, every visitor counts as that proxy's address for the sign-in rate limits.
+
+To update, run `docker compose pull && docker compose up -d`. Data stays in the `postgres-data` volume, and `docker compose down -v` deletes it. A self-hosted instance sends nothing to PostHog. Links to the privacy policy, terms, and changelog still point to soonlane.com.
+
 ## Monorepo
 
 | Directory                   | Purpose and main technology                                                                  |
