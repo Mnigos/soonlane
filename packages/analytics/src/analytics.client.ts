@@ -32,8 +32,8 @@ export interface BrowserAnalyticsOptions<TRouter extends AnyRouter> {
 	privateRoutes: readonly string[]
 	/** The environment's cookie prefix, which names the consent cookie and PostHog's cookies. */
 	cookiePrefix: string
-	/** The signed-in user on the current page, identified when analytics is granted. */
-	getUser?: (router: TRouter) => AnalyticsUser | undefined
+	/** The signed-in user on the current page, identified when analytics is granted; `null` when the page knows nobody is signed in, which drops an identity left from an account (deleted elsewhere, or signed in from another tab) so its events stop reaching that account's person. */
+	getUser?: (router: TRouter) => AnalyticsUser | null | undefined
 	/** The part of the product the page with this route id belongs to. */
 	getSurface: (routeId: string | undefined) => SuperProperties['surface']
 }
@@ -50,7 +50,7 @@ interface Tracking {
 	buildProperties: BrowserAnalyticsOptions<AnyRouter>['buildProperties']
 	privateRoutes: readonly string[]
 	cookiePrefix: string
-	getUser: () => AnalyticsUser | undefined
+	getUser: () => AnalyticsUser | null | undefined
 	getSurface: BrowserAnalyticsOptions<AnyRouter>['getSurface']
 }
 
@@ -113,12 +113,37 @@ async function withPostHog(run: (posthog: PostHog) => void) {
 	if (posthog) run(posthog)
 }
 
-function registerContext(
+/** `reset()` also clears the SDK's stored consent and super properties, so both come back. */
+function startAnonymous(posthog: PostHog, properties: SuperProperties) {
+	posthog.reset()
+	posthog.opt_in_capturing({ captureEventName: false })
+	posthog.register(toSnakeCaseKeys(properties))
+}
+
+/** Starts anonymous when the page knows nobody is signed in but the SDK still holds an identified user; true when it did. */
+function forgetSignedOutUser(
 	posthog: PostHog,
 	{ getUser }: Tracking,
 	properties: SuperProperties
 ) {
-	const user = getUser()
+	const isStale =
+		getUser() === null &&
+		posthog.has_opted_in_capturing() &&
+		posthog._isIdentified()
+
+	if (isStale) startAnonymous(posthog, properties)
+
+	return isStale
+}
+
+function registerContext(
+	posthog: PostHog,
+	current: Tracking,
+	properties: SuperProperties
+) {
+	if (forgetSignedOutUser(posthog, current, properties)) return
+
+	const user = current.getUser()
 
 	posthog.register(toSnakeCaseKeys(properties))
 	if (
@@ -145,7 +170,10 @@ function trackLocation(current: Tracking, consent: ConsentState) {
 
 	trackedPath = pathname
 	void withPostHog(posthog => {
-		if (!isFirstPage) posthog.capture('$pageleave')
+		// The page left belonged to the forgotten user, so no `$pageleave` goes out under the new id.
+		const isForgotten = forgetSignedOutUser(posthog, current, properties)
+
+		if (!(isFirstPage || isForgotten)) posthog.capture('$pageleave')
 		registerContext(posthog, current, properties)
 		posthog.capture('$pageview')
 		if (isFirstPage && isDesktopShell())
@@ -237,10 +265,7 @@ export function resetAnalytics() {
 	if (!current) return
 
 	void withPostHog(posthog => {
-		if (!posthog.has_opted_in_capturing()) return
-
-		posthog.reset()
-		posthog.opt_in_capturing({ captureEventName: false })
-		posthog.register(toSnakeCaseKeys(getSuperProperties(current)))
+		if (posthog.has_opted_in_capturing())
+			startAnonymous(posthog, getSuperProperties(current))
 	})
 }
