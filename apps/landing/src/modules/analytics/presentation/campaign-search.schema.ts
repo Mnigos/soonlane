@@ -9,7 +9,11 @@ export const CAMPAIGN_PARAMS = [
 	'utm_term',
 ] as const
 
-const campaignParamSchema = z.string().optional().catch(undefined)
+/** The router parses each value as JSON first, so `utm_campaign=2026` arrives as a number. */
+const campaignParamSchema = z
+	.union([z.string(), z.number(), z.boolean()])
+	.optional()
+	.catch(undefined)
 
 /**
  * PostHog reads the tags from the address only once the visitor answers the consent banner, so every page keeps
