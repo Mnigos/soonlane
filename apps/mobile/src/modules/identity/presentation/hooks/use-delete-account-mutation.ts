@@ -1,5 +1,6 @@
+import { GOOGLE_LOGIN_NOT_RENEWED } from '@soonlane/auth'
 import { useMutation } from '@tanstack/react-query'
-import { Alert } from 'react-native'
+import { Alert, Platform } from 'react-native'
 import { showToast } from '@/modules/shell/presentation/toast.client'
 import {
 	deleteUser,
@@ -36,13 +37,26 @@ export function alertOtherAccount(user: Account, startedFor: Account) {
 	)
 }
 
-/** The API deletes only from a session that started with a Google login at most five minutes old; otherwise `SESSION_EXPIRED` asks for a fresh sign-in. */
+/**
+ * The API deletes only from a session that started with a Google login at most
+ * five minutes old; otherwise `SESSION_EXPIRED` asks for a fresh sign-in. On
+ * Android, its reason `GOOGLE_LOGIN_NOT_RENEWED` means the browser's Google
+ * would skip checking the user; the iPhone's sheet keeps no Google session, so
+ * there it is an ordinary fresh sign-in.
+ */
 async function deleteAccount({ id }: Account) {
 	const { isDeleted, error, signedInAs } = await deleteUser(id)
 
 	if (isDeleted) return { status: 'deleted' } as const
 	if (error?.code === 'SESSION_EXPIRED')
-		return { status: 'needs-fresh-sign-in' } as const
+		return {
+			status:
+				'reason' in error &&
+				error.reason === GOOGLE_LOGIN_NOT_RENEWED &&
+				Platform.OS === 'android'
+					? 'needs-google-sign-out'
+					: 'needs-fresh-sign-in',
+		} as const
 	if (signedInAs) return { status: 'signed-in-as', user: signedInAs } as const
 	if (error?.code === NO_SESSION || error?.code === SESSION_CHANGED)
 		return { status: 'signed-out' } as const
