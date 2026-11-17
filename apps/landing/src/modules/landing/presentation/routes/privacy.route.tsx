@@ -1,4 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
+import PrivacyContent from '../../content/privacy.mdx'
 import { LegalPage } from '../components/legal-page'
 import { getLegalDocument } from '../helpers/legal-document.helper'
 import { buildPageHead } from '../helpers/seo.helper'
@@ -13,5 +14,5 @@ export const Route = createFileRoute('/privacy')({
 			description: legal.description,
 			path: '/privacy',
 		}),
-	component: () => <LegalPage legal={legal} />,
+	component: () => <LegalPage content={PrivacyContent} legal={legal} />,
 })
