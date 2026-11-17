@@ -186,7 +186,7 @@ The dialog's Privacy policy link opens `/privacy` and closes the dialog. The ban
 ## Privacy
 
 - No autocapture, no dead-click or heatmap capture: they would record clicked element text, which includes task titles.
-- URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…&port=…`, `/android/sign-in?challenge=…` and `/android/callback?code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them. Replay keeps the query of a link's `href` unless it carries `challenge`, `code` or `verifier`, in the query or the fragment; then both go.
+- URLs lose their query and hash before an event leaves the browser (`before_send` on every URL-valued property at any depth, and on bare paths under keys ending in `pathname`: exception stack frames, `$set` and `$set_once` included), and in replay page and network URLs. `/desktop/sign-in?challenge=…&port=…`, `/android/sign-in?challenge=…` and `/android/callback?code=…` carry one-time values, and posthog-js never runs there, so its stored initial URL is never one of them. Replay keeps the query of a link's `href` unless it carries `challenge`, `code` or `verifier`, in the query or the fragment; then both go. The SDK reads the campaign tags (`utm_*`) from the query before that and sends them as their own properties ([Launch links](#launch-links)).
 - Label and project names are part of their views' paths, so the same rewrite sends `/labels/:name` and `/projects/:name` in their place (`$current_url`, `$pathname`, `$referrer`, the `$initial_*` and `$session_entry_*` properties, replay page and network URLs, and link `href`s recorded in replay). Each app lists its private paths in the options it passes to `trackRouter` (`browser-analytics.constants.ts` in `apps/web`), the web ones typed against its router's paths. `route` already carries the route id (`/_session/_shell/labels/$name`, `/_session/_shell/projects/$name`). A calendar link is a secret, so any path under `/calendar/` is sent as `/calendar/:token` the same way.
 - `$pageview` is sent without `title`: the label and project views' document titles are their names.
 - RPC calls are `POST /api/rpc/<procedure>` with the input in the body, so label names and task content never appear in a request URL.
@@ -222,9 +222,76 @@ Without `VITE_POSTHOG_KEY` in a browser app's build, or `POSTHOG_KEY` on the API
 - the server never constructs the PostHog client and every capture is a no-op;
 - `/ingest/*` answers 404.
 
+## Launch links
+
+Every channel of the launch (the Marketing launch project in Linear) posts its own tagged link, so the [launch dashboard](#launch-dashboard) can tell the channels apart. The rules:
+
+- Every link points to the landing, `https://soonlane.com/`, or one of its pages. Never to `app.soonlane.com/`: its `/` redirects a signed-out visitor to `/login` without the query.
+- `utm_source` names the place: the site, plus the subreddit or group where one site has several (`reddit_macapps`, `facebook_gtd`). `utm_medium` is `social`, `referral` (directories and lists) or `email`, the values PostHog's channel types know. `utm_campaign` is the Linear milestone the post belongs to: `quiet_start`, `launch_week` or `steady_inflow`. Lowercase, words joined with `_`.
+- A channel not listed here gets a row before the post goes out.
+- A site that refuses or rewrites tagged links gets the plain URL; its visits then show only under their referrer.
+- The warm-up comments ([SOON-207](https://linear.app/rigtch/issue/SOON-207)) carry no links.
+
+### Quiet start (December 2026)
+
+| Channel | Link |
+| --- | --- |
+| X posts, the link in the reply ([SOON-213](https://linear.app/rigtch/issue/SOON-213)) | `https://soonlane.com/?utm_source=x&utm_medium=social&utm_campaign=quiet_start` |
+| Bluesky copies (SOON-213) | `https://soonlane.com/?utm_source=bluesky&utm_medium=social&utm_campaign=quiet_start` |
+| Mastodon copies (SOON-213) | `https://soonlane.com/?utm_source=mastodon&utm_medium=social&utm_campaign=quiet_start` |
+| Facebook GTD group ([SOON-211](https://linear.app/rigtch/issue/SOON-211)) | `https://soonlane.com/?utm_source=facebook_gtd&utm_medium=social&utm_campaign=quiet_start` |
+| Facebook Todoist group (SOON-211) | `https://soonlane.com/?utm_source=facebook_todoist&utm_medium=social&utm_campaign=quiet_start` |
+| r/selfhosted weekly megathread (SOON-211) | `https://soonlane.com/?utm_source=reddit_selfhosted&utm_medium=social&utm_campaign=quiet_start` |
+| AlternativeTo ([SOON-210](https://linear.app/rigtch/issue/SOON-210)) | `https://soonlane.com/?utm_source=alternativeto&utm_medium=referral&utm_campaign=quiet_start` |
+| OpenAlternative (SOON-210) | `https://soonlane.com/?utm_source=openalternative&utm_medium=referral&utm_campaign=quiet_start` |
+| LibHunt (SOON-210) | `https://soonlane.com/?utm_source=libhunt&utm_medium=referral&utm_campaign=quiet_start` |
+| ossalternatives.org (SOON-210) | `https://soonlane.com/?utm_source=ossalternatives&utm_medium=referral&utm_campaign=quiet_start` |
+
+### Launch week (5 to 9 January 2027)
+
+| Channel | Link |
+| --- | --- |
+| Show HN ([SOON-212](https://linear.app/rigtch/issue/SOON-212), [SOON-214](https://linear.app/rigtch/issue/SOON-214)) | `https://soonlane.com/?utm_source=hackernews&utm_medium=social&utm_campaign=launch_week` |
+| X thread (SOON-214) | `https://soonlane.com/?utm_source=x&utm_medium=social&utm_campaign=launch_week` |
+| Bluesky copy of the thread | `https://soonlane.com/?utm_source=bluesky&utm_medium=social&utm_campaign=launch_week` |
+| Mastodon copy of the thread | `https://soonlane.com/?utm_source=mastodon&utm_medium=social&utm_campaign=launch_week` |
+| r/productivityapps (SOON-214) | `https://soonlane.com/?utm_source=reddit_productivityapps&utm_medium=social&utm_campaign=launch_week` |
+| r/macapps (SOON-214) | `https://soonlane.com/?utm_source=reddit_macapps&utm_medium=social&utm_campaign=launch_week` |
+| r/opensource (SOON-214) | `https://soonlane.com/?utm_source=reddit_opensource&utm_medium=social&utm_campaign=launch_week` |
+| r/selfhosted weekly megathread (SOON-214) | `https://soonlane.com/?utm_source=reddit_selfhosted&utm_medium=social&utm_campaign=launch_week` |
+| Product Hunt (SOON-214) | `https://soonlane.com/?utm_source=producthunt&utm_medium=social&utm_campaign=launch_week` |
+| Facebook GTD group, the thank-you (SOON-214) | `https://soonlane.com/?utm_source=facebook_gtd&utm_medium=social&utm_campaign=launch_week` |
+| Facebook Todoist group, the thank-you (SOON-214) | `https://soonlane.com/?utm_source=facebook_todoist&utm_medium=social&utm_campaign=launch_week` |
+
+### Steady inflow (from February 2027)
+
+| Channel | Link |
+| --- | --- |
+| r/selfhosted post ([SOON-216](https://linear.app/rigtch/issue/SOON-216)) | `https://soonlane.com/?utm_source=reddit_selfhosted&utm_medium=social&utm_campaign=steady_inflow` |
+| awesome-selfhosted ([SOON-217](https://linear.app/rigtch/issue/SOON-217)) | `https://soonlane.com/?utm_source=awesome_selfhosted&utm_medium=referral&utm_campaign=steady_inflow` |
+| Tool Finder pitch ([SOON-218](https://linear.app/rigtch/issue/SOON-218)) | `https://soonlane.com/?utm_source=toolfinder&utm_medium=email&utm_campaign=steady_inflow` |
+
+### How the tags reach PostHog
+
+posthog-js reads the tags from the page's address when it captures an event, and it starts only once the visitor answers the consent banner ([Consent](#consent)). A visitor who answers on a later page would lose them, so the landing keeps the tags in its address on its own links (`retainSearchParams` in the root route, `campaign-search.schema.ts`), and Log in and Get started copy them onto the link into the app as it is followed (`carryCampaignParams`). A visitor who answers on `/login` still counts for their channel. PostHog registers the tags for the session and keeps the first page it saw in the identity cookie the landing and the app share, so `identify` gives the person `$initial_utm_source` and `$initial_utm_campaign`.
+
+Not counted by channel: visitors who reject analytics (their page views count, cookieless; their sign-ups are not sent at all), visitors who answer only after signing in with Google (the callback's address has no tags), and visitors who follow a plain link inside a blog post's text before answering (a full page load without the tags).
+
+## Launch dashboard
+
+[Launch: sign-ups by channel](https://eu.posthog.com/project/337571/dashboard/1126578), production events only:
+
+- Activation by channel: sign-ups, first task, how many sign-ups are 7 days old, and how many of those created a task on day 7 (the 7th calendar day after sign-up, in the project's time zone). A SQL insight; the channel is `$initial_utm_source · $initial_utm_campaign`, or `untagged ·` and the first referring domain.
+- Weekly retention after sign-up: `user_signed_up` (first time) and then `task_created`, by week.
+- Sign-ups by channel: `user_signed_up` per day, by the same channel.
+- Page views by campaign tag: `$pageview` by the session's `$entry_utm_source` and `$entry_utm_campaign` and by `surface` (landing, blog, app).
+- Page views by referrer: `$pageview` by the session's `$entry_referring_domain` and by `surface`.
+
+Sign-ups, retention and activation cover only visitors who granted analytics; the page view tiles include the cookieless ones.
+
 ## Insights
 
-- Activation funnel: `user_signed_up` → `first_task_created` → `task_created` on the next day (D1) and in the next week (D7) retention.
+- Activation funnel: `user_signed_up` → `first_task_created` → `task_created` on the next day (D1) and in the next week (D7) retention; by channel on the [launch dashboard](#launch-dashboard).
 - Tasks per active day: `task_created` per person per day, and `task_completed` beside it.
 - Composer source mix: `task_created` and `composer_opened` by `source`, and `composer_cancelled` per `composer_opened`.
 - Date picker choice mix: `date_picker_used` by `choice`, and `task_created` by `due_in_days`.
