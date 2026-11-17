@@ -4,6 +4,10 @@ Soonlane is a free, open source personal task list that opens on Upcoming, layin
 
 Production: the app at https://app.soonlane.com, the landing at https://soonlane.com
 
+![Soonlane's dark desktop Upcoming view showing a sidebar of projects and labels alongside a week strip, Inbox, Overdue and timed Today tasks with priorities.](docs/images/upcoming-desktop.webp)
+
+<!-- Demo video: paste its github.com/user-attachments URL here, on a line of its own, so GitHub shows the player. -->
+
 ## Monorepo
 
 | Directory                   | Purpose and main technology                                                                  |
@@ -54,6 +58,10 @@ Run with `bun run <script>` from the root.
 ## Desktop
 
 `apps/desktop` is an Electrobun app on its own bundled UI (ADR 0015): `bun run view` builds the page from `@soonlane/app` with Vite into `dist/view`, which the app serves as `views://app`. The build bakes in `APP_URL` (the web app, where the browser signs in), `API_URL` and `LANDING_URL` (the landing, for the release notes). From `apps/desktop`: `bun run dev` builds the page and opens the app against the dev servers on ports 3000 and 4000, `APP_URL=https://app.soonlane.com API_URL=https://api.soonlane.com LANDING_URL=https://soonlane.com bun run package` builds the unsigned `.app` and `.dmg` into `build/` and `artifacts/` (it refuses to run without all three), and `bun run sdk` downloads the Electrobun toolchain and SDK (needed once before `bun run check`). Sign-in returns to the app through a loopback port, so it works from any folder.
+
+## Contributing
+
+How to run Soonlane locally, the checks a pull request must pass and the commit rules: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Commits
 
