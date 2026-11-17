@@ -1,5 +1,7 @@
+import { buttonVariants } from '@soonlane/ui/components/button'
+import { Download } from 'lucide-react'
 import { HOME_HERO } from '../home.constants'
-import { GITHUB_URL } from '../landing.constants'
+import { GITHUB_URL, MAC_DOWNLOAD_URL } from '../landing.constants'
 import { GithubIcon } from './github-icon'
 import { HomeCallToAction } from './home-call-to-action'
 import { HomeScreenshot } from './home-screenshot'
@@ -24,6 +26,20 @@ export function HomeHero() {
 				<p className="signed-in:hidden text-sm text-secondary-foreground">
 					{HOME_HERO.todoistImportLine}
 				</p>
+
+				<div className="flex flex-col items-start gap-2">
+					<a
+						className={buttonVariants({ variant: 'outline', size: 'lg' })}
+						href={MAC_DOWNLOAD_URL}
+					>
+						<Download aria-hidden />
+						{HOME_HERO.macDownloadLabel}
+					</a>
+
+					<p className="text-sm text-muted-foreground">
+						{HOME_HERO.macDownloadNote}
+					</p>
+				</div>
 
 				<a
 					className="inline-flex items-center gap-2 rounded-sm text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
