@@ -3,9 +3,14 @@ import {
 	createRootRoute,
 	HeadContent,
 	Outlet,
+	retainSearchParams,
 	Scripts,
 } from '@tanstack/react-router'
 import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/presentation/browser-analytics.constants'
+import {
+	CAMPAIGN_PARAMS,
+	campaignSearchSchema,
+} from '@/modules/analytics/presentation/campaign-search.schema'
 import {
 	BLOG_TITLE,
 	RSS_PATH,
@@ -18,6 +23,8 @@ import { AUTH_COOKIE_PREFIX } from '@/modules/landing/presentation/landing-envir
 import appCss from '../styles.css?url'
 
 export const Route = createRootRoute({
+	validateSearch: campaignSearchSchema,
+	search: { middlewares: [retainSearchParams([...CAMPAIGN_PARAMS])] },
 	head: () => ({
 		meta: [
 			{ charSet: 'utf-8' },

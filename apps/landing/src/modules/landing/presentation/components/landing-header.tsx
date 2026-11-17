@@ -1,6 +1,7 @@
 import { cn } from '@soonlane/ui/cn'
 import { buttonVariants } from '@soonlane/ui/components/button'
 import { Link } from '@tanstack/react-router'
+import { carryCampaignParams } from '@/modules/analytics/presentation/helpers/campaign-link.helper'
 import { APP_ORIGIN } from '../landing-environment.constants'
 import { GITHUB_URL, SITE_NAME, LANDING_PAGE_LINKS } from '../landing.constants'
 import { GetStartedButton } from './get-started-button'
@@ -52,6 +53,8 @@ export function LandingHeader() {
 					<a
 						className={buttonVariants({ variant: 'ghost', size: 'sm' })}
 						href={`${APP_ORIGIN}/login`}
+						onAuxClick={carryCampaignParams}
+						onClick={carryCampaignParams}
 					>
 						Log in
 					</a>
