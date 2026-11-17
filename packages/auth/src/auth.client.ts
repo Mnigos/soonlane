@@ -1,7 +1,7 @@
 import { createAuthClient } from 'better-auth/client'
 import { TODOIST_IMPORT_PATH, TODOIST_PROVIDER_ID } from './todoist.constants'
 
-/** Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. `VITE_API_URL` is the API's origin. */
+/** Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. `VITE_API_URL` is the API's origin; empty, Better Auth falls back to the page's. */
 export const authClient = createAuthClient({
 	baseURL: import.meta.env.VITE_API_URL,
 	fetchOptions: { credentials: 'include' },

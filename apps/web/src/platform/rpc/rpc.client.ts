@@ -3,7 +3,7 @@ import { createIsomorphicFn } from '@tanstack/react-start'
 import { RPC_PREFIX } from './rpc-prefix.constants'
 import { fetchAsVisitor, getInternalApiOrigin } from './rpc.client.server'
 
-/** `VITE_API_URL`, the API's public origin, which the browser calls directly with its cookies. */
+/** `VITE_API_URL`, the API's public origin, which the browser calls directly with its cookies; empty, the page's own origin. */
 const API_ORIGIN = import.meta.env.VITE_API_URL
 
 const getApiOrigin = createIsomorphicFn()

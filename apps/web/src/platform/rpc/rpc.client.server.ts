@@ -11,6 +11,9 @@ import { AUTH_COOKIE_PREFIX } from '@/modules/identity/presentation/auth-cookie.
 const AUTH_COOKIES = ['session_token', 'session_data', 'dont_remember']
 /** Railway's private network carries plain http between services of one environment, never across the internet. */
 const PRIVATE_NETWORK_SUFFIX = '.railway.internal'
+/** A host without a dot, such as a Compose service name, resolves only on the container network. */
+const isPrivateHost = (hostname: string) =>
+	hostname.endsWith(PRIVATE_NETWORK_SUFFIX) || !hostname.includes('.')
 const API_COOKIE_NAMES = new Set([
 	getConsentCookie(AUTH_COOKIE_PREFIX),
 	...AUTH_COOKIES.flatMap(name => [
@@ -31,11 +34,11 @@ function readApiSettings() {
 
 	if (
 		origin.protocol !== 'https:' &&
-		!origin.hostname.endsWith(PRIVATE_NETWORK_SUFFIX) &&
+		!isPrivateHost(origin.hostname) &&
 		!import.meta.env.DEV
 	)
 		throw new Error(
-			`API_INTERNAL_URL must use https outside development and Railway's private network (*${PRIVATE_NETWORK_SUFFIX})`
+			`API_INTERNAL_URL must use https outside development, Railway's private network (*${PRIVATE_NETWORK_SUFFIX}) and a container network (a host without a dot)`
 		)
 
 	return { origin: origin.origin, secret }
