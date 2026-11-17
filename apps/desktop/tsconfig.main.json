@@ -1,0 +1,14 @@
+{
+  "extends": "@soonlane/typescript-config/base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "WebWorker"],
+    "types": ["bun"],
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.main.json",
+    "paths": {
+      "electrobun": ["./.hutch/devkit/api/sdks/main/index.ts"],
+      "electrobun/*": ["./.hutch/devkit/api/sdks/main/entries/*.ts"]
+    }
+  },
+  "include": ["src/**/*.ts", "*.ts"],
+  "exclude": ["src/view/**"]
+}

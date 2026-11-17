@@ -1,13 +1,14 @@
 import type { DesktopHostMessage } from '@soonlane/app/shell/helpers/desktop-host.helper'
-import type { RPCSchema } from 'electrobun'
 
 /**
  * What the bundled page and the main process say over Electrobun's typed RPC
  * (a loopback WebSocket, encrypted per webview). The desktop token stays in the
- * main process and the page's memory; the page never stores it.
+ * main process and the page's memory; the page never stores it. Both sides are
+ * plain `{ requests, messages }` objects, the shape Electrobun's `RPCSchema`
+ * resolves to, so the page's program reads this file without the main SDK.
  */
 export interface PageRpcSchema {
-	bun: RPCSchema<{
+	bun: {
 		requests: {
 			/** The desktop token from the Keychain, or `null` when signed out. */
 			readToken: { params: undefined; response: string | null }
@@ -26,8 +27,8 @@ export interface PageRpcSchema {
 			/** Quick Add closing or growing, and the Dock badge count; the main process decodes each before acting on it. */
 			pageMessage: DesktopHostMessage
 		}
-	}>
-	webview: RPCSchema<{
+	}
+	webview: {
 		requests: Record<never, never>
 		messages: {
 			/** The token after a sign-in or sign-out, whichever window started it. */
@@ -37,5 +38,5 @@ export interface PageRpcSchema {
 			/** A downloaded update waits for a restart. */
 			updateReady: undefined
 		}
-	}>
+	}
 }
