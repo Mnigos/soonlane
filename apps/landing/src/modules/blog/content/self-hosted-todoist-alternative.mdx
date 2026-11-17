@@ -19,7 +19,7 @@ Before you pick one, check these.
 
 ## Soonlane
 
-Soonlane is an [open source Todoist alternative](/) built around days. It opens on Upcoming, one scroll from Overdue through Today and every day after. You get natural date input like `tom` or `fri`, priorities P1 to P4, due times, repeating tasks, labels and goals that count progress. Each account can also have a private calendar link that shows open tasks in Apple Calendar or any app that reads iCalendar feeds. It has no projects, filters, reminders or sharing.
+Soonlane is an [open source Todoist alternative](/) built around days. It opens on Upcoming, one scroll from Overdue through Today and every day after. You get natural date input like `tom` or `fri`, priorities P1 to P4, due times, repeating tasks, subtasks, flat projects, labels and goals that count progress. Each account can also have a private calendar link that shows open tasks in Apple Calendar or any app that reads iCalendar feeds. It has no filters, reminders or sharing.
 
 The code is on [GitHub](https://github.com/Mnigos/soonlane) under AGPL-3.0. You can run it for yourself or for other people. If you run a changed copy for others, the license asks you to offer them your changes.
 
@@ -82,7 +82,7 @@ If you do not run Nextcloud already, setting it up only for tasks is a lot of se
 | Install        | Two services and Postgres                         | One binary or container          | App inside Nextcloud |
 | Database       | Postgres                                          | SQLite, Postgres, MySQL, MariaDB | Nextcloud's          |
 | Sign-in        | Google                                            | Own accounts                     | Nextcloud accounts   |
-| Projects       | No, labels only                                   | Yes                              | Grouped by calendar  |
+| Projects       | Yes, flat (no sections or sub-projects)           | Yes                              | Grouped by calendar  |
 | Phone          | Web app                                           | CalDAV apps                      | CalDAV apps          |
 | Hosted version | Free at soonlane.com, Pro coming for integrations | Vikunja Cloud, paid              | No                   |
 
@@ -92,6 +92,6 @@ Run Vikunja if you want the closest thing to Todoist on your own server, with pr
 
 Use Nextcloud Tasks if you already have Nextcloud and want your tasks in the same apps that hold your calendar.
 
-Run Soonlane if you want a day-by-day list without projects, you are fine with Google sign-in, and you do not mind some setup work. Or skip the server and use the hosted copy at soonlane.com, where the task list is free and integrations, starting with the calendar link, will move to the paid Pro plan.
+Run Soonlane if you want a personal day-by-day list without filters or sharing, you are fine with Google sign-in, and you do not mind some setup work. Or skip the server and use the hosted copy at soonlane.com, where the task list is free and integrations, starting with the calendar link, will move to the paid Pro plan.
 
 If you are still choosing between hosted apps, [apps like Todoist](/blog/apps-like-todoist) compares seven free ones.
