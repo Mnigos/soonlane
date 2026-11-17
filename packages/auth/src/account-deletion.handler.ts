@@ -1,6 +1,7 @@
 import type { GenericEndpointContext } from 'better-auth'
 import { APIError, getSessionFromCtx } from 'better-auth/api'
 import { z } from 'zod'
+import { GOOGLE_LOGIN_NOT_RENEWED } from './account-deletion.constants'
 import type { AuthLogger, AuthLogLevel } from './better-auth.config'
 import { parseJson } from './utils/json.util'
 
@@ -17,10 +18,11 @@ const idTokenPayloadSchema = z.object({
 	auth_time: z.number().int().nonnegative(),
 })
 
-/** Why a deletion was refused, for the log; never holds the token. */
+/** Why a deletion was refused, for the log (never the token), and the `reason` the `SESSION_EXPIRED` answer carries, if any. */
 interface DeletionRefusal {
 	level: AuthLogLevel
 	message: string
+	reason?: typeof GOOGLE_LOGIN_NOT_RENEWED
 }
 
 /** Every before hook sees the request's own headers, so a session lookup in one misses a bearer session. */
@@ -51,8 +53,10 @@ function readNewestAuthTime(idTokens: readonly (string | null | undefined)[]) {
  * Why a session may not delete its account, or undefined when it may: the
  * user's last Google login (the newest `auth_time` of the ID tokens Better
  * Auth stored on the user's Google accounts) is at most five minutes old and
- * the session started after it. A hand-off session keeps its browser session's start, so
- * it passes only when that browser signed in after the login.
+ * the session started after it. A hand-off session keeps its browser
+ * session's start, so it passes only when that browser signed in after the
+ * login. An old login whose session started later came through a Google
+ * sign-in that kept that login: reason `GOOGLE_LOGIN_NOT_RENEWED`.
  */
 function findDeletionRefusal(
 	idTokens: readonly (string | null | undefined)[],
@@ -68,6 +72,12 @@ function findDeletionRefusal(
 
 	if (ageS < -CLOCK_SKEW_S)
 		return { level: 'warn', message: `auth_time is ${-ageS} s in the future` }
+	if (ageS > FRESH_GOOGLE_LOGIN_S && sessionLeadS < -CLOCK_SKEW_S)
+		return {
+			level: 'info',
+			message: `the Google login is ${ageS} s old and the session started ${-sessionLeadS} s after it`,
+			reason: GOOGLE_LOGIN_NOT_RENEWED,
+		}
 	if (ageS > FRESH_GOOGLE_LOGIN_S)
 		return { level: 'info', message: `the Google login is ${ageS} s old` }
 	if (sessionLeadS > CLOCK_SKEW_S)
@@ -82,8 +92,9 @@ function findDeletionRefusal(
 /**
  * The before hook's check on `/delete-user`: lets it through only for a
  * session that started with a Google login at most five minutes old, and
- * otherwise answers `SESSION_EXPIRED`, which the web and the apps already turn
- * into a fresh sign-in. Bearer requests are refused, as their session is
+ * otherwise answers `SESSION_EXPIRED`, which the web and the apps turn into a
+ * fresh sign-in; with reason `GOOGLE_LOGIN_NOT_RENEWED`, they first ask the
+ * user to sign out of Google. Bearer requests are refused, as their session is
  * invisible here; the desktop app deletes nothing.
  */
 export async function refuseStaleDeletion(
@@ -115,5 +126,6 @@ export async function refuseStaleDeletion(
 	throw new APIError('BAD_REQUEST', {
 		code: 'SESSION_EXPIRED',
 		message: 'Sign in with Google again to delete your account.',
+		reason: refusal.reason,
 	})
 }

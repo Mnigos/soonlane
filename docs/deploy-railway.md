@@ -101,10 +101,13 @@ Account deletion needs Google's `auth_time` claim (SOON-51). Without it, `/delet
 
 To check that Google returns a fresh `auth_time`, deploy to staging and use a browser already signed in to Google:
 
-1. Sign in to `https://app.staging.soonlane.com`, wait more than 5 minutes, open the user menu, choose Delete account and press Delete account. The dialog asks you to sign in again, and the API log shows `[Account deletion] Refused: the Google login is N s old.`
-2. Press Continue with Google. If Google asks for the password, enter it. Back in the dialog, press Delete account within 5 minutes.
-3. The account is deleted when Google returned a fresh login. A second `Refused: the Google login is N s old.` with a large N means Google skipped the password and returned the earlier login. `Refused: the Google ID token has no auth_time.` means the setting is off or the app is not verified.
-4. Repeat on the iPhone app and on the Android app (Settings, Delete account) against staging. Read the API log the same way.
+1. Sign in to `https://app.staging.soonlane.com`, wait more than 5 minutes, open the user menu, choose Delete account and press Delete account. Expect one of two answers:
+   - The dialog asks you to sign in again, and the API log shows `[Account deletion] Refused: the Google login is N s old.` Go on to step 2.
+   - When your Google login is more than a minute older than the Soonlane sign-in, the dialog already asks you to sign out of Google in this browser, and the log shows `Refused: the Google login is N s old and the session started M s after it.` (`reason: GOOGLE_LOGIN_NOT_RENEWED`). Go straight to step 4.
+2. Press Continue with Google. If Google checks you (password or passkey), complete it. Back in the dialog, press Delete account within 5 minutes.
+3. The account is deleted when Google checked you. `Refused: the Google ID token has no auth_time.` means the setting is off or the app is not verified. On 2026-11-17, Chrome already signed in to Google showed only the account chooser and kept the earlier login. The log then shows the line with both ages, and the dialog asks you to sign out of Google in this browser.
+4. Sign out of Google in that browser, press Continue with Google, complete Google's check, and press Delete account within 5 minutes. The account is deleted. This step verifies the recovery the web dialog promises.
+5. Repeat on the iPhone app and on the Android app (Settings, Delete account) against staging. Read the API log the same way. Only Android shows the sign-out message; check that signing out of Google in the phone's browser is possible and that Google then checks you. The iPhone's sheet keeps no Google session.
 
 `/delete-user` allows 5 calls an hour per IP, and refusals count, so test the platforms from different networks or an hour apart. A 429 is that limit, not the check.
 
