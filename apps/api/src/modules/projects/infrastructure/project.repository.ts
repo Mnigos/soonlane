@@ -94,26 +94,22 @@ export const ProjectRepositoryLive = Layer.effect(
 					return row && toProject(row)
 				}),
 			delete: ({ ownerId, id }) =>
-				db.run(
-					'ProjectRepository.delete',
-					async database =>
-						await database.transaction(async transaction => {
-							// Unsetting the project on its tasks locks them; taking them first in the tree lock order avoids deadlocks.
-							await transaction
-								.select({ id: task.id })
-								.from(task)
-								.where(and(ownedBy(ownerId), eq(task.projectId, id)))
-								.orderBy(asc(task.depth), asc(task.id))
-								.for('update')
+				db.transaction('ProjectRepository.delete', async transaction => {
+					// Unsetting the project on its tasks locks them; taking them first in the tree lock order avoids deadlocks.
+					await transaction
+						.select({ id: task.id })
+						.from(task)
+						.where(and(ownedBy(ownerId), eq(task.projectId, id)))
+						.orderBy(asc(task.depth), asc(task.id))
+						.for('update')
 
-							const [row] = await transaction
-								.delete(project)
-								.where(and(eq(project.ownerId, ownerId), eq(project.id, id)))
-								.returning()
+					const [row] = await transaction
+						.delete(project)
+						.where(and(eq(project.ownerId, ownerId), eq(project.id, id)))
+						.returning()
 
-							return row && toProject(row)
-						})
-				),
+					return row && toProject(row)
+				}),
 		})
 	})
 )

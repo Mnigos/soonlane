@@ -6,10 +6,12 @@ import {
 	CONNECTION_TIMEOUT_MS,
 	POOL_MAX_CONNECTIONS,
 	QUERY_TIMEOUT_MS,
+	TRANSACTION_RETRIES,
 } from './db.constants'
-import { DbError } from './db.errors'
+import { DbError, findDriverErrorCode, isTransactionAbort } from './db.errors'
 
 export type Database = ReturnType<typeof createDatabase>
+export type Transaction = Parameters<Parameters<Database['transaction']>[0]>[0]
 
 function createDatabase(pool: Pool) {
 	return drizzle({ client: pool })
@@ -22,6 +24,15 @@ export class Db extends Context.Service<
 		readonly run: <TResult>(
 			operation: string,
 			execute: (database: Database) => Promise<TResult>
+		) => Effect.Effect<TResult, DbError>
+		/**
+		 * Runs `execute` in one transaction, and again from the start, up to `TRANSACTION_RETRIES` more times, when Postgres
+		 * aborts it as a deadlock or serialization failure. Postgres undoes every aborted attempt, so the body may only write to
+		 * the database.
+		 */
+		readonly transaction: <TResult>(
+			operation: string,
+			execute: (transaction: Transaction) => Promise<TResult>
 		) => Effect.Effect<TResult, DbError>
 	}
 >()('soonlane/Db') {}
@@ -56,14 +67,34 @@ export const DbLive = Layer.effect(
 				)
 		)
 		const database = createDatabase(pool)
+		const run = <TResult>(
+			operation: string,
+			execute: (database: Database) => Promise<TResult>
+		) =>
+			Effect.tryPromise({
+				try: async () => await execute(database),
+				catch: cause => new DbError({ operation, cause }),
+			})
 
 		return Db.of({
 			database,
-			run: (operation, execute) =>
-				Effect.tryPromise({
-					try: async () => await execute(database),
-					catch: cause => new DbError({ operation, cause }),
-				}),
+			run,
+			transaction: (operation, execute) =>
+				run(operation, async () => await database.transaction(execute)).pipe(
+					Effect.tapError(error =>
+						isTransactionAbort(error)
+							? Effect.logWarning(
+									'Postgres aborted a transaction',
+									operation,
+									findDriverErrorCode(error.cause)
+								)
+							: Effect.void
+					),
+					Effect.retry({
+						times: TRANSACTION_RETRIES,
+						while: isTransactionAbort,
+					})
+				),
 		})
 	})
 )

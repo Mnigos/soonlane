@@ -3,3 +3,5 @@ export const POOL_MAX_CONNECTIONS = 10
 export const CONNECTION_TIMEOUT_MS = 5000
 /** Client-side bound, so a stuck query cannot hold a request and a pooled connection open. */
 export const QUERY_TIMEOUT_MS = 10_000
+/** Runs after the first attempt of a transaction Postgres aborts as a deadlock or serialization failure. */
+export const TRANSACTION_RETRIES = 3

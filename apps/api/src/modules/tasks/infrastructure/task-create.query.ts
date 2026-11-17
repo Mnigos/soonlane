@@ -7,7 +7,6 @@ import {
 	type TaskId,
 } from '@soonlane/domain'
 import { eq } from 'drizzle-orm'
-import type { Database } from '@/platform/db/db.layer'
 import {
 	ParentTaskCompleted,
 	SubtaskLimitReached,
@@ -15,7 +14,7 @@ import {
 	SubtaskTooDeep,
 	TaskNotFound,
 } from '../domain/task.errors'
-import { type OwnedTasks, ownedTasks } from './owned-tasks.query'
+import { type OwnedTasks, ownedTasks, type Queries } from './owned-tasks.query'
 import { toRepeatColumns, toTask } from './task.mapper'
 import type { NewTask } from './task.repository.types'
 
@@ -34,7 +33,7 @@ async function getSubtaskColumns(tasks: OwnedTasks, parentId: TaskId) {
 
 /** Inserts the task with its labels; a subtask under its parent's lock, so its siblings' count holds. Returns why a parent took no subtask. */
 export async function createTask(
-	database: Database,
+	transaction: Queries,
 	{
 		ownerId,
 		parentId,
@@ -50,40 +49,38 @@ export async function createTask(
 		projectId,
 	}: NewTask
 ): Promise<Task | TaskNotFound | SubtaskRefusal> {
-	return await database.transaction(async transaction => {
-		const tasks = ownedTasks(transaction, ownerId)
-		const subtask =
-			parentId === undefined
-				? undefined
-				: await getSubtaskColumns(tasks, parentId)
+	const tasks = ownedTasks(transaction, ownerId)
+	const subtask =
+		parentId === undefined
+			? undefined
+			: await getSubtaskColumns(tasks, parentId)
 
-		if (subtask && '_tag' in subtask) return subtask
+	if (subtask && '_tag' in subtask) return subtask
 
-		const [row] = await transaction
-			.insert(task)
-			.values({
-				ownerId,
-				title,
-				description: description || null,
-				dueDate,
-				dueTime: dueTime ?? null,
-				durationMinutes: durationMinutes ?? null,
-				priority: priority ?? DEFAULT_TASK_PRIORITY,
-				...toRepeatColumns(repeat),
-				goalTarget: goal?.target ?? null,
-				goalUnit: goal?.unit ?? null,
-				projectId: projectId ?? null,
-				...subtask,
-			})
-			.returning()
+	const [row] = await transaction
+		.insert(task)
+		.values({
+			ownerId,
+			title,
+			description: description || null,
+			dueDate,
+			dueTime: dueTime ?? null,
+			durationMinutes: durationMinutes ?? null,
+			priority: priority ?? DEFAULT_TASK_PRIORITY,
+			...toRepeatColumns(repeat),
+			goalTarget: goal?.target ?? null,
+			goalUnit: goal?.unit ?? null,
+			projectId: projectId ?? null,
+			...subtask,
+		})
+		.returning()
 
-		if (!row) throw new Error('Task insert returned no row')
-		if (labelIds.length === 0 && !row.projectId && !row.parentId)
-			return toTask(row, { labels: [] })
-		if (labelIds.length > 0) await tasks.assignLabels(row.id, labelIds)
+	if (!row) throw new Error('Task insert returned no row')
+	if (labelIds.length === 0 && !row.projectId && !row.parentId)
+		return toTask(row, { labels: [] })
+	if (labelIds.length > 0) await tasks.assignLabels(row.id, labelIds)
 
-		const [created] = await tasks.withRelations([row])
+	const [created] = await tasks.withRelations([row])
 
-		return created ?? toTask(row, { labels: [] })
-	})
+	return created ?? toTask(row, { labels: [] })
 }
