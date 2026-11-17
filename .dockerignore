@@ -1,4 +1,4 @@
-# Only apps/landing builds with Docker; the context is the repo root.
+# The landing, the API and the web app build with Docker; the context is the repo root.
 .git
 **/node_modules
 **/dist

@@ -1,0 +1,83 @@
+name: Images
+
+# The self-hosted images (self-host/compose.yaml) on GHCR: `main` and `sha-<short>` for every push to main,
+# `X.Y.Z`, `X.Y` and `latest` for a stable release, which the release workflow calls this for: a tag that
+# workflow pushes with GITHUB_TOKEN starts no other workflow.
+on:
+  push:
+    branches: [main]
+  workflow_call:
+    inputs:
+      tag:
+        description: The stable release tag, such as v0.3.0.
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+# A newer push to main replaces an older build, so `main` never moves back; each release has its own group.
+concurrency:
+  group: images-${{ inputs.tag || github.ref }}
+  cancel-in-progress: ${{ !inputs.tag }}
+
+jobs:
+  image:
+    name: Publish ${{ matrix.app }}
+    if: github.repository == 'Mnigos/soonlane'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        app: [api, web]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ inputs.tag || github.sha }}
+      # The tag is the promoted nightly's commit, from before the release PR bumped version.json; the API and the app report that file.
+      - name: Pin the release version
+        if: inputs.tag
+        run: |
+          jq --arg version "${TAG#v}" '.version = $version' version.json > "$RUNNER_TEMP/version.json"
+          mv "$RUNNER_TEMP/version.json" version.json
+        env:
+          TAG: ${{ inputs.tag }}
+      - name: Read the commit
+        id: commit
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      - name: Image tags and labels
+        id: meta
+        uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302
+        with:
+          context: git
+          images: ghcr.io/mnigos/soonlane-${{ matrix.app }}
+          flavor: latest=false
+          tags: |
+            type=raw,value=main,enable=${{ !inputs.tag }}
+            type=sha,format=short,prefix=sha-,enable=${{ !inputs.tag }}
+            type=semver,pattern={{version}},value=${{ inputs.tag }},enable=${{ !!inputs.tag }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }},enable=${{ !!inputs.tag }}
+            type=raw,value=latest,enable=${{ !!inputs.tag }}
+      - name: Setup Buildx
+        uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
+      - name: Log in to GHCR
+        uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      # The build stage runs on the runner's platform and emits plain JavaScript; only the final stage differs per platform.
+      - name: Build and push
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc
+        with:
+          context: .
+          file: apps/${{ matrix.app }}/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          build-args: APP_COMMIT=${{ steps.commit.outputs.sha }}
