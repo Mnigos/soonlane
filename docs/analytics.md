@@ -275,7 +275,7 @@ Every channel of the launch (the Marketing launch project in Linear) posts its o
 
 posthog-js reads the tags from the page's address when it captures an event, and it starts only once the visitor answers the consent banner ([Consent](#consent)). A visitor who answers on a later page would lose them, so the landing keeps the tags in its address on its own links (`retainSearchParams` in the root route, `campaign-search.schema.ts`), and Log in and Get started copy them onto the link into the app as it is followed (`carryCampaignParams`). A visitor who answers on `/login` still counts for their channel. PostHog registers the tags for the session and keeps the first page it saw in the identity cookie the landing and the app share, so `identify` gives the person `$initial_utm_source` and `$initial_utm_campaign`.
 
-Not counted by channel: visitors who reject analytics (their page views count, cookieless; their sign-ups are not sent at all), visitors who answer only after signing in with Google (the callback's address has no tags), and visitors who follow a plain link inside a blog post's text before answering (a full page load without the tags).
+Visitors who reject analytics still count by channel in the page view tiles (their events are cookieless but carry the tags); their sign-ups are not sent at all. Lost to the channel: visitors who answer only after signing in with Google (the callback's address has no tags), and visitors who, before answering, follow a plain link inside a blog post's text or open a landing link in a new tab right after it loads (both load a page without the tags).
 
 ## Launch dashboard
 
