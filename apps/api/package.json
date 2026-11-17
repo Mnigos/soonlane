@@ -20,12 +20,14 @@
     "@soonlane/domain": "workspace:*",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
+    "nodemailer": "10.3.1",
     "pg": "catalog:",
     "posthog-node": "^5.63.1"
   },
   "devDependencies": {
     "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
+    "@types/nodemailer": "8.0.2",
     "@types/pg": "catalog:",
     "typescript": "catalog:"
   }

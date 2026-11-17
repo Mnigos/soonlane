@@ -12,6 +12,7 @@ import {
 	SIGN_IN_CODE_PATTERN,
 } from './desktop-sign-in.constants'
 import { toCodeChallenge } from './desktop-sign-in.helper'
+import { readEmailCodeAt } from './email-code.handler'
 
 const CODE_LENGTH = 32
 const CODE_TTL_MS = 2 * 60 * 1000
@@ -19,7 +20,7 @@ const CODE_IDENTIFIER_PREFIX = 'desktop-sign-in:'
 const INVALID_CODE_MESSAGE =
 	'This sign-in link expired or was already used. Start again from the desktop app.'
 
-const storedCodeSchema = z.object({
+const storedCodeSchema = z.looseObject({
 	userId: z.string(),
 	challenge: z.string(),
 	// A code stored without an age never counts as a fresh session.
@@ -60,11 +61,14 @@ export async function startHandOffSession(
 	if (!(pending && user))
 		throw new APIError('BAD_REQUEST', { message: INVALID_CODE_MESSAGE })
 
-	// Keep the browser session's age, so a hand-off never yields a fresher session.
+	// Keep the browser session's age and email proof, so a hand-off never yields a fresher session.
 	const session = await adapter.createSession(
 		user.id,
 		false,
-		{ createdAt: pending.sessionCreatedAt },
+		{
+			createdAt: pending.sessionCreatedAt,
+			emailCodeAt: readEmailCodeAt(pending),
+		},
 		true
 	)
 
@@ -94,6 +98,7 @@ export function desktopSignIn() {
 				},
 				async ctx => {
 					const code = generateRandomString(CODE_LENGTH)
+					const { session } = ctx.context.session
 
 					// Stored hashed: a leaked verification row cannot be replayed as a code.
 					await ctx.context.internalAdapter.createVerificationValue({
@@ -101,7 +106,8 @@ export function desktopSignIn() {
 						value: JSON.stringify({
 							userId: ctx.context.session.user.id,
 							challenge: ctx.body.challenge,
-							sessionCreatedAt: ctx.context.session.session.createdAt,
+							sessionCreatedAt: session.createdAt,
+							emailCodeAt: readEmailCodeAt(session),
 						}),
 						expiresAt: new Date(Date.now() + CODE_TTL_MS),
 					})

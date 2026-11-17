@@ -30,6 +30,8 @@ export const session = pgTable(
 		updatedAt: timestamp('updated_at').notNull().defaultNow(),
 		ipAddress: text('ip_address'),
 		userAgent: text('user_agent'),
+		/** When an email code started this session, or the browser session a hand-off came from; account deletion reads it. */
+		emailCodeAt: timestamp('email_code_at'),
 		userId: uuid('user_id')
 			.notNull()
 			.$type<UserId>()

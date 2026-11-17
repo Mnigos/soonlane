@@ -1,4 +1,5 @@
 import type { AuthUser } from '@soonlane/auth'
+import type { SignInMethods } from '@soonlane/contracts'
 import { Context } from 'effect'
 
 export interface AuthSession {
@@ -18,5 +19,7 @@ export class Auth extends Context.Service<
 		readonly getSession: (headers: Headers) => Promise<SessionLookup>
 		/** Decrypts a provider token from the `account` table with Better Auth's own key. */
 		readonly readStoredToken: (stored: string) => Promise<string>
+		/** The ways in this server offers, for the sign-in screens. */
+		readonly signInMethods: SignInMethods
 	}
 >()('soonlane/Auth') {}

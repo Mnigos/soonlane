@@ -21,12 +21,23 @@ import { canSignUp } from './auth-policy.helper'
 import { AUTH_BASE_PATH, DESKTOP_TOKEN_PATH } from './desktop-sign-in.constants'
 import { desktopSignIn } from './desktop-sign-in.handler'
 import {
+	EMAIL_CODE_SEND_PATH,
+	EMAIL_CODE_SIGN_IN_PATH,
+} from './email-code.constants'
+import {
+	type EmailCodeOptions,
+	emailCodeSignIn,
+	UNUSED_EMAIL_CODE_PATHS,
+} from './email-code.handler'
+import {
 	EXPO_GO_SCHEME,
 	EXPO_PROXY_PATH,
 	MOBILE_APP_SCHEME,
 	expoSignIn,
 	isPendingAppSignIn,
 } from './expo-sign-in.handler'
+import { refuseUnvouchedGoogleLink } from './google-link.handler'
+import { redactLogArgument } from './log-redaction.helper'
 import { ANDROID_EXCHANGE_PATH } from './mobile-sign-in.constants'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
@@ -37,6 +48,8 @@ import {
 	TODOIST_PROVIDER_ID,
 	TODOIST_STILL_CONNECTED,
 } from './todoist.constants'
+
+export type { SignInCodeMail } from './email-code.handler'
 
 /** The one header Better Auth reads the client IP from; the API's HTTP entry sets it and drops any copy a client sends. */
 export const CLIENT_IP_HEADER = 'x-soonlane-client-ip'
@@ -80,50 +93,25 @@ export interface CreateAuthOptions {
 	errorUrl: string
 	secret: string
 	allowedEmails: readonly string[]
-	google: OAuthClientOptions
+	/** Unset, nobody signs in with Google. */
+	google?: OAuthClientOptions
+	/** Unset, nobody signs in with an email code. */
+	emailCode?: EmailCodeOptions
 	/** Unset, Todoist cannot be linked. */
 	todoist?: OAuthClientOptions
 	log: AuthLogger
 	events: AuthEvents
 }
 
-/** RFC 6749 and RFC 7009 error codes; any other text in a provider's response stays out of the logs. */
-const OAUTH_ERROR_CODES = new Set<unknown>([
-	'invalid_request',
-	'invalid_client',
-	'invalid_grant',
-	'unauthorized_client',
-	'unsupported_grant_type',
-	'invalid_scope',
-	'unsupported_token_type',
-	'access_denied',
-	'server_error',
-	'temporarily_unavailable',
-])
-
-/** Drizzle query errors embed SQL parameters, which include session tokens, and a provider's failed response arrives as a plain object holding its body: an error becomes its name, any other object a known OAuth error code and its numeric status at most. */
-function redactLogArgument(argument: unknown) {
-	if (argument instanceof Error) return argument.name
-	if (typeof argument !== 'object' || argument === null) return argument
-
-	const code =
-		'error' in argument && OAUTH_ERROR_CODES.has(argument.error)
-			? String(argument.error)
-			: '[object]'
-
-	return 'status' in argument && typeof argument.status === 'number'
-		? `${code} ${argument.status}`
-		: code
-}
-
 const RATE_LIMIT_WINDOW_S = 60
 const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
-/** Endpoints that hand a stored provider token to the browser or remove a linked account; the app uses none of them, and the API reads tokens server-side. */
+/** Endpoints that hand a stored provider token to the browser or remove a linked account, which the app does not use (the API reads tokens server-side), and the emailOTP endpoints it does not use. */
 const DISABLED_PATHS = [
 	'/get-access-token',
 	'/refresh-token',
 	'/account-info',
 	'/unlink-account',
+	...UNUSED_EMAIL_CODE_PATHS,
 ]
 
 function readProvider(body: unknown) {
@@ -159,15 +147,18 @@ function bearerSessions() {
 /** A token exchange is the desktop app's and a cookie exchange the Android app's; the label only names the analytics method. */
 function toSignInMethod(path?: string): SignInMethod {
 	if (path === DESKTOP_TOKEN_PATH) return 'desktop'
+	if (path === ANDROID_EXCHANGE_PATH) return 'mobile'
+	if (path === EMAIL_CODE_SIGN_IN_PATH) return 'email'
 
-	return path === ANDROID_EXCHANGE_PATH ? 'mobile' : 'google'
+	return path?.startsWith('/callback/') ? 'google' : 'other'
 }
 
 function refuse(message: string) {
 	return new APIError('FORBIDDEN', { code: 'PROVIDER_NOT_ALLOWED', message })
 }
 /**
- * Better Auth for anyone with a verified Google address. `allowedEmails`, when
+ * Better Auth for anyone with a verified Google address or a mailbox that
+ * receives a sign-in code; either method may be off, not both. `allowedEmails`, when
  * set, limits who can create an account; existing accounts keep signing in.
  * Also uuid ids, account deletion, rate limits kept in the database, the
  * signed-in hint cookie, the hand-off of a browser sign-in to the desktop
@@ -226,12 +217,20 @@ export function createAuth(options: CreateAuthOptions) {
 				[DESKTOP_TOKEN_PATH]: SIGN_IN_RATE_LIMIT,
 				[ANDROID_EXCHANGE_PATH]: SIGN_IN_RATE_LIMIT,
 				[EXPO_PROXY_PATH]: SIGN_IN_RATE_LIMIT,
+				[EMAIL_CODE_SEND_PATH]: { window: RATE_LIMIT_WINDOW_S, max: 3 },
+				[EMAIL_CODE_SIGN_IN_PATH]: SIGN_IN_RATE_LIMIT,
 				'/delete-user': { window: 3600, max: 5 },
 			},
 		},
 		// A client-held Google ID token would turn a stale session into a fresh one.
-		socialProviders: {
+		socialProviders: options.google && {
 			google: { ...options.google, disableIdTokenSignIn: true },
+		},
+		session: {
+			// Set only by the session-create hook and the hand-off, never by a client.
+			additionalFields: {
+				emailCodeAt: { type: 'date', required: false, input: false },
+			},
 		},
 		user: {
 			deleteUser: {
@@ -239,6 +238,7 @@ export function createAuth(options: CreateAuthOptions) {
 				// Not the user delete database hook: Better Auth deletes the sessions and accounts before that one runs.
 				beforeDelete: async ({ id }) => await options.events.userDeleting(id),
 			},
+			validateUserInfo: refuseUnvouchedGoogleLink(Boolean(options.emailCode)),
 		},
 		// Todoist reports no verified email; its user info carries the linking user's own address.
 		account: {
@@ -259,7 +259,14 @@ export function createAuth(options: CreateAuthOptions) {
 						},
 					}
 				if (ctx.path === '/delete-user')
-					return await refuseStaleDeletion(ctx, options.log)
+					return await refuseStaleDeletion(
+						ctx,
+						{
+							google: Boolean(options.google),
+							emailCode: Boolean(options.emailCode),
+						},
+						options.log
+					)
 				if (
 					ctx.path === EXPO_PROXY_PATH &&
 					!(await isPendingAppSignIn(
@@ -336,6 +343,10 @@ export function createAuth(options: CreateAuthOptions) {
 			},
 			session: {
 				create: {
+					before: async (created, context) =>
+						context?.path === EMAIL_CODE_SIGN_IN_PATH
+							? { data: { ...created, emailCodeAt: new Date() } }
+							: { data: created },
 					after: async ({ userId }, context) =>
 						await options.events.sessionCreated(
 							userId,
@@ -351,6 +362,14 @@ export function createAuth(options: CreateAuthOptions) {
 			androidSignIn(),
 			returnAddresses(options.trustedOrigins, appSchemes),
 			...(options.todoist ? [todoistLink(options.todoist)] : []),
+			...(options.emailCode
+				? emailCodeSignIn({
+						database: options.database,
+						secret: options.secret,
+						allowedEmails: options.allowedEmails,
+						emailCode: options.emailCode,
+					})
+				: []),
 			// Last, so its after hook strips the browser's cookies after every other plugin's callback hook.
 			expoSignIn(appSchemes),
 		],
