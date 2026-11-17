@@ -5,7 +5,7 @@ import {
 	electrobunEvents,
 	listen,
 } from '../../../platform/electrobun/electrobun-events.helper'
-import { DesktopSession } from '../../sign-in/application/desktop-session.service'
+import { IdentityService } from '../../identity/application/identity.service'
 import { FrameStore } from '../application/frame-store.port'
 import { MainWindow } from '../application/main-window.port'
 import { applyFrameEvent, restoreFrame } from '../domain/window-frame.helper'
@@ -75,7 +75,7 @@ export const MainWindowLive = Layer.effect(
 		yield* persistFrame(window)
 
 		// The browser was in front for the sign-in, so the signed-in app comes back to it.
-		yield* (yield* DesktopSession).events.pipe(
+		yield* (yield* IdentityService).events.pipe(
 			Stream.filter(
 				event => event.type === 'token-changed' && Option.isSome(event.token)
 			),

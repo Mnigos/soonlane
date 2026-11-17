@@ -4,7 +4,7 @@ import {
 	MainWindow,
 	type WebviewEventName,
 } from '../../window/application/main-window.port'
-import { Navigation } from '../application/navigation.service'
+import { NavigationService } from '../application/navigation.service'
 import {
 	readBlockedNavigationUrl,
 	readNewWindowUrl,
@@ -14,7 +14,7 @@ import {
 export const followNavigation = Effect.fn('Navigation.follow')(function* (
 	webviewEvents: (name: WebviewEventName) => Stream.Stream<unknown>
 ) {
-	const navigation = yield* Navigation
+	const navigation = yield* NavigationService
 
 	yield* handleEvents(webviewEvents('new-window-open'), event => {
 		const href = readNewWindowUrl(event)

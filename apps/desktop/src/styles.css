@@ -1,0 +1,8 @@
+@import '@soonlane/tailwind-config/theme';
+@source "../../../packages/ui/src";
+@source "../../../packages/app/src";
+@source not "./main.ts";
+@source not "./platform";
+@source not "./modules/*/domain";
+@source not "./modules/*/application";
+@source not "./modules/*/infrastructure";

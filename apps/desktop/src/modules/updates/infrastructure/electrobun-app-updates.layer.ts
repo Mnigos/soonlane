@@ -2,8 +2,9 @@ import { Effect, Layer, Schedule, Stream, SubscriptionRef } from 'effect'
 import { Updater } from 'electrobun'
 import { DesktopConfig } from '../../../platform/config/desktop.config'
 import { AppUpdates } from '../application/app-updates.port'
-import { UPDATE_CHECK_INTERVAL } from '../domain/updates.constants'
 
+/** How often a running app looks for a new release. */
+const UPDATE_CHECK_INTERVAL = '6 hours'
 /** Builds that must not replace themselves with a release: unsigned ones (pull requests, local packages). */
 const NoAppUpdates = AppUpdates.of({
 	isReady: Effect.succeed(false),

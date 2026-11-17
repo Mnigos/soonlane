@@ -8,8 +8,14 @@
     }
   },
   "include": [
-    "src/view/**/*.ts",
-    "src/view/**/*.tsx",
-    "src/platform/electrobun/page-rpc.types.ts"
+    "src/view.tsx",
+    "src/router.tsx",
+    "src/build-info.types.ts",
+    "src/routes/**/*.ts",
+    "src/routes/**/*.tsx",
+    "src/modules/*/presentation/**/*.ts",
+    "src/modules/*/presentation/**/*.tsx",
+    "src/platform/rpc/*.client.ts",
+    "src/platform/rpc/page-rpc.types.ts"
   ]
 }

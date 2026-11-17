@@ -19,8 +19,7 @@ const FRAMEWORK_ENTRIES = [
 	'/src/start.ts',
 	'apps/api/src/main.ts',
 	'apps/desktop/src/main.ts',
-	'apps/desktop/src/view/main.tsx',
-	'apps/desktop/src/view/router.tsx',
+	'apps/desktop/src/view.tsx',
 ] as const
 
 function isIgnored(file: FilePath) {

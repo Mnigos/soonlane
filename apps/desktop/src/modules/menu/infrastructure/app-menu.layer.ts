@@ -6,8 +6,7 @@ import {
 } from '../../../platform/electrobun/electrobun-events.helper'
 import { MainWindow } from '../../window/application/main-window.port'
 import { readMenuAction } from '../domain/menu-event.helper'
-import { RELOAD_ACTION } from '../domain/menu.constants'
-import { APP_MENU } from './app-menu.constants'
+import { APP_MENU, RELOAD_ACTION } from './app-menu.constants'
 
 export const AppMenuLive = Layer.effectDiscard(
 	Effect.gen(function* () {

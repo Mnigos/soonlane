@@ -9,6 +9,13 @@
       "electrobun/*": ["./.hutch/devkit/api/sdks/main/entries/*.ts"]
     }
   },
-  "include": ["src/**/*.ts", "*.ts"],
-  "exclude": ["src/view/**"]
+  "include": [
+    "src/main.ts",
+    "src/platform/**/*.ts",
+    "src/modules/*/domain/**/*.ts",
+    "src/modules/*/application/**/*.ts",
+    "src/modules/*/infrastructure/**/*.ts",
+    "*.ts"
+  ],
+  "exclude": ["src/platform/rpc/*.client.ts"]
 }
