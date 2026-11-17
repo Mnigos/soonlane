@@ -5,6 +5,8 @@ import { PostHog } from 'posthog-node'
 import { AppConfig } from '@/platform/config/app.config'
 import { Analytics, AnalyticsConsent } from '../application/analytics.port'
 import type { ServerEvents } from '../domain/analytics-event.types'
+import { toErrorName } from '../domain/error-name.helper'
+import { PersonDeletionFailed } from '../domain/person-deletion.errors'
 
 const POSTHOG_HOST = 'https://eu.i.posthog.com'
 /** Takes distinct ids, so no lookup of the person's uuid is needed; PostHog queues the deletion and answers 202. */
@@ -14,6 +16,8 @@ const FLUSH_AT = 20
 const FLUSH_INTERVAL_MS = 5000
 const REQUEST_TIMEOUT_MS = 3000
 const FETCH_RETRY_COUNT = 1
+/** The request runs in the deletion sweep, so no user waits for it. */
+const DELETE_TIMEOUT_MS = 10_000
 /** Bounds the final flush; with the server's drain it has to fit in Railway's `drainingSeconds`. */
 const SHUTDOWN_TIMEOUT_MS = 10_000
 const decodeDeletionAnswer = Schema.decodeUnknownEffect(
@@ -27,14 +31,6 @@ const disabledAnalytics = Analytics.of({
 	captureException: () => Effect.void,
 	deletePerson: () => Effect.void,
 })
-
-class PostHogRequestFailedError extends Error {
-	override name = 'PostHogRequestFailedError'
-}
-
-function toErrorName(error: unknown) {
-	return error instanceof Error ? error.name : typeof error
-}
 
 /** Name and stack frames only: driver errors embed SQL parameters such as session tokens. */
 function toSafeError(error: unknown) {
@@ -53,6 +49,10 @@ function toSafeError(error: unknown) {
 	return safe
 }
 
+function failWith(reason: string | number) {
+	return new PersonDeletionFailed({ reason: String(reason) })
+}
+
 /** Fails with the HTTP status or a reason naming no detail: a fetch error's message can hold the Authorization header. */
 function requestPersonDeletion(apiKey: Redacted.Redacted, userId: UserId) {
 	return Effect.gen(function* () {
@@ -69,28 +69,29 @@ function requestPersonDeletion(apiKey: Redacted.Redacted, userId: UserId) {
 						delete_events: true,
 						delete_recordings: true,
 					}),
-					signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+					signal: AbortSignal.timeout(DELETE_TIMEOUT_MS),
 				})
 
 				if (!answer.ok) await answer.body?.cancel()
 
 				return answer
 			},
-			catch: toErrorName,
+			catch: error => failWith(toErrorName(error)),
 		})
 
-		if (!response.ok) return yield* Effect.fail(response.status)
+		if (!response.ok) return yield* Effect.fail(failWith(response.status))
 
 		const json = yield* Effect.tryPromise({
 			try: async () => await response.json(),
-			catch: toErrorName,
+			catch: error => failWith(toErrorName(error)),
 		})
 		return yield* decodeDeletionAnswer(json).pipe(
-			Effect.mapError(() => 'UnexpectedAnswer'),
+			Effect.mapError(() => failWith('UnexpectedAnswer')),
 			Effect.filterOrFail(
 				answer => (answer.deletion_errors ?? []).length === 0,
-				() => 'deletion_errors'
-			)
+				() => failWith('deletion_errors')
+			),
+			Effect.asVoid
 		)
 	})
 }
@@ -98,7 +99,7 @@ function requestPersonDeletion(apiKey: Redacted.Redacted, userId: UserId) {
 /**
  * Queues events and sends them in batches every few seconds, so no request waits for them; a no-op without a key.
  * Releasing the layer (`runtime.dispose()` on SIGTERM) flushes the queue before the process exits. Exceptions need no consent.
- * Deleting a person also needs the personal API key, and the request waits for PostHog's answer.
+ * Deleting a person also needs the personal API key; without it `deletePerson` fails, so the deletion stays queued.
  */
 export const PostHogAnalyticsLive = Layer.effect(
 	Analytics,
@@ -166,34 +167,11 @@ export const PostHogAnalyticsLive = Layer.effect(
 		const deletePerson = Effect.fn('Analytics.deletePerson')(function* (
 			userId: UserId
 		) {
-			if (!posthogPersonalApiKey) return
+			// PostHog holds the account's data, so the deletion stays owed until the key is set.
+			if (!posthogPersonalApiKey)
+				return yield* Effect.fail(failWith('MissingPersonalApiKey'))
 
-			// Queued events for this user would otherwise arrive after the deletion and create the person again.
-			yield* Effect.tryPromise(async () => await client.flush()).pipe(
-				Effect.timeout(REQUEST_TIMEOUT_MS),
-				Effect.ignore
-			)
-			yield* requestPersonDeletion(posthogPersonalApiKey, userId).pipe(
-				Effect.retry({
-					times: FETCH_RETRY_COUNT,
-					while: reason =>
-						typeof reason === 'string' || reason === 429 || reason >= 500,
-				}),
-				// Without the user id: an exception under it would bring the person back.
-				Effect.catch(error =>
-					Effect.logWarning(
-						'PostHog person deletion failed',
-						userId,
-						error
-					).pipe(
-						Effect.andThen(
-							captureException(new PostHogRequestFailedError(), undefined, {
-								reason: String(error),
-							})
-						)
-					)
-				)
-			)
+			return yield* requestPersonDeletion(posthogPersonalApiKey, userId)
 		})
 
 		return Analytics.of({ capture, captureException, deletePerson })

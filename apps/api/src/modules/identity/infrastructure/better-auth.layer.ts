@@ -11,6 +11,7 @@ import {
 	Analytics,
 	AnalyticsConsent,
 } from '@/modules/analytics/application/analytics.port'
+import { AnalyticsService } from '@/modules/analytics/application/analytics.service'
 import { AppConfig } from '@/platform/config/app.config'
 import { Db } from '@/platform/db/db.layer'
 import { Auth } from '../application/auth.port'
@@ -37,6 +38,7 @@ export const BetterAuthLive = Layer.effect(
 		const config = yield* AppConfig
 		const db = yield* Db
 		const analytics = yield* Analytics
+		const analyticsService = yield* AnalyticsService
 		const context = yield* Effect.context()
 		const auth = createAuth({
 			database: db.database,
@@ -76,9 +78,14 @@ export const BetterAuthLive = Layer.effect(
 							.capture(userIdSchema.parse(userId), 'user_signed_in', { method })
 							.pipe(withRequestConsent(config.cookiePrefix, headers))
 					),
-				userDeleted: async userId =>
+				userDeleting: async userId =>
 					await Effect.runPromiseWith(context)(
-						analytics.deletePerson(userIdSchema.parse(userId))
+						analyticsService
+							.schedulePersonDeletion(userIdSchema.parse(userId))
+							.pipe(
+								// Only the name: driver errors embed SQL parameters, and Better Auth logs what a hook throws.
+								Effect.mapError(error => new Error(error._tag))
+							)
 					),
 			},
 		})

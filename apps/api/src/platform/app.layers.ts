@@ -1,4 +1,6 @@
 import { Layer } from 'effect'
+import { AnalyticsServiceLive } from '@/modules/analytics/application/analytics.service'
+import { PersonDeletionRepositoryLive } from '@/modules/analytics/infrastructure/person-deletion.repository'
 import { PostHogAnalyticsLive } from '@/modules/analytics/infrastructure/posthog-analytics.layer'
 import { CalendarServiceLive } from '@/modules/calendar/application/calendar.service'
 import { CalendarSubscriptionRepositoryLive } from '@/modules/calendar/infrastructure/calendar-subscription.repository'
@@ -40,6 +42,9 @@ export const ServicesLive = Layer.mergeAll(
 	)
 ).pipe(
 	Layer.provideMerge(BetterAuthLive),
+	Layer.provideMerge(
+		AnalyticsServiceLive.pipe(Layer.provide(PersonDeletionRepositoryLive))
+	),
 	Layer.provideMerge(PostHogAnalyticsLive),
 	Layer.provideMerge(DbLive),
 	Layer.provideMerge(AppConfigLive)
