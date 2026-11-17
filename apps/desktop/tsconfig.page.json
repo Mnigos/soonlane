@@ -1,0 +1,15 @@
+{
+  "extends": "@soonlane/typescript-config/react-library.json",
+  "compilerOptions": {
+    "types": ["vite/client"],
+    "tsBuildInfoFile": "${configDir}/.cache/tsbuildinfo.page.json",
+    "paths": {
+      "electrobun/view": ["./.hutch/devkit/api/browser/index.ts"]
+    }
+  },
+  "include": [
+    "src/view/**/*.ts",
+    "src/view/**/*.tsx",
+    "src/platform/electrobun/page-rpc.types.ts"
+  ]
+}

@@ -8,7 +8,7 @@
     "view": "bun run sdk && bunx --bun vite build",
     "package": ": \"${APP_URL:?set APP_URL to the web app URL}\" \"${API_URL:?set API_URL to the API URL}\" \"${LANDING_URL:?set LANDING_URL to the landing URL}\" && bun run view && bunx --bun electrobun build --env=stable",
     "sdk": "bunx --bun electrobun prepare",
-    "typecheck": "bun run sdk && tsc --noEmit"
+    "typecheck": "bun run sdk && tsc --noEmit -p tsconfig.main.json && tsc --noEmit -p tsconfig.page.json"
   },
   "dependencies": {
     "@orpc/client": "catalog:",
