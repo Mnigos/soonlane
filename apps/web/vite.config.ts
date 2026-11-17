@@ -8,15 +8,24 @@ import { routes } from './src/routes'
 
 const { environment, define } = readBuildInfo(new URL('.', import.meta.url))
 
-/** Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, and without the landing's origin the links to the public pages go nowhere, so only development may fall back. */
+/**
+ * Without the API's origin or the cookie prefix, deployed pages call no API and look signed out, and without the landing's origin the links to the public pages go nowhere, so only development may fall back.
+ * `VITE_API_URL` may be set empty: the browser then calls the API on the page's own origin, as the self-hosted image does behind its proxy.
+ */
 const REQUIRED_VARIABLES = [
 	'VITE_API_URL',
 	'VITE_AUTH_COOKIE_PREFIX',
 	'VITE_LANDING_URL',
 ] as const
 
+function isMissing(name: (typeof REQUIRED_VARIABLES)[number]) {
+	return name === 'VITE_API_URL'
+		? process.env[name] === undefined
+		: !process.env[name]
+}
+
 for (const name of REQUIRED_VARIABLES)
-	if (environment !== 'development' && !process.env[name])
+	if (environment !== 'development' && isMissing(name))
 		throw new Error(
 			`${name} is not set; ${environment} builds need it (docs/deploy-railway.md)`
 		)
