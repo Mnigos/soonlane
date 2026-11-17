@@ -10,9 +10,9 @@
 		X-Content-Type-Options nosniff
 		Referrer-Policy strict-origin-when-cross-origin
 		X-Frame-Options DENY
-		# Inline scripts are the signed-in hint and the router's data; the MDX renderer compiles pages with Function(), hence 'unsafe-eval' until SOON-188.
+		# Inline scripts are the signed-in hint and the router's data.
 		# Both API hosts (PostHog's proxy and its scripts) because one Caddyfile serves every environment.
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://api.soonlane.com https://api.staging.soonlane.com; connect-src 'self' https://api.soonlane.com https://api.staging.soonlane.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://api.soonlane.com https://api.staging.soonlane.com; connect-src 'self' https://api.soonlane.com https://api.staging.soonlane.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'"
 		-Server
 	}
 }

@@ -1,4 +1,4 @@
-import { MDXContent } from '@content-collections/mdx/react'
+import type { MDXContent } from 'mdx/types'
 import type { ComponentProps, ReactNode } from 'react'
 
 const PROSE_COMPONENTS = {
@@ -50,10 +50,14 @@ const PROSE_COMPONENTS = {
 interface ProsePageProps {
 	title: string
 	byline: ReactNode
-	mdx: string
+	content: MDXContent
 }
 
-export function ProsePage({ title, byline, mdx }: Readonly<ProsePageProps>) {
+export function ProsePage({
+	title,
+	byline,
+	content: Content,
+}: Readonly<ProsePageProps>) {
 	return (
 		<main className="mx-auto w-full max-w-[680px] flex-1 px-4 py-12 sm:px-6 sm:py-16">
 			{/* An <img> written as JSX in MDX skips the components map. */}
@@ -68,7 +72,7 @@ export function ProsePage({ title, byline, mdx }: Readonly<ProsePageProps>) {
 					</p>
 				</header>
 
-				<MDXContent code={mdx} components={PROSE_COMPONENTS} />
+				<Content components={PROSE_COMPONENTS} />
 			</article>
 		</main>
 	)

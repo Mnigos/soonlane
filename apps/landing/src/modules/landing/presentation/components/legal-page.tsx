@@ -1,12 +1,14 @@
 import type { Legal } from 'content-collections'
+import type { MDXContent } from 'mdx/types'
 import { FormattedDate } from './formatted-date'
 import { ProsePage } from './prose-page'
 
 interface LegalPageProps {
 	legal: Legal
+	content: MDXContent
 }
 
-export function LegalPage({ legal }: Readonly<LegalPageProps>) {
+export function LegalPage({ legal, content }: Readonly<LegalPageProps>) {
 	return (
 		<ProsePage
 			byline={
@@ -14,7 +16,7 @@ export function LegalPage({ legal }: Readonly<LegalPageProps>) {
 					Last updated <FormattedDate date={legal.updated} />
 				</span>
 			}
-			mdx={legal.mdx}
+			content={content}
 			title={legal.title}
 		/>
 	)

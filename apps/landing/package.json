@@ -11,8 +11,8 @@
   },
   "dependencies": {
     "@content-collections/core": "0.15.3",
-    "@content-collections/mdx": "0.2.2",
     "@content-collections/vite": "0.3.1",
+    "@mdx-js/rollup": "3.1.1",
     "@soonlane/analytics": "workspace:*",
     "@soonlane/auth": "workspace:*",
     "@soonlane/domain": "workspace:*",
@@ -27,6 +27,7 @@
     "lucide-react": "^1.56.0",
     "react": "catalog:",
     "react-dom": "catalog:",
+    "remark-frontmatter": "5.0.0",
     "remark-gfm": "4.0.1",
     "tailwindcss": "catalog:",
     "zod": "catalog:"
@@ -35,6 +36,7 @@
     "@resvg/resvg-js": "2.6.2",
     "@soonlane/typescript-config": "workspace:*",
     "@types/bun": "catalog:",
+    "@types/mdx": "2.0.14",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:",

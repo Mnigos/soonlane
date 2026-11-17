@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from '@tanstack/react-router'
+import { postContents } from 'virtual:post-contents'
 import { NotFoundPage } from '@/modules/landing/presentation/components/not-found-page'
 import { ProsePage } from '@/modules/landing/presentation/components/prose-page'
 import {
@@ -95,11 +96,14 @@ export const Route = createFileRoute('/blog/$slug')({
 
 function PostRoute() {
 	const post = Route.useLoaderData()
+	const content = postContents.get(post.slug)
+
+	if (!content) throw notFound()
 
 	return (
 		<ProsePage
 			byline={<PostByline post={post} />}
-			mdx={post.mdx}
+			content={content}
 			title={post.title}
 		/>
 	)
