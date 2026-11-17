@@ -1,6 +1,9 @@
+import { realpathSync } from 'node:fs'
+import { isBuiltin } from 'node:module'
+import { resolve } from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import versionFile from '../../version.json' with { type: 'json' }
 import { electrobunViteAliases } from './.hutch/devkit/api/config/electrobun-vite'
 
@@ -13,6 +16,41 @@ if (!(APP_URL && API_URL && LANDING_URL))
 	)
 
 const API_ORIGIN = new URL(API_URL).origin
+/** A real path, because Vite compares the real paths of the files it loads. */
+const SOURCE_ROOT = realpathSync(resolve(import.meta.dirname, 'src'))
+const PAGE_ROOT = `${SOURCE_ROOT}/view`
+/** Main-process packages and the Electrobun main SDK, matched on resolved paths so an alias or a re-export cannot hide them. */
+const MAIN_PROCESS_PATHS =
+	/\/node_modules\/(?:effect|@effect\/[^/]+)\/|\/\.hutch\/devkit\/api\/sdks\/main\//u
+const BUN_SPECIFIER = /^bun(?::|$)/u
+
+function failPageBoundary(id: string): never {
+	throw new Error(`The desktop page must not bundle main-process code: ${id}`)
+}
+
+/**
+ * Fails the page build when its module graph reaches main-process code: Effect,
+ * the Electrobun main SDK, Bun or Node built-ins, or any file under `src` outside
+ * the page. Type-only imports, such as the RPC contract, never reach the graph.
+ */
+function pageBoundary(): Plugin {
+	return {
+		name: 'desktop-page-boundary',
+		enforce: 'pre',
+		resolveId: source => {
+			if (isBuiltin(source) || BUN_SPECIFIER.test(source))
+				failPageBoundary(source)
+		},
+		load: id => {
+			const path = id.split('?')[0] ?? id
+			const isMainProcessSource =
+				path.startsWith(`${SOURCE_ROOT}/`) && !path.startsWith(`${PAGE_ROOT}/`)
+
+			if (isMainProcessSource || MAIN_PROCESS_PATHS.test(path))
+				failPageBoundary(path)
+		},
+	}
+}
 
 /**
  * The bundled page: one HTML file and its assets, which electrobun.config.ts
@@ -25,6 +63,7 @@ export default defineConfig({
 	// The npm `electrobun` package is only a stub in 2.x; `bun run sdk` projects the real SDK into .hutch/devkit.
 	resolve: { alias: electrobunViteAliases('.hutch/devkit') },
 	plugins: [
+		pageBoundary(),
 		react(),
 		tailwindcss(),
 		{
