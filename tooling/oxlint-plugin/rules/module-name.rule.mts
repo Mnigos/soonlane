@@ -4,7 +4,7 @@ import { defineRule, type ESTree } from '@oxlint/plugins'
 import { getRoleSuffix, toFilePath } from '../helpers/file-role.helper.mts'
 
 const MODULE_FILE_PATTERN =
-	/^(.*\/)?apps\/(?:web|api)\/src\/modules\/([^/]+)\//u
+	/^(.*\/)?apps\/(?:web|api|desktop)\/src\/modules\/([^/]+)\//u
 const CONTRACT_FILE_PATTERN =
 	/^(.*\/)?packages\/contracts\/src\/([a-z0-9-]+)\.contract\.ts$/u
 const MODULE_NAMED_ROLES = new Set(['service', 'router'])
@@ -51,7 +51,7 @@ function getExportedClassNames(program: ESTree.Program) {
 
 /**
  * Keeps names tied to their module (AGENTS.md module names). Inside
- * `apps/web/src/modules/<module>/` or `apps/api/src/modules/<module>/`, `.service.ts` and `.router.ts` files are
+ * `apps/web`, `apps/api` or `apps/desktop` `src/modules/<module>/`, `.service.ts` and `.router.ts` files are
  * named `<module>`, and a service file exports `<Module>Service`. A
  * `packages/contracts/src/<name>.contract.ts` names an API module or an
  * API `platform/` folder; the root `app.contract.ts` is exempt. Files about one

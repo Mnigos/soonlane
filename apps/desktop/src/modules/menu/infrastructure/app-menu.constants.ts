@@ -1,7 +1,8 @@
 import type { ApplicationMenuItemConfig } from 'electrobun'
 import { QUICK_ADD_SHORTCUT } from '../../quick-add/domain/quick-add.constants'
-import { QUICK_ADD_ACTION, RELOAD_ACTION } from '../domain/menu.constants'
 
+export const RELOAD_ACTION = 'reload'
+export const QUICK_ADD_ACTION = 'quick-add'
 export const APP_MENU = [
 	{
 		label: 'Soonlane',

@@ -10,10 +10,10 @@ import {
 	registerHotKey,
 	SPACE_KEY_CODE,
 } from '../../../platform/macos/carbon-hot-key.helper'
+import { IdentityService } from '../../identity/application/identity.service'
 import { readMenuAction } from '../../menu/domain/menu-event.helper'
-import { QUICK_ADD_ACTION } from '../../menu/domain/menu.constants'
+import { QUICK_ADD_ACTION } from '../../menu/infrastructure/app-menu.constants'
 import { followNavigation } from '../../navigation/infrastructure/navigation-events.layer'
-import { DesktopSession } from '../../sign-in/application/desktop-session.service'
 import { MainWindow } from '../../window/application/main-window.port'
 import { openAppWindow } from '../../window/infrastructure/app-window.helper'
 import {
@@ -62,7 +62,7 @@ const shortcutPresses = Stream.callback<undefined>(queue =>
 export const QuickAddLive = Layer.effectDiscard(
 	Effect.gen(function* () {
 		const scope = yield* Effect.scope
-		const session = yield* DesktopSession
+		const session = yield* IdentityService
 		const mainWindow = yield* MainWindow
 		const openWindowId = yield* Ref.make(Option.none<number>())
 

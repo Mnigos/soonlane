@@ -1,11 +1,11 @@
 import { DESKTOP_PAGE_ORIGIN } from '@soonlane/auth'
 import { Effect, Option, PubSub, Stream } from 'effect'
 import { BrowserView, BrowserWindow, type WindowOptionsType } from 'electrobun'
-import type { PageRpcSchema } from '../../../platform/electrobun/page-rpc.types'
+import type { PageRpcSchema } from '../../../platform/rpc/page-rpc.types'
 import { DockBadge } from '../../dock-badge/application/dock-badge.port'
 import { readBadgeCount } from '../../dock-badge/domain/dock-badge-event.helper'
+import { IdentityService } from '../../identity/application/identity.service'
 import { PAGE_NAVIGATION_RULES } from '../../navigation/domain/navigation.helper'
-import { DesktopSession } from '../../sign-in/application/desktop-session.service'
 import { AppUpdates } from '../../updates/application/app-updates.port'
 
 /**
@@ -20,7 +20,7 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 	options: Pick<WindowOptionsType, 'title' | 'frame' | 'titleBarStyle'> &
 		Partial<Pick<WindowOptionsType, 'styleMask'>>
 ) {
-	const session = yield* DesktopSession
+	const session = yield* IdentityService
 	const dockBadge = yield* DockBadge
 	const updates = yield* AppUpdates
 	const context = yield* Effect.context()

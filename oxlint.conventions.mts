@@ -4,8 +4,7 @@ import type { OxlintOverride } from 'oxlint'
 import {
 	DESKTOP_MAIN_FILES,
 	DESKTOP_MAIN_IMPORTS,
-	DESKTOP_PAGE,
-	DESKTOP_PAGE_IMPORTS,
+	DESKTOP_PAGE_SCOPE,
 } from './oxlint.desktop.mts'
 
 interface RestrictedImportEntry {
@@ -171,11 +170,13 @@ export const CONVENTION_RULES = {
 	'typescript/no-non-null-assertion': 'error',
 } satisfies OxlintOverride['rules']
 
-interface FrontendScope {
+export interface FrontendScope {
 	/** The workspace the scope's cross-workspace import rules are computed for. */
 	workspace: string
-	/** The folder that holds the scope's React code. */
-	root: string
+	/** The folders that hold the scope's React code, with its hooks and route files. */
+	folders: readonly string[]
+	/** Single files of the scope outside those folders. */
+	files?: readonly string[]
 	/** Restrictions only this scope has. */
 	imports: readonly ImportRestriction[]
 	/** A router that builds its route tree in code, so it imports route files as they do. */
@@ -184,20 +185,15 @@ interface FrontendScope {
 
 /** Code that renders React screens; `packages/app` runs in every host app, and the desktop page only in the desktop app's webview. */
 const FRONTEND_SCOPES: readonly FrontendScope[] = [
-	{ workspace: 'apps/web', root: 'apps/web', imports: [] },
-	{ workspace: 'apps/landing', root: 'apps/landing', imports: [] },
-	{ workspace: 'apps/mobile', root: 'apps/mobile', imports: [] },
+	{ workspace: 'apps/web', folders: ['apps/web'], imports: [] },
+	{ workspace: 'apps/landing', folders: ['apps/landing'], imports: [] },
+	{ workspace: 'apps/mobile', folders: ['apps/mobile'], imports: [] },
 	{
 		workspace: 'packages/app',
-		root: 'packages/app',
+		folders: ['packages/app'],
 		imports: [HOST_ONLY_IMPORTS],
 	},
-	{
-		workspace: 'apps/desktop',
-		root: DESKTOP_PAGE,
-		imports: [DESKTOP_PAGE_IMPORTS],
-		router: `${DESKTOP_PAGE}/router.tsx`,
-	},
+	DESKTOP_PAGE_SCOPE,
 ]
 
 /** The private `fromUtcDate` brands every date the domain computes; the domain's brand schemas brand parsed values with Zod's `.brand()`. */
@@ -244,54 +240,59 @@ export const CONVENTION_OVERRIDES = [
 			),
 		},
 	})),
-	...FRONTEND_SCOPES.flatMap(({ workspace, root, imports, router }) => [
-		{
-			files: [`${root}/**`],
-			rules: {
-				'no-restricted-imports': restrictImports(
-					getCrossWorkspaceImports(workspace),
-					...imports,
-					FRONTEND_QUERY_IMPORTS,
-					FRONTEND_EFFECT_IMPORTS,
-					TANSTACK_MUTATION_OPTIONS_IMPORT,
-					FRONTEND_ROUTER_IMPORTS
-				),
-				'no-restricted-properties': [
-					'error',
-					{
-						object: 'React',
-						property: 'useEffect',
-						message: FRONTEND_EFFECT_MESSAGE,
-					},
+	...FRONTEND_SCOPES.flatMap(
+		({ workspace, folders, files = [], imports, router }) => [
+			{
+				files: [...folders.map(folder => `${folder}/**`), ...files],
+				rules: {
+					'no-restricted-imports': restrictImports(
+						getCrossWorkspaceImports(workspace),
+						...imports,
+						FRONTEND_QUERY_IMPORTS,
+						FRONTEND_EFFECT_IMPORTS,
+						TANSTACK_MUTATION_OPTIONS_IMPORT,
+						FRONTEND_ROUTER_IMPORTS
+					),
+					'no-restricted-properties': [
+						'error',
+						{
+							object: 'React',
+							property: 'useEffect',
+							message: FRONTEND_EFFECT_MESSAGE,
+						},
+					],
+				},
+			},
+			{
+				files: folders.map(folder => `${folder}/**/use-*.ts`),
+				rules: {
+					'no-restricted-imports': restrictImports(
+						getCrossWorkspaceImports(workspace),
+						...imports,
+						FRONTEND_QUERY_IMPORTS,
+						TANSTACK_MUTATION_OPTIONS_IMPORT,
+						FRONTEND_ROUTER_IMPORTS
+					),
+					'no-restricted-properties': 'off',
+				},
+			},
+			{
+				files: [
+					...folders.map(folder => `${folder}/**/*.route.tsx`),
+					...(router ? [router] : []),
 				],
+				rules: {
+					'no-restricted-imports': restrictImports(
+						getCrossWorkspaceImports(workspace),
+						...imports,
+						FRONTEND_QUERY_IMPORTS,
+						FRONTEND_EFFECT_IMPORTS,
+						TANSTACK_MUTATION_OPTIONS_IMPORT
+					),
+				},
 			},
-		},
-		{
-			files: [`${root}/**/use-*.ts`],
-			rules: {
-				'no-restricted-imports': restrictImports(
-					getCrossWorkspaceImports(workspace),
-					...imports,
-					FRONTEND_QUERY_IMPORTS,
-					TANSTACK_MUTATION_OPTIONS_IMPORT,
-					FRONTEND_ROUTER_IMPORTS
-				),
-				'no-restricted-properties': 'off',
-			},
-		},
-		{
-			files: [`${root}/**/*.route.tsx`, ...(router ? [router] : [])],
-			rules: {
-				'no-restricted-imports': restrictImports(
-					getCrossWorkspaceImports(workspace),
-					...imports,
-					FRONTEND_QUERY_IMPORTS,
-					FRONTEND_EFFECT_IMPORTS,
-					TANSTACK_MUTATION_OPTIONS_IMPORT
-				),
-			},
-		},
-	]),
+		]
+	),
 	{
 		files: [...DESKTOP_MAIN_FILES],
 		rules: {
@@ -319,6 +320,7 @@ export const CONVENTION_OVERRIDES = [
 			'apps/web/src/modules/**',
 			'apps/landing/src/modules/**',
 			'apps/api/src/modules/**',
+			'apps/desktop/src/modules/**',
 			'packages/contracts/src/*.contract.ts',
 		],
 		rules: { 'soonlane/module-name': 'error' },

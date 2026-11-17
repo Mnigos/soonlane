@@ -18,7 +18,9 @@ if (!(APP_URL && API_URL && LANDING_URL))
 const API_ORIGIN = new URL(API_URL).origin
 /** A real path, because Vite compares the real paths of the files it loads. */
 const SOURCE_ROOT = realpathSync(resolve(import.meta.dirname, 'src'))
-const PAGE_ROOT = `${SOURCE_ROOT}/view`
+/** The page's files under `src`: its entries, its routes, the modules' `presentation/` layers and the two RPC clients. */
+const PAGE_FILES =
+	/^(?:view\.tsx|router\.tsx|index\.html|styles\.css|build-info\.types\.ts|routes\/.+|modules\/[^/]+\/presentation\/.+|platform\/rpc\/[^/]+\.client\.ts)$/u
 /** Main-process packages and the Electrobun main SDK, matched on resolved paths so an alias or a re-export cannot hide them. */
 const MAIN_PROCESS_PATHS =
 	/\/node_modules\/(?:effect|@effect\/[^/]+)\/|\/\.hutch\/devkit\/api\/sdks\/main\//u
@@ -30,8 +32,8 @@ function failPageBoundary(id: string): never {
 
 /**
  * Fails the page build when its module graph reaches main-process code: Effect,
- * the Electrobun main SDK, Bun or Node built-ins, or any file under `src` outside
- * the page. Type-only imports, such as the RPC contract, never reach the graph.
+ * the Electrobun main SDK, Bun or Node built-ins, or any file under `src` that
+ * is not the page's. Type-only imports, such as the RPC contract, never reach the graph.
  */
 function pageBoundary(): Plugin {
 	return {
@@ -44,7 +46,8 @@ function pageBoundary(): Plugin {
 		load: id => {
 			const path = id.split('?')[0] ?? id
 			const isMainProcessSource =
-				path.startsWith(`${SOURCE_ROOT}/`) && !path.startsWith(`${PAGE_ROOT}/`)
+				path.startsWith(`${SOURCE_ROOT}/`) &&
+				!PAGE_FILES.test(path.slice(SOURCE_ROOT.length + 1))
 
 			if (isMainProcessSource || MAIN_PROCESS_PATHS.test(path))
 				failPageBoundary(path)
@@ -58,7 +61,7 @@ function pageBoundary(): Plugin {
  * Electrobun's RPC socket, because any script on the page can ask for the token.
  */
 export default defineConfig({
-	root: 'src/view',
+	root: 'src',
 	base: './',
 	// The npm `electrobun` package is only a stub in 2.x; `bun run sdk` projects the real SDK into .hutch/devkit.
 	resolve: { alias: electrobunViteAliases('.hutch/devkit') },
@@ -82,7 +85,7 @@ export default defineConfig({
 	},
 	// One bundle read from disk: no network to split it for.
 	build: {
-		outDir: '../../dist/view',
+		outDir: '../dist/view',
 		emptyOutDir: true,
 		chunkSizeWarningLimit: 2000,
 	},
