@@ -1,4 +1,5 @@
 import { buttonVariants } from '@soonlane/ui/components/button'
+import { carryCampaignParams } from '@/modules/analytics/presentation/helpers/campaign-link.helper'
 import { APP_ORIGIN } from '../landing-environment.constants'
 import { TermsAgreement } from './terms-agreement'
 
@@ -13,6 +14,8 @@ export function GetStartedButton({
 		<a
 			className={buttonVariants({ size: compact ? 'sm' : 'lg' })}
 			href={`${APP_ORIGIN}/login`}
+			onAuxClick={carryCampaignParams}
+			onClick={carryCampaignParams}
 		>
 			Get started
 		</a>
