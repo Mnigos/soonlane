@@ -23,12 +23,12 @@ interface HomeQuestion {
 /** Aimed at the search phrase "open source Todoist alternative"; blog posts link home with it. */
 export const HOME_TITLE = 'Soonlane: a free, open source Todoist alternative'
 export const HOME_DESCRIPTION =
-	'An open source Todoist alternative with a free task list. Overdue, today and every day after in one list, with labels and repeating tasks.'
+	'A free, open source Todoist alternative. Inbox, Upcoming and Today, with labels, projects and subtasks. Import from Todoist or use the free Mac app.'
 
 export const HOME_HERO = {
 	headline: 'Your days, in order.',
 	subline:
-		'Overdue, today and every day after, in one scrolling list. An open source Todoist alternative with a free task list.',
+		'Overdue, today and every day after, in one scrolling list. A free, open source Todoist alternative for your own tasks.',
 	todoistImportLine:
 		'Coming from Todoist? You can import your open tasks, projects, and labels.',
 	githubLabel: 'View on GitHub',
@@ -79,6 +79,45 @@ export const HOME_FEATURES: readonly HomeFeature[] = [
 	},
 ]
 
+/** What a signed-in user finds in the app, one row per view or feature. */
+export const HOME_CONTENTS = {
+	title: 'What you get in your list.',
+	items: [
+		{
+			name: 'Inbox',
+			body: 'Hold open tasks that do not have a due date or a project yet.',
+		},
+		{
+			name: 'Upcoming',
+			body: 'See a week strip, Inbox, Overdue and each day ahead in one scrolling default view.',
+		},
+		{
+			name: 'Today',
+			body: 'Check Inbox, Overdue and everything due today on one page.',
+		},
+		{
+			name: 'Labels',
+			body: 'Tag tasks and open any label from the sidebar to see its own view.',
+		},
+		{
+			name: 'Projects',
+			body: 'Put a task in a sidebar project while keeping its labels, free on every plan.',
+		},
+		{
+			name: 'Subtasks',
+			body: 'Nest subtasks up to four levels deep, and complete the main task to finish the open ones.',
+		},
+		{
+			name: 'Import from Todoist',
+			body: 'Preview and bring over open tasks, projects and labels from the account menu.',
+		},
+		{
+			name: 'Mac app',
+			body: 'Keep the same list open in its own window on your Mac, for free.',
+		},
+	],
+}
+
 export const HOME_OPEN_SOURCE = {
 	title: 'Open source, and yours to read.',
 	paragraphs: [
@@ -111,7 +150,7 @@ export const HOME_FAQ = {
 		{
 			question: 'How is it different from Todoist?',
 			answer:
-				'Soonlane opens on Upcoming and is built around days in one scrolling list, with an Inbox for tasks without a date, projects, and labels. It is free and open source, and there are no teams or shared projects.',
+				'Soonlane opens on Upcoming and puts your days in one scrolling list, alongside Inbox, Today, projects, labels and subtasks. It is free and open source, built for one person, with no filters, reporting, teams or shared projects.',
 		},
 		{
 			question: 'Can I import my tasks from Todoist?',

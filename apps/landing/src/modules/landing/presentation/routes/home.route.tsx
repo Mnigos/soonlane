@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { ClosingBand } from '../components/closing-band'
 import { FeatureRow } from '../components/feature-row'
+import { HomeContents } from '../components/home-contents'
 import { HomeFaq } from '../components/home-faq'
 import { HomeHero } from '../components/home-hero'
 import { OpenSourceSection } from '../components/open-source-section'
@@ -49,11 +50,15 @@ export const Route = createFileRoute('/')({
 				},
 				screenshot: new URL(HOME_HERO.desktopImage.src, LANDING_URL).href,
 				featureList: [
-					'Upcoming view with every day in one list',
-					'Today view with overdue tasks on top',
-					'Repeating tasks',
-					'Labels',
-					'Goals with progress',
+					'Inbox for undated tasks without a project',
+					'Upcoming default view with every day in one scrolling list',
+					'Today view with Inbox and overdue tasks on top',
+					'Repeating tasks and P1 to P4 priorities',
+					'Projects and sidebar label views',
+					'Subtasks up to four levels deep',
+					'Goals with progress tracking',
+					'Read-only Todoist import with preview',
+					'Free Mac app',
 					'Calendar subscription for Apple Calendar and Google Calendar',
 				],
 			}),
@@ -75,6 +80,8 @@ function HomeRoute() {
 					key={feature.title}
 				/>
 			))}
+
+			<HomeContents />
 
 			<OpenSourceSection />
 

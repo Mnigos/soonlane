@@ -1,6 +1,6 @@
 # Soonlane
 
-Personal task list with an Upcoming-first view, shaped like Todoist's dark theme. Inbox, Upcoming, Today and Labels; no projects, filters or reporting. See [PRODUCT.md](PRODUCT.md).
+Soonlane is a free, open source personal task list that opens on Upcoming, laying out your days in one scrolling list. Sign in to use Inbox, Upcoming and Today, organize tasks with labels, projects and subtasks, run the Todoist import, or open the Mac app. It leaves out filters, reporting and sharing. See [PRODUCT.md](PRODUCT.md).
 
 Production: the app at https://app.soonlane.com, the landing at https://soonlane.com
 
