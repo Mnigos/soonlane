@@ -22,8 +22,6 @@ export const BROWSER_ANALYTICS_OPTIONS = {
 	getUser: router => {
 		const context = router.state.matches.at(-1)?.context
 
-		return context && 'me' in context
-			? (context.me.user ?? undefined)
-			: undefined
+		return context && 'me' in context ? context.me.user : undefined
 	},
 } satisfies BrowserAnalyticsOptions<RegisteredRouter>
