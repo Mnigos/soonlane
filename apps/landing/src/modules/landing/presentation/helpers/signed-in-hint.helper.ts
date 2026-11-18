@@ -11,3 +11,8 @@ export const SIGNED_IN_HINT_SCRIPT = `(() => {
 	sync()
 	document.addEventListener('visibilitychange', sync)
 })()`
+
+/** Whether this browser holds a session right now; browser only. */
+export function hasSignedInHint() {
+	return document.cookie.split('; ').includes(`${SIGNED_IN_HINT_COOKIE}=1`)
+}
