@@ -1,4 +1,8 @@
-import { expoClient } from '@better-auth/expo/client'
+import {
+	expoClient,
+	getSetCookie,
+	storageAdapter,
+} from '@better-auth/expo/client'
 import {
 	ANDROID_EXCHANGE_PATH,
 	EMAIL_CODE_SEND_PATH,
@@ -12,13 +16,12 @@ import {
 	claimHandOff,
 	handOffFromBrowser,
 } from './android-hand-off.client'
+import { openSignInSheet, SIGN_IN_RETURN_URL } from './sign-in-sheet.client'
 
 /** The API origin; the EAS profile or `.env.local` sets it. */
 export const API_URL = process.env.EXPO_PUBLIC_API_URL
 /** Must equal the API's `AUTH_COOKIE_PREFIX`, or the client keeps the sign-in cookie but drops every refreshed one. */
 const AUTH_COOKIE_PREFIX = process.env.EXPO_PUBLIC_AUTH_COOKIE_PREFIX
-/** Where the sign-in sheet closes, on success and on error; only the sheet's own result carries the session back. */
-const SIGN_IN_RETURN_URL = 'soonlane://'
 /** Asks Google for a new login, as the web's fresh sign-in does; Google may still skip the password after its own risk check. */
 const FORCED_GOOGLE_LOGIN_PARAMS = { prompt: 'login', max_age: '0' }
 /** The requests a session end sends itself; their replies pass the boundary. */
@@ -46,6 +49,13 @@ let lostDeletionOf: string | undefined
 /** better-fetch hands the same context object to `onRequest` and, as `request`, to `onSuccess`. */
 const requestEpochs = new WeakMap<object, number>()
 
+/** The Keychain; the Expo plugin and the iPhone's sign-in sheet share one object, so their writes queue behind each other. */
+const SECURE_STORE = { getItem, getItemAsync, setItem, setItemAsync }
+/** The Expo plugin's storage, with its chunking, for the cookie the sign-in sheet returns. */
+const cookieStorage = storageAdapter(SECURE_STORE)
+/** Where the Expo plugin keeps the cookies (`<storagePrefix>_cookie`). */
+const COOKIE_STORAGE_KEY = `${AUTH_COOKIE_PREFIX}_cookie`
+
 /** Better Auth with its Expo plugin: the session cookie lives in the Keychain under this environment's prefix. */
 export const authClient = createAuthClient({
 	baseURL: API_URL,
@@ -66,7 +76,7 @@ export const authClient = createAuthClient({
 	},
 	plugins: [
 		expoClient({
-			storage: { getItem, getItemAsync, setItem, setItemAsync },
+			storage: SECURE_STORE,
 			storagePrefix: AUTH_COOKIE_PREFIX,
 			cookiePrefix: AUTH_COOKIE_PREFIX,
 			webBrowserOptions: { preferEphemeralSession: true },
@@ -104,7 +114,15 @@ interface GoogleSignInOptions {
 	fresh?: boolean
 }
 
-/** Opens Google once any session end has settled, in the iOS sheet or the Android hand-off; no error when the user closed or cancelled it, and a rejection with `HAND_OFF_TIMED_OUT` when Android waited too long. */
+/**
+ * Opens Google once any session end has settled, in the iOS sheet or the
+ * Android hand-off. No error when the user closed or cancelled it; a rejection
+ * with the sheet's `error` code (such as `GOOGLE_LINK_REFUSED`) when the server
+ * refused it, or with `HAND_OFF_TIMED_OUT` when Android waited too long. The app
+ * opens the iOS sheet itself because the Expo plugin drops that `error`; the
+ * session comes only from the sheet's result, unless a sign-out or deletion
+ * started meanwhile.
+ */
 export async function signInWithGoogle({
 	loginHint,
 	fresh = false,
@@ -113,13 +131,35 @@ export async function signInWithGoogle({
 
 	await sessionEndsSettled()
 
-	return await authClient.signIn.social({
+	const epoch = authEpoch
+	const { data, error } = await authClient.signIn.social({
 		provider: 'google',
 		callbackURL: SIGN_IN_RETURN_URL,
 		errorCallbackURL: SIGN_IN_RETURN_URL,
 		loginHint,
 		additionalParams: fresh ? FORCED_GOOGLE_LOGIN_PARAMS : undefined,
+		disableRedirect: true,
 	})
+
+	if (!data?.url) return { error }
+
+	const returned = await openSignInSheet(data.url)
+
+	if (returned?.error) throw new Error(returned.error)
+	if (!returned?.cookie) return { error: null }
+
+	const stored = await cookieStorage.getItemAsync(COOKIE_STORAGE_KEY)
+
+	// Checked right before the write is queued, so a sign-out's clear always queues behind it.
+	if (epoch !== authEpoch || pendingSessionEnd) return { error: null }
+
+	await cookieStorage.setItemAsync(
+		COOKIE_STORAGE_KEY,
+		getSetCookie(returned.cookie, stored ?? undefined)
+	)
+	authClient.$store.notify('$sessionSignal')
+
+	return { error: null }
 }
 
 const HAND_OFF_EXCHANGE_TIMEOUT_MS = 30_000

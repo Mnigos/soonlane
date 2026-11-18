@@ -1,4 +1,5 @@
 import { orpcQuery } from '@soonlane/app/rpc-query'
+import { GOOGLE_LINK_REFUSED } from '@soonlane/auth'
 import type { SignInMethods } from '@soonlane/contracts'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useState, useSyncExternalStore } from 'react'
@@ -26,8 +27,11 @@ import { EmailCodeForm } from './email-code-form'
 export const SIGN_IN_FAILED = 'Sign-in failed. Try again.'
 const SIGN_IN_TIMED_OUT = 'Sign-in took too long. Try again.'
 
-/** What a failed sign-in says; Android's hand-off that waited too long says so, since starting again works. */
+/** What a failed sign-in says: the web's words when Google may not sign in to an email account, and Android's hand-off that waited too long says so, since starting again works. */
 export function signInFailureMessage(error: Error) {
+	if (error.message === GOOGLE_LINK_REFUSED)
+		return EMAIL_CODE_COPY.googleLinkRefused
+
 	return error.message === HAND_OFF_TIMED_OUT
 		? SIGN_IN_TIMED_OUT
 		: SIGN_IN_FAILED
