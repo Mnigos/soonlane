@@ -1,5 +1,11 @@
 import Constants from 'expo-constants'
-import { StyleSheet, Text, View } from 'react-native'
+import {
+	KeyboardAvoidingView,
+	ScrollView,
+	StyleSheet,
+	Text,
+	View,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { IS_ANALYTICS_ENABLED } from '@/modules/analytics/infrastructure/analytics.client'
 import { AnalyticsSwitch } from '@/modules/analytics/presentation/components/analytics-switch'
@@ -20,32 +26,41 @@ export function AccountScreen() {
 
 	return (
 		<SafeAreaView edges={['top']} style={styles.screen}>
-			<Text accessibilityRole="header" style={styles.title}>
-				Settings
-			</Text>
+			{/* The deletion's code form sits below the buttons; the view shrinks above the keyboard and keeps it above the keyboard. */}
+			<KeyboardAvoidingView behavior="padding" style={styles.keyboard}>
+				<ScrollView
+					contentContainerStyle={styles.content}
+					keyboardDismissMode="interactive"
+					keyboardShouldPersistTaps="handled"
+				>
+					<Text accessibilityRole="header" style={styles.title}>
+						Settings
+					</Text>
 
-			<View style={styles.account}>
-				<Text style={styles.name}>{user.name}</Text>
+					<View style={styles.account}>
+						{/* An email-code account starts without a name; the address below names it. */}
+						{user.name !== '' && <Text style={styles.name}>{user.name}</Text>}
 
-				<Text style={styles.email}>{user.email}</Text>
-			</View>
+						<Text style={styles.email}>{user.email}</Text>
+					</View>
 
-			{IS_ANALYTICS_ENABLED && <AnalyticsSwitch />}
+					{IS_ANALYTICS_ENABLED && <AnalyticsSwitch />}
 
-			<AccountActions account={user} />
+					<AccountActions account={user} />
 
-			{APP_VERSION && <Text style={styles.version}>Version {APP_VERSION}</Text>}
+					{APP_VERSION && (
+						<Text style={styles.version}>Version {APP_VERSION}</Text>
+					)}
+				</ScrollView>
+			</KeyboardAvoidingView>
 		</SafeAreaView>
 	)
 }
 
 const styles = StyleSheet.create({
-	screen: {
-		flex: 1,
-		gap: 12,
-		padding: 16,
-		backgroundColor: COLORS.background,
-	},
+	screen: { flex: 1, backgroundColor: COLORS.background },
+	keyboard: { flex: 1 },
+	content: { gap: 12, padding: 16 },
 	title: { ...TEXT.xl, fontWeight: '700', color: COLORS.foreground },
 	account: { gap: 2, marginBottom: 8 },
 	name: { ...TEXT.base, fontWeight: '600', color: COLORS.foreground },
