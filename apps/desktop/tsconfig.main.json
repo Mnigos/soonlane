@@ -15,6 +15,7 @@
     "src/modules/*/domain/**/*.ts",
     "src/modules/*/application/**/*.ts",
     "src/modules/*/infrastructure/**/*.ts",
+    "scripts/**/*.ts",
     "*.ts"
   ],
   "exclude": ["src/platform/rpc/*.client.ts"]

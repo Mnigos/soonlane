@@ -33,6 +33,8 @@ export default {
 		mac: {
 			bundleCEF: false,
 			defaultRenderer: 'native',
+			// Drawn from the web favicon by `bun run icon`, which `package` and `dev` run first.
+			icons: '.cache/icon.iconset',
 			codesign: isSigned,
 			notarize: isSigned,
 		},

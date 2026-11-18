@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - apps/desktop/**
+      - apps/web/public/favicon.svg
       - version.json
       - bun.lock
       - .github/workflows/desktop.yml
@@ -39,6 +40,12 @@ jobs:
           APP_URL: https://app.soonlane.com
           API_URL: https://api.soonlane.com
           LANDING_URL: https://soonlane.com
+      - name: Check the app icon
+        # Electrobun only logs a missing icon source and ships the bundle with macOS's blank placeholder.
+        run: |
+          ICON=build/stable-macos-arm64/Soonlane.app/Contents/Resources/AppIcon.icns
+          if [ ! -s "$ICON" ]; then echo "::error::The app bundle has no icon: $ICON"; exit 1; fi
+        working-directory: apps/desktop
       - name: Upload the app
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
