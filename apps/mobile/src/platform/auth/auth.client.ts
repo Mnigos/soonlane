@@ -1,5 +1,9 @@
 import { expoClient } from '@better-auth/expo/client'
-import { ANDROID_EXCHANGE_PATH } from '@soonlane/auth'
+import {
+	ANDROID_EXCHANGE_PATH,
+	EMAIL_CODE_SEND_PATH,
+	EMAIL_CODE_SIGN_IN_PATH,
+} from '@soonlane/auth'
 import { createAuthClient } from 'better-auth/react'
 import { getItem, getItemAsync, setItem, setItemAsync } from 'expo-secure-store'
 import { Platform } from 'react-native'
@@ -140,6 +144,37 @@ async function signInThroughBrowser(fresh: boolean) {
 	})
 
 	return { error }
+}
+
+/** React Native's Android networking never times out on its own; a stalled request would leave the form busy. */
+const EMAIL_CODE_TIMEOUT_MS = 30_000
+
+/** Mails a six-digit sign-in code once any session end has settled; the answer is the same whether or not the address has an account. */
+export async function sendEmailCode(email: string) {
+	await sessionEndsSettled()
+
+	return await authClient.$fetch<{ success: boolean }>(EMAIL_CODE_SEND_PATH, {
+		method: 'POST',
+		body: { email, type: 'sign-in' },
+		timeout: EMAIL_CODE_TIMEOUT_MS,
+	})
+}
+
+/**
+ * Signs the phone in with the mailed code once any session end has settled,
+ * ending a Google hand-off still pending on Android so a late App Link cannot
+ * swap the session. The Expo client keeps the reply's cookie and refreshes the
+ * session atom, unless a sign-out or deletion overtook the reply.
+ */
+export async function signInWithEmailCode(email: string, code: string) {
+	cancelHandOff()
+	await sessionEndsSettled()
+
+	return await authClient.$fetch(EMAIL_CODE_SIGN_IN_PATH, {
+		method: 'POST',
+		body: { email, otp: code },
+		timeout: EMAIL_CODE_TIMEOUT_MS,
+	})
 }
 
 /** Ends the session on the server when it can and on the phone always; a failed request leaves the server session until it expires. */

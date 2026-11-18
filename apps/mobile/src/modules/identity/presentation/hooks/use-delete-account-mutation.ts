@@ -1,4 +1,4 @@
-import { GOOGLE_LOGIN_NOT_RENEWED } from '@soonlane/auth'
+import { GOOGLE_LOGIN_NOT_RENEWED, type ReauthMethod } from '@soonlane/auth'
 import { useMutation } from '@tanstack/react-query'
 import { Alert, Platform } from 'react-native'
 import { flushAnalytics } from '@/modules/analytics/infrastructure/analytics.client'
@@ -38,9 +38,22 @@ export function alertOtherAccount(user: Account, startedFor: Account) {
 	)
 }
 
+/** Only `email` and `google` count; an answer from an API that predates `reauth` offers Google, as it always did. */
+function readReauth(error: object): ReauthMethod[] {
+	const reauth = 'reauth' in error ? error.reauth : undefined
+
+	if (!Array.isArray(reauth)) return ['google']
+
+	return reauth.filter(
+		(method): method is ReauthMethod =>
+			method === 'email' || method === 'google'
+	)
+}
+
 /**
- * The API deletes only from a session that started with a Google login at most
- * five minutes old; otherwise `SESSION_EXPIRED` asks for a fresh sign-in. On
+ * The API deletes only from a session that an email code started at most five
+ * minutes ago, or one that started with a Google login that fresh; otherwise
+ * `SESSION_EXPIRED` asks for a fresh sign-in with one of `reauth`. On
  * Android, its reason `GOOGLE_LOGIN_NOT_RENEWED` means the browser's Google
  * would skip checking the user; the iPhone's sheet keeps no Google session, so
  * there it is an ordinary fresh sign-in.
@@ -53,12 +66,12 @@ async function deleteAccount({ id }: Account) {
 	if (isDeleted) return { status: 'deleted' } as const
 	if (error?.code === 'SESSION_EXPIRED')
 		return {
-			status:
+			status: 'needs-fresh-sign-in',
+			reauth: readReauth(error),
+			isGoogleLoginStale:
 				'reason' in error &&
 				error.reason === GOOGLE_LOGIN_NOT_RENEWED &&
-				Platform.OS === 'android'
-					? 'needs-google-sign-out'
-					: 'needs-fresh-sign-in',
+				Platform.OS === 'android',
 		} as const
 	if (signedInAs) return { status: 'signed-in-as', user: signedInAs } as const
 	if (error?.code === NO_SESSION || error?.code === SESSION_CHANGED)
