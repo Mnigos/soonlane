@@ -4,7 +4,7 @@ description: What data Soonlane collects, why, where it is stored and how to del
 updated: '2026-11-18'
 ---
 
-Soonlane is a task list that anyone can sign up for with a Google account. This policy explains what data Soonlane collects, why, where it is stored and how you can delete it.
+Soonlane is a task list you can sign up for with a Google account or an email address. This policy explains what data Soonlane collects, why, where it is stored, and how you can delete it.
 
 ## Who runs Soonlane
 
@@ -12,7 +12,7 @@ Soonlane is run by Igor Makowski, who is responsible for your data (the data con
 
 ## Data from Google sign-in
 
-You sign in with Google. Soonlane asks Google only for the `openid`, `email` and `profile` scopes. With them, Soonlane receives and stores:
+If you sign in with Google, Soonlane asks Google only for the `openid`, `email`, and `profile` scopes. Through these scopes, Soonlane receives and stores:
 
 - your name and email address, and whether Google has verified the address;
 - the web address of your Google profile picture;
@@ -24,6 +24,10 @@ Soonlane uses this data only to sign you in, to create and recognise your accoun
 Soonlane does not sell Google user data, does not use it for advertising, and does not share it with anyone except the service providers listed below, which host and run Soonlane.
 
 Soonlane's use and transfer of information received from Google APIs to any other app will adhere to the [Google API Services User Data Policy](https://developers.google.com/terms/api-services-user-data-policy), including the Limited Use requirements.
+
+## Signing in with an email code
+
+You can also sign in using only your email address. Soonlane sends a six-digit code to that address and stores the address for your account. Because your account starts without a name, the app shows your email address instead. Soonlane stores the code encrypted. The code works for 10 minutes. Asking for it again within that time sends the same code and restarts the 10 minutes. It stops working once it is used or after three wrong tries. Soonlane deletes stored codes that no longer work the next time it checks a code. To prevent abuse, Soonlane counts how many codes each address requests in an hour. It stores this count under a one-way value derived from the address, never the address itself. Soonlane deletes counts that are more than an hour old the next time its rate limits are updated. Each session records when you last signed in with a code so Soonlane can confirm it is you before deleting your account. If an account already uses your email address, such as one created with Google, the code signs you in to that existing account.
 
 ## Data from Todoist
 
@@ -93,6 +97,7 @@ When you delete your account, Soonlane waits 15 minutes and then asks PostHog to
 - **Railway** hosts Soonlane: the website and the web app at soonlane.com, and the API at api.soonlane.com, which handles sign-in, your tasks and calendar links. Since 12 November 2026, Railway also hosts the Postgres database, which holds your account and tasks. All of these run in Amsterdam, the Netherlands (Railway region `europe-west4`), and Railway keeps request logs, including IP addresses, for a limited time.
 - **Neon** hosted the database in Frankfurt, Germany (AWS `eu-central-1`), and has no longer been the production database since 12 November 2026. It keeps an unchanged, frozen copy of the database from that day until that Neon project is deleted.
 - **Google** provides sign-in.
+- **Resend** sends the sign-in code emails from its EU region in Ireland. It receives your email address and the code.
 - **Todoist** provides the data for an import, only when you start one.
 - **PostHog** provides analytics in its EU region, as described above.
 - **Stripe and Link** ([Sold through Link, LLC](https://stripe.com/legal/ssa-service-terms), a Stripe company) sell Soonlane Pro as the merchant of record and handle checkout and payments, as described above; free accounts send nothing to Stripe.
@@ -104,7 +109,7 @@ Some of these providers are based in the United States. When they handle data ou
 
 Your account, your Google data and tokens, and your tasks are kept until you delete your account. A calendar link works until you revoke it or create a new one in the account menu, or until you delete your account. If you have subscribed to Soonlane Pro, deleting your account also deletes Soonlane's copy of your Stripe customer id and subscription state, while Stripe keeps its own records under the [Link Privacy Policy](https://link.com/privacy).
 
-To delete your account, open the account menu in the app and choose "Delete account". Soonlane deletes an account only after a Google sign-in from the last five minutes. It may ask you to sign in with Google again first, for example when your last sign-in is older or you signed in to Google on another device since then. Deletion removes your account, all your sessions, any stored Google and Todoist tokens, the list of imported Todoist task IDs, your calendar link and all your tasks right away. You can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
+To delete your account, open the account menu in the app and choose "Delete account". Soonlane only deletes an account if you signed in with an email code or with Google within the last five minutes. You may be asked to sign in again first. For example, Soonlane may send a new code to your email address, or ask you to sign in with Google if your last Google sign-in is older or if you signed in to Google on another device since then. Deletion immediately removes your account, all your sessions, any stored Google and Todoist tokens, the list of imported Todoist task IDs, your calendar link, and all your tasks. If you signed in with Google, you can also remove Soonlane's access in your [Google Account settings](https://myaccount.google.com/connections).
 
 Railway backs up the database volume as snapshots of the whole database, which stay inside Railway. For scheduled backups, it keeps a daily backup for 6 days, a weekly backup for 27 days and a monthly backup for 89 days. A deleted account's data stays in those scheduled backups until each backup expires, for up to 89 days. If I make a backup by hand, for example for a restore test or before maintenance, it has no expiry of its own and I delete it once that work is done. The frozen copy at Neon also still holds data from before 12 November 2026 until that project is deleted.
 
