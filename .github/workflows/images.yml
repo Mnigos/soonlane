@@ -49,11 +49,12 @@ jobs:
       - name: Read the commit
         id: commit
         run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+      # The workflow context, because `context: git` cannot read a ref from the detached checkout; the revision label
+      # names the built commit, which on a release is the tag's, not the commit the release run started on.
       - name: Image tags and labels
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302
         with:
-          context: git
           images: ghcr.io/mnigos/soonlane-${{ matrix.app }}
           flavor: latest=false
           tags: |
@@ -62,6 +63,7 @@ jobs:
             type=semver,pattern={{version}},value=${{ inputs.tag }},enable=${{ !!inputs.tag }}
             type=semver,pattern={{major}}.{{minor}},value=${{ inputs.tag }},enable=${{ !!inputs.tag }}
             type=raw,value=latest,enable=${{ !!inputs.tag }}
+          labels: org.opencontainers.image.revision=${{ steps.commit.outputs.sha }}
       - name: Setup Buildx
         uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069
       - name: Log in to GHCR
