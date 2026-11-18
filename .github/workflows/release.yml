@@ -218,6 +218,13 @@ jobs:
           ELECTROBUN_TEAMID: ${{ secrets.APPLE_TEAM_ID }}
           ELECTROBUN_APPLEID: ${{ secrets.APPLE_ID }}
           ELECTROBUN_APPLEIDPASS: ${{ secrets.APPLE_APP_PASSWORD }}
+      - name: Check the app icon
+        if: steps.state.outputs.attached != 'true'
+        # Electrobun only logs a missing icon source and ships the bundle with macOS's blank placeholder.
+        run: |
+          ICON=build/stable-macos-arm64/Soonlane.app/Contents/Resources/AppIcon.icns
+          if [ ! -s "$ICON" ]; then echo "::error::The app bundle has no icon: $ICON"; exit 1; fi
+        working-directory: apps/desktop
       # The app's updater reads these from the latest release (electrobun.config.ts `release.baseUrl`).
       # The v2 manifest goes last, on its own: once it is uploaded, every other file is too.
       - name: Attach the app and its update files to the release

@@ -68,6 +68,7 @@
         "zod": "catalog:",
       },
       "devDependencies": {
+        "@resvg/resvg-js": "2.6.2",
         "@soonlane/tailwind-config": "workspace:*",
         "@soonlane/typescript-config": "workspace:*",
         "@tailwindcss/vite": "catalog:",

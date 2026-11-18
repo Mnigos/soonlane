@@ -4,9 +4,10 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "scripts": {
-    "dev": "APP_URL=http://localhost:3000 API_URL=http://localhost:4000 LANDING_URL=http://127.0.0.1:3000 bun run view && APP_URL=http://localhost:3000 API_URL=http://localhost:4000 bunx --bun electrobun dev",
+    "dev": "APP_URL=http://localhost:3000 API_URL=http://localhost:4000 LANDING_URL=http://127.0.0.1:3000 bun run view && bun run icon && APP_URL=http://localhost:3000 API_URL=http://localhost:4000 bunx --bun electrobun dev",
+    "icon": "bun scripts/generate-app-icon.ts",
     "view": "bun run sdk && bunx --bun vite build",
-    "package": ": \"${APP_URL:?set APP_URL to the web app URL}\" \"${API_URL:?set API_URL to the API URL}\" \"${LANDING_URL:?set LANDING_URL to the landing URL}\" && bun run view && bunx --bun electrobun build --env=stable",
+    "package": ": \"${APP_URL:?set APP_URL to the web app URL}\" \"${API_URL:?set API_URL to the API URL}\" \"${LANDING_URL:?set LANDING_URL to the landing URL}\" && bun run view && bun run icon && bunx --bun electrobun build --env=stable",
     "sdk": "bunx --bun electrobun prepare",
     "typecheck": "bun run sdk && tsc --noEmit -p tsconfig.main.json && tsc --noEmit -p tsconfig.page.json"
   },
@@ -27,6 +28,7 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@resvg/resvg-js": "2.6.2",
     "@soonlane/tailwind-config": "workspace:*",
     "@soonlane/typescript-config": "workspace:*",
     "@tailwindcss/vite": "catalog:",
