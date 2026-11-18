@@ -11,7 +11,8 @@ export const identityRouter = {
 			user: {
 				id: user.id,
 				email: user.email,
-				name: user.name,
+				// An email-code account starts without a name.
+				name: user.name || user.email,
 				image: user.image,
 			},
 		}

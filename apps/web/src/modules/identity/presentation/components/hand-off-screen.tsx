@@ -40,7 +40,7 @@ async function openApp(handOff: HandOff) {
 interface HandOffScreenProps {
 	handOff: HandOff
 	user: SessionUser
-	/** This page asking for a fresh Google sign-in, where another account can be picked. */
+	/** This page asking for a fresh sign-in, where another account can be picked. */
 	anotherAccountUrl: string
 }
 
@@ -77,7 +77,7 @@ export function HandOffScreen({
 					className="self-start text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
 					href={anotherAccountUrl}
 				>
-					Use a different Google account
+					Use a different account
 				</a>
 			</div>
 

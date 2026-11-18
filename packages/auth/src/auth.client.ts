@@ -1,4 +1,8 @@
 import { createAuthClient } from 'better-auth/client'
+import {
+	EMAIL_CODE_SEND_PATH,
+	EMAIL_CODE_SIGN_IN_PATH,
+} from './email-code.constants'
 import { TODOIST_IMPORT_PATH, TODOIST_PROVIDER_ID } from './todoist.constants'
 
 /** Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. `VITE_API_URL` is the API's origin; empty, Better Auth falls back to the page's. */
@@ -52,5 +56,21 @@ export async function createDesktopSignInCode(challenge: string) {
 	return await authClient.$fetch<{ code: string }>('/desktop-sign-in/code', {
 		method: 'POST',
 		body: { challenge },
+	})
+}
+
+/** Mails a six-digit sign-in code to the address; the answer is the same whether or not it has an account. */
+export async function sendEmailCode(email: string) {
+	return await authClient.$fetch<{ success: boolean }>(EMAIL_CODE_SEND_PATH, {
+		method: 'POST',
+		body: { email, type: 'sign-in' },
+	})
+}
+
+/** Signs this browser in with the code mailed to the address, creating the account on the first sign-in. */
+export async function signInWithEmailCode(email: string, code: string) {
+	return await authClient.$fetch(EMAIL_CODE_SIGN_IN_PATH, {
+		method: 'POST',
+		body: { email, otp: code },
 	})
 }
