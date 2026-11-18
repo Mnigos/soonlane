@@ -207,8 +207,10 @@ jobs:
           APPLE_CERTIFICATE_P12: ${{ secrets.APPLE_CERTIFICATE_P12 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
       - name: Build, sign and notarize
+        id: package
         if: steps.state.outputs.attached != 'true'
-        run: bun run package
+        shell: bash
+        run: bun run package 2>&1 | tee "$RUNNER_TEMP/package.log"
         working-directory: apps/desktop
         env:
           APP_URL: https://app.soonlane.com
@@ -218,6 +220,22 @@ jobs:
           ELECTROBUN_TEAMID: ${{ secrets.APPLE_TEAM_ID }}
           ELECTROBUN_APPLEID: ${{ secrets.APPLE_ID }}
           ELECTROBUN_APPLEIDPASS: ${{ secrets.APPLE_APP_PASSWORD }}
+      # Electrobun prints only the submission id and its status; Apple's log names the file and the reason.
+      - name: Print Apple's notarization log
+        if: failure() && steps.package.outcome == 'failure'
+        shell: bash
+        run: |
+          IDS="$(grep -oE '"id":"[0-9a-f-]{36}","status":"(Rejected|Invalid)"' "$RUNNER_TEMP/package.log" | cut -d '"' -f 4 | sort -u || true)"
+          if [ -z "$IDS" ]; then echo "No rejected notarization submission in the build log."; exit 0; fi
+          for ID in $IDS; do
+            echo "::group::Notarization log $ID"
+            xcrun notarytool log "$ID" --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" --password "$APPLE_APP_PASSWORD"
+            echo "::endgroup::"
+          done
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
       - name: Check the app icon
         if: steps.state.outputs.attached != 'true'
         # Electrobun only logs a missing icon source and ships the bundle with macOS's blank placeholder.
