@@ -52,16 +52,19 @@ export function BrowseList<TItem extends BrowseItem>({
 								? `${item.name} ${item.openTaskCount}`
 								: item.name
 						}
-						style={({ pressed }) => [styles.row, pressed && styles.pressed]}
 					>
-						{renderIcon(item)}
+						{({ pressed }) => (
+							<View style={[styles.row, pressed && styles.pressed]}>
+								{renderIcon(item)}
 
-						<Text numberOfLines={1} style={styles.name}>
-							{item.name}
-						</Text>
+								<Text numberOfLines={1} style={styles.name}>
+									{item.name}
+								</Text>
 
-						{item.openTaskCount > 0 && (
-							<Text style={styles.count}>{item.openTaskCount}</Text>
+								{item.openTaskCount > 0 && (
+									<Text style={styles.count}>{item.openTaskCount}</Text>
+								)}
+							</View>
 						)}
 					</Pressable>
 				</Link>

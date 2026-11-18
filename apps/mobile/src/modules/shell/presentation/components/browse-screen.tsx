@@ -22,7 +22,10 @@ export function BrowseScreen() {
 				<Link asChild href="/search">
 					<Pressable
 						accessibilityLabel="Search tasks"
-						style={[SEARCH_FIELD_STYLES.field, styles.search]}
+						style={StyleSheet.flatten([
+							SEARCH_FIELD_STYLES.field,
+							styles.search,
+						])}
 					>
 						<Text style={[SEARCH_FIELD_STYLES.text, styles.placeholder]}>
 							Search tasks
