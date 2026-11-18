@@ -1,3 +1,5 @@
+/** Where the iPhone app opens a sign-in in its sheet; it signs the OAuth state into whichever browser opens it. */
+export const EXPO_PROXY_PATH = '/expo-authorization-proxy'
 /** The Android app's package; the web's callback page opens only this app. */
 export const ANDROID_PACKAGE = 'com.mnigos.soonlane'
 /** The browser page that hands a sign-in to the Android app, through the desktop hand-off's code. */

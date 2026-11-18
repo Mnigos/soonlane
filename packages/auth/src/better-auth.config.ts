@@ -31,14 +31,16 @@ import {
 } from './email-code.handler'
 import {
 	EXPO_GO_SCHEME,
-	EXPO_PROXY_PATH,
 	MOBILE_APP_SCHEME,
 	expoSignIn,
 	isPendingAppSignIn,
 } from './expo-sign-in.handler'
 import { refuseUnvouchedGoogleLink } from './google-link.handler'
 import { redactLogArgument } from './log-redaction.helper'
-import { ANDROID_EXCHANGE_PATH } from './mobile-sign-in.constants'
+import {
+	ANDROID_EXCHANGE_PATH,
+	EXPO_PROXY_PATH,
+} from './mobile-sign-in.constants'
 import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'

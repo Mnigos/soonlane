@@ -12,8 +12,6 @@ import { parseJson } from './utils/json.util'
 export const MOBILE_APP_SCHEME = 'soonlane:'
 /** The scheme Expo Go opens a development build of the app under. */
 export const EXPO_GO_SCHEME = 'exp:'
-/** Where the mobile app opens a sign-in in the system browser; it signs the OAuth state into whichever browser opens it. */
-export const EXPO_PROXY_PATH = '/expo-authorization-proxy'
 /** The origin of Google's authorization endpoint (`@better-auth/core` `social-providers/google`); a state's row does not name its provider. */
 const GOOGLE_AUTHORIZATION_ORIGIN = 'https://accounts.google.com'
 
