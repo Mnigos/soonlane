@@ -225,7 +225,8 @@ jobs:
         if: failure() && steps.package.outcome == 'failure'
         shell: bash
         run: |
-          IDS="$(grep -oE '"id":"[0-9a-f-]{36}","status":"(Rejected|Invalid)"' "$RUNNER_TEMP/package.log" | cut -d '"' -f 4 | sort -u || true)"
+          # Electrobun prints the submission as JSON whose field order changes between runs.
+          IDS="$(grep -E '"status":"(Rejected|Invalid)"' "$RUNNER_TEMP/package.log" | grep -oE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | sort -u || true)"
           if [ -z "$IDS" ]; then echo "No rejected notarization submission in the build log."; exit 0; fi
           for ID in $IDS; do
             echo "::group::Notarization log $ID"
