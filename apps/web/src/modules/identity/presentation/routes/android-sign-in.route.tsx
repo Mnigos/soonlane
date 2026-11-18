@@ -18,12 +18,21 @@ const androidSignInSearchSchema = z.object({
 export const Route = createFileRoute('/_session/android/sign-in')({
 	validateSearch: androidSignInSearchSchema,
 	headers: () => HAND_OFF_PAGE_HEADERS,
+	loaderDeps: ({ search }) => ({ fresh: search.fresh }),
+	// Only the sign-in screen needs the methods: a signed-in hand-off never waits on them. A failure falls to the session layout's error screen, which offers a retry; never a screen without a way in.
+	loader: async ({ context, deps }) =>
+		context.me.user && !deps.fresh
+			? undefined
+			: await context.queryClient.query(
+					context.orpc.identity.signInMethods.queryOptions()
+				),
 	head: () => ({ meta: [{ title: 'Sign in to the Android app · Soonlane' }] }),
 	component: AndroidSignInRoute,
 })
 
 function AndroidSignInRoute() {
 	const { me } = Route.useRouteContext()
+	const methods = Route.useLoaderData()
 	const { challenge, error, fresh } = Route.useSearch()
 
 	return (
@@ -31,6 +40,7 @@ function AndroidSignInRoute() {
 			app="android"
 			challenge={challenge}
 			fresh={fresh}
+			methods={methods}
 			oauthError={error}
 			user={me.user}
 		/>

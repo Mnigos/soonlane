@@ -3,7 +3,7 @@ import {
 	FRESH_SIGN_IN_PARAM,
 	LOOPBACK_PORT_PARAM,
 } from '@soonlane/auth'
-import type { SessionUser } from '@soonlane/contracts'
+import type { SessionUser, SignInMethods } from '@soonlane/contracts'
 import { useSyncExternalStore } from 'react'
 import {
 	HAND_OFF_COPY,
@@ -19,6 +19,8 @@ interface HandOffSignInScreenProps {
 	app: HandOffApp
 	challenge?: string
 	user: SessionUser | null
+	/** Loaded only when the page signs in: signed out, or asked for a fresh sign-in. */
+	methods?: SignInMethods
 	fresh?: boolean
 	oauthError?: string
 	/** The desktop app's loopback port, which it needs; Android's page takes none. */
@@ -68,7 +70,7 @@ function toReturnUrl(handOff: HandOff) {
 
 /**
  * The system browser's page for a sign-in the desktop or Android app started:
- * Google first when signed out or asked for a fresh sign-in, then the
+ * a sign-in first (Google or an email code) when signed out or asked for a fresh one, then the
  * hand-off. A failed fresh sign-in returns here still asking for a fresh one,
  * so it never falls back to handing off the older session. The desktop hand-off
  * runs only in a browser on the desktop app's platform, so a phone app cannot
@@ -78,6 +80,7 @@ export function HandOffSignInScreen({
 	app,
 	challenge,
 	user,
+	methods,
 	fresh = false,
 	oauthError,
 	port,
@@ -116,10 +119,13 @@ export function HandOffSignInScreen({
 				user={user}
 			/>
 		)
+	// The route loads the methods for exactly this case; without them there is nothing to offer yet.
+	if (!methods) return null
 
 	return (
 		<SignInScreen
 			fresh={fresh}
+			methods={methods}
 			loginHint={user?.email}
 			oauthError={oauthError}
 			redirects={{

@@ -5,6 +5,7 @@ import { z } from 'zod'
 export const sessionUserSchema = z.object({
 	id: userIdSchema,
 	email: z.email(),
+	/** The name to show: Google's, or the address for an account without one. */
 	name: z.string(),
 	image: z.string().optional(),
 })

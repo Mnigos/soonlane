@@ -12,7 +12,7 @@ export const HAND_OFF_PAGE_HEADERS = { 'Referrer-Policy': 'no-referrer' }
 /** The hand-off pages' paths, in the one spelling `vite.config.ts` serves with `no-store`. */
 export const HAND_OFF_PATH_PREFIXES = ['/android/', '/desktop/']
 
-/** The page each app opens in the browser, where Google returns it after a sign-in. */
+/** The page each app opens in the browser, where Google or an email code returns it after a sign-in. */
 export const HAND_OFF_SIGN_IN_PATHS = {
 	desktop: DESKTOP_SIGN_IN_PATH,
 	android: ANDROID_SIGN_IN_PATH,
@@ -23,10 +23,10 @@ export const HAND_OFF_COPY = {
 	desktop: {
 		startHeading: 'Start from the desktop app',
 		startText:
-			'This page finishes a sign-in that the Soonlane desktop app started. Open the app and choose Continue with Google.',
+			'This page finishes signing in to the Soonlane desktop app. Open the app and start from there.',
 		otherDeviceHeading: 'Sign in on your Mac',
 		otherDeviceText:
-			'This page only works on the Mac with the desktop app. Open that app and choose Continue with Google, or use the phone app or browser.',
+			'This link only works on the Mac where you started signing in. Try again on that Mac, or use Soonlane in your browser or on your phone.',
 		heading: 'Sign in to the desktop app',
 		button: 'Open the desktop app',
 		error: 'Could not start the desktop sign-in. Try again.',

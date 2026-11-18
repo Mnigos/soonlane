@@ -19,12 +19,21 @@ const desktopSignInSearchSchema = z.object({
 export const Route = createFileRoute('/_session/desktop/sign-in')({
 	validateSearch: desktopSignInSearchSchema,
 	headers: () => HAND_OFF_PAGE_HEADERS,
+	loaderDeps: ({ search }) => ({ fresh: search.fresh }),
+	// Only the sign-in screen needs the methods: a signed-in hand-off never waits on them. A failure falls to the session layout's error screen, which offers a retry; never a screen without a way in.
+	loader: async ({ context, deps }) =>
+		context.me.user && !deps.fresh
+			? undefined
+			: await context.queryClient.query(
+					context.orpc.identity.signInMethods.queryOptions()
+				),
 	head: () => ({ meta: [{ title: 'Desktop sign-in · Soonlane' }] }),
 	component: DesktopSignInRoute,
 })
 
 function DesktopSignInRoute() {
 	const { me } = Route.useRouteContext()
+	const methods = Route.useLoaderData()
 	const { challenge, error, fresh, port } = Route.useSearch()
 
 	return (
@@ -32,6 +41,7 @@ function DesktopSignInRoute() {
 			app="desktop"
 			challenge={challenge}
 			fresh={fresh}
+			methods={methods}
 			oauthError={error}
 			port={port}
 			user={me.user}
