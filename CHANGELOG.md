@@ -2,6 +2,74 @@
 
 Each release opens with a summary written for users, then the list of changes git-cliff builds from conventional commits. Both are added in the release pull request.
 
+## [0.3.0](https://github.com/Mnigos/soonlane/releases/tag/v0.3.0) - 2026-11-18
+
+Soonlane 0.3.0 lets you sign in with a code sent to your email, gives the apps and website a teal accent of their own, and puts the Mac app download on the homepage. You can also run your own copy of Soonlane with one Docker Compose command.
+
+### Sign-in
+
+- Sign in or create an account with a six-digit code sent to your email on the web and through the Mac app's sign-in page, or keep using Google.
+- Confirm deleting your account with an email code when a fresh sign-in is needed, and see your email address on the web, in the Mac app and in phone Settings when your account has no name.
+
+### Mac app
+
+- Download the Mac app from the homepage, which no longer says the app is coming.
+- See the Soonlane icon in the Dock, Finder, the app switcher and the disk image instead of a blank placeholder.
+
+### iPhone and Android app
+
+- In testing on iPhone and Android: sign in by typing a six-digit email code directly in the app without opening a browser, and confirm deleting your account with an email code.
+
+### Look
+
+- A teal accent replaces Todoist's red across the web, Mac and phone apps and on the website, while overdue dates and errors keep coral and delete confirmation buttons stay red.
+
+### Self-hosting
+
+- Run your own copy of Soonlane with one Docker Compose command that starts Postgres, the API and the web app from published images, with sign-in by Google, email codes over SMTP or both, and every setting documented in the README.
+
+### Account and website
+
+- Deleting your account with Google requires a Google sign-in from the last five minutes, and the web app asks you to sign out of Google if Google skipped its check. Your PostHog analytics record is also deleted 15 minutes after your account.
+- Read updated privacy details covering what a Todoist import reads, saves and leaves out, and how email sign-in codes work and are sent through Resend. Both the footer and privacy policy note that Soonlane is not affiliated with Doist.
+- Browse an updated homepage, README and blog that cover projects and subtasks, with checked, dated facts in comparison posts and a new post comparing Soonlane with Things.
+
+### Features › identity
+
+- Ask you to sign out of Google when it skips its check before deleting an account ([7459b58](https://github.com/Mnigos/soonlane/commit/7459b5877ec74d745f11c50dddce0e0c48168db9))
+- Sign in with a code sent to your email on the web and in the Mac app ([bf63b33](https://github.com/Mnigos/soonlane/commit/bf63b338d99cd03316396db44f0fe2b789a9e329))
+
+### Features › mobile
+
+- Sign in with a code sent to your email on the iPhone and Android ([9190ce0](https://github.com/Mnigos/soonlane/commit/9190ce0606e0b063bfe08f823606a735ef0f4940))
+
+### Features › shell
+
+- Give Soonlane a teal accent of its own instead of Todoist's red ([eefbc5d](https://github.com/Mnigos/soonlane/commit/eefbc5dfa30a3f2cab5758aa93185bcf1ae06cc4))
+
+### Features › site
+
+- Add a Mac download button to the home page and answer whether there is a Mac app ([a26890e](https://github.com/Mnigos/soonlane/commit/a26890e049ac63037c722e2d851cf5f5a3f6fa43))
+
+### Bug fixes › blog
+
+- Say Soonlane has projects and subtasks in every post ([6ee8c1a](https://github.com/Mnigos/soonlane/commit/6ee8c1af705b41d43796f6ba4c92e2d7410b3000))
+- Say Today and Upcoming show the Inbox and the calendar link leaves out undated tasks ([6bc77b5](https://github.com/Mnigos/soonlane/commit/6bc77b501b957d979ca51d3bcfb273088cd97b6d))
+
+### Bug fixes › desktop
+
+- Show the Soonlane icon in the Dock, Finder and the disk image ([5fc1af5](https://github.com/Mnigos/soonlane/commit/5fc1af563ecfbfb8f0e737d01f52ac03d814ccf1))
+
+### Bug fixes › site
+
+- Privacy policy says deleting an account needs a Google sign-in from the last five minutes ([6de0f71](https://github.com/Mnigos/soonlane/commit/6de0f7103df687fc3f7ff668ea49606d3ae73c21))
+- Say in the privacy policy that deleting an account deletes its PostHog data ([5ed521e](https://github.com/Mnigos/soonlane/commit/5ed521ed0e23c893a050f1a51a9c99d84162145e))
+- Say in the privacy policy what a Todoist import reads, saves and leaves out ([67c6f6a](https://github.com/Mnigos/soonlane/commit/67c6f6ad3bd6a0bc63ca80c4d53d545fd4095b42))
+- Say in the privacy policy that PostHog data is deleted 15 minutes after the account ([b61efd8](https://github.com/Mnigos/soonlane/commit/b61efd8630bdae5941d61ac602aaab80ae8edf80))
+- Say on the home page and in the README that Soonlane has projects and subtasks ([2856925](https://github.com/Mnigos/soonlane/commit/2856925de7f2a4e8ca7ae63224fffde1f9fa0685))
+- Say in the footer and the privacy policy that Soonlane is not affiliated with Doist ([b36e1eb](https://github.com/Mnigos/soonlane/commit/b36e1eb711928f6437767d6fc997025468f77ecf))
+- Say in the privacy policy how email codes work and that Resend sends them ([016b57b](https://github.com/Mnigos/soonlane/commit/016b57b9fe4a9cecc9b5e3a33f2037b1d386519e))
+
 ## [0.2.0](https://github.com/Mnigos/soonlane/releases/tag/v0.2.0) - 2026-11-16
 
 Soonlane 0.2.0 adds an Inbox, subtasks and projects, lets you type dates, repeats and labels in a task name, and imports your tasks from Todoist. The Mac app now updates itself, and the iPhone and Android app is in testing.
