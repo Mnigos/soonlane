@@ -1,5 +1,6 @@
 import type { GenericEndpointContext } from 'better-auth'
 import { APIError, getSessionFromCtx } from 'better-auth/api'
+import type { bearer } from 'better-auth/plugins'
 import { z } from 'zod'
 import { GOOGLE_LOGIN_NOT_RENEWED } from './account-deletion.constants'
 import type { AuthLogger, AuthLogLevel } from './better-auth.config'
@@ -33,6 +34,29 @@ export function isBearerRequest(ctx: GenericEndpointContext) {
 		ctx.request?.headers.has('authorization') === true ||
 		ctx.headers?.has('authorization') === true
 	)
+}
+
+/** The `bearer` plugin's before hooks, which turn a signed desktop token into the session cookie. */
+export type BearerHooks = ReturnType<typeof bearer>['hooks']['before']
+
+/**
+ * The hook's context with the headers the endpoint will get. Better Auth runs
+ * every before hook on the request's own headers and applies what they return
+ * only afterwards, so the endpoint sees a bearer session and no hook does. This
+ * runs the bearer hooks `createAuth` registers, unchanged, so the check and the
+ * endpoint read one session: a token whose signature fails reaches neither.
+ */
+async function withEndpointHeaders(
+	ctx: GenericEndpointContext,
+	bearerHooks: BearerHooks
+) {
+	const bearerHook = bearerHooks.find(hook => hook.matcher(ctx))
+
+	if (!bearerHook) return ctx
+
+	const converted = await bearerHook.handler({ ...ctx, returnHeaders: false })
+
+	return converted ? { ...ctx, headers: converted.context.headers } : ctx
 }
 
 /** The latest `auth_time` among the ID tokens; no signature check, as Better Auth stores only ID tokens it got from Google's token endpoint and Google ID-token sign-in is off. */
@@ -113,20 +137,19 @@ const REAUTH_MESSAGES: Record<string, string> = {
  * prove themselves with: an email code for everyone while email sign-in is
  * on, Google for a user with a Google account while Google sign-in is on.
  * With reason `GOOGLE_LOGIN_NOT_RENEWED`, a client offering Google first asks
- * the user to sign out of Google. Bearer requests are refused, as their
- * session is invisible here; the desktop app deletes nothing.
+ * the user to sign out of Google. The desktop app's bearer session passes the
+ * same checks: its hand-off copies the browser session's start and email code.
  */
 export async function refuseStaleDeletion(
 	ctx: GenericEndpointContext,
+	bearerHooks: BearerHooks,
 	methods: DeletionMethods,
 	log: AuthLogger
 ) {
-	if (isBearerRequest(ctx))
-		throw new APIError('FORBIDDEN', {
-			message: 'Delete the account from the browser or the phone app.',
-		})
-
-	const signedIn = await getSessionFromCtx(ctx, { disableCookieCache: true })
+	const signedIn = await getSessionFromCtx(
+		await withEndpointHeaders(ctx, bearerHooks),
+		{ disableCookieCache: true }
+	)
 
 	if (!signedIn) throw new APIError('UNAUTHORIZED')
 	if (methods.emailCode && isFreshEmailCode(signedIn.session)) return

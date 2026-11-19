@@ -133,17 +133,20 @@ function readBodyKeys(body: unknown) {
 	return typeof body === 'object' && body !== null ? Object.keys(body) : []
 }
 
+/** `requireSignature` refuses a bare session token, which would otherwise pass. */
+const signedBearer = bearer({ requireSignature: true })
+
 /**
  * Better Auth's `bearer` without its after hook, which copies the session
  * cookie of every response that sets one into a `set-auth-token` header it
  * exposes to scripts, so the web app's HttpOnly cookie would reach page code.
  * The desktop app gets its token from `/desktop-sign-in/token` instead.
- * `requireSignature` refuses a bare session token, which would otherwise pass.
  */
 function bearerSessions() {
-	const { id, hooks } = bearer({ requireSignature: true })
-
-	return { id, hooks: { before: hooks.before } } satisfies BetterAuthPlugin
+	return {
+		id: signedBearer.id,
+		hooks: { before: signedBearer.hooks.before },
+	} satisfies BetterAuthPlugin
 }
 
 /** A token exchange is the desktop app's and a cookie exchange the Android app's; the label only names the analytics method. */
@@ -263,6 +266,7 @@ export function createAuth(options: CreateAuthOptions) {
 				if (ctx.path === '/delete-user')
 					return await refuseStaleDeletion(
 						ctx,
+						signedBearer.hooks.before,
 						{
 							google: Boolean(options.google),
 							emailCode: Boolean(options.emailCode),
