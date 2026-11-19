@@ -1,0 +1,36 @@
+# MNG Review in shadow mode: agents review each pull request and write the result to the job
+# summary and the mng-review-result artifact. Nothing is posted on the pull request, and findings
+# never fail the job. The rules come from .mng/ on the base branch; see https://github.com/Mnigos/mng-review.
+name: MNG Review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+# One run per pull request; a new push cancels the run before it.
+concurrency:
+  group: mng-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    name: MNG Review
+    if: github.repository == 'Mnigos/soonlane'
+    # pull_request_target runs with secrets, so the reusable workflow checks out only the base commit,
+    # reads the head with git show, runs nothing from the pull request and skips forks.
+    uses: Mnigos/mng-review/.github/workflows/review.yml@54a9e6d609613424a771ec0dea1113f6842d1d1d
+    permissions:
+      contents: read
+      pull-requests: read
+    with:
+      runner: ubuntu-24.04
+      tailscale: true
+      tailscale-tags: tag:ci-review
+    secrets:
+      llm-url: ${{ secrets.MNG_REVIEW_LLM_URL }}
+      llm-key: ${{ secrets.MNG_REVIEW_LLM_KEY }}
+      tailscale-oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+      tailscale-oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
