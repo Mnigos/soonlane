@@ -1,0 +1,50 @@
+# MNG Review settings. Keys left out take their value from the preset in `extends`.
+extends: mng:default
+
+# Changes here are reviewed at deep depth: sign-in and sessions, who sees which rows, the database,
+# secrets and environment, the private calendar link, account and analytics data deletion, and what
+# reaches production (the critical areas of the pr-risk skill).
+risk_paths:
+  - packages/auth/**
+  - packages/db/**
+  - apps/api/src/modules/identity/**
+  - apps/api/src/modules/calendar/**
+  - apps/api/src/modules/analytics/**
+  - apps/api/src/modules/tasks/infrastructure/**
+  - apps/api/src/modules/labels/infrastructure/**
+  - apps/api/src/modules/projects/infrastructure/**
+  - apps/api/src/modules/todoist/infrastructure/**
+  - apps/api/src/platform/config/**
+  - apps/api/src/platform/http/**
+  - apps/api/src/platform/rpc/**
+  - apps/web/src/platform/**
+  - apps/web/src/modules/identity/**
+  - apps/desktop/src/modules/identity/**
+  - apps/mobile/src/platform/auth/**
+  - packages/analytics/src/**
+  - apps/web/src/modules/analytics/**
+  - apps/mobile/src/modules/analytics/**
+  - tooling/oxlint-plugin/rules/task-owner-scope.rule.mts
+  - tooling/oxlint-plugin/rules/redacted-secret-config.rule.mts
+  - tooling/oxlint-plugin/rules/cors-at-entry.rule.mts
+  - .github/**
+  - .railway/**
+  - self-host/**
+  - '**/.env.example'
+  - '**/Dockerfile'
+  - apps/landing/Caddyfile
+
+skip:
+  # Generated files, lockfiles and prose: no agent reads them.
+  paths:
+    - bun.lock
+    - skills-lock.json
+    - routeTree.gen.ts
+    - '*.gen.ts'
+    - packages/db/migrations/*/snapshot.json
+    - '*.md'
+    - docs/**
+    # Skills vendored from other repositories (skills-lock.json); they never run for a user.
+    - .agents/**
+    - .claude/**
+    - apps/landing/src/modules/*/content/**
