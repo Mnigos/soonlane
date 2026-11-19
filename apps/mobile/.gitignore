@@ -5,3 +5,5 @@ expo-env.d.ts
 *.gen.ts
 /ios
 /android
+# App Store Connect API key, written by the Mobile workflow from a secret
+asc-api-key.p8
