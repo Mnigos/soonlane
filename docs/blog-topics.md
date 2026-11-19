@@ -4,7 +4,7 @@ The landing page targets one search phrase, "open source Todoist alternative". E
 
 Publishing a draft: set `draft: false` and `date` to the publish day, then open a `docs(blog): …` pull request ([docs/blog.md](blog.md)).
 
-Two drafts go out each Tuesday, comparisons first, in the order of the schedule below. Both posts of a week share that Tuesday's date, so a link between them never points at a page that is not live yet. A post links only to posts already live or going out the same day; a link to a later post is added in the week that post goes out. Production has no scheduled publishing, so merge the week's pull request on its Tuesday ([docs/blog.md](blog.md#how-visibility-works)).
+Two drafts go out each Tuesday, comparisons first, in the order of the schedule below. The backlog has eleven drafts, so the last Tuesday has one. Both posts of a week share that Tuesday's date, so a link between them never points at a page that is not live yet. A post links only to posts already live or going out the same day; a link to a later post is added in the week that post goes out. Production has no scheduled publishing, so merge the week's pull request on its Tuesday ([docs/blog.md](blog.md#how-visibility-works)).
 
 | Slug                                          | Search phrase                       | Reader wants to                                          | Publish day |
 | --------------------------------------------- | ----------------------------------- | -------------------------------------------------------- | ----------- |
