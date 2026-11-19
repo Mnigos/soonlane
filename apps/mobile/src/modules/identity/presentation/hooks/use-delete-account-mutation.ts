@@ -1,4 +1,4 @@
-import { GOOGLE_LOGIN_NOT_RENEWED, type ReauthMethod } from '@soonlane/auth'
+import { GOOGLE_LOGIN_NOT_RENEWED, readReauth } from '@soonlane/auth'
 import { useMutation } from '@tanstack/react-query'
 import { Alert, Platform } from 'react-native'
 import { flushAnalytics } from '@/modules/analytics/infrastructure/analytics.client'
@@ -35,18 +35,6 @@ export function alertOtherAccount(user: Account, startedFor: Account) {
 		`You are now signed in as ${user.email}, and ${startedFor.email} was not deleted. To delete ${startedFor.email}, sign out and sign in with that account.`,
 		[{ text: 'OK' }],
 		{ userInterfaceStyle: 'dark' }
-	)
-}
-
-/** Only `email` and `google` count; an answer from an API that predates `reauth` offers Google, as it always did. */
-function readReauth(error: object): ReauthMethod[] {
-	const reauth = 'reauth' in error ? error.reauth : undefined
-
-	if (!Array.isArray(reauth)) return ['google']
-
-	return reauth.filter(
-		(method): method is ReauthMethod =>
-			method === 'email' || method === 'google'
 	)
 }
 
