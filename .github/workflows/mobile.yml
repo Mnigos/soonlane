@@ -32,11 +32,12 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
         working-directory: .
-      - name: Check the App Store Connect ids
+      # eas.json's submit profile reads the App Store Connect API key from this file; EAS uploads it with the submission.
+      - name: Write the App Store Connect API key
         run: |
-          if grep -q REPLACE_WITH eas.json; then
-            echo "::error file=apps/mobile/eas.json::Fill in submit.production.ios in eas.json first (docs/release.md#mobile)."
-            exit 1
-          fi
+          if [ -z "$ASC_API_KEY_P8" ]; then echo "::error::The secret ASC_API_KEY_P8 is not set (docs/release.md#mobile)"; exit 1; fi
+          printf '%s\n' "$ASC_API_KEY_P8" > asc-api-key.p8
+        env:
+          ASC_API_KEY_P8: ${{ secrets.ASC_API_KEY_P8 }}
       - name: Build and submit
         run: bunx eas-cli@27.7.2 build --platform ios --profile production --non-interactive --auto-submit

@@ -50,8 +50,11 @@
   "submit": {
     "production": {
       "ios": {
-        "ascAppId": "REPLACE_WITH_APP_STORE_CONNECT_APP_ID",
-        "appleTeamId": "REPLACE_WITH_APPLE_TEAM_ID"
+        "ascAppId": "6836829840",
+        "appleTeamId": "UC8ZVHA9UD",
+        "ascApiKeyPath": "./asc-api-key.p8",
+        "ascApiKeyId": "TKJTQR47BX",
+        "ascApiKeyIssuerId": "e56b0742-3fc7-4db9-9074-4f46fab33245"
       }
     }
   }
