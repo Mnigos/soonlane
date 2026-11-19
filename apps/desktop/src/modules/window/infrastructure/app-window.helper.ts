@@ -44,11 +44,21 @@ export const openAppWindow = Effect.fn('AppWindow.open')(function* (
 					Option.getOrNull(await Effect.runPromiseWith(context)(session.token)),
 				signIn: async () =>
 					await Effect.runPromiseWith(context)(
-						session.signIn.pipe(Effect.as(undefined))
+						session.signIn().pipe(Effect.as(undefined))
 					),
 				signOut: async () =>
 					await Effect.runPromiseWith(context)(
 						session.signOut.pipe(Effect.as(undefined))
+					),
+				deleteAccount: async ({ userId }) =>
+					await Effect.runPromiseWith(context)(session.deleteAccount(userId)),
+				signInToDelete: async ({ id, email }) =>
+					await Effect.runPromiseWith(context)(
+						session.signIn({ id, email }).pipe(Effect.as(undefined))
+					),
+				takeDeletionReturn: async () =>
+					Option.getOrNull(
+						await Effect.runPromiseWith(context)(session.takeDeletionReturn)
 					),
 				isUpdateReady: async () =>
 					await Effect.runPromiseWith(context)(updates.isReady),

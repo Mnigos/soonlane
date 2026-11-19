@@ -1,6 +1,7 @@
 import {
 	CODE_CHALLENGE_PARAM,
 	DESKTOP_SIGN_IN_PATH,
+	FRESH_SIGN_IN_PARAM,
 	LOOPBACK_CALLBACK_PATH,
 	LOOPBACK_PORT_PARAM,
 	SIGN_IN_CODE_PARAM,
@@ -11,17 +12,20 @@ interface BrowserSignIn {
 	challenge: string
 	/** The loopback listener's port, where the browser hands the code back. */
 	port: number
+	/** Asks the browser for a new sign-in even when it is signed in, as a deletion needs. */
+	isFresh: boolean
 }
 
 /** The browser's sign-in page for this challenge. */
 export function getBrowserSignInUrl(
 	appUrl: URL,
-	{ challenge, port }: BrowserSignIn
+	{ challenge, port, isFresh }: BrowserSignIn
 ) {
 	const url = new URL(DESKTOP_SIGN_IN_PATH, appUrl)
 
 	url.searchParams.set(CODE_CHALLENGE_PARAM, challenge)
 	url.searchParams.set(LOOPBACK_PORT_PARAM, String(port))
+	if (isFresh) url.searchParams.set(FRESH_SIGN_IN_PARAM, 'true')
 
 	return url
 }

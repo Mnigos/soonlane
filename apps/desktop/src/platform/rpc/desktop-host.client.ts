@@ -3,9 +3,16 @@ import { Electroview } from 'electrobun/view'
 import type { PageRpcSchema } from './page-rpc.types'
 
 export type SignInStatus = 'idle' | 'waiting' | 'failed'
+/** The account a deletion was started for; only this user is ever deleted. */
+export type DeletingAccount =
+	PageRpcSchema['bun']['requests']['signInToDelete']['params']
+/** How a deletion ended without failing; see the main process's `AccountDeletion`. */
+export type AccountDeletion =
+	PageRpcSchema['bun']['requests']['deleteAccount']['response']
 
 /** Module state: the token lives only in this page's memory, never in its storage. */
 let tokenRead: Promise<string | null> | undefined
+let deletionReturnRead: Promise<DeletingAccount | null> | undefined
 let signInStatus: SignInStatus = 'idle'
 const listeners = new Set<() => void>()
 const updateReadyHandlers = new Set<() => void>()
@@ -22,6 +29,17 @@ const READY_READ_DELAY_MS = 3000
 function setSignInStatus(next: SignInStatus) {
 	signInStatus = next
 	for (const listener of listeners) listener()
+}
+
+async function startSignIn(request: () => Promise<undefined>) {
+	setSignInStatus('waiting')
+
+	try {
+		await request()
+	} catch (error) {
+		setSignInStatus('failed')
+		throw error
+	}
 }
 
 const rpc = Electroview.defineRPC<PageRpcSchema>({
@@ -75,17 +93,31 @@ export const desktopHost = {
 
 		return await tokenRead
 	},
-	signIn: async () => {
-		setSignInStatus('waiting')
-
-		try {
-			await rpc.request.signIn(undefined)
-		} catch (error) {
-			setSignInStatus('failed')
-			throw error
-		}
-	},
+	signIn: async () =>
+		await startSignIn(async () => await rpc.request.signIn(undefined)),
 	signOut: async () => await rpc.request.signOut(undefined),
+	/** After a deletion the main process forgets the token and every page reloads signed out. */
+	deleteAccount: async (userId: string) =>
+		await rpc.request.deleteAccount({ userId }),
+	signInToDelete: async ({ id, email }: DeletingAccount) =>
+		await startSignIn(
+			async () => await rpc.request.signInToDelete({ id, email })
+		),
+	/** One take per page, which reloads after every sign-in; a failed one is retried on the next call. */
+	takeDeletionReturn: async () => {
+		deletionReturnRead ??= rpc.request
+			.takeDeletionReturn(undefined)
+			.catch((error: unknown) => {
+				deletionReturnRead = undefined
+				throw error
+			})
+
+		return await deletionReturnRead
+	},
+	/** Once the page has handled the return, a later read finds none, so nothing reopens the dialog. */
+	settleDeletionReturn: () => {
+		deletionReturnRead = Promise.resolve(null)
+	},
 	/** Runs the handler now when an update already waits, and again each time one does. */
 	onUpdateReady: (handler: () => void) => {
 		updateReadyHandlers.add(handler)
