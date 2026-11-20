@@ -1,4 +1,8 @@
 import type { DesktopHostMessage } from '@soonlane/app/shell/helpers/desktop-host.helper'
+import type {
+	AccountDeletion,
+	DeletingAccount,
+} from '../../modules/identity/domain/account-deletion.types'
 
 /**
  * What the bundled page and the main process say over Electrobun's typed RPC
@@ -16,6 +20,15 @@ export interface PageRpcSchema {
 			signIn: { params: undefined; response: undefined }
 			/** Revokes the desktop session and forgets the token. */
 			signOut: { params: undefined; response: undefined }
+			/** Deletes the account of `userId` if the token is still that user's and its session is fresh; after a deletion the main process forgets the token. */
+			deleteAccount: { params: { userId: string }; response: AccountDeletion }
+			/** Opens a fresh sign-in in the system browser for a deletion that asked for one; the page that loads with the new token takes the account back with `takeDeletionReturn`. */
+			signInToDelete: { params: DeletingAccount; response: undefined }
+			/** The account the last sign-in was started to delete, once per sign-in, or `null`. */
+			takeDeletionReturn: {
+				params: undefined
+				response: DeletingAccount | null
+			}
 			/** Whether a downloaded update waits for a restart, for a page that loads after `updateReady`. */
 			isUpdateReady: { params: undefined; response: boolean }
 			/** Downloads a newer version and restarts into it; false when there is none or either step failed. */

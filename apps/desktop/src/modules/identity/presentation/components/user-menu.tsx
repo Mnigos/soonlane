@@ -4,20 +4,24 @@ import { TODOIST_IMPORT_PATH } from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
 	CalendarSync,
 	ChevronDown,
 	Import,
 	Keyboard,
 	LogOut,
+	Trash2,
 } from 'lucide-react'
 import { useState } from 'react'
 import { desktopHost } from '../../../../platform/rpc/desktop-host.client'
+import { SIGN_OUT_FAILED } from '../helpers/sign-out-copy.constants'
+import { AccountNotDeletedDialog } from './account-not-deleted-dialog'
+import { DeleteAccountDialog } from './delete-account-dialog'
 
 const MENU_ITEM_CLASS =
 	'flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm transition-colors hover:bg-hover disabled:opacity-50'
-const SIGN_OUT_FAILED = 'Sign-out failed. Try again.'
+const DELETION_RETURN_KEY = ['desktop', 'deletion-return']
 /** The import links Todoist in the browser, which holds the OAuth state cookie and the web session. */
 const TODOIST_IMPORT_URL = new URL(TODOIST_IMPORT_PATH, import.meta.env.APP_URL)
 
@@ -26,11 +30,30 @@ interface UserMenuProps {
 	onShowShortcuts: () => void
 }
 
-/** The web app's user menu without the account actions that need the browser session; those stay on the web. */
+/**
+ * The web app's user menu. It also opens the deletion dialog again when this
+ * page loaded after a fresh sign-in started for it, or says that nothing was
+ * deleted when that sign-in landed on another account.
+ */
 export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isSubscribingCalendar, setIsSubscribingCalendar] = useState(false)
+	const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+	const queryClient = useQueryClient()
 	const { data: todoist } = useQuery(orpcQuery.todoist.status.queryOptions())
+	// Read once per page: the main process hands the return out only once, and settling it answers null from then on.
+	const { data: returnedFor } = useQuery({
+		queryKey: DELETION_RETURN_KEY,
+		queryFn: desktopHost.takeDeletionReturn,
+		staleTime: Number.POSITIVE_INFINITY,
+		gcTime: Number.POSITIVE_INFINITY,
+	})
+	const settleReturn = () => {
+		desktopHost.settleDeletionReturn()
+		// A read still in flight would otherwise land after this and reopen the closed dialog.
+		void queryClient.cancelQueries({ queryKey: DELETION_RETURN_KEY })
+		queryClient.setQueryData(DELETION_RETURN_KEY, null)
+	}
 	const {
 		mutate: signOut,
 		isPending,
@@ -106,6 +129,15 @@ export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 						{isPending ? 'Signing out…' : 'Sign out'}
 					</button>
 
+					<button
+						className="flex h-8 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-danger transition-colors hover:bg-hover"
+						onClick={() => setIsDeletingAccount(true)}
+						type="button"
+					>
+						<Trash2 aria-hidden className="size-4" />
+						Delete account
+					</button>
+
 					{error && (
 						<p className="px-2 text-caption text-danger" role="alert">
 							{SIGN_OUT_FAILED}
@@ -117,6 +149,24 @@ export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 			{isSubscribingCalendar && (
 				<CalendarSubscriptionDialog
 					onClose={() => setIsSubscribingCalendar(false)}
+				/>
+			)}
+
+			{(isDeletingAccount || returnedFor?.id === user.id) && (
+				<DeleteAccountDialog
+					account={user}
+					onClose={() => {
+						setIsDeletingAccount(false)
+						settleReturn()
+					}}
+				/>
+			)}
+
+			{returnedFor && returnedFor.id !== user.id && (
+				<AccountNotDeletedDialog
+					onClose={settleReturn}
+					signedInAs={user.email}
+					startedFor={returnedFor.email}
 				/>
 			)}
 		</div>
