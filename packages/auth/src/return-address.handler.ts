@@ -21,7 +21,7 @@ const FORM_CONTENT_TYPES = [
 
 /**
  * The body as Better Auth parses it; any other type reaches it as text or bytes, without fields.
- * Mirrors better-call 1.4.5's `getBody`, so a Better Auth or better-call upgrade must recheck it.
+ * Mirrors better-call 1.4.6's `getBody`, so a Better Auth or better-call upgrade must recheck it.
  */
 async function readBody(request: Request): Promise<unknown> {
 	const contentType = request.headers.get('content-type')?.toLowerCase() ?? ''
