@@ -61,14 +61,20 @@ const CODE_ERRORS = new Set<unknown>([
 
 /** RFC 5321's limit on an address's length. */
 const MAX_EMAIL_LENGTH = 254
+/** `oauth_query` is the signed authorization request the browser client adds on the login page an agent sent the user to; the OAuth provider resumes it after the sign-in. */
 const sendBodySchema = z.strictObject({
 	email: z
 		.string()
 		.transform(normalizeEmail)
 		.pipe(z.email().max(MAX_EMAIL_LENGTH)),
 	type: z.literal('sign-in'),
+	oauth_query: z.string().optional(),
 })
-const signInBodySchema = z.strictObject({ email: z.string(), otp: z.string() })
+const signInBodySchema = z.strictObject({
+	email: z.string(),
+	otp: z.string(),
+	oauth_query: z.string().optional(),
+})
 const emailCodeAtSchema = z.object({
 	emailCodeAt: z.union([
 		z.date(),
