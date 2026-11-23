@@ -3,5 +3,5 @@
 - Tables in `schema/[name].schema.ts`, re-exported from `schema/index.ts`; brand UUID keys with `$type<UserId>()`; always declare `onDelete`.
 - Never edit a generated migration; change the schema and run `bun run db:generate`. Deployed migrations are immutable.
 - Server-only: never import `@soonlane/db` from browser code.
-- Better Auth owns `user`, `session`, `account` and `verification`; change them only together with `packages/auth`.
+- Better Auth owns `user`, `session`, `account` and `verification`, and its OAuth provider and `jwt` plugins own the tables in `schema/oauth.schema.ts`; change them only together with `packages/auth`, following the plugins' fields.
 - Data backfills are scripts in `scripts/`, not migrations; they connect like `migrator.helper.ts` (`DATABASE_URL`) and default to a dry run.

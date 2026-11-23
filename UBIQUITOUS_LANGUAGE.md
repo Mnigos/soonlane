@@ -74,6 +74,15 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 | Imported Todoist task | none                                                           | `imported_todoist_task` table, `ImportedTodoistTaskRepository` | The record that the owner imported one Todoist task; it outlives the Soonlane task, so the next import skips that task (`alreadyImported`).                |
 | Todoist offer         | "Moving from Todoist?", "Import from Todoist", "No thanks"     | `TodoistOffer`, `soonlane-todoist-offer` cookie                | The note on a new account's Upcoming, while it has no open task, project or label, that points at the Todoist import; "No thanks" hides it on this device. |
 
+## mcp
+
+| Term               | UI label                                                | Code                                                                                         | Meaning                                                                                                                                                                               |
+| ------------------ | ------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **MCP client**     | the agent's name, "Unverified app"                      | `oauth_client` row, `client_id`, `readVerifiedMcpClientHost`                                 | An AI app, such as Claude Code or ChatGPT, that reaches a user's tasks through Soonlane's MCP server once the user allows it; verified when its client id is a metadata document URL. |
+| **MCP connection** | "Connected agents", "Disconnect"                        | `oauth_consent` row and its tokens, `McpConnection`, `mcp.listConnections`, `mcp.disconnect` | One agent's access to one user's tasks, to see them or to see and edit them (edit implies see), from Allow until Disconnect or 30 days without use.                                   |
+| **Access request** | "Allow {name} to access your tasks?", "Allow", "Cancel" | `/mcp/allow`, `AllowScreen`, `/oauth2/consent`                                               | The page where the user decides what a connecting agent may do; its ticked boxes are the `access` search param, can only narrow what the agent asked for, and tick see with edit.     |
+| **MCP server**     | none                                                    | `MCP_PATH`, `<API_URL>/mcp`                                                                  | The API endpoint agents call with their access token; the resource their tokens are issued for.                                                                                       |
+
 ## Codebase
 
 | Term              | UI                         | Code                                                   | Meaning                                                                                                                                                                                                                                                                                                 |
@@ -99,3 +108,6 @@ Canonical terms, their UI labels and code names. Keep UI labels in sync with the
 - "site" and "public site" are retired names of the **Landing**; only the commit scope `site` keeps the old word, so the changelog's history stays under one scope.
 - "landing" means the whole static app, the **Landing**; the page at `/` is the **Home page**.
 - "code" at sign-in means the **Email code** a person types; the **Sign-in code** is the hand-off's one-time code the browser passes to the desktop or Android app, which nobody types.
+- "consent" means the analytics cookie consent (the `consent` commit scope); the agent's page is the **Access request** and its record an **MCP connection**, though the code keeps Better Auth's `oauthConsent`.
+- "connection" is a **Todoist connection** when Soonlane reaches out to Todoist, and an **MCP connection** when an MCP client reaches in.
+- "agent" is the word users see for an **MCP client** ("Connected agents", "Allow {name} to access your tasks?"), and prose about the feature uses it in that sense; the code says MCP client and **MCP connection**. Elsewhere in this repo, as in `AGENTS.md` and `.agents/`, an agent is a coding agent.

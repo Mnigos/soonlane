@@ -1,6 +1,6 @@
 # apps/api agent rules
 
-- One Bun process on Railway: `platform/http/http-server.layer.ts` maps paths to handlers (`/health`, `/api/auth/*`, `/api/rpc/*`, `/calendar/*`, `/ingest/*`); `AppLive` in `platform/app.layers.ts` wires every `*Live` layer into the one `ManagedRuntime`.
+- One Bun process on Railway: `platform/http/http-server.layer.ts` maps paths to handlers (`/health`, `/api/auth/*` and the agents' host-root discovery paths, `/api/rpc/*`, `/calendar/*`, `/ingest/*`); `AppLive` in `platform/app.layers.ts` wires every `*Live` layer into the one `ManagedRuntime`.
 - Every setting comes from `AppConfig` (`platform/config/app.config.ts`); a missing or malformed variable stops the start with its name. Locally Bun reads `apps/api/.env.local`.
 - `withCors` answers every preflight and refuses an `Origin` outside `TRUSTED_ORIGINS` and the desktop page's `DESKTOP_PAGE_ORIGIN` before anything else runs; never add `*` or a pattern to the list, never add the desktop page's origin to it or give that origin credentials, and set no `Access-Control-*` header anywhere else (lint-enforced). `withIngestCors` answers PostHog's proxy for the exact `APP_URL` and `LANDING_URL` origins, never with credentials.
 - Only `withClientIp` sets `x-soonlane-client-ip`, and Better Auth reads no other IP header. Never trust `x-soonlane-visitor-ip` without the proxy secret.
