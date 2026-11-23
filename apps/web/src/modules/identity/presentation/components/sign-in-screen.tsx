@@ -2,6 +2,7 @@ import { GOOGLE_LINK_REFUSED } from '@soonlane/auth'
 import type { GoogleSignInRedirects } from '@soonlane/auth/client'
 import type { SignInMethods } from '@soonlane/contracts'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
+import { useState } from 'react'
 import { LANDING_ORIGIN } from '@/modules/hosting/presentation/hosting.constants'
 import { EMAIL_CODE_COPY } from '../email-code-copy.constants'
 import { ContinueWithGoogle, SIGN_IN_FAILED } from './continue-with-google'
@@ -9,6 +10,9 @@ import { EmailCodeSignIn } from './email-code-sign-in'
 import { SignInLayout } from './sign-in-layout'
 
 const LOGIN_REDIRECTS = { callbackURL: '/', errorCallbackURL: '/login' }
+const BROKEN_MCP_LINK =
+	"This link isn't working. Go back to your app and try again."
+const PLAIN_LOGIN_LINK = 'Log in to Soonlane'
 const LEGAL_LINK_CLASS = 'text-foreground underline underline-offset-2'
 
 const DESCRIPTIONS = {
@@ -28,10 +32,21 @@ function toErrorMessage(oauthError: string) {
 		: SIGN_IN_FAILED
 }
 
+/**
+ * An agent's authorization sent the browser here with its signed request: after the sign-in, Better Auth's client follows the provider's answer,
+ * not `redirects`. `isExpired` is decided on the server with its clock at the first load; afterwards only the provider's refusal expires the page,
+ * so a fast device clock cannot. `picksAccount` is the agent's Switch account, which shows Google's account chooser.
+ */
+export interface McpSignIn {
+	isExpired: boolean
+	picksAccount: boolean
+}
+
 interface SignInScreenProps {
 	methods: SignInMethods
 	oauthError?: string
 	isAccountDeleted?: boolean
+	mcpSignIn?: McpSignIn
 	redirects?: GoogleSignInRedirects
 	loginHint?: string
 	fresh?: boolean
@@ -41,10 +56,30 @@ export function SignInScreen({
 	methods,
 	oauthError,
 	isAccountDeleted = false,
+	mcpSignIn,
 	redirects = LOGIN_REDIRECTS,
 	loginHint,
 	fresh = false,
 }: Readonly<SignInScreenProps>) {
+	const [hasExpired, setHasExpired] = useState(mcpSignIn?.isExpired ?? false)
+	const expire = mcpSignIn && (() => setHasExpired(true))
+
+	if (hasExpired)
+		return (
+			<SignInLayout heading="Log in or sign up">
+				<p className="text-sm font-medium text-danger" role="alert">
+					{BROKEN_MCP_LINK}
+				</p>
+
+				<a
+					className="self-start text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground"
+					href="/login"
+				>
+					{PLAIN_LOGIN_LINK}
+				</a>
+			</SignInLayout>
+		)
+
 	return (
 		<SignInLayout
 			description={
@@ -69,7 +104,9 @@ export function SignInScreen({
 					<ContinueWithGoogle
 						fresh={fresh}
 						loginHint={loginHint}
+						onMcpClientRequestRefused={expire}
 						redirects={redirects}
+						selectAccount={mcpSignIn?.picksAccount}
 					/>
 				)}
 
@@ -88,11 +125,13 @@ export function SignInScreen({
 
 				{methods.emailCode && (
 					<EmailCodeSignIn
-						onSignedIn={() =>
-							window.location.assign(
-								new URL(redirects.callbackURL, window.location.origin)
-							)
-						}
+						onMcpClientRequestRefused={expire}
+						onSignedIn={() => {
+							if (!mcpSignIn)
+								window.location.assign(
+									new URL(redirects.callbackURL, window.location.origin)
+								)
+						}}
 					/>
 				)}
 

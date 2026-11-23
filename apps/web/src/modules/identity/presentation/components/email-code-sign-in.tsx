@@ -1,4 +1,8 @@
-import { EMAIL_CODE_LENGTH, TOO_MANY_CODES } from '@soonlane/auth'
+import {
+	EMAIL_CODE_LENGTH,
+	isRefusedMcpClientRequest,
+	TOO_MANY_CODES,
+} from '@soonlane/auth'
 import { sendEmailCode, signInWithEmailCode } from '@soonlane/auth/client'
 import { ACCESS_ERROR_MESSAGES } from '@soonlane/domain'
 import { Button } from '@soonlane/ui/components/button'
@@ -38,7 +42,7 @@ async function send(email: string) {
 	try {
 		const { error } = await sendEmailCode(email)
 
-		if (error) return new Error(toSendError(error))
+		if (error) return new Error(toSendError(error), { cause: error })
 	} catch {
 		return new Error(EMAIL_CODE_COPY.sendFailed)
 	}
@@ -50,7 +54,7 @@ async function signIn(email: string, code: string) {
 	try {
 		const { error } = await signInWithEmailCode(email, code)
 
-		return error ? new Error(toSignInError(error)) : undefined
+		return error ? new Error(toSignInError(error), { cause: error }) : undefined
 	} catch {
 		return new Error(SIGN_IN_FAILED)
 	}
@@ -61,17 +65,25 @@ interface EmailCodeSignInProps {
 	fixedEmail?: string
 	/** Runs once this browser holds the new session, and only while this form is still shown: a dialog closed meanwhile never acts on it. */
 	onSignedIn: () => void
+	/** An agent's signed request rides along and Better Auth refused it, as its OAuth provider does once it expired. */
+	onMcpClientRequestRefused?: () => void
 }
 
 /** Sign-in with a code mailed to the address: the address first, then the code; the first sign-in creates the account. */
 export function EmailCodeSignIn({
 	fixedEmail,
 	onSignedIn,
+	onMcpClientRequestRefused,
 }: Readonly<EmailCodeSignInProps>) {
 	const [email, setEmail] = useState(fixedEmail ?? '')
 	const [code, setCode] = useState('')
 	const [sentTo, setSentTo] = useState<string>()
 	const [hasResent, setHasResent] = useState(false)
+
+	function expireIfRefused(failure: Error) {
+		if (isRefusedMcpClientRequest(failure.cause)) onMcpClientRequestRefused?.()
+	}
+
 	const sending = useMutation({
 		mutationFn: async (address: string) => {
 			const sent = await send(address)
@@ -84,6 +96,7 @@ export function EmailCodeSignIn({
 			setHasResent(address === sentTo)
 			setSentTo(address)
 		},
+		onError: expireIfRefused,
 	})
 	const signingIn = useMutation({
 		mutationFn: async (address: string) => {
@@ -91,6 +104,7 @@ export function EmailCodeSignIn({
 
 			if (failure) throw failure
 		},
+		onError: expireIfRefused,
 	})
 	const error = signingIn.error ?? sending.error
 	const isBusy = sending.isPending || signingIn.isPending || signingIn.isSuccess

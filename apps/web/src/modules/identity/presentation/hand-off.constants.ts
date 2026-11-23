@@ -1,4 +1,5 @@
 import { ANDROID_SIGN_IN_PATH, DESKTOP_SIGN_IN_PATH } from '@soonlane/auth'
+import { MCP_PAGE_PREFIX } from '@/modules/mcp/presentation/allow-page.constants'
 
 /** The apps a browser sign-in is handed to with a one-time code. */
 export type HandOffApp = 'desktop' | 'android'
@@ -9,8 +10,12 @@ export type HandOff =
 
 /** The pages carry a challenge or a code, which no referrer may carry to another site; `vite.config.ts` keeps them out of caches. */
 export const HAND_OFF_PAGE_HEADERS = { 'Referrer-Policy': 'no-referrer' }
-/** The hand-off pages' paths, in the one spelling `vite.config.ts` serves with `no-store`. */
-export const HAND_OFF_PATH_PREFIXES = ['/android/', '/desktop/']
+/** The paths of the hand-off pages and the agents' Allow page, in the one spelling `vite.config.ts` serves with `no-store`. */
+export const HAND_OFF_PATH_PREFIXES = [
+	'/android/',
+	'/desktop/',
+	MCP_PAGE_PREFIX,
+]
 
 /** The page each app opens in the browser, where Google or an email code returns it after a sign-in. */
 export const HAND_OFF_SIGN_IN_PATHS = {
