@@ -7,7 +7,7 @@
 
 Importing from Todoist ([SOON-110](https://linear.app/rigtch/issue/SOON-110), project [Todoist import](https://linear.app/rigtch/project/todoist-import-80f3d74b175c)) needs a Todoist access token on the API for one read of the user's account. The project brief first said the token is never written to the database: a hand-written OAuth route would hold it in memory for the length of one request. Todoist's consent screen and its callback are two browser requests, so the token would have to survive between them somewhere anyway, and a hand-written flow repeats what Better Auth already does: the state cookie bound to the browser, PKCE, the `redirect_uri` that Todoist requires when an app lists several, and the link bound to the session that started it.
 
-Better Auth 1.7.18, the locked version (verified against `node_modules`, not from memory, and also read in 1.7.22), runs any provider of its `genericOAuth` plugin through the core `/sign-in/social`, `/link-social` and `/callback/:id` endpoints. A link writes the provider's tokens to `account`, encrypted with `AUTH_SECRET` when `account.encryptOAuthTokens` is on. `disableSignUp` stops a new user, but nothing in the plugin stops a sign-in through a provider whose `account` row exists.
+Better Auth 1.7.18, the locked version (verified against `node_modules`, not from memory, and also read in 1.7.22 and 1.7.27), runs any provider of its `genericOAuth` plugin through the core `/sign-in/social`, `/link-social` and `/callback/:id` endpoints. A link writes the provider's tokens to `account`, encrypted with `AUTH_SECRET` when `account.encryptOAuthTokens` is on. `disableSignUp` stops a new user, but nothing in the plugin stops a sign-in through a provider whose `account` row exists.
 
 ## Decision
 
