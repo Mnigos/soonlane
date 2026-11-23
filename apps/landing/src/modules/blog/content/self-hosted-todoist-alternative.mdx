@@ -1,11 +1,11 @@
 ---
 title: Three self-hosted Todoist alternatives
 description: Three self hosted Todoist alternatives, Soonlane, Vikunja and Nextcloud Tasks, with what each needs to run and what you get in return.
-date: '2026-11-12'
-draft: true
+date: '2026-12-01'
+draft: false
 ---
 
-Todoist is a hosted service. Your tasks live on Todoist's servers, and you use them through its apps. Some people want their tasks on a server they control: they already run a home server, their work does not allow outside services, or they want to keep running the app on their own terms.
+Todoist is a hosted service. Your tasks live on Todoist's servers, and you use them through its apps. Some people want their tasks on a server they control, because they already run a home server, their work does not allow outside services, or they want to keep running the app on their own terms.
 
 If that is you, you need an app whose code you can run yourself. Below are three that work like Todoist in some way, and what it takes to run each. I build one of them, Soonlane, so I start with it and say plainly where it is harder to run than the others.
 
@@ -19,7 +19,7 @@ Before you pick one, check these.
 
 ## Soonlane
 
-Soonlane is an [open source Todoist alternative](/) built around days. It opens on Upcoming, one scroll from Overdue through Today and every day after. You get natural date input like `tom` or `fri`, priorities P1 to P4, due times, repeating tasks, subtasks, flat projects, labels and goals that count progress. Each account can also have a private calendar link that shows open tasks in Apple Calendar or any app that reads iCalendar feeds. It has no filters, reminders or sharing.
+Soonlane is an [open source Todoist alternative](/) built around days. It opens on Upcoming, with the week strip at the top, then your Inbox when you have tasks without a date, then Overdue, Today and every day after in one scroll. You get natural date input like `tom` or `fri`, priorities P1 to P4, due times, repeating tasks, subtasks, flat projects, labels and goals that count progress. Each account can also have a private calendar link that shows open tasks in Apple Calendar or any app that reads iCalendar feeds. It has no filters, reminders or sharing.
 
 The code is on [GitHub](https://github.com/Mnigos/soonlane) under AGPL-3.0. You can run it for yourself or for other people. If you run a changed copy for others, the license asks you to offer them your changes.
 
@@ -35,7 +35,7 @@ The code is on [GitHub](https://github.com/Mnigos/soonlane) under AGPL-3.0. You 
 Soonlane runs as four containers. One Docker Compose file starts Postgres, the API, the web app, and a Caddy proxy that serves the API and web app on a single address. Published images support `amd64` and `arm64`. The API updates the database tables each time it starts.
 
 - **Docker with Compose.** Any machine that runs Docker works, including a home server.
-- **A Google OAuth client.** Sign-in is Google only for now. You create a client in Google Cloud and add your callback URL as its redirect. Email sign-in is planned.
+- **A Google OAuth client.** Soonlane itself signs in with Google or a six-digit email code, but the self-host Docker Compose setup wires up only Google sign-in for now. You create a client in Google Cloud and add your callback URL as its redirect.
 - **HTTPS for anything except localhost.** Google accepts a plain `http` redirect only on `localhost`. Opening your instance from other devices requires HTTPS in front of it from a reverse proxy or a tunnel.
 
 Configuration goes in one `.env` file containing your URL, a database password, two secrets, and the Google client. The API refuses to start when a value is missing and logs which variable failed. Set `ALLOWED_EMAILS` to your own address so nobody else can sign up. The README on GitHub lists the setup steps and every variable.
@@ -48,7 +48,7 @@ The Mac app works with your server too. It bakes in the server URLs at build tim
 
 Self-hosting Soonlane is new, so expect a few gaps.
 
-You need a Google Cloud project even for a personal instance because email sign-in does not exist yet. There is no admin page, so `ALLOWED_EMAILS` is the only way to control sign-ups. Four containers are also more to run than one.
+You need a Google Cloud project even for a personal instance because the self-host setup supports only Google sign-in so far. There is no admin page, so `ALLOWED_EMAILS` is the only way to control sign-ups. Four containers are also more to run than one.
 
 If you want a single container with local accounts, Vikunja is the better pick today.
 
@@ -60,7 +60,7 @@ You get projects, labels, reminders, repeating tasks and saved filters. Projects
 
 The API and the web interface ship as one binary or one Docker image, `vikunja/vikunja`. The quick start uses the bundled SQLite, so you need no separate database. For more users you can use PostgreSQL, MySQL or MariaDB. There is no default login. You register the first account yourself.
 
-If you would rather not run it, Vikunja Cloud is the paid hosted version, from 4 euros a month for the Personal plan, checked on 18 November 2026.
+If you would rather not run it, Vikunja Cloud is the paid hosted version, from 4 euros a month for the Personal plan, checked on 24 November 2026.
 
 ## Nextcloud Tasks
 
@@ -79,7 +79,7 @@ Without Nextcloud already running, you would set up a whole Nextcloud server for
 | License        | AGPL-3.0                                          | AGPL-3.0                         | AGPL-3.0             |
 | Install        | Docker Compose, four containers                   | One binary or container          | App inside Nextcloud |
 | Database       | Postgres                                          | SQLite, Postgres, MySQL, MariaDB | Nextcloud's          |
-| Sign-in        | Google                                            | Own accounts                     | Nextcloud accounts   |
+| Sign-in        | Google (self-host setup)                          | Own accounts                     | Nextcloud accounts   |
 | Projects       | Yes, flat (no sections or sub-projects)           | Yes                              | Grouped by calendar  |
 | Phone          | Web app                                           | CalDAV apps                      | CalDAV apps          |
 | Hosted version | Free at soonlane.com, Pro coming for integrations | Vikunja Cloud, paid              | No                   |
@@ -96,10 +96,10 @@ If you are still choosing between hosted apps, [apps like Todoist](/blog/apps-li
 
 ## Sources
 
-These are the pages the facts above come from, each checked on 18 November 2026.
+These are the pages the facts above come from, each checked on 24 November 2026.
 
 - [Vikunja features](https://vikunja.io/features/): Vikunja's license and features.
 - [Vikunja pricing](https://vikunja.io/pricing/): free self-hosting and the Cloud price.
 - [Installing Vikunja](https://vikunja.io/docs/installing/): the binary, the Docker image and the databases.
 - [Nextcloud Tasks in the Nextcloud app store](https://apps.nextcloud.com/apps/tasks): features and CalDAV apps.
-- [Nextcloud Tasks on GitHub](https://github.com/nextcloud/tasks): the AGPL-3.0 license.
+- [Nextcloud Tasks on GitHub](https://github.com/nextcloud/tasks): the AGPL-3.0 license, features and CalDAV apps.
