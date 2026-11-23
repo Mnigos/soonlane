@@ -1,6 +1,9 @@
 import { MCP_SCOPES, readVerifiedMcpClientHost } from '@soonlane/auth'
 import type { McpConnection } from '@soonlane/contracts'
-import type { McpConnectionId } from '@soonlane/domain'
+import {
+	MCP_CLIENT_NAME_FALLBACK,
+	type McpConnectionId,
+} from '@soonlane/domain'
 
 /** An `oauth_consent` row joined with its client's name and the latest refresh of the user's tokens for it. */
 export interface McpConnectionRow {
@@ -17,7 +20,7 @@ export function toMcpConnection(row: McpConnectionRow): McpConnection {
 
 	return {
 		id: row.id,
-		name: row.name ?? host ?? row.clientId,
+		name: row.name ?? host ?? MCP_CLIENT_NAME_FALLBACK,
 		host,
 		access: row.scopes.includes(MCP_SCOPES.write) ? 'read-write' : 'read',
 		connectedAt: row.connectedAt ?? undefined,

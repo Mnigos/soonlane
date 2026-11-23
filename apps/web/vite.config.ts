@@ -77,11 +77,12 @@ export default defineConfig(({ command }) => ({
 			preset: 'bun',
 			compatibilityDate: '2025-12-13',
 			compressPublicAssets: true,
-			// Nitro adds the immutable header for /assets/; a 4xx or 5xx gets errorCacheMiddleware's header instead. The sign-in hand-off pages carry a challenge or a code; handOffPathMiddleware refuses the letter cases these rules miss.
+			// Nitro adds the immutable header for /assets/; a 4xx or 5xx gets errorCacheMiddleware's header instead. The sign-in hand-off pages and the agents' Allow page carry a challenge or a signed request; handOffPathMiddleware refuses the letter cases these rules miss.
 			routeRules: {
 				'/**': { headers: { 'cache-control': 'no-cache' } },
 				'/desktop/**': { headers: { 'cache-control': 'no-store' } },
 				'/android/**': { headers: { 'cache-control': 'no-store' } },
+				'/mcp/**': { headers: { 'cache-control': 'no-store' } },
 			},
 		}),
 		react(),

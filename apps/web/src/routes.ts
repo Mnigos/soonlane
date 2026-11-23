@@ -25,6 +25,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 			),
 		]),
 		route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
+		route('/mcp/allow', 'modules/mcp/presentation/routes/allow.route.tsx'),
 		route(
 			'/desktop/sign-in',
 			'modules/identity/presentation/routes/desktop-sign-in.route.tsx'

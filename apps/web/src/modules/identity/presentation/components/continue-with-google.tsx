@@ -1,4 +1,8 @@
-import { DESKTOP_SIGN_IN_PATH, FRESH_SIGN_IN_PARAM } from '@soonlane/auth'
+import {
+	DESKTOP_SIGN_IN_PATH,
+	FRESH_SIGN_IN_PARAM,
+	isRefusedMcpClientRequest,
+} from '@soonlane/auth'
 import {
 	type GoogleSignInRedirects,
 	signInWithGoogle,
@@ -15,21 +19,31 @@ interface ContinueWithGoogleProps {
 	redirects: GoogleSignInRedirects
 	loginHint?: string
 	fresh?: boolean
+	selectAccount?: boolean
+	/** An agent's signed request rides along and Better Auth refused it, as its OAuth provider does once it expired. */
+	onMcpClientRequestRefused?: () => void
 }
 
 export function ContinueWithGoogle({
 	redirects,
 	loginHint,
 	fresh = false,
+	selectAccount = false,
+	onMcpClientRequestRefused,
 }: Readonly<ContinueWithGoogleProps>) {
 	const { mutate, isPending, isSuccess, error } = useMutation({
 		mutationFn: async () => {
 			const { error: signInError } = await signInWithGoogle(redirects, {
 				loginHint,
 				fresh,
+				selectAccount,
 			})
 
 			if (signInError) throw new Error(SIGN_IN_FAILED, { cause: signInError })
+		},
+		onError: failure => {
+			if (isRefusedMcpClientRequest(failure.cause))
+				onMcpClientRequestRefused?.()
 		},
 	})
 	const [hasOpenedBrowser, setHasOpenedBrowser] = useState(false)

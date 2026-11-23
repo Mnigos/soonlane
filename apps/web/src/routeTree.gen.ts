@@ -23,6 +23,7 @@ import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from 
 import { Route as modulesTodoistPresentationRoutesTodoistDotrouteRouteImport } from './modules/todoist/presentation/routes/todoist.route'
 import { Route as modulesIdentityPresentationRoutesAndroidSignInDotrouteRouteImport } from './modules/identity/presentation/routes/android-sign-in.route'
 import { Route as modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport } from './modules/identity/presentation/routes/desktop-sign-in.route'
+import { Route as modulesMcpPresentationRoutesAllowDotrouteRouteImport } from './modules/mcp/presentation/routes/allow.route'
 import { Route as modulesLabelsPresentationRoutesLabelDotrouteRouteImport } from './modules/labels/presentation/routes/label.route'
 import { Route as modulesProjectsPresentationRoutesProjectDotrouteRouteImport } from './modules/projects/presentation/routes/project.route'
 
@@ -108,6 +109,12 @@ const modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute =
     path: '/desktop/sign-in',
     getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
   } as any)
+const modulesMcpPresentationRoutesAllowDotrouteRoute =
+  modulesMcpPresentationRoutesAllowDotrouteRouteImport.update({
+    id: '/mcp/allow',
+    path: '/mcp/allow',
+    getParentRoute: () => modulesIdentityPresentationRoutesSessionDotrouteRoute,
+  } as any)
 const modulesLabelsPresentationRoutesLabelDotrouteRoute =
   modulesLabelsPresentationRoutesLabelDotrouteRouteImport.update({
     id: '/labels/$name',
@@ -134,6 +141,7 @@ export interface FileRoutesByFullPath {
   '/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/android/sign-in': typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/mcp/allow': typeof modulesMcpPresentationRoutesAllowDotrouteRoute
   '/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
   '/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/android/sign-in': typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   '/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/mcp/allow': typeof modulesMcpPresentationRoutesAllowDotrouteRoute
   '/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
   '/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
@@ -169,6 +178,7 @@ export interface FileRoutesById {
   '/_session/_shell/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
   '/_session/android/sign-in': typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   '/_session/desktop/sign-in': typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  '/_session/mcp/allow': typeof modulesMcpPresentationRoutesAllowDotrouteRoute
   '/_session/_shell/labels/$name': typeof modulesLabelsPresentationRoutesLabelDotrouteRoute
   '/_session/_shell/projects/$name': typeof modulesProjectsPresentationRoutesProjectDotrouteRoute
 }
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/todoist'
     | '/android/sign-in'
     | '/desktop/sign-in'
+    | '/mcp/allow'
     | '/labels/$name'
     | '/projects/$name'
   fileRoutesByTo: FileRoutesByTo
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/todoist'
     | '/android/sign-in'
     | '/desktop/sign-in'
+    | '/mcp/allow'
     | '/labels/$name'
     | '/projects/$name'
   id:
@@ -221,6 +233,7 @@ export interface FileRouteTypes {
     | '/_session/_shell/todoist'
     | '/_session/android/sign-in'
     | '/_session/desktop/sign-in'
+    | '/_session/mcp/allow'
     | '/_session/_shell/labels/$name'
     | '/_session/_shell/projects/$name'
   fileRoutesById: FileRoutesById
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRouteImport
       parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
     }
+    '/_session/mcp/allow': {
+      id: '/_session/mcp/allow'
+      path: '/mcp/allow'
+      fullPath: '/mcp/allow'
+      preLoaderRoute: typeof modulesMcpPresentationRoutesAllowDotrouteRouteImport
+      parentRoute: typeof modulesIdentityPresentationRoutesSessionDotrouteRoute
+    }
     '/_session/_shell/labels/$name': {
       id: '/_session/_shell/labels/$name'
       path: '/labels/$name'
@@ -390,6 +410,7 @@ interface modulesIdentityPresentationRoutesSessionDotrouteRouteChildren {
   modulesIdentityPresentationRoutesLoginDotrouteRoute: typeof modulesIdentityPresentationRoutesLoginDotrouteRoute
   modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute
   modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute: typeof modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute
+  modulesMcpPresentationRoutesAllowDotrouteRoute: typeof modulesMcpPresentationRoutesAllowDotrouteRoute
 }
 
 const modulesIdentityPresentationRoutesSessionDotrouteRouteChildren: modulesIdentityPresentationRoutesSessionDotrouteRouteChildren =
@@ -402,6 +423,8 @@ const modulesIdentityPresentationRoutesSessionDotrouteRouteChildren: modulesIden
       modulesIdentityPresentationRoutesAndroidSignInDotrouteRoute,
     modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute:
       modulesIdentityPresentationRoutesDesktopSignInDotrouteRoute,
+    modulesMcpPresentationRoutesAllowDotrouteRoute:
+      modulesMcpPresentationRoutesAllowDotrouteRoute,
   }
 
 const modulesIdentityPresentationRoutesSessionDotrouteRouteWithChildren =
