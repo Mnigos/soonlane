@@ -10,7 +10,6 @@ import {
 } from 'better-auth/api'
 import { symmetricDecrypt } from 'better-auth/crypto'
 import { bearer } from 'better-auth/plugins'
-import type { NodePgDatabase } from 'drizzle-orm/node-postgres'
 import {
 	GOOGLE_AUTH_TIME_CLAIMS,
 	isBearerRequest,
@@ -18,17 +17,14 @@ import {
 } from './account-deletion.handler'
 import { androidSignIn } from './android-sign-in.handler'
 import { canSignUp } from './auth-policy.helper'
+import type { CreateAuthOptions } from './create-auth.types'
 import { AUTH_BASE_PATH, DESKTOP_TOKEN_PATH } from './desktop-sign-in.constants'
 import { desktopSignIn } from './desktop-sign-in.handler'
 import {
 	EMAIL_CODE_SEND_PATH,
 	EMAIL_CODE_SIGN_IN_PATH,
 } from './email-code.constants'
-import {
-	type EmailCodeOptions,
-	emailCodeSignIn,
-	UNUSED_EMAIL_CODE_PATHS,
-} from './email-code.handler'
+import { emailCodeSignIn, UNUSED_EMAIL_CODE_PATHS } from './email-code.handler'
 import {
 	EXPO_GO_SCHEME,
 	MOBILE_APP_SCHEME,
@@ -38,10 +34,14 @@ import {
 import { refuseUnvouchedGoogleLink } from './google-link.handler'
 import { redactLogArgument } from './log-redaction.helper'
 import {
+	MCP_AUTHORIZATION_SCHEMA,
+	mcpAuthorization,
+	UNUSED_MCP_AUTHORIZATION_PATHS,
+} from './mcp-authorization.handler'
+import {
 	ANDROID_EXCHANGE_PATH,
 	EXPO_PROXY_PATH,
 } from './mobile-sign-in.constants'
-import type { OAuthClientOptions } from './oauth-client.types'
 import { returnAddresses } from './return-address.handler'
 import type { SignInMethod } from './sign-in-method.types'
 import { getSignedInHintCookie } from './signed-in-hint.helper'
@@ -51,60 +51,16 @@ import {
 	TODOIST_STILL_CONNECTED,
 } from './todoist.constants'
 
+export type {
+	AuthEvents,
+	AuthLogger,
+	AuthLogLevel,
+	CreateAuthOptions,
+} from './create-auth.types'
 export type { SignInCodeMail } from './email-code.handler'
 
 /** The one header Better Auth reads the client IP from; the API's HTTP entry sets it and drops any copy a client sends. */
 export const CLIENT_IP_HEADER = 'x-soonlane-client-ip'
-
-export type AuthLogLevel = 'debug' | 'info' | 'warn' | 'error'
-
-export type AuthLogger = (
-	level: AuthLogLevel,
-	message: unknown,
-	...args: unknown[]
-) => void
-
-/** `headers` are the request's, when it came over HTTP. */
-export interface AuthEvents {
-	userCreated: (
-		user: { id: string; createdAt: Date },
-		headers?: Headers
-	) => Promise<void>
-	sessionCreated: (
-		userId: string,
-		method: SignInMethod,
-		headers?: Headers
-	) => Promise<void>
-	/** Runs when `/delete-user` has passed its checks, before anything of the user is deleted; a rejection keeps the account whole. */
-	userDeleting: (userId: string) => Promise<void>
-}
-
-export interface CreateAuthOptions {
-	database: NodePgDatabase
-	/** The API's origin. */
-	baseUrl: string
-	/** The web origins that may call the API and receive the user back after sign-in; exact origins only. */
-	trustedOrigins: readonly string[]
-	/** Development only: Expo Go's `exp:` links also count as the mobile app's return addresses. */
-	trustExpoGo?: boolean
-	/** Names every cookie of the environment (`<prefix>.session_token`), so production's and staging's never share a name. */
-	cookiePrefix: string
-	/** The registrable domain the cookies cover (`soonlane.com`); unset, they stay on the API's host, as on localhost. */
-	cookieDomain?: string
-	/** Where Better Auth sends the browser after an error it cannot return to the app itself. */
-	errorUrl: string
-	secret: string
-	allowedEmails: readonly string[]
-	/** Unset, nobody signs in with Google. */
-	google?: OAuthClientOptions
-	/** Unset, nobody signs in with an email code. */
-	emailCode?: EmailCodeOptions
-	/** Unset, Todoist cannot be linked. */
-	todoist?: OAuthClientOptions
-	log: AuthLogger
-	events: AuthEvents
-}
-
 const RATE_LIMIT_WINDOW_S = 60
 const SIGN_IN_RATE_LIMIT = { window: RATE_LIMIT_WINDOW_S, max: 10 }
 /** Endpoints that hand a stored provider token to the browser or remove a linked account, which the app does not use (the API reads tokens server-side), and the emailOTP endpoints it does not use. */
@@ -114,6 +70,7 @@ const DISABLED_PATHS = [
 	'/account-info',
 	'/unlink-account',
 	...UNUSED_EMAIL_CODE_PATHS,
+	...UNUSED_MCP_AUTHORIZATION_PATHS,
 ]
 
 function readProvider(body: unknown) {
@@ -196,10 +153,17 @@ export function createAuth(options: CreateAuthOptions) {
 			...appSchemes.map(scheme => `${scheme}//`),
 		],
 		disabledPaths: DISABLED_PATHS,
-		onAPIError: { errorURL: options.errorUrl },
+		onAPIError: { errorURL: `${options.appUrl}/login` },
 		database: drizzleAdapter(options.database, {
 			provider: 'pg',
-			schema: { account, rateLimit, session, user, verification },
+			schema: {
+				account,
+				rateLimit,
+				session,
+				user,
+				verification,
+				...MCP_AUTHORIZATION_SCHEMA,
+			},
 		}),
 		advanced: {
 			database: { generateId: 'uuid' },
@@ -376,6 +340,11 @@ export function createAuth(options: CreateAuthOptions) {
 						emailCode: options.emailCode,
 					})
 				: []),
+			...mcpAuthorization({
+				baseUrl: options.baseUrl,
+				appUrl: options.appUrl,
+				dynamicRegistration: options.dynamicMcpRegistration ?? false,
+			}),
 			// Last, so its after hook strips the browser's cookies after every other plugin's callback hook.
 			expoSignIn(appSchemes),
 		],

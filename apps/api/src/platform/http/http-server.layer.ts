@@ -1,4 +1,4 @@
-import { AUTH_BASE_PATH } from '@soonlane/auth'
+import { MCP_DISCOVERY_PATHS, AUTH_BASE_PATH } from '@soonlane/auth'
 import { Context, Effect, Layer, Redacted } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { proxyToPostHog } from '@/modules/analytics/presentation/posthog-proxy.handler'
@@ -27,6 +27,7 @@ const IDLE_TIMEOUT_SECONDS = 60
  * environment and commit and never touches the database, so a database outage cannot block a deploy.
  * Auth and RPC answer CORS first (`withCors`), then resolve the client IP (`withClientIp`); the calendar feed needs neither.
  * `/ingest` forwards the app's and the landing's PostHog requests (`withIngestCors`) and answers 404 without a PostHog key.
+ * The agents' discovery documents live at the host root, outside `/api/auth`; Better Auth answers them before its base path check.
  */
 export const HttpServerLive = Layer.effectDiscard(
 	Effect.gen(function* () {
@@ -97,6 +98,9 @@ export const HttpServerLive = Layer.effectDiscard(
 							POST: handleAuth,
 							OPTIONS: handleAuth,
 						},
+						...Object.fromEntries(
+							MCP_DISCOVERY_PATHS.map(path => [path, handleAuth])
+						),
 						[`${RPC_PREFIX}/*`]: handleRpc,
 						'/calendar/*': createCalendarFeedHandler(services),
 						'/ingest/*': {

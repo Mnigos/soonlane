@@ -45,11 +45,11 @@ export const BetterAuthLive = Layer.effect(
 		const auth = createAuth({
 			database: db.database,
 			baseUrl: config.baseUrl,
+			appUrl: config.appUrl,
 			trustedOrigins: config.trustedOrigins,
 			trustExpoGo: config.environment === 'development',
 			cookiePrefix: config.cookiePrefix,
 			cookieDomain: config.cookieDomain,
-			errorUrl: `${config.appUrl}/login`,
 			secret: Redacted.value(config.authSecret),
 			allowedEmails: config.allowedEmails,
 			google: config.google && {

@@ -1,5 +1,7 @@
 export * from './src/account-deletion.constants'
 export * from './src/account-deletion.helper'
+export * from './src/mcp-authorization.constants'
+export * from './src/mcp-client.helper'
 export * from './src/auth-policy.helper'
 export * from './src/desktop-sign-in.constants'
 export * from './src/desktop-sign-in.helper'
