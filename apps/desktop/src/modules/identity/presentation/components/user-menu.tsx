@@ -1,4 +1,5 @@
 import { CalendarSubscriptionDialog } from '@soonlane/app/calendar/components/calendar-subscription-dialog'
+import { McpConnectionsDialog } from '@soonlane/app/mcp/components/mcp-connections-dialog'
 import { orpcQuery } from '@soonlane/app/rpc-query'
 import { TODOIST_IMPORT_PATH } from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
@@ -6,6 +7,7 @@ import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+	Bot,
 	CalendarSync,
 	ChevronDown,
 	Import,
@@ -38,6 +40,7 @@ interface UserMenuProps {
 export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isSubscribingCalendar, setIsSubscribingCalendar] = useState(false)
+	const [isListingMcpConnections, setIsListingMcpConnections] = useState(false)
 	const [isDeletingAccount, setIsDeletingAccount] = useState(false)
 	const queryClient = useQueryClient()
 	const { data: todoist } = useQuery(orpcQuery.todoist.status.queryOptions())
@@ -98,6 +101,15 @@ export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 						Calendar link
 					</button>
 
+					<button
+						className={MENU_ITEM_CLASS}
+						onClick={() => setIsListingMcpConnections(true)}
+						type="button"
+					>
+						<Bot aria-hidden className="size-4 text-muted-foreground" />
+						Connected agents
+					</button>
+
 					{todoist?.configured && (
 						<a
 							className={MENU_ITEM_CLASS}
@@ -149,6 +161,12 @@ export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 			{isSubscribingCalendar && (
 				<CalendarSubscriptionDialog
 					onClose={() => setIsSubscribingCalendar(false)}
+				/>
+			)}
+
+			{isListingMcpConnections && (
+				<McpConnectionsDialog
+					onClose={() => setIsListingMcpConnections(false)}
 				/>
 			)}
 

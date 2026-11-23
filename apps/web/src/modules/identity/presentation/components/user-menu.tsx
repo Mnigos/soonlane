@@ -1,11 +1,13 @@
 import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
 import { CONSENT_COPY } from '@soonlane/analytics/consent-copy'
 import { CalendarSubscriptionDialog } from '@soonlane/app/calendar/components/calendar-subscription-dialog'
+import { McpConnectionsDialog } from '@soonlane/app/mcp/components/mcp-connections-dialog'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
 import { useNavigate } from '@tanstack/react-router'
 import {
+	Bot,
 	CalendarSync,
 	ChevronDown,
 	Keyboard,
@@ -39,6 +41,7 @@ export function UserMenu({
 }: Readonly<UserMenuProps>) {
 	const [isOpen, setIsOpen] = useState(false)
 	const [isSubscribingCalendar, setIsSubscribingCalendar] = useState(false)
+	const [isListingMcpConnections, setIsListingMcpConnections] = useState(false)
 	const navigate = useNavigate()
 	const { mutate: signOut, isPending, error } = useSignOutMutation()
 
@@ -101,6 +104,15 @@ export function UserMenu({
 						Calendar link
 					</button>
 
+					<button
+						className={MENU_ITEM_CLASS}
+						onClick={() => setIsListingMcpConnections(true)}
+						type="button"
+					>
+						<Bot aria-hidden className="size-4 text-muted-foreground" />
+						Connected agents
+					</button>
+
 					<TodoistMenuItem className={MENU_ITEM_CLASS} />
 
 					{/* Phones have no keyboard to use the shortcuts with. */}
@@ -143,6 +155,12 @@ export function UserMenu({
 			{isSubscribingCalendar && (
 				<CalendarSubscriptionDialog
 					onClose={() => setIsSubscribingCalendar(false)}
+				/>
+			)}
+
+			{isListingMcpConnections && (
+				<McpConnectionsDialog
+					onClose={() => setIsListingMcpConnections(false)}
 				/>
 			)}
 

@@ -8,6 +8,8 @@ import { EmailLive } from '@/modules/email/infrastructure/email.layer'
 import { BetterAuthLive } from '@/modules/identity/infrastructure/better-auth.layer'
 import { LabelsServiceLive } from '@/modules/labels/application/labels.service'
 import { LabelRepositoryLive } from '@/modules/labels/infrastructure/label.repository'
+import { McpServiceLive } from '@/modules/mcp/application/mcp.service'
+import { McpConnectionRepositoryLive } from '@/modules/mcp/infrastructure/mcp-connection.repository'
 import { ProjectsServiceLive } from '@/modules/projects/application/projects.service'
 import { ProjectRepositoryLive } from '@/modules/projects/infrastructure/project.repository'
 import { TasksServiceLive } from '@/modules/tasks/application/tasks.service'
@@ -22,6 +24,7 @@ import { HttpServerLive } from './http/http-server.layer'
 
 /** Everything a request handler reaches: the services, the adapters behind their ports, the repositories and the shared infrastructure. */
 export const ServicesLive = Layer.mergeAll(
+	McpServiceLive.pipe(Layer.provide(McpConnectionRepositoryLive)),
 	TodoistServiceLive.pipe(
 		Layer.provide(
 			Layer.mergeAll(
