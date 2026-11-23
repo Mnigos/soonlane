@@ -97,6 +97,26 @@ function configFailure(message: string) {
 	return Config.fail(new ConfigProvider.SourceError({ message }))
 }
 
+function isLoopbackHost(hostname: string) {
+	return (
+		hostname === 'localhost' ||
+		hostname.endsWith('.localhost') ||
+		hostname === '[::1]' ||
+		/^127\.\d+\.\d+\.\d+$/u.test(hostname)
+	)
+}
+
+/** The API's origin, also the base of the MCP resource, which Better Auth's MCP plugin accepts only over HTTPS, or HTTP on a loopback host. */
+const apiOriginConfig = Config.URL('API_URL').pipe(
+	Config.flatMap(({ protocol, hostname, origin }) =>
+		protocol === 'https:' || (protocol === 'http:' && isLoopbackHost(hostname))
+			? Config.succeed(origin)
+			: configFailure(
+					'API_URL must be an https:// origin, or http:// on localhost'
+				)
+	)
+)
+
 /** An optional app version; a malformed one stops the start with the variable's name. */
 function minimumVersionConfig(name: string) {
 	return Config.option(
@@ -194,7 +214,7 @@ const appConfig = Config.all({
 	commit: Config.NonEmptyString('RAILWAY_GIT_COMMIT_SHA').pipe(
 		Config.orElse(() => Config.NonEmptyString('APP_COMMIT'))
 	),
-	baseUrl: originConfig('API_URL'),
+	baseUrl: apiOriginConfig,
 	// The web app's origin: the target of Better Auth's errors and the host of event links; calendar subscription links use API_URL.
 	appUrl: originConfig('APP_URL'),
 	// The landing's origin, which may send PostHog events through `/ingest`.

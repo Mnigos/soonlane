@@ -9,6 +9,7 @@
     "./host-app": "./src/host-app.context.ts",
     "./host-ports": "./src/host-ports.client.ts",
     "./rpc-query": "./src/rpc-query.client.ts",
+    "./mcp/components/*": "./src/modules/mcp/components/*.tsx",
     "./calendar/components/*": "./src/modules/calendar/components/*.tsx",
     "./labels/helpers/*": "./src/modules/labels/helpers/*.ts",
     "./labels/hooks/*": "./src/modules/labels/hooks/*.ts",

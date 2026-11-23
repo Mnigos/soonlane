@@ -1,3 +1,4 @@
+export * from './src/mcp.contract'
 export * from './src/app.contract'
 export * from './src/auth.errors'
 export * from './src/calendar.contract'

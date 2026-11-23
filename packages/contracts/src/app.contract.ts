@@ -1,12 +1,14 @@
 import { calendarContract } from './calendar.contract'
 import { identityContract } from './identity.contract'
 import { labelsContract } from './labels.contract'
+import { mcpContract } from './mcp.contract'
 import { projectsContract } from './projects.contract'
 import { systemContract } from './system.contract'
 import { tasksContract } from './tasks.contract'
 import { todoistContract } from './todoist.contract'
 
 export const contract = {
+	mcp: mcpContract,
 	calendar: calendarContract,
 	identity: identityContract,
 	labels: labelsContract,
