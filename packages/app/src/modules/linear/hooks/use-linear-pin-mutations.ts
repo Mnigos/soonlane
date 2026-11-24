@@ -10,15 +10,20 @@ interface PinOutput {
 	task: Task
 }
 
-/** Pin and unpin a task's Linear issues; each answer is the task, written into the open lists at once before they refetch. */
+/** Pin and unpin a task's Linear issues; each answer is the task, written into the open lists and its `tasks.get` entry at once. */
 export function useLinearPinMutations() {
 	const queryClient = useQueryClient()
 	const callbacks = {
-		onSuccess: ({ task }: PinOutput) =>
+		onSuccess: ({ task }: PinOutput) => {
 			queryClient.setQueriesData<ListTasksOutput>(
 				{ queryKey: orpcQuery.tasks.list.key() },
 				list => list && withUpdatedTask(list, task)
-			),
+			)
+			queryClient.setQueryData(
+				orpcQuery.tasks.get.queryKey({ input: { id: task.id } }),
+				{ task }
+			)
+		},
 		onSettled: async () => await refreshTaskLists(queryClient),
 	}
 
