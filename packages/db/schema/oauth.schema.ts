@@ -208,6 +208,8 @@ export const oauthConsent = pgTable(
 		scopes: text('scopes').array().notNull(),
 		createdAt: timestamp('created_at'),
 		updatedAt: timestamp('updated_at'),
+		/** Soonlane's own: when the agent last called the MCP endpoint under this connection, written at most once a minute; the provider never reads it. */
+		lastUsedAt: timestamp('last_used_at'),
 	},
 	table => [
 		index('oauth_consent_client_idx').on(table.clientId),
