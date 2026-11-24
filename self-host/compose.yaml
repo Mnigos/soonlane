@@ -38,10 +38,12 @@ services:
       API_PROXY_SECRET: ${API_PROXY_SECRET:?set API_PROXY_SECRET in .env}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:?set GOOGLE_CLIENT_ID in .env}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:?set GOOGLE_CLIENT_SECRET in .env}
-      # Optional: passed on only when .env sets them; an empty Todoist variable would stop the start.
+      # Optional: passed on only when .env sets them; an empty Todoist or Linear variable would stop the start.
       ALLOWED_EMAILS:
       TODOIST_CLIENT_ID:
       TODOIST_CLIENT_SECRET:
+      LINEAR_CLIENT_ID:
+      LINEAR_CLIENT_SECRET:
     stop_grace_period: 30s
     healthcheck:
       test: [CMD, wget, -q, -O, /dev/null, http://127.0.0.1:8080/health]

@@ -140,6 +140,8 @@ export default defineRailway(ctx => {
 			MOBILE_MINIMUM_VERSION: preserve(),
 			TODOIST_CLIENT_ID: preserve(),
 			TODOIST_CLIENT_SECRET: preserve(),
+			LINEAR_CLIENT_ID: preserve(),
+			LINEAR_CLIENT_SECRET: preserve(),
 		},
 	})
 
