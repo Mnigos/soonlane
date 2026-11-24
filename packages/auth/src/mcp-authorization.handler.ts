@@ -28,6 +28,7 @@ import {
 	MCP_PATH,
 	OFFLINE_ACCESS_SCOPE,
 } from './mcp-authorization.constants'
+import { clearEarlierMcpGrants } from './mcp-grant.handler'
 
 export interface McpAuthorizationOptions {
 	/** The API's origin: the issuer, and with `MCP_PATH` the resource. */
@@ -129,9 +130,22 @@ function registrationGuard() {
 	} satisfies BetterAuthPlugin
 }
 
+/** The client an Allow page answer allows, from the signed request it carries; `undefined` for a Cancel. */
+function readAllowedClient(body: unknown) {
+	if (typeof body !== 'object' || body === null) return undefined
+	if (!('accept' in body && body.accept === true)) return undefined
+
+	const query = 'oauth_query' in body ? body.oauth_query : undefined
+
+	return typeof query === 'string'
+		? (new URLSearchParams(query).get('client_id') ?? undefined)
+		: undefined
+}
+
 /**
  * Refuses an Allow page answer unless it names the account of the session it is posted with, before the provider stores a consent:
  * a page left open while another tab signed in to another account would otherwise grant that account's tasks under the first one's name.
+ * An Allow for an agent the user has no connection to then starts that connection with nothing issued before it (`clearEarlierMcpGrants`).
  */
 function consentAccountGuard() {
 	return {
@@ -163,10 +177,20 @@ function consentAccountGuard() {
 						const session = await getSessionFromCtx(ctx)
 
 						// Without a session the endpoint itself answers 401.
-						if (session && session.user.id !== userId)
+						if (!session) return
+						if (session.user.id !== userId)
 							throw new APIError('CONFLICT', {
 								code: MCP_ACCOUNT_CHANGED,
 								message: 'The page showed another account than this session.',
+							})
+
+						const clientId = readAllowedClient(body)
+
+						// The signature is checked after this hook; a forged client id only clears credentials of a client the user has no connection to.
+						if (clientId)
+							await clearEarlierMcpGrants(ctx.context.adapter, {
+								userId: session.user.id,
+								clientId,
 							})
 					}),
 				},
