@@ -3,7 +3,7 @@ import type { AppServices } from '@/platform/app.runtime'
 import type { McpGrant } from '../application/mcp.service'
 import { McpToolInputInvalid } from '../domain/mcp-tool.errors'
 
-/** The tools the read scope registers; a `tools/call` naming one of them is logged by name, any other name never is. */
+/** The tools `tasks:read` registers. A `tools/call` is logged by name only when it names a tool the request registered or a write tool on a read-only grant. */
 export const READ_TOOL_NAMES = [
 	'list_tasks',
 	'search_tasks',
@@ -13,7 +13,20 @@ export const READ_TOOL_NAMES = [
 	'list_projects',
 	'list_labels',
 ] as const
-export type McpToolName = (typeof READ_TOOL_NAMES)[number]
+/** The tools `tasks:write` adds; on a read-only grant a call naming one gets the reconnect answer instead of the SDK's unknown tool. */
+export const WRITE_TOOL_NAMES = [
+	'create_task',
+	'update_task',
+	'complete_task',
+	'uncomplete_task',
+	'reschedule_tasks',
+	'assign_label',
+	'unassign_label',
+	'log_progress',
+] as const
+export type McpToolName =
+	| (typeof READ_TOOL_NAMES)[number]
+	| (typeof WRITE_TOOL_NAMES)[number]
 
 /** Runs a tool's effect with the app's services and turns its value or failure into the tool's result. */
 export type McpToolRunner = <TValue, TError>(
