@@ -26,12 +26,12 @@ Facts checked on 2026-11-24 against the locked Better Auth 1.7.27 (`node_modules
 - `linear.status` answers not configured, not connected, connected with the workspace's name (one GraphQL read, made when the user menu opens) or lapsed.
 - Disconnect, in the user menu, revokes both tokens at Linear and deletes the row only when each came back revoked (200), unknown to Linear (401) or revoked before (a 400 whose body says so), which closes a lapsed connection whenever Linear answers in those words. Any other answer keeps the row, logs the status with Linear's short `error` string, and returns an error, so the user can retry. Account deletion revokes both tokens best effort in an account delete hook of the `linear-link` plugin, which runs after deletion's checks pass and before the rows go.
 - The desktop app opens `/linear` in the system browser, where the OAuth state cookie and the session live ([ADR 0007](0007-desktop-sign-in-through-the-system-browser.md)).
-- Pins (next, SOON-28) keep the issue's ID, identifier, title and URL from the moment of pinning, so they still read and open without a connection. Status is never stored; it is fetched live for one task's pins in one GraphQL request.
+- Pins (SOON-28) keep the issue's ID, identifier, title and URL from the moment of pinning, so they still read and open without a connection. Status is never stored; it is fetched live for one task's pins in one GraphQL request.
 
 ## Consequences
 
 - An encrypted Linear refresh token sits in the database for as long as the user stays connected. A dump without `AUTH_SECRET` does not reveal it; rotating `AUTH_SECRET` makes it unreadable, the connection reads as lapsed, and Disconnect deletes the row without revoking, since nobody can revoke a token that cannot be read.
-- Opening the user menu with Linear connected costs one Linear request; opening an edit card with pins will cost one more. A Linear outage hides the Linear item while it lasts.
+- Opening the user menu with Linear connected costs one Linear request; opening an edit card with pins costs one more. A Linear outage hides the Linear item while it lasts.
 - A user who leaves Soonlane for 30 days reconnects once.
 - `read` covers every team the user can see in Linear; Soonlane cannot narrow it to one team.
 - A second API replica would need a lock shared through the database instead of the process. A status read due for a refresh waits behind a refresh or Disconnect in progress, at most 15 seconds; a status read with a fresh token racing a Disconnect reads lapsed until the next read. 
