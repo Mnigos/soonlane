@@ -22,8 +22,9 @@ Soonlane is a personal, Upcoming-first task list. It keeps the parts of Todoist 
 - **Subtasks**: a task can be broken into subtasks, up to 4 levels deep and 50 per task, completed ones included. A subtask is a full task with its top-level task's project; it starts without a date and shows only under its parent task until it gets one. Completing a task completes its open subtasks, and Undo reopens them; a repeating task moving to its next occurrence reopens its subtasks and moves their dates along. Deleting a task deletes its subtasks.
 - **Projects**: named lists, listed in the sidebar; a task belongs to at most one project and keeps its labels; each project's view (`/projects/$name`) lists its open tasks without a date, then by day. A task without a project is the normal case. Projects are free on every plan. Deleting a project keeps its tasks; they only lose the project.
 - **Calendar subscription** (Pro): one private, read-only link per account that shows open tasks on their days in Apple Calendar or any calendar app; replaced or revoked from the user menu.
+- **Agents** (Pro, not gated yet): AI apps such as Claude Code, Codex, claude.ai and ChatGPT connect to Soonlane's MCP server after the user allows them, to see tasks, projects and labels, or to see and edit tasks; never to delete. "Connected agents" in the user menu lists them and disconnects one.
 - **Sign in with Google**; anyone can sign up, and anyone can delete their account with all its tasks.
-- **Plans**: Free and Pro. The task list (Inbox, Upcoming, Today, labels, projects, the Mac app) is free; integrations, starting with the calendar subscription, need Pro.
+- **Plans**: Free and Pro. The task list (Inbox, Upcoming, Today, labels, projects, the Mac app) is free; integrations, starting with the calendar subscription and agents, need Pro.
 
 Out of scope: filters, reporting, sharing, collaboration, comments, reminders by email.
 
