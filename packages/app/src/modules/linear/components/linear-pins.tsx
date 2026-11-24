@@ -39,78 +39,86 @@ export function LinearPins({ task }: Readonly<LinearPinsProps>) {
 	if (ids.length === 0) return null
 
 	return (
-		<ul className="mt-2.5 mb-1 flex flex-wrap gap-1.5">
-			{task.linearPins.map(pin => {
-				const live = liveById.get(pin.issueId)
-				const icon = <LinearStatusIcon state={live?.state} />
+		<>
+			<ul className="mt-2.5 mb-1 flex flex-wrap gap-1.5">
+				{task.linearPins.map(pin => {
+					const live = liveById.get(pin.issueId)
+					const icon = <LinearStatusIcon state={live?.state} />
 
-				return (
-					<li
-						className="group flex h-7 max-w-full min-w-0 items-center gap-1.5 rounded-md border pr-1.5 pl-2 text-label text-secondary-foreground transition-colors focus-within:bg-hover hover:bg-hover"
-						key={pin.issueId}
-					>
-						<a
-							className="flex min-w-0 items-center gap-1.5 outline-none focus-visible:underline"
-							href={pin.url}
-							rel="noreferrer"
-							target="_blank"
+					return (
+						<li
+							className="group flex h-7 max-w-full min-w-0 items-center gap-1.5 rounded-md border pr-1.5 pl-2 text-label text-secondary-foreground transition-colors focus-within:bg-hover hover:bg-hover"
+							key={pin.issueId}
 						>
-							{live || (!data && !isError) ? (
-								icon
-							) : (
-								<Tooltip
-									label={
-										needsReconnect
-											? LINEAR_COPY.reconnectTooltip
-											: LINEAR_COPY.statusUnavailable
-									}
-								>
-									<span className="flex">{icon}</span>
-								</Tooltip>
-							)}
-
-							<span className="shrink-0 tabular-nums">{pin.identifier}</span>
-
-							<span
-								className={cn(
-									'ph-mask max-w-48 truncate',
-									live && 'text-foreground'
-								)}
-							>
-								{live?.title ?? pin.title}
-							</span>
-						</a>
-
-						{needsReconnect && (
 							<a
-								className="shrink-0 text-caption text-primary-text hover:underline focus-visible:underline"
-								href={linearConnectHref}
+								className="flex min-w-0 items-center gap-1.5 outline-none focus-visible:underline"
+								href={pin.url}
+								rel="noreferrer"
+								target="_blank"
 							>
-								{LINEAR_COPY.reconnect}
-							</a>
-						)}
+								{live || (!data && !isError) ? (
+									icon
+								) : (
+									<Tooltip
+										label={
+											needsReconnect
+												? LINEAR_COPY.reconnectTooltip
+												: LINEAR_COPY.statusUnavailable
+										}
+									>
+										<span className="flex">{icon}</span>
+									</Tooltip>
+								)}
 
-						<button
-							aria-label={LINEAR_COPY.unpinLabel.replace(
-								'{id}',
-								pin.identifier
+								<span className="shrink-0 tabular-nums">{pin.identifier}</span>
+
+								<span
+									className={cn(
+										'ph-mask max-w-48 truncate',
+										live && 'text-foreground'
+									)}
+								>
+									{live?.title ?? pin.title}
+								</span>
+							</a>
+
+							{needsReconnect && (
+								<a
+									className="shrink-0 text-caption text-primary-text hover:underline focus-visible:underline"
+									href={linearConnectHref}
+								>
+									{LINEAR_COPY.reconnect}
+								</a>
 							)}
-							className="flex size-4.5 shrink-0 cursor-pointer items-center justify-center rounded-sm text-faint-foreground opacity-0 transition-colors group-focus-within:opacity-100 group-hover:opacity-100 hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
-							disabled={unpin.isPending}
-							onClick={() =>
-								unpin.mutate({ id: task.id, issueId: pin.issueId })
-							}
-							type="button"
-						>
-							<X
-								aria-hidden
-								className="size-3"
-								strokeWidth={CHIP_ICON_STROKE}
-							/>
-						</button>
-					</li>
-				)
-			})}
-		</ul>
+
+							<button
+								aria-label={LINEAR_COPY.unpinLabel.replace(
+									'{id}',
+									pin.identifier
+								)}
+								className="flex size-4.5 shrink-0 cursor-pointer items-center justify-center rounded-sm text-faint-foreground opacity-0 transition-colors group-focus-within:opacity-100 group-hover:opacity-100 hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+								disabled={unpin.isPending}
+								onClick={() =>
+									unpin.mutate({ id: task.id, issueId: pin.issueId })
+								}
+								type="button"
+							>
+								<X
+									aria-hidden
+									className="size-3"
+									strokeWidth={CHIP_ICON_STROKE}
+								/>
+							</button>
+						</li>
+					)
+				})}
+			</ul>
+
+			{unpin.isError && (
+				<p className="mb-1 text-caption text-danger" role="alert">
+					{LINEAR_COPY.unpinFailed}
+				</p>
+			)}
+		</>
 	)
 }

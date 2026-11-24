@@ -1,6 +1,5 @@
 import { isDefinedError } from '@orpc/client'
 import type { LinearPin, Task } from '@soonlane/contracts'
-import { LINEAR_PINS_PER_TASK_MAX } from '@soonlane/domain'
 import {
 	Combobox,
 	ComboboxInput,
@@ -46,7 +45,6 @@ export function LinearIssuePicker({
 	inputRef,
 }: Readonly<LinearIssuePickerProps>) {
 	const [query, setQuery] = useState('')
-	const [isAtLimit, setIsAtLimit] = useState(false)
 	const { linearConnectHref } = useHostApp()
 	const debouncedQuery = useDebouncedValue(query.trim(), SEARCH_DELAY_MS)
 	const { data, isError } = useQuery(
@@ -56,8 +54,12 @@ export function LinearIssuePicker({
 		})
 	)
 	const { pin, unpin } = mutations
-	const isLimitError =
-		isAtLimit || (isDefinedError(pin.error) && pin.error.code === 'CONFLICT')
+	const errorText =
+		isDefinedError(pin.error) && pin.error.code === 'CONFLICT'
+			? LINEAR_COPY.limitReached
+			: pin.isError
+				? LINEAR_COPY.pinFailed
+				: unpin.isError && LINEAR_COPY.unpinFailed
 
 	if (data && data.state !== 'connected')
 		return (
@@ -104,14 +106,10 @@ export function LinearIssuePicker({
 					pinned => !nextPins.some(({ issueId }) => issueId === pinned.issueId)
 				)
 
-				setIsAtLimit(
-					added !== undefined &&
-						task.linearPins.length >= LINEAR_PINS_PER_TASK_MAX
-				)
 				pin.reset()
+				unpin.reset()
 				if (removed) unpin.mutate({ id: task.id, issueId: removed.issueId })
-				if (added && task.linearPins.length < LINEAR_PINS_PER_TASK_MAX)
-					pin.mutate({ id: task.id, issueId: added.issueId })
+				if (added) pin.mutate({ id: task.id, issueId: added.issueId })
 			}}
 			open
 			value={task.linearPins}
@@ -161,9 +159,9 @@ export function LinearIssuePicker({
 
 			{isError && <p className={PICKER_NOTE_CLASS}>{LINEAR_COPY.loadFailed}</p>}
 
-			{(isLimitError || pin.isError) && (
+			{errorText && (
 				<p className="px-3 py-2 text-caption text-danger" role="alert">
-					{isLimitError ? LINEAR_COPY.limitReached : LINEAR_COPY.pinFailed}
+					{errorText}
 				</p>
 			)}
 

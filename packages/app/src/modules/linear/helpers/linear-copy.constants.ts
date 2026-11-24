@@ -26,6 +26,7 @@ export const LINEAR_COPY = {
 	loadFailed: "Couldn't load issues from Linear. Try again.",
 	limitReached: 'You can pin up to 10 Linear issues to a task.',
 	pinFailed: "Couldn't pin this issue. Try again.",
+	unpinFailed: "Couldn't unpin this issue. Try again.",
 	unpinLabel: 'Unpin {id}',
 	connectPrompt: 'Connect Linear to pin issues to your tasks.',
 	connectHint:
