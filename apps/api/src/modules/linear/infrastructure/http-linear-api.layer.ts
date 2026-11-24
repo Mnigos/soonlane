@@ -180,7 +180,7 @@ export const HttpLinearApiLive = Layer.succeed(
 				'LinearApi.listIssues',
 				request(
 					accessToken,
-					`query ($ids: [ID!], $first: Int) { issues(first: $first, filter: { id: { in: $ids } }) { nodes { ${ISSUE_FIELDS} } } }`,
+					`query ($ids: [ID!], $first: Int) { issues(first: $first, includeArchived: true, filter: { id: { in: $ids } }) { nodes { ${ISSUE_FIELDS} } } }`,
 					{ ids, first: ids.length },
 					Schema.Struct({ issues: issueNodesSchema })
 				).pipe(Effect.map(({ issues }) => issues.nodes.map(toIssue)))
