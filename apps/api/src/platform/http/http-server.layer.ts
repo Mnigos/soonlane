@@ -1,9 +1,10 @@
-import { MCP_DISCOVERY_PATHS, AUTH_BASE_PATH } from '@soonlane/auth'
+import { MCP_DISCOVERY_PATHS, AUTH_BASE_PATH, MCP_PATH } from '@soonlane/auth'
 import { Context, Effect, Layer, Redacted } from 'effect'
 import { Analytics } from '@/modules/analytics/application/analytics.port'
 import { proxyToPostHog } from '@/modules/analytics/presentation/posthog-proxy.handler'
 import { createCalendarFeedHandler } from '@/modules/calendar/presentation/calendar-feed.handler'
 import { Auth } from '@/modules/identity/application/auth.port'
+import { createMcpRequestHandler } from '@/modules/mcp/presentation/mcp.handler'
 import type { AppServices } from '../app.runtime'
 import { AppConfig } from '../config/app.config'
 import { RPC_PREFIX } from '../rpc/rpc-prefix.constants'
@@ -28,6 +29,7 @@ const IDLE_TIMEOUT_SECONDS = 60
  * Auth and RPC answer CORS first (`withCors`), then resolve the client IP (`withClientIp`); the calendar feed needs neither.
  * `/ingest` forwards the app's and the landing's PostHog requests (`withIngestCors`) and answers 404 without a PostHog key.
  * The agents' discovery documents live at the host root, outside `/api/auth`; Better Auth answers them before its base path check.
+ * `/mcp` serves MCP clients, never browsers, so it takes neither CORS nor the client IP.
  */
 export const HttpServerLive = Layer.effectDiscard(
 	Effect.gen(function* () {
@@ -103,6 +105,7 @@ export const HttpServerLive = Layer.effectDiscard(
 						),
 						[`${RPC_PREFIX}/*`]: handleRpc,
 						'/calendar/*': createCalendarFeedHandler(services),
+						[MCP_PATH]: createMcpRequestHandler(services),
 						'/ingest/*': {
 							GET: handleIngest,
 							POST: handleIngest,
