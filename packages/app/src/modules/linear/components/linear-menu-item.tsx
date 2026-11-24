@@ -9,6 +9,7 @@ import {
 } from '@soonlane/ui/components/menu'
 import { useQuery } from '@tanstack/react-query'
 import { ChevronRight, Link2 } from 'lucide-react'
+import { useHostApp } from '../../../hooks/use-host-app'
 import { orpcQuery } from '../../../rpc-query.client'
 import { LINEAR_COPY } from '../helpers/linear-copy.constants'
 import { useDisconnectLinearMutation } from '../hooks/use-disconnect-linear-mutation'
@@ -20,15 +21,11 @@ const SUBMENU_COLLISION_AVOIDANCE = { fallbackAxisSide: 'end' } as const
 
 interface LinearMenuItemProps {
 	className: string
-	/** The web page that starts the link; the desktop app passes its absolute URL, which opens in the system browser. */
-	connectHref: string
 }
 
 /** The user menu's Linear row, hidden while the status loads or fails and on a server without a Linear app; connected, it opens a submenu beside it with Open Linear and Disconnect. */
-export function LinearMenuItem({
-	className,
-	connectHref,
-}: Readonly<LinearMenuItemProps>) {
+export function LinearMenuItem({ className }: Readonly<LinearMenuItemProps>) {
+	const { linearConnectHref } = useHostApp()
 	const { data } = useQuery(orpcQuery.linear.status.queryOptions())
 	const disconnect = useDisconnectLinearMutation()
 	const icon = <Link2 aria-hidden className="size-4 text-muted-foreground" />
@@ -37,7 +34,7 @@ export function LinearMenuItem({
 
 	if (data.state === 'notConnected')
 		return (
-			<a className={className} href={connectHref}>
+			<a className={className} href={linearConnectHref}>
 				{icon}
 				{LINEAR_COPY.menuConnect}
 			</a>
@@ -45,7 +42,7 @@ export function LinearMenuItem({
 
 	if (data.state === 'lapsed')
 		return (
-			<a className={className} href={connectHref}>
+			<a className={className} href={linearConnectHref}>
 				{icon}
 				{LINEAR_COPY.menuItem}
 				<span className={STATUS_CLASS}>{LINEAR_COPY.lapsedStatus}</span>

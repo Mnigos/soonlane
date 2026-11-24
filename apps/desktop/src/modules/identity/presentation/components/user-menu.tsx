@@ -2,7 +2,7 @@ import { CalendarSubscriptionDialog } from '@soonlane/app/calendar/components/ca
 import { LinearMenuItem } from '@soonlane/app/linear/components/linear-menu-item'
 import { McpConnectionsDialog } from '@soonlane/app/mcp/components/mcp-connections-dialog'
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import { LINEAR_CONNECT_PATH, TODOIST_IMPORT_PATH } from '@soonlane/auth'
+import { TODOIST_IMPORT_PATH } from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -27,8 +27,6 @@ const MENU_ITEM_CLASS =
 const DELETION_RETURN_KEY = ['desktop', 'deletion-return']
 /** The import links Todoist in the browser, which holds the OAuth state cookie and the web session. */
 const TODOIST_IMPORT_URL = new URL(TODOIST_IMPORT_PATH, import.meta.env.APP_URL)
-/** Linking runs in the browser for the same reason. */
-const LINEAR_CONNECT_URL = new URL(LINEAR_CONNECT_PATH, import.meta.env.APP_URL)
 
 interface UserMenuProps {
 	user: SessionUser
@@ -125,10 +123,7 @@ export function UserMenu({ user, onShowShortcuts }: Readonly<UserMenuProps>) {
 						</a>
 					)}
 
-					<LinearMenuItem
-						className={MENU_ITEM_CLASS}
-						connectHref={LINEAR_CONNECT_URL.href}
-					/>
+					<LinearMenuItem className={MENU_ITEM_CLASS} />
 
 					<button
 						className={MENU_ITEM_CLASS}

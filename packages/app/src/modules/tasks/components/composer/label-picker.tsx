@@ -6,7 +6,6 @@ import {
 	ComboboxList,
 } from '@soonlane/ui/components/combobox'
 import { useQuery } from '@tanstack/react-query'
-import { Check } from 'lucide-react'
 import { type Dispatch, type Ref, type SetStateAction, useState } from 'react'
 import { orpcQuery } from '../../../../rpc-query.client'
 import type { useCreateLabelMutation } from '../../../labels/hooks/use-create-label-mutation'
@@ -17,7 +16,7 @@ import {
 } from '../../helpers/composer-chip.constants'
 import { NEW_ITEM_ID, searchByName } from '../../helpers/name-search.helper'
 import { LabelListNotes, LabelOption } from './label-options'
-import { CreateOption } from './picker-options'
+import { CreateOption, PickerCheckbox } from './picker-options'
 
 interface LabelPickerProps {
 	value: Label[]
@@ -105,13 +104,7 @@ export function LabelPicker({
 						>
 							<LabelOption label={label} />
 
-							<span className="ml-auto flex size-4 shrink-0 items-center justify-center rounded-sm border border-border-strong group-data-selected:border-primary group-data-selected:bg-primary">
-								<Check
-									aria-hidden
-									className="size-3 text-primary-foreground opacity-0 group-data-selected:opacity-100"
-									strokeWidth={3}
-								/>
-							</span>
+							<PickerCheckbox />
 						</ComboboxItem>
 					)
 				}

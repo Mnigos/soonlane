@@ -11,6 +11,8 @@ import { type CalendarDate, getEditedRule, type TaskId } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
 import { ArrowUp, Check, Plus, X } from 'lucide-react'
 import { type KeyboardEvent, type SubmitEvent, useRef, useState } from 'react'
+import { LinearChip } from '../../../linear/components/linear-chip'
+import { LinearPins } from '../../../linear/components/linear-pins'
 import { isSaveShortcut } from '../../helpers/composer-key.helper'
 import { getScheduledDate, getTaskEdit } from '../../helpers/task-edit.helper'
 import { useCreateTaskMutation } from '../../hooks/use-create-task-mutation'
@@ -243,6 +245,8 @@ export function TaskComposer({
 				value={description}
 			/>
 
+			{task && <LinearPins task={task} />}
+
 			<div className="mt-1.75 flex flex-wrap items-center gap-1">
 				<ComingSoonButton
 					className="inline-flex size-7 items-center justify-center rounded-md bg-control"
@@ -303,6 +307,8 @@ export function TaskComposer({
 						value={project}
 					/>
 				)}
+
+				{task && <LinearChip onKeyDown={handleFieldKeys} task={task} />}
 
 				<div className="ml-auto flex items-center gap-2">
 					<TaskActionsMenu
