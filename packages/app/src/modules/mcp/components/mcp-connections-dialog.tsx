@@ -2,6 +2,7 @@ import { isDefinedError } from '@orpc/client'
 import type { McpConnection } from '@soonlane/contracts'
 import { DATE_LOCALE } from '@soonlane/domain'
 import { Button } from '@soonlane/ui/components/button'
+import { CopyField } from '@soonlane/ui/components/copy-field'
 import { Dialog } from '@soonlane/ui/components/dialog'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
@@ -11,6 +12,11 @@ import { orpcQuery } from '../../../rpc-query.client'
 
 const LOAD_FAILED = "Couldn't load connected agents. Try again."
 const SIGN_OUT_NOTE = "Signing out doesn't disconnect agents."
+const EMPTY_STATE =
+	'No agents connected. To connect an AI app, paste this address into its connector or MCP settings.'
+const SERVER_ADDRESS = 'Server address'
+const COPY_BLOCKED =
+	"Couldn't copy automatically. Select the address and copy it."
 const shortDate = new Intl.DateTimeFormat(DATE_LOCALE, {
 	day: 'numeric',
 	month: 'short',
@@ -83,13 +89,19 @@ export function McpConnectionsDialog({
 				</div>
 			)
 
-		const { connections } = connectionsQuery.data
+		const { connections, serverUrl } = connectionsQuery.data
 
 		if (connections.length === 0)
 			return (
-				<p className="text-sm text-secondary-foreground">
-					No agents connected. When you connect an AI app, it appears here.
-				</p>
+				<div className="flex flex-col gap-3">
+					<p className="text-sm text-secondary-foreground">{EMPTY_STATE}</p>
+
+					<CopyField
+						blockedNote={COPY_BLOCKED}
+						label={SERVER_ADDRESS}
+						value={serverUrl}
+					/>
+				</div>
 			)
 
 		return (

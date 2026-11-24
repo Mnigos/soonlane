@@ -5,7 +5,7 @@ import { authErrors } from './auth.errors'
 
 /**
  * One agent's access to the user's tasks. `host` is the web address the agent proved it owns, absent for one registered without proof;
- * `lastUsedAt` is its latest token refresh, absent while it has none.
+ * `lastUsedAt` is its latest call to the MCP server, to the minute, absent while it has made none.
  */
 export const mcpConnectionSchema = z.object({
 	id: mcpConnectionIdSchema,
@@ -26,9 +26,13 @@ export const mcpConnectionNotFound = {
 }
 
 export const mcpContract = {
-	listConnections: oc
-		.errors(authErrors)
-		.output(z.object({ connections: z.array(mcpConnectionSchema) })),
+	/** `serverUrl` is the MCP server's address, which the user gives an AI app to connect it. */
+	listConnections: oc.errors(authErrors).output(
+		z.object({
+			connections: z.array(mcpConnectionSchema),
+			serverUrl: z.url(),
+		})
+	),
 	/** Ends the connection and deletes its tokens, so the agent loses access at once. */
 	disconnect: oc
 		.errors({ ...authErrors, NOT_FOUND: mcpConnectionNotFound })
