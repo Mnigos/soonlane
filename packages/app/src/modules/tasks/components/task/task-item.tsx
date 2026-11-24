@@ -13,6 +13,7 @@ import { isShortcutKeydown } from '../../../../utils/keyboard-shortcut.util'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
 import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
+import { useTaskMenu } from '../../hooks/use-task-menu'
 import { useTaskMenuEdits } from '../../hooks/use-task-menu-edits'
 import { TaskComposer } from '../composer/task-composer'
 import { GoalProgress } from './goal-progress'
@@ -67,6 +68,7 @@ export function TaskItem({
 	)
 	const [isPickingDate, setIsPickingDate] = useState(false)
 	const triggerRef = useRef<HTMLButtonElement>(null)
+	const { menu, openAtPointer } = useTaskMenu()
 
 	function openComposer() {
 		setOpenEditorId(editorId)
@@ -128,6 +130,7 @@ export function TaskItem({
 		<li
 			className="group/task relative flex scroll-mt-36 gap-2.5 rounded-xs border-b py-2.5 outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary focus-visible:outline-solid"
 			data-task-id={task.id}
+			onContextMenu={openAtPointer}
 			onKeyDown={handleRowKeys}
 			ref={keepFocusAfterMove}
 			tabIndex={-1}
@@ -196,6 +199,7 @@ export function TaskItem({
 				autoFocus={shouldFocusMenu}
 				className={ROW_CONTROL_CLASS}
 				isPickingDate={isPickingDate}
+				menu={menu}
 				onAddSubtask={onAddSubtask}
 				onDateChange={changeDate}
 				onEdit={openComposer}

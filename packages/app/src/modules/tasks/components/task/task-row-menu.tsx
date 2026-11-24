@@ -11,6 +11,7 @@ import {
 	SUBTASK_LIMIT_HINT,
 } from '../../helpers/subtask.helper'
 import { getNoDateHint } from '../../helpers/task-edit.helper'
+import type { TaskMenuState } from '../../hooks/use-task-menu'
 import { DueDatePicker } from '../composer/due-date-picker'
 import { TaskActionsMenu } from './task-actions-menu'
 import { TaskMenuDateGroup } from './task-menu-date-group'
@@ -24,6 +25,8 @@ interface TaskRowMenuProps {
 	/** Whether the date picker is open under the "…" button; the row's "t" opens it too. */
 	isPickingDate: boolean
 	triggerRef: RefObject<HTMLButtonElement | null>
+	/** The menu's open state, which a right-click on the row also sets. */
+	menu: TaskMenuState
 	onEdit: () => void
 	/** Expands the task and opens the composer at the end of its subtasks. */
 	onAddSubtask: () => void
@@ -37,7 +40,7 @@ interface TaskRowMenuProps {
 }
 
 /**
- * A task row's "…" menu: Edit and Add subtask (left out at the deepest level), Date and Priority above Delete. A date, No date
+ * A task row's "…" menu, also opened by a right-click on the row: Edit and Add subtask (left out at the deepest level), Date and Priority above Delete. A date, No date
  * or priority saves at once like the same change in the edit card; "More dates" opens the date picker under the "…" button.
  */
 export function TaskRowMenu({
@@ -47,6 +50,7 @@ export function TaskRowMenu({
 	autoFocus,
 	isPickingDate,
 	triggerRef,
+	menu,
 	onEdit,
 	onAddSubtask,
 	onDateChange,
@@ -75,6 +79,7 @@ export function TaskRowMenu({
 			<TaskActionsMenu
 				autoFocus={autoFocus}
 				className={className}
+				menu={menu}
 				task={task}
 				today={today}
 				triggerRef={triggerRef}

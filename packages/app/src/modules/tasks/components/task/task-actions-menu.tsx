@@ -19,6 +19,7 @@ import {
 } from 'react'
 import { CHIP_ICON_STROKE } from '../../helpers/composer-chip.constants'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
+import type { TaskMenuState } from '../../hooks/use-task-menu'
 import { DeleteTaskDialog } from './delete-task-dialog'
 
 interface TaskActionsMenuProps extends PropsWithChildren {
@@ -31,6 +32,8 @@ interface TaskActionsMenuProps extends PropsWithChildren {
 	autoFocus?: boolean
 	/** Filled with the "…" button, for a popover that opens from the menu. */
 	triggerRef?: RefObject<HTMLButtonElement | null>
+	/** Lets the row open the menu at the pointer on a right-click; without it the menu opens only from the "…" button. */
+	menu?: TaskMenuState
 }
 
 /**
@@ -46,6 +49,7 @@ export function TaskActionsMenu({
 	children,
 	autoFocus,
 	triggerRef,
+	menu,
 }: Readonly<TaskActionsMenuProps>) {
 	const [isDeleting, setIsDeleting] = useState(false)
 	const attachTrigger = useCallback(
@@ -65,7 +69,7 @@ export function TaskActionsMenu({
 
 	return (
 		<>
-			<Menu>
+			<Menu onOpenChange={menu?.onOpenChange} open={menu?.isOpen}>
 				<Tooltip label="More task actions">
 					<MenuTrigger
 						aria-label="More task actions"
@@ -91,7 +95,8 @@ export function TaskActionsMenu({
 				</Tooltip>
 
 				<MenuContent
-					align="end"
+					align={menu?.anchor ? 'start' : 'end'}
+					anchor={menu?.anchor}
 					className={cn('py-1', children ? 'w-56' : 'w-40')}
 				>
 					{children && (
