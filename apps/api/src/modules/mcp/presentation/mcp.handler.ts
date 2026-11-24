@@ -12,12 +12,8 @@ import {
 	McpClientNotConnected,
 	McpRequestLimitReached,
 } from '../domain/mcp-connection.errors'
-import {
-	type McpToolName,
-	type McpToolRunner,
-	createMcpServer,
-	listMcpTools,
-} from './mcp-tools.handler'
+import type { McpToolName, McpToolRunner } from './mcp-tool.helper'
+import { createMcpServer, listMcpTools } from './mcp-tools.handler'
 
 /** What the request's one log line says: the tool it called, how it ended and the error's name or code. Never a token, header, body, query or task text. */
 interface McpRequestRecord {
