@@ -31,17 +31,18 @@ Sign-in is Google only for now, so every instance needs its own Google OAuth cli
 
 4. Open `SOONLANE_URL` and sign in with Google.
 
-| Variable                                     | Required | What it is                                                                                                                                 |
-| -------------------------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `SOONLANE_URL`                               | yes      | The public URL without a trailing slash. Defaults to `http://localhost:8080`.                                                              |
-| `POSTGRES_PASSWORD`                          | yes      | The database password. Use letters and digits only because it goes straight into the database URL.                                         |
-| `AUTH_SECRET`                                | yes      | Signs sessions. Must be at least 32 characters. Generate it with `openssl rand -hex 32`.                                                   |
-| `API_PROXY_SECRET`                           | yes      | Lets the web server pass the visitor's IP address to the API. Generate it the same way.                                                    |
-| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`   | yes      | The Google OAuth client from step 1.                                                                                                       |
-| `ALLOWED_EMAILS`                             | no       | Comma-separated addresses allowed to sign up. If unset, any Google account can sign up. Set your own address to keep the instance private. |
-| `SOONLANE_LISTEN`                            | no       | Host address where the proxy listens. Defaults to `127.0.0.1:8080`. Set `0.0.0.0:8080` to expose it on your network.                       |
-| `SOONLANE_VERSION`                           | no       | The image tag. Defaults to `latest` for the newest release. Use a version like `0.3.0`, or `main` for the latest commit.                   |
-| `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` | no       | Set both or neither. Configures a Todoist app for Import from Todoist with the redirect URI `<SOONLANE_URL>/api/auth/callback/todoist`.    |
+| Variable                                     | Required | What it is                                                                                                                                               |
+| -------------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `SOONLANE_URL`                               | yes      | The public URL without a trailing slash. Defaults to `http://localhost:8080`.                                                                            |
+| `POSTGRES_PASSWORD`                          | yes      | The database password. Use letters and digits only because it goes straight into the database URL.                                                       |
+| `AUTH_SECRET`                                | yes      | Signs sessions. Must be at least 32 characters. Generate it with `openssl rand -hex 32`.                                                                 |
+| `API_PROXY_SECRET`                           | yes      | Lets the web server pass the visitor's IP address to the API. Generate it the same way.                                                                  |
+| `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`   | yes      | The Google OAuth client from step 1.                                                                                                                     |
+| `ALLOWED_EMAILS`                             | no       | Comma-separated addresses allowed to sign up. If unset, any Google account can sign up. Set your own address to keep the instance private.               |
+| `SOONLANE_LISTEN`                            | no       | Host address where the proxy listens. Defaults to `127.0.0.1:8080`. Set `0.0.0.0:8080` to expose it on your network.                                     |
+| `SOONLANE_VERSION`                           | no       | The image tag. Defaults to `latest` for the newest release. Use a version like `0.3.0`, or `main` for the latest commit.                                 |
+| `TODOIST_CLIENT_ID`, `TODOIST_CLIENT_SECRET` | no       | Set both or neither. Configures a Todoist app for Import from Todoist with the redirect URI `<SOONLANE_URL>/api/auth/callback/todoist`.                  |
+| `LINEAR_CLIENT_ID`, `LINEAR_CLIENT_SECRET`   | no       | Set both or neither. Configures a public Linear app for Connect Linear in the user menu with the redirect URI `<SOONLANE_URL>/api/auth/callback/linear`. |
 
 The API checks its settings on startup. If a variable is missing or malformed, the API stops and names it in the logs (`docker compose logs api`).
 
