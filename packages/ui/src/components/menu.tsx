@@ -10,11 +10,15 @@ export const MenuSubmenu = BaseMenu.SubmenuRoot
 export const MenuGroup = BaseMenu.Group
 
 type MenuContentProps = ComponentProps<typeof BaseMenu.Popup> &
-	Pick<ComponentProps<typeof BaseMenu.Positioner>, 'align' | 'side'>
+	Pick<ComponentProps<typeof BaseMenu.Positioner>, 'align' | 'anchor' | 'side'>
+
+/** What a menu opens against in place of its trigger, such as a point under the pointer for a right-click. */
+export type MenuAnchor = MenuContentProps['anchor']
 
 /** The floating list of a menu, centered under its trigger like Todoist's, portaled and kept inside the viewport, scrolling when taller than the room left. */
 export function MenuContent({
 	align = 'center',
+	anchor,
 	side = 'bottom',
 	className,
 	...props
@@ -23,6 +27,7 @@ export function MenuContent({
 		<BaseMenu.Portal>
 			<BaseMenu.Positioner
 				align={align}
+				anchor={anchor}
 				className="z-50"
 				collisionPadding={8}
 				side={side}
