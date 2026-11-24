@@ -5,7 +5,7 @@ import {
 	type McpConnectionId,
 } from '@soonlane/domain'
 
-/** An `oauth_consent` row joined with its client's name and the latest refresh of the user's tokens for it. */
+/** An `oauth_consent` row joined with its client's name. */
 export interface McpConnectionRow {
 	id: McpConnectionId
 	clientId: string
