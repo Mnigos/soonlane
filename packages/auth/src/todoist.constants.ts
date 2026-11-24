@@ -7,8 +7,3 @@ export const TODOIST_SYNC_URL = 'https://api.todoist.com/api/v1/sync'
 export const TODOIST_REVOKE_URL = 'https://api.todoist.com/api/v1/revoke'
 /** Better Auth's error code when `/link-social` is refused because the user's earlier Todoist connection is still open. */
 export const TODOIST_STILL_CONNECTED = 'TODOIST_STILL_CONNECTED'
-/** `?error=` values the link can come back with that the import page names on its own. */
-export const TODOIST_LINK_ERRORS = {
-	denied: 'access_denied',
-	alreadyUsed: 'account_already_linked_to_different_user',
-} as const

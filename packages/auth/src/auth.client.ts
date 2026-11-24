@@ -4,8 +4,9 @@ import {
 	EMAIL_CODE_SEND_PATH,
 	EMAIL_CODE_SIGN_IN_PATH,
 } from './email-code.constants'
+import type { LINEAR_PROVIDER_ID } from './linear.constants'
 import { MCP_ANSWER_USER_FIELD } from './mcp-authorization.constants'
-import { TODOIST_IMPORT_PATH, TODOIST_PROVIDER_ID } from './todoist.constants'
+import type { TODOIST_PROVIDER_ID } from './todoist.constants'
 
 /**
  * Browser client for sign-in, sign-out and provider redirects; read the session through `identity.me`, not here. `VITE_API_URL` is the API's origin; empty, Better Auth falls back to the page's.
@@ -55,14 +56,17 @@ export async function signInWithGoogle(
 	})
 }
 
-/** Sends the signed-in browser to Todoist's consent screen; Todoist returns it to the import page, with `?error=` when nothing was linked. */
-export async function linkTodoist() {
-	const importPage = new URL(TODOIST_IMPORT_PATH, window.location.origin).href
+/** Sends the signed-in browser to the provider's consent screen; the provider returns it to `returnPath` on this origin, with `?error=` when nothing was linked. */
+export async function linkAccount(
+	provider: typeof TODOIST_PROVIDER_ID | typeof LINEAR_PROVIDER_ID,
+	returnPath: string
+) {
+	const returnUrl = new URL(returnPath, window.location.origin).href
 
 	return await authClient.linkSocial({
-		provider: TODOIST_PROVIDER_ID,
-		callbackURL: importPage,
-		errorCallbackURL: importPage,
+		provider,
+		callbackURL: returnUrl,
+		errorCallbackURL: returnUrl,
 	})
 }
 

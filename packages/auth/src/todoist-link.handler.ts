@@ -1,28 +1,18 @@
-import type { AuthContext, HookEndpointContext } from 'better-auth'
-import { createAuthMiddleware, getOAuthState } from 'better-auth/api'
-import { decryptOAuthToken, type OAuth2Tokens } from 'better-auth/oauth2'
 import { genericOAuth } from 'better-auth/plugins/generic-oauth'
 import { z } from 'zod'
 import type { OAuthClientOptions } from './oauth-client.types'
+import { type LinkingUser, linkOnlyProvider } from './provider-link.handler'
 import {
 	TODOIST_PROVIDER_ID,
 	TODOIST_REVOKE_URL,
 	TODOIST_SYNC_URL,
 } from './todoist.constants'
 
-/** The signed-in user who started linking Todoist. */
-interface LinkingUser {
-	email: string
-}
-
 const TODOIST_TIMEOUT_MS = 10_000
 
 const syncUserSchema = z.object({
 	user: z.object({ id: z.string(), full_name: z.string() }),
 })
-
-/** The tokens a callback received, keyed by its parsed OAuth state (one object per request), until its after hook sees whether a row holds them. */
-const issuedTokens = new WeakMap<object, OAuth2Tokens>()
 
 /**
  * `null` outside a signed-in user's link fails the callback before Better Auth touches a user, account or session, so a replayed sign-in state signs no one in.
@@ -76,35 +66,12 @@ async function revoke(client: OAuthClientOptions, token: string) {
 	}
 }
 
-/** Unknown counts as not stored, so a failed lookup revokes rather than leaves a live grant behind. */
-async function isStored(
-	context: AuthContext,
-	userId: string,
-	accessToken: string
-) {
-	try {
-		const accounts = await context.internalAdapter.findAccounts(userId)
-		const stored = await Promise.all(
-			accounts
-				.filter(account => account.providerId === TODOIST_PROVIDER_ID)
-				.map(async account =>
-					account.accessToken
-						? await decryptOAuthToken(account.accessToken, context)
-						: undefined
-				)
-		)
-
-		return stored.includes(accessToken)
-	} catch {
-		return false
-	}
-}
-
-/**
- * Todoist as a read-only provider that a signed-in user can only link, never sign in or sign up with.
- * Tokens from a callback that ends without a row holding them (no user info, a session gone, an account linked elsewhere) are revoked at once, best effort: nothing durable is left to retry from.
- */
+/** Todoist as a read-only provider that a signed-in user can only link, never sign in or sign up with. */
 export function todoistLink(client: OAuthClientOptions) {
+	const link = linkOnlyProvider(
+		TODOIST_PROVIDER_ID,
+		async token => await revoke(client, token)
+	)
 	const plugin = genericOAuth({
 		config: [
 			{
@@ -116,54 +83,17 @@ export function todoistLink(client: OAuthClientOptions) {
 				scopes: ['data:read'],
 				disableSignUp: true,
 				disableImplicitSignUp: true,
-				getUserInfo: async tokens => {
-					const state = await getOAuthState()
-
-					if (state) issuedTokens.set(state, tokens)
-
-					return await readTodoistUser(tokens.accessToken, state?.link)
-				},
+				getUserInfo: async tokens =>
+					await readTodoistUser(
+						tokens.accessToken,
+						await link.takeLink(tokens)
+					),
 			},
 		],
-	})
-	const revokeUnstoredTokens = createAuthMiddleware(async ctx => {
-		const state = await getOAuthState()
-		const issued = state ? issuedTokens.get(state) : undefined
-
-		if (!(state && issued?.accessToken)) return
-
-		issuedTokens.delete(state)
-
-		if (
-			state.link &&
-			(await isStored(ctx.context, state.link.userId, issued.accessToken))
-		)
-			return
-
-		const failures = await Promise.all(
-			[issued.accessToken, issued.refreshToken]
-				.filter(token => token !== undefined)
-				.map(async token => await revoke(client, token))
-		)
-		const reasons = failures.filter(reason => reason !== undefined)
-
-		if (reasons.length > 0)
-			ctx.context.logger.warn(
-				'Revoking Todoist tokens of an unfinished link failed',
-				...reasons
-			)
 	})
 
 	return {
 		...plugin,
-		hooks: {
-			...plugin.hooks,
-			after: [
-				{
-					matcher: (ctx: HookEndpointContext) => ctx.path === '/callback/:id',
-					handler: revokeUnstoredTokens,
-				},
-			],
-		},
+		hooks: { ...plugin.hooks, after: [link.revokeUnstoredTokens] },
 	}
 }

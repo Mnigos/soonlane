@@ -1,6 +1,6 @@
 import { isDefinedError } from '@orpc/client'
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import { TODOIST_LINK_ERRORS } from '@soonlane/auth'
+import { LINK_ERRORS } from '@soonlane/auth'
 import { Button } from '@soonlane/ui/components/button'
 import { Skeleton } from '@soonlane/ui/components/skeleton'
 import { useQuery } from '@tanstack/react-query'
@@ -12,8 +12,8 @@ import { useImportTodoistMutation } from '../hooks/use-import-todoist-mutation'
 import { TodoistPreviewSummary } from './todoist-preview-summary'
 
 const LINK_ERROR_COPY: Record<string, string> = {
-	[TODOIST_LINK_ERRORS.denied]: TODOIST_COPY.denied,
-	[TODOIST_LINK_ERRORS.alreadyUsed]: TODOIST_COPY.alreadyUsed,
+	[LINK_ERRORS.denied]: TODOIST_COPY.denied,
+	[LINK_ERRORS.alreadyUsed]: TODOIST_COPY.alreadyUsed,
 }
 
 interface TodoistImportPageProps {
