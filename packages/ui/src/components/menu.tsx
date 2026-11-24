@@ -62,6 +62,20 @@ export function MenuItem({
 	)
 }
 
+/** An item that is a link, such as one opening another site in a new tab. */
+export function MenuLinkItem({
+	className,
+	...props
+}: Readonly<ComponentProps<typeof BaseMenu.LinkItem>>) {
+	return (
+		<BaseMenu.LinkItem
+			className={cn(ITEM_CLASS, className)}
+			data-slot="menu-link-item"
+			{...props}
+		/>
+	)
+}
+
 /** A radio item that closes the menu when picked and shows a red check while selected. */
 export function MenuRadioItem({
 	className,

@@ -23,6 +23,7 @@ export const routes = rootRoute('routes/__root.tsx', [
 				'/todoist',
 				'modules/todoist/presentation/routes/todoist.route.tsx'
 			),
+			route('/linear', 'modules/linear/presentation/routes/linear.route.tsx'),
 		]),
 		route('/login', 'modules/identity/presentation/routes/login.route.tsx'),
 		route('/mcp/allow', 'modules/mcp/presentation/routes/allow.route.tsx'),
