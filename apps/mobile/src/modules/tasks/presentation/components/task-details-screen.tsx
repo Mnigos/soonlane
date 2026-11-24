@@ -25,6 +25,7 @@ import {
 	TextInput,
 	View,
 } from 'react-native'
+import { LinearIssueList } from '@/modules/linear/presentation/components/linear-issue-list'
 import { COLORS, TEXT } from '@/tokens.gen'
 import { useCachedTask } from '../hooks/use-cached-task'
 import { showPrioritySheet } from '../priority-sheet.helper'
@@ -315,6 +316,8 @@ function TaskDetails({ task, today }: Readonly<TaskDetailsProps>) {
 						/>
 					</View>
 				)}
+
+				<LinearIssueList pins={task.linearPins} />
 
 				<Pressable
 					accessibilityRole="button"
