@@ -38,8 +38,8 @@ export const LinearPinRepositoryLive = Layer.effect(
 
 		return LinearPinRepository.of({
 			pin: ({ ownerId, id, pin }) =>
-				db.run('LinearPinRepository.pin', async database => {
-					const tasks = ownedTasks(database, ownerId)
+				db.transaction('LinearPinRepository.pin', async transaction => {
+					const tasks = ownedTasks(transaction, ownerId)
 
 					await tasks.pinLinearIssue(id, pin)
 

@@ -40,9 +40,6 @@ import { toProject } from '@/modules/projects/infrastructure/project.mapper'
 import type { Database } from '@/platform/db/db.layer'
 import { toTask } from './task.mapper'
 
-/** A value as a typed parameter, which Postgres cannot infer inside an `INSERT … SELECT` list. */
-const asText = (value: string) => sql<string>`cast(${value} as text)`
-
 /** The pool handle or a transaction: everything `ownedTasks` runs on. */
 export type Queries = Pick<
 	Database,
@@ -258,31 +255,30 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 				)
 				.onConflictDoNothing()
 		},
-		/** Pins an issue, or refreshes a pinned one's stored fields; inserts nothing for a task the owner lacks or one at the pin limit. */
+		/**
+		 * Pins an issue, or refreshes a pinned one's stored fields even at the limit. Run it in a transaction: the task's path
+		 * lock, the one every tree write takes, serialises pins on a task, so two at once cannot pass the limit. Writes
+		 * nothing for a task the owner lacks.
+		 */
 		pinLinearIssue: async (id: TaskId, pin: LinearPin) => {
+			const locked = await lockPaths([id])
+
+			if (!locked.some(row => row.id === id)) return
+
+			const pinned = await database
+				.select({ issueId: linearPin.issueId })
+				.from(linearPin)
+				.where(eq(linearPin.taskId, id))
+
+			if (
+				pinned.length >= LINEAR_PINS_PER_TASK_MAX &&
+				!pinned.some(({ issueId }) => issueId === pin.issueId)
+			)
+				return
+
 			await database
 				.insert(linearPin)
-				.select(
-					database
-						.select({
-							taskId: task.id,
-							issueId: asText(pin.issueId).as('issue_id'),
-							identifier: asText(pin.identifier).as('identifier'),
-							title: asText(pin.title).as('title'),
-							url: asText(pin.url).as('url'),
-						})
-						.from(task)
-						.where(
-							and(
-								owned,
-								eq(task.id, id),
-								lt(
-									database.$count(linearPin, eq(linearPin.taskId, id)),
-									LINEAR_PINS_PER_TASK_MAX
-								)
-							)
-						)
-				)
+				.values({ taskId: id, ...pin })
 				.onConflictDoUpdate({
 					target: [linearPin.taskId, linearPin.issueId],
 					set: { identifier: pin.identifier, title: pin.title, url: pin.url },
