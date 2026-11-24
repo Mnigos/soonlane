@@ -23,7 +23,7 @@ export function LinearPins({ task }: Readonly<LinearPinsProps>) {
 	const { linearConnectHref } = useHostApp()
 	const { unpin } = useLinearPinMutations()
 	const ids = task.linearPins.map(({ issueId }) => issueId)
-	const { data } = useQuery(
+	const { data, isError } = useQuery(
 		orpcQuery.linear.listIssues.queryOptions({
 			input: { ids },
 			enabled: ids.length > 0,
@@ -55,7 +55,7 @@ export function LinearPins({ task }: Readonly<LinearPinsProps>) {
 							rel="noreferrer"
 							target="_blank"
 						>
-							{live || !data ? (
+							{live || (!data && !isError) ? (
 								icon
 							) : (
 								<Tooltip
