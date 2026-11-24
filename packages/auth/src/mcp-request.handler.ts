@@ -57,7 +57,8 @@ function readMcpToken({
 
 /** The plugin's own answer to an invalid token, for a valid token whose connection is gone: a JSON-RPC 401 with the `resource_metadata` challenge. */
 function invalidTokenResponse(resource: string, request: Request) {
-	const description = 'The agent is not connected.'
+	const description =
+		'This agent is no longer connected to Soonlane, so reconnect it in your AI app.'
 	const error = new APIError('UNAUTHORIZED', {
 		message: description,
 		error: 'invalid_token',
