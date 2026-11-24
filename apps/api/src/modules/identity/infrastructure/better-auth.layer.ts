@@ -5,6 +5,7 @@ import {
 	createAuth,
 	readStoredOAuthToken,
 	serveMcpRequest,
+	refreshStoredOAuthToken,
 } from '@soonlane/auth/server'
 import { userIdSchema } from '@soonlane/domain'
 import { Effect, Layer, Redacted } from 'effect'
@@ -66,6 +67,10 @@ export const BetterAuthLive = Layer.effect(
 				clientId: config.todoist.clientId,
 				clientSecret: Redacted.value(config.todoist.clientSecret),
 			},
+			linear: config.linear && {
+				clientId: config.linear.clientId,
+				clientSecret: Redacted.value(config.linear.clientSecret),
+			},
 			log: (level, ...message) =>
 				Effect.runSyncWith(context)(LOG_BY_LEVEL[level](...message)),
 			events: {
@@ -113,6 +118,8 @@ export const BetterAuthLive = Layer.effect(
 							: undefined
 					},
 				}),
+			refreshStoredToken: async (userId, accountId) =>
+				await refreshStoredOAuthToken(auth, userId, accountId),
 			signInMethods: {
 				google: Boolean(config.google),
 				emailCode: Boolean(config.email),

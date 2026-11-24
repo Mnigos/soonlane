@@ -36,6 +36,11 @@ export class Auth extends Context.Service<
 			request: Request,
 			serve: (token: McpAccessToken) => Promise<Response | undefined>
 		) => Promise<Response>
+		/** Refreshes a linked account's tokens through its provider, stores the new pair encrypted and returns the access token; rejects with an error whose message is Better Auth's code. */
+		readonly refreshStoredToken: (
+			userId: UserId,
+			accountId: string
+		) => Promise<string>
 		/** The ways in this server offers, for the sign-in screens. */
 		readonly signInMethods: SignInMethods
 	}
