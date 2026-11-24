@@ -10,6 +10,7 @@
     "dev:session": "bun --env-file=.env.local scripts/dev-session.ts"
   },
   "dependencies": {
+    "@modelcontextprotocol/server": "catalog:",
     "@orpc/contract": "catalog:",
     "@orpc/effect": "catalog:",
     "@orpc/server": "catalog:",
