@@ -130,7 +130,7 @@ export function MenuSeparator({
 }
 
 const ICON_ITEM_CLASS =
-	'flex size-8 cursor-pointer items-center justify-center rounded-md border border-transparent outline-none select-none data-highlighted:bg-hover [&_svg]:shrink-0'
+	'flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-md border border-transparent outline-none select-none data-highlighted:bg-hover [&_svg]:shrink-0'
 
 /** A square item holding only an icon, for a row of quick choices; it needs an `aria-label`. */
 export function MenuIconItem({
@@ -196,7 +196,7 @@ export function MenuRow({
 }: Readonly<ComponentProps<'div'>>) {
 	return (
 		<div
-			className={cn('flex items-center gap-3 px-2 pb-1', className)}
+			className={cn('flex items-center gap-0.5 px-2 pb-1', className)}
 			role="none"
 			data-slot="menu-row"
 			onKeyDown={event => {
