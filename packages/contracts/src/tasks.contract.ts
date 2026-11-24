@@ -281,7 +281,7 @@ const listFilterNotFound = {
 
 const subtaskRefused = { message: "Couldn't add a subtask to this task." }
 
-const taskErrors = {
+export const taskErrors = {
 	...authErrors,
 	NOT_FOUND: { message: 'This task no longer exists.' },
 } as const satisfies ErrorMap

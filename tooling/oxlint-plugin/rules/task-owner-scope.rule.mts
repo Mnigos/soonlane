@@ -6,7 +6,8 @@ import {
 } from '@oxlint/plugins'
 
 const DB_PACKAGE = '@soonlane/db'
-const TABLE = 'task'
+/** The task table and the tables reached only through a task, whose rows carry no owner of their own. */
+const TABLES = new Set(['task', 'linearPin'])
 const OWNER_COLUMN = 'ownerId'
 /** Drizzle builder methods whose first argument is the table the statement reads, changes or joins. */
 const QUERY_METHODS = new Set([
@@ -47,7 +48,7 @@ function getKeyName(property: ESTree.ObjectPattern['properties'][number]) {
 }
 
 /**
- * Keeps every query on the task table to its owner. `task.ownerId` may appear only where `ownedTasks` and `ownedBy`
+ * Keeps every query on the task table, and on `linear_pin`, whose rows belong to a task, to its owner. `task.ownerId` may appear only where `ownedTasks` and `ownedBy`
  * are defined (`owned-tasks.query.ts`, where the rule is off), so the owner condition is written once. A statement on
  * the table (`from`, `update`, `delete`, a join or `$count` with `task`, or `task` inside a tagged template such as raw
  * `sql`) is an error everywhere else, because it could leave the condition out; the few single statements that take
@@ -61,7 +62,7 @@ export const taskOwnerScopeRule = defineRule({
 		type: 'problem',
 		docs: {
 			description:
-				'Task queries go through ownedTasks or ownedBy, so none can leave out the owner filter.',
+				'Task and pin queries go through ownedTasks or ownedBy, so none can leave out the owner filter.',
 		},
 		schema: [
 			{
@@ -74,7 +75,7 @@ export const taskOwnerScopeRule = defineRule({
 			ownerColumn:
 				'Take the owner condition from ownedBy or ownedTasks in owned-tasks.query.ts; task.ownerId is read only there (CLAUDE.md).',
 			tableQuery:
-				'Query the task table through ownedTasks(database, ownerId) so the owner filter cannot be left out (CLAUDE.md).',
+				'Query the task and linear_pin tables through ownedTasks(database, ownerId) so the owner filter cannot be left out (CLAUDE.md).',
 		},
 	},
 	create(context) {
@@ -114,7 +115,7 @@ export const taskOwnerScopeRule = defineRule({
 			return (
 				node.type === 'MemberExpression' &&
 				isIn(namespaces, node.object) &&
-				getPropertyName(node) === TABLE
+				TABLES.has(getPropertyName(node) ?? '')
 			)
 		}
 
@@ -128,7 +129,7 @@ export const taskOwnerScopeRule = defineRule({
 					if (
 						specifier.type === 'ImportSpecifier' &&
 						specifier.imported.type === 'Identifier' &&
-						specifier.imported.name === TABLE
+						TABLES.has(specifier.imported.name)
 					)
 						addTo(tables, specifier.local)
 				}
@@ -154,7 +155,7 @@ export const taskOwnerScopeRule = defineRule({
 						context.report({ node: property, messageId: 'ownerColumn' })
 					if (
 						isNamespace &&
-						key === TABLE &&
+						TABLES.has(key ?? '') &&
 						property.type === 'Property' &&
 						property.value.type === 'Identifier'
 					)

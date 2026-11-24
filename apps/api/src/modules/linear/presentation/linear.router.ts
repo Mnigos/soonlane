@@ -15,4 +15,41 @@ export const linearRouter = {
 
 		yield* linearService.disconnect(context.user.id)
 	}),
+	searchIssues: os.linear.searchIssues.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const linearService = yield* LinearService
+
+		return yield* linearService.searchIssues(context.user.id, input.query)
+	}),
+	listIssues: os.linear.listIssues.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const linearService = yield* LinearService
+
+		return yield* linearService.listIssues(context.user.id, input.ids)
+	}),
+	pin: os.linear.pin.use(requireUser).effect(function* ({ context, input }) {
+		const linearService = yield* LinearService
+
+		return {
+			task: yield* linearService.pin(context.user.id, input.id, input.issueId),
+		}
+	}),
+	unpin: os.linear.unpin.use(requireUser).effect(function* ({
+		context,
+		input,
+	}) {
+		const linearService = yield* LinearService
+
+		return {
+			task: yield* linearService.unpin(
+				context.user.id,
+				input.id,
+				input.issueId
+			),
+		}
+	}),
 }

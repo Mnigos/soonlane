@@ -1,12 +1,26 @@
-import type { LinearStatus } from '@soonlane/contracts'
-import type { UserId } from '@soonlane/domain'
+import type {
+	LinearIssues,
+	LinearIssueSearch,
+	LinearStatus,
+	Task,
+} from '@soonlane/contracts'
+import type { TaskId, UserId } from '@soonlane/domain'
 import { Clock, Context, Effect, Fiber, Layer, Semaphore } from 'effect'
 import { Auth } from '@/modules/identity/application/auth.port'
+import { requireTask } from '@/modules/tasks/application/tasks.service.helper'
+import type { TaskNotFound } from '@/modules/tasks/domain/task.errors'
 import { AppConfig } from '@/platform/config/app.config'
 import type { DbError } from '@/platform/db/db.errors'
 import {
+	type LinearIssueQuery,
+	parseLinearIssueQuery,
+} from '../domain/linear-issue-query.helper'
+import {
 	LinearConnectionLapsed,
+	LinearIssueNotFound,
 	LinearNotConfigured,
+	LinearNotConnected,
+	LinearPinLimitReached,
 	type LinearReadFailed,
 	LinearStillConnected,
 } from '../domain/linear.errors'
@@ -14,6 +28,7 @@ import {
 	type LinearAccount,
 	LinearAccountRepository,
 } from '../infrastructure/linear-account.repository'
+import { LinearPinRepository } from '../infrastructure/linear-pin.repository'
 import { LinearApi } from './linear-api.port'
 
 export class LinearService extends Context.Service<
@@ -23,6 +38,33 @@ export class LinearService extends Context.Service<
 		readonly status: (
 			ownerId: UserId
 		) => Effect.Effect<LinearStatus, LinearReadFailed | DbError>
+		readonly searchIssues: (
+			ownerId: UserId,
+			query: string
+		) => Effect.Effect<LinearIssueSearch, LinearReadFailed | DbError>
+		readonly listIssues: (
+			ownerId: UserId,
+			ids: readonly string[]
+		) => Effect.Effect<LinearIssues, LinearReadFailed | DbError>
+		/** Stores the issue as Linear reads it now, so the pin keeps reading and opening without a connection. */
+		readonly pin: (
+			ownerId: UserId,
+			id: TaskId,
+			issueId: string
+		) => Effect.Effect<
+			Task,
+			| TaskNotFound
+			| LinearNotConnected
+			| LinearIssueNotFound
+			| LinearPinLimitReached
+			| LinearReadFailed
+			| DbError
+		>
+		readonly unpin: (
+			ownerId: UserId,
+			id: TaskId,
+			issueId: string
+		) => Effect.Effect<Task, TaskNotFound | DbError>
 		/** Fails, keeping the connection, when Linear did not confirm a revocation. */
 		readonly disconnect: (
 			ownerId: UserId
@@ -32,6 +74,13 @@ export class LinearService extends Context.Service<
 		>
 	}
 >()('soonlane/LinearService') {}
+
+/** A Linear read's answer, or why there was no connection to read with. */
+type Connected<T> =
+	| { state: 'notConfigured' }
+	| { state: 'notConnected' }
+	| { state: 'lapsed' }
+	| ({ state: 'connected' } & T)
 
 /** Linear's access tokens live 24 hours; refreshing this early leaves room for the request that needs one. */
 const REFRESH_MARGIN_MS = 5 * 60 * 1000
@@ -44,6 +93,7 @@ export const LinearServiceLive = Layer.effect(
 		const repository = yield* LinearAccountRepository
 		const linearApi = yield* LinearApi
 		const auth = yield* Auth
+		const pins = yield* LinearPinRepository
 		// Linear rotates the refresh token on every use, so a refresh racing another, or a Disconnect revoking the pair mid-refresh, would lose the connection or leave a grant behind; one permit per process covers both at a refresh per user a day.
 		const linearPermit = yield* Semaphore.make(1)
 
@@ -113,26 +163,108 @@ export const LinearServiceLive = Layer.effect(
 			}
 		)
 
-		const status = Effect.fn('LinearService.status')(function* (
-			ownerId: UserId
-		) {
-			if (!linear) return { state: 'notConfigured' } satisfies LinearStatus
+		/** Runs a read with the owner's access token, or answers why there is none to read with. */
+		const readConnected = <T extends object>(
+			ownerId: UserId,
+			read: (
+				accessToken: string
+			) => Effect.Effect<T, LinearReadFailed | LinearConnectionLapsed>
+		): Effect.Effect<Connected<T>, LinearReadFailed | DbError> =>
+			Effect.gen(function* () {
+				if (!linear) return { state: 'notConfigured' } as const
 
-			return yield* readAccessToken(ownerId).pipe(
-				Effect.flatMap(accessToken =>
-					accessToken === undefined
-						? Effect.succeed<LinearStatus>({ state: 'notConnected' })
-						: linearApi.readWorkspaceName(accessToken).pipe(
-								Effect.map((workspace): LinearStatus => ({
-									state: 'connected',
-									workspace,
-								}))
-							)
-				),
+				const accessToken = yield* readAccessToken(ownerId)
+
+				if (accessToken === undefined) return { state: 'notConnected' } as const
+
+				return { state: 'connected' as const, ...(yield* read(accessToken)) }
+			}).pipe(
 				Effect.catchTag('LinearConnectionLapsed', () =>
-					Effect.succeed<LinearStatus>({ state: 'lapsed' })
+					Effect.succeed({ state: 'lapsed' } as const)
 				)
 			)
+
+		const status = Effect.fn('LinearService.status')((ownerId: UserId) =>
+			readConnected(ownerId, accessToken =>
+				linearApi
+					.readWorkspaceName(accessToken)
+					.pipe(Effect.map(workspace => ({ workspace })))
+			)
+		)
+
+		/** The issues a picker query names; a link to anything but an issue never reaches Linear. */
+		const findMatching = (accessToken: string, query: LinearIssueQuery) => {
+			switch (query.match) {
+				case 'assigned':
+					return linearApi.listAssignedIssues(accessToken)
+				case 'search':
+					return linearApi.searchIssues(accessToken, query.term)
+				case 'link':
+					return linearApi
+						.findIssue(accessToken, query.identifier)
+						.pipe(Effect.map(issue => (issue ? [issue] : [])))
+				default:
+					return Effect.succeed([])
+			}
+		}
+
+		const searchIssues = Effect.fn('LinearService.searchIssues')((
+			ownerId: UserId,
+			query: string
+		) => {
+			const parsed = parseLinearIssueQuery(query)
+
+			return readConnected(ownerId, accessToken =>
+				findMatching(accessToken, parsed).pipe(
+					Effect.map(issues => ({ match: parsed.match, issues }))
+				)
+			)
+		})
+
+		const listIssues = Effect.fn('LinearService.listIssues')(
+			(ownerId: UserId, ids: readonly string[]) =>
+				readConnected(ownerId, accessToken =>
+					linearApi
+						.listIssues(accessToken, ids)
+						.pipe(Effect.map(issues => ({ issues })))
+				)
+		)
+
+		const pin = Effect.fn('LinearService.pin')(function* (
+			ownerId: UserId,
+			id: TaskId,
+			issueId: string
+		) {
+			const read = yield* readConnected(ownerId, accessToken =>
+				linearApi
+					.findIssue(accessToken, issueId)
+					.pipe(Effect.map(issue => ({ issue })))
+			)
+
+			if (read.state !== 'connected') return yield* new LinearNotConnected()
+			if (!read.issue) return yield* new LinearIssueNotFound()
+
+			const { state: _state, ...pinned } = read.issue
+			const task = yield* requireTask(
+				yield* pins.pin({ ownerId, id, pin: pinned })
+			)
+
+			if (
+				!task.linearPins.some(
+					({ issueId: pinnedId }) => pinnedId === pinned.issueId
+				)
+			)
+				return yield* new LinearPinLimitReached()
+
+			return task
+		})
+
+		const unpin = Effect.fn('LinearService.unpin')(function* (
+			ownerId: UserId,
+			id: TaskId,
+			issueId: string
+		) {
+			return yield* requireTask(yield* pins.unpin({ ownerId, id, issueId }))
 		})
 
 		/** Uninterruptible once it holds the permit, so a dropped request cannot free it while revocations still run and a refresh writes a new pair behind them. */
@@ -178,6 +310,13 @@ export const LinearServiceLive = Layer.effect(
 			Semaphore.withPermit(linearPermit)
 		)
 
-		return LinearService.of({ status, disconnect })
+		return LinearService.of({
+			status,
+			searchIssues,
+			listIssues,
+			pin,
+			unpin,
+			disconnect,
+		})
 	})
 )

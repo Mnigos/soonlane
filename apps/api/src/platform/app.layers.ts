@@ -11,6 +11,7 @@ import { LabelRepositoryLive } from '@/modules/labels/infrastructure/label.repos
 import { LinearServiceLive } from '@/modules/linear/application/linear.service'
 import { HttpLinearApiLive } from '@/modules/linear/infrastructure/http-linear-api.layer'
 import { LinearAccountRepositoryLive } from '@/modules/linear/infrastructure/linear-account.repository'
+import { LinearPinRepositoryLive } from '@/modules/linear/infrastructure/linear-pin.repository'
 import { McpServiceLive } from '@/modules/mcp/application/mcp.service'
 import { McpConnectionRepositoryLive } from '@/modules/mcp/infrastructure/mcp-connection.repository'
 import { RateLimitRepositoryLive } from '@/modules/mcp/infrastructure/rate-limit.repository'
@@ -49,7 +50,13 @@ export const ServicesLive = Layer.mergeAll(
 		)
 	),
 	LinearServiceLive.pipe(
-		Layer.provide(Layer.merge(LinearAccountRepositoryLive, HttpLinearApiLive))
+		Layer.provide(
+			Layer.mergeAll(
+				LinearAccountRepositoryLive,
+				LinearPinRepositoryLive,
+				HttpLinearApiLive
+			)
+		)
 	),
 	CalendarServiceLive.pipe(
 		Layer.provide(CalendarSubscriptionRepositoryLive),

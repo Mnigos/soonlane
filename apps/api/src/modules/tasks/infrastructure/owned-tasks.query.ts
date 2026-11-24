@@ -1,7 +1,15 @@
-import type { Label, Project, Task } from '@soonlane/contracts'
-import { label, project, task, taskLabel, type TaskRow } from '@soonlane/db'
+import type { Label, LinearPin, Project, Task } from '@soonlane/contracts'
+import {
+	label,
+	linearPin,
+	project,
+	task,
+	taskLabel,
+	type TaskRow,
+} from '@soonlane/db'
 import {
 	type LabelId,
+	LINEAR_PINS_PER_TASK_MAX,
 	type ProjectId,
 	TASK_COMPLETED_ORDER,
 	TASK_DAY_ORDER,
@@ -31,6 +39,9 @@ import { toLabel } from '@/modules/labels/infrastructure/label.mapper'
 import { toProject } from '@/modules/projects/infrastructure/project.mapper'
 import type { Database } from '@/platform/db/db.layer'
 import { toTask } from './task.mapper'
+
+/** A value as a typed parameter, which Postgres cannot infer inside an `INSERT … SELECT` list. */
+const asText = (value: string) => sql<string>`cast(${value} as text)`
 
 /** The pool handle or a transaction: everything `ownedTasks` runs on. */
 export type Queries = Pick<
@@ -130,6 +141,23 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 		const subtasksByTask = new Map<TaskId | null, Task['subtasks']>(
 			subtaskCounts.map(({ parentId, ...subtasks }) => [parentId, subtasks])
 		)
+		const pins = await database
+			.select({
+				taskId: linearPin.taskId,
+				pin: {
+					issueId: linearPin.issueId,
+					identifier: linearPin.identifier,
+					title: linearPin.title,
+					url: linearPin.url,
+				},
+			})
+			.from(linearPin)
+			.where(inArray(linearPin.taskId, ids))
+			.orderBy(asc(linearPin.pinnedAt), asc(linearPin.issueId))
+		const pinsByTask = new Map<TaskId, LinearPin[]>()
+
+		for (const { taskId, pin } of pins)
+			pinsByTask.set(taskId, [...(pinsByTask.get(taskId) ?? []), pin])
 
 		return rows.map(row =>
 			toTask(row, {
@@ -137,6 +165,7 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 				project: projectsById.get(row.projectId),
 				parent: parentsById.get(row.parentId),
 				subtasks: subtasksByTask.get(row.id),
+				linearPins: pinsByTask.get(row.id) ?? [],
 			})
 		)
 	}
@@ -228,6 +257,51 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 						.where(and(owned, eq(task.id, id)))
 				)
 				.onConflictDoNothing()
+		},
+		/** Pins an issue, or refreshes a pinned one's stored fields; inserts nothing for a task the owner lacks or one at the pin limit. */
+		pinLinearIssue: async (id: TaskId, pin: LinearPin) => {
+			await database
+				.insert(linearPin)
+				.select(
+					database
+						.select({
+							taskId: task.id,
+							issueId: asText(pin.issueId).as('issue_id'),
+							identifier: asText(pin.identifier).as('identifier'),
+							title: asText(pin.title).as('title'),
+							url: asText(pin.url).as('url'),
+						})
+						.from(task)
+						.where(
+							and(
+								owned,
+								eq(task.id, id),
+								lt(
+									database.$count(linearPin, eq(linearPin.taskId, id)),
+									LINEAR_PINS_PER_TASK_MAX
+								)
+							)
+						)
+				)
+				.onConflictDoUpdate({
+					target: [linearPin.taskId, linearPin.issueId],
+					set: { identifier: pin.identifier, title: pin.title, url: pin.url },
+				})
+		},
+		/** Deletes nothing for a task that does not belong to the owner. */
+		unpinLinearIssue: async (id: TaskId, issueId: string) => {
+			await database.delete(linearPin).where(
+				and(
+					eq(linearPin.issueId, issueId),
+					inArray(
+						linearPin.taskId,
+						database
+							.select({ id: task.id })
+							.from(task)
+							.where(and(owned, eq(task.id, id)))
+					)
+				)
+			)
 		},
 		/** Takes a label off a task; deletes nothing for a task that does not belong to the owner. */
 		unassignLabel: async (id: TaskId, labelId: LabelId) => {
