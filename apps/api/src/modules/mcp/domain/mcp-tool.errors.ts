@@ -10,3 +10,14 @@ export class McpToolInputInvalid extends Data.TaggedError(
 		return this.issue
 	}
 }
+
+/** A write tool called on a connection the user allowed only to see tasks; the message tells the user how to allow more. */
+export class McpToolNeedsWriteScope extends Data.TaggedError(
+	'McpToolNeedsWriteScope'
+) {
+	readonly code = 'FORBIDDEN'
+
+	override get message() {
+		return 'This agent can only see your tasks, so reconnect it and tick the option to add, edit and complete tasks.'
+	}
+}

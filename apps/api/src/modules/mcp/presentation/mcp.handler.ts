@@ -43,7 +43,7 @@ const LOGGED_BODY_MAX_BYTES = 64 * 1024
 const BROWSER_REFUSED =
 	"Web pages can't call Soonlane directly, so connect through an AI app instead."
 const UNAVAILABLE =
-	"Soonlane couldn't read your tasks right now, so try again in a moment."
+	"Soonlane couldn't respond right now, so check your tasks in a moment and try again if needed."
 
 function jsonRpcError(
 	status: number,
