@@ -152,15 +152,15 @@ export function McpConnectionsDialog({
 							{confirming.name} loses access to your tasks right away on all
 							your devices. You can reconnect anytime from {confirming.name}.
 						</p>
+
+						{disconnect.isError && (
+							<p className="text-sm font-medium text-danger" role="alert">
+								{`Couldn't disconnect ${confirming.name}. Try again.`}
+							</p>
+						)}
 					</div>
 				) : (
 					renderBody()
-				)}
-
-				{disconnect.isError && confirming && (
-					<p className="text-sm font-medium text-danger" role="alert">
-						{`Couldn't disconnect ${confirming.name}. Try again.`}
-					</p>
 				)}
 
 				{confirming ? (
