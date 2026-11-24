@@ -1,6 +1,6 @@
 # apps/api agent rules
 
-- One Bun process on Railway: `platform/http/http-server.layer.ts` maps paths to handlers (`/health`, `/api/auth/*` and the agents' host-root discovery paths, `/api/rpc/*`, `/calendar/*`, `/ingest/*`); `AppLive` in `platform/app.layers.ts` wires every `*Live` layer into the one `ManagedRuntime`.
+- One Bun process on Railway: `platform/http/http-server.layer.ts` maps paths to handlers (`/health`, `/api/auth/*` and the agents' host-root discovery paths, `/api/rpc/*`, `/calendar/*`, `/mcp`, `/ingest/*`); `AppLive` in `platform/app.layers.ts` wires every `*Live` layer into the one `ManagedRuntime`.
 - Every setting comes from `AppConfig` (`platform/config/app.config.ts`); a missing or malformed variable stops the start with its name. Locally Bun reads `apps/api/.env.local`.
 - `withCors` answers every preflight and refuses an `Origin` outside `TRUSTED_ORIGINS` and the desktop page's `DESKTOP_PAGE_ORIGIN` before anything else runs; never add `*` or a pattern to the list, never add the desktop page's origin to it or give that origin credentials, and set no `Access-Control-*` header anywhere else (lint-enforced). `withIngestCors` answers PostHog's proxy for the exact `APP_URL` and `LANDING_URL` origins, never with credentials.
 - Only `withClientIp` sets `x-soonlane-client-ip`, and Better Auth reads no other IP header. Never trust `x-soonlane-visitor-ip` without the proxy secret.
@@ -11,3 +11,5 @@
 - Pure logic the web app also runs (dates, repeat rules) belongs in `@soonlane/domain`, not in a module's `domain/`.
 - No `.then`/`.catch` chains: `await` with `try`/`catch` outside Effect; inside Effect use `Effect.tryPromise` and `Effect.catch`. (lint-enforced)
 - JSDoc on a declaration says what it is for, its contract or a non-obvious why; `//` comments inside function bodies only for a quirk the reader would otherwise "fix" wrongly.
+- `/mcp` (`modules/mcp/presentation/mcp.handler.ts`) answers MCP clients, never browsers: it refuses any `Origin` with 403 and takes neither `withCors` nor `withClientIp`. Every request goes through `Auth.serveMcpRequest` and then `McpService.admit`, which requires the token's connection, allowed no later than its `iat`, and the per-user limit; never serve a tool before both. Tools call the services with the grant's `ownerId`, never query a table, parse their arguments again with the procedure's input schema, and register only under the scopes the grant holds ([ADR 0020](../../docs/decisions/0020-mcp-clients-connect-through-oauth.md)).
+- The MCP request's log line carries status, tool, outcome, error code and duration only: never a token, header, body, URL query or task text, and no analytics.
