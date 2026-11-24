@@ -10,7 +10,10 @@ export const MenuSubmenu = BaseMenu.SubmenuRoot
 export const MenuGroup = BaseMenu.Group
 
 type MenuContentProps = ComponentProps<typeof BaseMenu.Popup> &
-	Pick<ComponentProps<typeof BaseMenu.Positioner>, 'align' | 'anchor' | 'side'>
+	Pick<
+		ComponentProps<typeof BaseMenu.Positioner>,
+		'align' | 'anchor' | 'side' | 'collisionAvoidance'
+	>
 
 /** What a menu opens against in place of its trigger, such as a point under the pointer for a right-click. */
 export type MenuAnchor = MenuContentProps['anchor']
@@ -20,6 +23,7 @@ export function MenuContent({
 	align = 'center',
 	anchor,
 	side = 'bottom',
+	collisionAvoidance,
 	className,
 	...props
 }: Readonly<MenuContentProps>) {
@@ -29,6 +33,7 @@ export function MenuContent({
 				align={align}
 				anchor={anchor}
 				className="z-50"
+				collisionAvoidance={collisionAvoidance}
 				collisionPadding={8}
 				side={side}
 				sideOffset={3}

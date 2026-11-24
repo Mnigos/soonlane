@@ -15,6 +15,8 @@ import { useDisconnectLinearMutation } from '../hooks/use-disconnect-linear-muta
 
 const LINEAR_URL = 'https://linear.app'
 const STATUS_CLASS = 'ml-auto text-caption text-muted-foreground'
+/** Base UI's default for real submenus such as a label's Color, which a root menu lacks: beside the item, or below it when neither side fits, as in a phone's drawer. */
+const SUBMENU_COLLISION_AVOIDANCE = { fallbackAxisSide: 'end' } as const
 
 interface LinearMenuItemProps {
 	className: string
@@ -62,7 +64,12 @@ export function LinearMenuItem({
 				<ChevronRight aria-hidden className="size-4 text-muted-foreground" />
 			</MenuTrigger>
 
-			<MenuContent align="start" className="w-55 py-1" side="right">
+			<MenuContent
+				align="start"
+				className="w-55 py-1"
+				collisionAvoidance={SUBMENU_COLLISION_AVOIDANCE}
+				side="right"
+			>
 				<p className="ph-mask truncate px-2 pt-1 pb-1.5 text-caption text-muted-foreground">
 					{LINEAR_COPY.submenuCaption.replace('{workspace}', data.workspace)}
 				</p>
