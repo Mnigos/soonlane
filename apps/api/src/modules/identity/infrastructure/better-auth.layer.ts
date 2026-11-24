@@ -4,6 +4,7 @@ import {
 	type AuthLogLevel,
 	createAuth,
 	readStoredOAuthToken,
+	serveMcpRequest,
 } from '@soonlane/auth/server'
 import { userIdSchema } from '@soonlane/domain'
 import { Effect, Layer, Redacted } from 'effect'
@@ -100,6 +101,18 @@ export const BetterAuthLive = Layer.effect(
 		return Auth.of({
 			handle: async request => await auth.handler(request),
 			readStoredToken: async stored => await readStoredOAuthToken(auth, stored),
+			serveMcpRequest: async (request, serve) =>
+				await serveMcpRequest(auth, {
+					baseUrl: config.baseUrl,
+					request,
+					serve: async ({ userId, ...token }) => {
+						const ownerId = userIdSchema.safeParse(userId)
+
+						return ownerId.success
+							? await serve({ ...token, ownerId: ownerId.data })
+							: undefined
+					},
+				}),
 			signInMethods: {
 				google: Boolean(config.google),
 				emailCode: Boolean(config.email),

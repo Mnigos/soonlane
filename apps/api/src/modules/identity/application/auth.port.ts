@@ -1,5 +1,6 @@
 import type { AuthUser } from '@soonlane/auth'
 import type { SignInMethods } from '@soonlane/contracts'
+import type { UserId } from '@soonlane/domain'
 import { Context } from 'effect'
 
 export interface AuthSession {
@@ -12,6 +13,14 @@ export interface SessionLookup {
 	setCookies: string[]
 }
 
+/** A verified MCP access token: the user who allowed the agent, its client, the scopes the token carries and when it was issued, in whole seconds. */
+export interface McpAccessToken {
+	ownerId: UserId
+	clientId: string
+	scopes: string[]
+	issuedAt: Date
+}
+
 export class Auth extends Context.Service<
 	Auth,
 	{
@@ -19,6 +28,14 @@ export class Auth extends Context.Service<
 		readonly getSession: (headers: Headers) => Promise<SessionLookup>
 		/** Decrypts a provider token from the `account` table with Better Auth's own key. */
 		readonly readStoredToken: (stored: string) => Promise<string>
+		/**
+		 * Verifies an MCP request's MCP access token and passes it to `serve`. A request without a valid token, and one `serve` answers `undefined`
+		 * for (the connection is gone), get the 401 challenge that sends the agent to sign in.
+		 */
+		readonly serveMcpRequest: (
+			request: Request,
+			serve: (token: McpAccessToken) => Promise<Response | undefined>
+		) => Promise<Response>
 		/** The ways in this server offers, for the sign-in screens. */
 		readonly signInMethods: SignInMethods
 	}

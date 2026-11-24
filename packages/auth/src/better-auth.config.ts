@@ -57,6 +57,11 @@ export type {
 	AuthLogLevel,
 	CreateAuthOptions,
 } from './create-auth.types'
+export {
+	type McpRequestServer,
+	type McpToken,
+	serveMcpRequest,
+} from './mcp-request.handler'
 export type { SignInCodeMail } from './email-code.handler'
 
 /** The one header Better Auth reads the client IP from; the API's HTTP entry sets it and drops any copy a client sends. */
