@@ -1,3 +1,4 @@
+import { betterFetch } from '@better-fetch/fetch'
 import type {
 	Account,
 	BetterAuthPlugin,
@@ -19,6 +20,7 @@ import {
 import type { OAuthClientOptions, OAuthTokenKind } from './oauth-client.types'
 import { type LinkingUser, linkOnlyProvider } from './provider-link.handler'
 
+/** Applied as a signal, not `betterFetch`'s `timeout`, whose timer stops once the headers arrive and leaves the body unbounded. */
 const LINEAR_TIMEOUT_MS = 10_000
 
 /** The fields Better Auth's Linear profile declares. */
@@ -43,24 +45,19 @@ async function readLinearUser(
 	if (!accessToken || !link) return null
 
 	try {
-		const response = await fetch(LINEAR_GRAPHQL_URL, {
+		const { data: answer } = await betterFetch(LINEAR_GRAPHQL_URL, {
 			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				Authorization: `Bearer ${accessToken}`,
-			},
-			body: JSON.stringify({
+			headers: { Authorization: `Bearer ${accessToken}` },
+			body: {
 				query: '{ viewer { id name email active createdAt updatedAt } }',
-			}),
+			},
+			output: viewerSchema,
 			signal: AbortSignal.timeout(LINEAR_TIMEOUT_MS),
 		})
-		const parsed = viewerSchema.safeParse(
-			response.ok ? await response.json() : undefined
-		)
 
-		if (!parsed.success) return null
+		if (!answer) return null
 
-		const { viewer } = parsed.data.data
+		const { viewer } = answer.data
 
 		return {
 			user: { email: link.email, name: viewer.name, emailVerified: false },
@@ -71,7 +68,11 @@ async function readLinearUser(
 	}
 }
 
-const revokeErrorSchema = z.object({ error: z.string() })
+/** Linear's refusal body, such as `{ "error": "Token not found" }`; its `error` never holds the token. */
+interface LinearRevokeError {
+	error?: unknown
+}
+
 /** Answers that mean Linear holds no grant for the token: one it no longer knows, or one revoked before. */
 const GONE_ANSWERS: Readonly<Record<number, RegExp>> = {
 	401: /token not found/iu,
@@ -79,38 +80,30 @@ const GONE_ANSWERS: Readonly<Record<number, RegExp>> = {
 }
 const REASON_MAX_LENGTH = 120
 
-/** Linear's short `error` string from a refusal, which never holds the token. */
-function readRevokeError(body: string) {
-	try {
-		const parsed = revokeErrorSchema.safeParse(JSON.parse(body))
-
-		return parsed.success
-			? parsed.data.error.slice(0, REASON_MAX_LENGTH)
-			: undefined
-	} catch {
-		return undefined
-	}
-}
-
 /**
- * `undefined` once Linear holds no grant for the token (200, or a 401 or 400 that says so); otherwise the status with Linear's reason, or the error's name.
+ * `undefined` once Linear holds no grant for the token (a success, or a 401 or 400 whose `error` says so); otherwise the status with Linear's reason, or the error's name.
  * Linear reads the token from the form; it ignores client credentials, and only a Bearer header next to the token conflicts.
  */
 export async function revokeLinearToken(token: string, kind: OAuthTokenKind) {
 	try {
-		const response = await fetch(LINEAR_REVOKE_URL, {
-			method: 'POST',
-			body: new URLSearchParams({ token, token_type_hint: kind }),
-			signal: AbortSignal.timeout(LINEAR_TIMEOUT_MS),
-		})
+		const { error } = await betterFetch<unknown, LinearRevokeError>(
+			LINEAR_REVOKE_URL,
+			{
+				method: 'POST',
+				body: new URLSearchParams({ token, token_type_hint: kind }),
+				signal: AbortSignal.timeout(LINEAR_TIMEOUT_MS),
+			}
+		)
 
-		if (response.status === 200) return undefined
+		if (!error) return undefined
 
-		const body = await response.text()
+		const reason = typeof error.error === 'string' ? error.error : ''
 
-		if (GONE_ANSWERS[response.status]?.test(body)) return undefined
+		if (GONE_ANSWERS[error.status]?.test(reason)) return undefined
 
-		return [response.status, readRevokeError(body)].filter(Boolean).join(' ')
+		return [error.status, reason.slice(0, REASON_MAX_LENGTH)]
+			.filter(Boolean)
+			.join(' ')
 	} catch (error) {
 		return error instanceof Error ? error.name : typeof error
 	}
@@ -128,17 +121,18 @@ async function refreshLinearToken(
 		options: client,
 		tokenEndpoint: LINEAR_TOKEN_URL,
 	})
-	const response = await fetch(LINEAR_TOKEN_URL, {
+	const { data, error } = await betterFetch(LINEAR_TOKEN_URL, {
 		method: 'POST',
 		body,
 		headers,
 		redirect: 'error',
+		output: tokenResponseSchema,
 		signal: AbortSignal.timeout(LINEAR_TIMEOUT_MS),
 	})
 
-	if (!response.ok) throw new Error(String(response.status))
+	if (error) throw new Error(String(error.status))
 
-	return getOAuth2Tokens(tokenResponseSchema.parse(await response.json()))
+	return getOAuth2Tokens(data)
 }
 
 async function revokeDeletedAccount(
