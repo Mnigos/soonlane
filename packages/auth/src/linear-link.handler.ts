@@ -40,7 +40,7 @@ async function readLinearUser(
 	accessToken: string | undefined,
 	link: LinkingUser | undefined
 ) {
-	if (!(accessToken && link)) return null
+	if (!accessToken || !link) return null
 
 	try {
 		const response = await fetch(LINEAR_GRAPHQL_URL, {
@@ -151,6 +151,7 @@ async function revokeDeletedAccount(
 	)
 		return
 
+	const authContext = context.context
 	const stored = [
 		[account.accessToken, 'access_token'],
 		[account.refreshToken, 'refresh_token'],
@@ -160,10 +161,9 @@ async function revokeDeletedAccount(
 			if (!token) return undefined
 
 			try {
-				return await revokeLinearToken(
-					await decryptOAuthToken(token, context.context),
-					kind
-				)
+				const plain = await decryptOAuthToken(token, authContext)
+
+				return await revokeLinearToken(plain, kind)
 			} catch (error) {
 				return error instanceof Error ? error.name : typeof error
 			}
@@ -172,7 +172,7 @@ async function revokeDeletedAccount(
 	const failures = reasons.filter(reason => reason !== undefined)
 
 	if (failures.length > 0)
-		context.context.logger.warn(
+		authContext.logger.warn(
 			'Revoking Linear tokens of a deleted account failed',
 			...failures
 		)

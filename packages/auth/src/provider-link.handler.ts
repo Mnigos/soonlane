@@ -53,9 +53,10 @@ export async function refuseUnsafeLink(
 	)
 		throw refuseProvider('A link takes no other parameters.')
 
+	const { internalAdapter } = ctx.context
 	const signedIn = await getSessionFromCtx(ctx)
 	const linked = signedIn
-		? await ctx.context.internalAdapter.findAccounts(signedIn.user.id)
+		? await internalAdapter.findAccounts(signedIn.user.id)
 		: []
 
 	// A new link must not overwrite a row whose tokens are not revoked yet; the API closes the earlier connection first.
@@ -64,6 +65,15 @@ export async function refuseUnsafeLink(
 			code: providers[provider],
 			message: 'The earlier connection is still open.',
 		})
+}
+
+/** A link callback writing a row of a link-only provider. */
+function isLinkOnlyCallback(
+	context: GenericEndpointContext | null,
+	providerId: unknown,
+	providers: LinkOnlyProviders
+) {
+	return context?.path === '/callback/:id' && isLinkOnly(providerId, providers)
 }
 
 /**
@@ -79,16 +89,15 @@ export function linkOnlyAccountHooks(providers: LinkOnlyProviders) {
 			) => {
 				if (
 					!context ||
-					context.path !== '/callback/:id' ||
-					!isLinkOnly(created.providerId, providers)
+					!isLinkOnlyCallback(context, created.providerId, providers)
 				)
 					return true
 
+				const { internalAdapter } = context.context
+
 				// Fails closed: a refused create ends the callback with an error, and its after hook revokes the tokens.
 				try {
-					const accounts = await context.context.internalAdapter.findAccounts(
-						created.userId
-					)
+					const accounts = await internalAdapter.findAccounts(created.userId)
 
 					return !accounts.some(
 						({ providerId }) => providerId === created.providerId
@@ -102,10 +111,7 @@ export function linkOnlyAccountHooks(providers: LinkOnlyProviders) {
 			before: async (
 				{ providerId }: Partial<Account>,
 				context: GenericEndpointContext | null
-			) =>
-				!(
-					context?.path === '/callback/:id' && isLinkOnly(providerId, providers)
-				),
+			) => !isLinkOnlyCallback(context, providerId, providers),
 		},
 	}
 }
@@ -155,24 +161,24 @@ export function linkOnlyProvider(
 		},
 		revokeUnstoredTokens: {
 			matcher: (ctx: HookEndpointContext) => ctx.path === '/callback/:id',
-			handler: createAuthMiddleware(async ctx => {
+			handler: createAuthMiddleware(async ({ context }) => {
 				const state = await getOAuthState()
 				const issued = state ? issuedTokens.get(state) : undefined
 
-				if (!(state && issued?.accessToken)) return
+				if (!state || !issued?.accessToken) return
 
 				issuedTokens.delete(state)
 
-				if (
-					state.link &&
-					(await isStored(
-						ctx.context,
-						providerId,
-						state.link.userId,
-						issued.accessToken
-					))
-				)
-					return
+				const stored = state.link
+					? await isStored(
+							context,
+							providerId,
+							state.link.userId,
+							issued.accessToken
+						)
+					: false
+
+				if (stored) return
 
 				const failures = await Promise.all([
 					revoke(issued.accessToken, 'access_token'),
@@ -183,7 +189,7 @@ export function linkOnlyProvider(
 				const reasons = failures.filter(reason => reason !== undefined)
 
 				if (reasons.length > 0)
-					ctx.context.logger.warn(
+					context.logger.warn(
 						`Revoking ${providerId} tokens of an unfinished link failed`,
 						...reasons
 					)
