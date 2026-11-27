@@ -21,7 +21,7 @@ interface TaskDetailDialogProps {
 
 /**
  * A task opened from its row, as in Todoist: the whole title and description, its date, labels and goal,
- * with Edit swapping in the edit card. The row passes its live task, so a save shows at once.
+ * with Edit swapping in the edit card, which takes focus since the Edit button that held it is gone. The row passes its live task, so a save shows at once.
  * The header names the project, so the line under the description leaves it out.
  */
 export function TaskDetailDialog({
@@ -41,18 +41,19 @@ export function TaskDetailDialog({
 			onClose={onClose}
 		>
 			{isEditing ? (
-				<TaskComposer
-					autoFocus={false}
-					className="my-0 border-0"
-					defaultDueDate={task.dueDate}
-					defaultLabels={task.labels}
-					onCancel={() => setIsEditing(false)}
-					onDeleted={onClose}
-					onSaved={() => setIsEditing(false)}
-					source="task_row"
-					task={task}
-					today={today}
-				/>
+				<div className="max-h-[85dvh] overflow-y-auto">
+					<TaskComposer
+						className="my-0 border-0"
+						defaultDueDate={task.dueDate}
+						defaultLabels={task.labels}
+						onCancel={() => setIsEditing(false)}
+						onDeleted={onClose}
+						onSaved={() => setIsEditing(false)}
+						source="task_row"
+						task={task}
+						today={today}
+					/>
+				</div>
 			) : (
 				<div className="flex max-h-[85dvh] flex-col">
 					<header className="flex items-center gap-2 border-b py-2 pr-2 pl-4">
