@@ -50,6 +50,8 @@ export interface CreateAuthOptions {
 	emailCode?: EmailCodeOptions
 	/** Unset, Todoist cannot be linked. */
 	todoist?: OAuthClientOptions
+	/** Unset, Linear cannot be linked. */
+	linear?: OAuthClientOptions
 	log: AuthLogger
 	events: AuthEvents
 }

@@ -8,6 +8,9 @@ import { EmailLive } from '@/modules/email/infrastructure/email.layer'
 import { BetterAuthLive } from '@/modules/identity/infrastructure/better-auth.layer'
 import { LabelsServiceLive } from '@/modules/labels/application/labels.service'
 import { LabelRepositoryLive } from '@/modules/labels/infrastructure/label.repository'
+import { LinearServiceLive } from '@/modules/linear/application/linear.service'
+import { HttpLinearApiLive } from '@/modules/linear/infrastructure/http-linear-api.layer'
+import { LinearAccountRepositoryLive } from '@/modules/linear/infrastructure/linear-account.repository'
 import { McpServiceLive } from '@/modules/mcp/application/mcp.service'
 import { McpConnectionRepositoryLive } from '@/modules/mcp/infrastructure/mcp-connection.repository'
 import { RateLimitRepositoryLive } from '@/modules/mcp/infrastructure/rate-limit.repository'
@@ -44,6 +47,9 @@ export const ServicesLive = Layer.mergeAll(
 				ProjectsServiceLive.pipe(Layer.provide(ProjectRepositoryLive))
 			)
 		)
+	),
+	LinearServiceLive.pipe(
+		Layer.provide(Layer.merge(LinearAccountRepositoryLive, HttpLinearApiLive))
 	),
 	CalendarServiceLive.pipe(
 		Layer.provide(CalendarSubscriptionRepositoryLive),

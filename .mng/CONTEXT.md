@@ -4,7 +4,7 @@ Soonlane is a personal task list: anyone signs up and gets their own tasks, labe
 
 ## Intentional patterns, not bugs
 
-- Repositories have no ports (ADR 0014): a service imports the repository tag from `infrastructure/<entity>.repository.ts` directly. Ports exist only for outside systems the app may replace (`Auth`, `Analytics`, `Email`, `TodoistApi`).
+- Repositories have no ports (ADR 0014): a service imports the repository tag from `infrastructure/<entity>.repository.ts` directly. Ports exist only for outside systems the app may replace (`Auth`, `Analytics`, `Email`, `TodoistApi`, `LinearApi`).
 - Repositories and `*.query.ts` pieces never catch; a `DbError` goes up to the service, which maps a constraint violation to a domain error (`isUniqueViolation`, `isForeignKeyViolation`). Uniqueness is checked by the index, not by a read before the write.
 - `ownedTasks` and `ownedBy` in `owned-tasks.query.ts` are the only owner filter on the task table; a query built from them is owner-scoped even though it shows no `ownerId`.
 - Repository methods return `undefined` for a row the owner does not have; the service turns that into NOT_FOUND. Another user's id answers the same as a missing one, on purpose.

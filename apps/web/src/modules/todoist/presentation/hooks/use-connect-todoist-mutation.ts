@@ -1,6 +1,10 @@
 import { orpcQuery } from '@soonlane/app/rpc-query'
-import { TODOIST_STILL_CONNECTED } from '@soonlane/auth'
-import { linkTodoist } from '@soonlane/auth/client'
+import {
+	TODOIST_IMPORT_PATH,
+	TODOIST_PROVIDER_ID,
+	TODOIST_STILL_CONNECTED,
+} from '@soonlane/auth'
+import { linkAccount } from '@soonlane/auth/client'
 import { useMutation } from '@tanstack/react-query'
 import { TODOIST_COPY } from '../helpers/todoist-copy.constants'
 
@@ -12,7 +16,7 @@ async function connectTodoist() {
 		throw new Error(TODOIST_COPY.cancelFailed, { cause: error })
 	}
 
-	const { error } = await linkTodoist()
+	const { error } = await linkAccount(TODOIST_PROVIDER_ID, TODOIST_IMPORT_PATH)
 
 	if (error)
 		throw new Error(

@@ -86,6 +86,7 @@ export class AppConfig extends Context.Service<
 		/** The oldest iPhone and Android app version this API serves; unset, every version is. */
 		readonly mobileMinimumVersion?: string
 		readonly todoist?: OAuthClientConfig
+		readonly linear?: OAuthClientConfig
 	}
 >()('soonlane/AppConfig') {}
 
@@ -206,7 +207,7 @@ const emailConfig = Config.all({
 	})
 )
 
-/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys, the Google and Todoist pairs, the email group and the minimum app versions is required: a missing or malformed variable stops the start with its name, and so does a server with no way to sign in. */
+/** Every setting but `ALLOWED_EMAILS`, `AUTH_COOKIE_DOMAIN`, the PostHog keys, the Google, Todoist and Linear pairs, the email group and the minimum app versions is required: a missing or malformed variable stops the start with its name, and so does a server with no way to sign in. */
 const appConfig = Config.all({
 	port: Config.Port('PORT'),
 	environment: Config.NonEmptyString('APP_ENV'),
@@ -242,6 +243,7 @@ const appConfig = Config.all({
 		Config.Redacted('POSTHOG_PERSONAL_API_KEY')
 	).pipe(Config.map(Option.getOrUndefined)),
 	todoist: oauthClientConfig('TODOIST_CLIENT_ID', 'TODOIST_CLIENT_SECRET'),
+	linear: oauthClientConfig('LINEAR_CLIENT_ID', 'LINEAR_CLIENT_SECRET'),
 	desktopMinimumVersion: minimumVersionConfig('DESKTOP_MINIMUM_VERSION'),
 	mobileMinimumVersion: minimumVersionConfig('MOBILE_MINIMUM_VERSION'),
 })

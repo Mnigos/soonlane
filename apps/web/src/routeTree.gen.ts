@@ -18,6 +18,7 @@ import { Route as modulesIdentityPresentationRoutesAndroidCallbackDotrouteRouteI
 import { Route as modulesTasksPresentationRoutesUpcomingDotrouteRouteImport } from './modules/tasks/presentation/routes/upcoming.route'
 import { Route as modulesTasksPresentationRoutesCompletedDotrouteRouteImport } from './modules/tasks/presentation/routes/completed.route'
 import { Route as modulesTasksPresentationRoutesInboxDotrouteRouteImport } from './modules/tasks/presentation/routes/inbox.route'
+import { Route as modulesLinearPresentationRoutesLinearDotrouteRouteImport } from './modules/linear/presentation/routes/linear.route'
 import { Route as modulesTasksPresentationRoutesSearchDotrouteRouteImport } from './modules/tasks/presentation/routes/search.route'
 import { Route as modulesTasksPresentationRoutesTodayDotrouteRouteImport } from './modules/tasks/presentation/routes/today.route'
 import { Route as modulesTodoistPresentationRoutesTodoistDotrouteRouteImport } from './modules/todoist/presentation/routes/todoist.route'
@@ -79,6 +80,12 @@ const modulesTasksPresentationRoutesInboxDotrouteRoute =
     path: '/inbox',
     getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
   } as any)
+const modulesLinearPresentationRoutesLinearDotrouteRoute =
+  modulesLinearPresentationRoutesLinearDotrouteRouteImport.update({
+    id: '/linear',
+    path: '/linear',
+    getParentRoute: () => modulesShellPresentationRoutesShellDotrouteRoute,
+  } as any)
 const modulesTasksPresentationRoutesSearchDotrouteRoute =
   modulesTasksPresentationRoutesSearchDotrouteRouteImport.update({
     id: '/search',
@@ -136,6 +143,7 @@ export interface FileRoutesByFullPath {
   '/android/callback': typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute
   '/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   '/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  '/linear': typeof modulesLinearPresentationRoutesLinearDotrouteRoute
   '/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
@@ -153,6 +161,7 @@ export interface FileRoutesByTo {
   '/android/callback': typeof modulesIdentityPresentationRoutesAndroidCallbackDotrouteRoute
   '/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   '/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  '/linear': typeof modulesLinearPresentationRoutesLinearDotrouteRoute
   '/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
@@ -173,6 +182,7 @@ export interface FileRoutesById {
   '/_session/_shell/': typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   '/_session/_shell/completed': typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   '/_session/_shell/inbox': typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  '/_session/_shell/linear': typeof modulesLinearPresentationRoutesLinearDotrouteRoute
   '/_session/_shell/search': typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   '/_session/_shell/today': typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   '/_session/_shell/todoist': typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/android/callback'
     | '/completed'
     | '/inbox'
+    | '/linear'
     | '/search'
     | '/today'
     | '/todoist'
@@ -209,6 +220,7 @@ export interface FileRouteTypes {
     | '/android/callback'
     | '/completed'
     | '/inbox'
+    | '/linear'
     | '/search'
     | '/today'
     | '/todoist'
@@ -228,6 +240,7 @@ export interface FileRouteTypes {
     | '/_session/_shell/'
     | '/_session/_shell/completed'
     | '/_session/_shell/inbox'
+    | '/_session/_shell/linear'
     | '/_session/_shell/search'
     | '/_session/_shell/today'
     | '/_session/_shell/todoist'
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof modulesTasksPresentationRoutesInboxDotrouteRouteImport
       parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
     }
+    '/_session/_shell/linear': {
+      id: '/_session/_shell/linear'
+      path: '/linear'
+      fullPath: '/linear'
+      preLoaderRoute: typeof modulesLinearPresentationRoutesLinearDotrouteRouteImport
+      parentRoute: typeof modulesShellPresentationRoutesShellDotrouteRoute
+    }
     '/_session/_shell/search': {
       id: '/_session/_shell/search'
       path: '/search'
@@ -373,6 +393,7 @@ interface modulesShellPresentationRoutesShellDotrouteRouteChildren {
   modulesTasksPresentationRoutesUpcomingDotrouteRoute: typeof modulesTasksPresentationRoutesUpcomingDotrouteRoute
   modulesTasksPresentationRoutesCompletedDotrouteRoute: typeof modulesTasksPresentationRoutesCompletedDotrouteRoute
   modulesTasksPresentationRoutesInboxDotrouteRoute: typeof modulesTasksPresentationRoutesInboxDotrouteRoute
+  modulesLinearPresentationRoutesLinearDotrouteRoute: typeof modulesLinearPresentationRoutesLinearDotrouteRoute
   modulesTasksPresentationRoutesSearchDotrouteRoute: typeof modulesTasksPresentationRoutesSearchDotrouteRoute
   modulesTasksPresentationRoutesTodayDotrouteRoute: typeof modulesTasksPresentationRoutesTodayDotrouteRoute
   modulesTodoistPresentationRoutesTodoistDotrouteRoute: typeof modulesTodoistPresentationRoutesTodoistDotrouteRoute
@@ -388,6 +409,8 @@ const modulesShellPresentationRoutesShellDotrouteRouteChildren: modulesShellPres
       modulesTasksPresentationRoutesCompletedDotrouteRoute,
     modulesTasksPresentationRoutesInboxDotrouteRoute:
       modulesTasksPresentationRoutesInboxDotrouteRoute,
+    modulesLinearPresentationRoutesLinearDotrouteRoute:
+      modulesLinearPresentationRoutesLinearDotrouteRoute,
     modulesTasksPresentationRoutesSearchDotrouteRoute:
       modulesTasksPresentationRoutesSearchDotrouteRoute,
     modulesTasksPresentationRoutesTodayDotrouteRoute:

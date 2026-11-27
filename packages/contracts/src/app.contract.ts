@@ -1,6 +1,7 @@
 import { calendarContract } from './calendar.contract'
 import { identityContract } from './identity.contract'
 import { labelsContract } from './labels.contract'
+import { linearContract } from './linear.contract'
 import { mcpContract } from './mcp.contract'
 import { projectsContract } from './projects.contract'
 import { systemContract } from './system.contract'
@@ -12,6 +13,7 @@ export const contract = {
 	calendar: calendarContract,
 	identity: identityContract,
 	labels: labelsContract,
+	linear: linearContract,
 	projects: projectsContract,
 	system: systemContract,
 	tasks: tasksContract,

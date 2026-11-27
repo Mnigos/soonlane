@@ -1,7 +1,9 @@
 import { PrivacyChoicesButton } from '@soonlane/analytics/components/privacy-choices-button'
 import { CONSENT_COPY } from '@soonlane/analytics/consent-copy'
 import { CalendarSubscriptionDialog } from '@soonlane/app/calendar/components/calendar-subscription-dialog'
+import { LinearMenuItem } from '@soonlane/app/linear/components/linear-menu-item'
 import { McpConnectionsDialog } from '@soonlane/app/mcp/components/mcp-connections-dialog'
+import { LINEAR_CONNECT_PATH } from '@soonlane/auth'
 import type { SessionUser } from '@soonlane/contracts'
 import { cn } from '@soonlane/ui/cn'
 import { Avatar } from '@soonlane/ui/components/avatar'
@@ -114,6 +116,11 @@ export function UserMenu({
 					</button>
 
 					<TodoistMenuItem className={MENU_ITEM_CLASS} />
+
+					<LinearMenuItem
+						className={MENU_ITEM_CLASS}
+						connectHref={LINEAR_CONNECT_PATH}
+					/>
 
 					{/* Phones have no keyboard to use the shortcuts with. */}
 					<button
