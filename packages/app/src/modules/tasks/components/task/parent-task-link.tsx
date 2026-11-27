@@ -58,7 +58,7 @@ export function ParentTaskLink({
 	return (
 		<>
 			<button
-				className="flex min-w-0 cursor-pointer items-center gap-0.5 rounded-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+				className="relative z-10 flex min-w-0 cursor-pointer items-center gap-0.5 rounded-xs text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
 				onClick={() => void openParent()}
 				type="button"
 			>

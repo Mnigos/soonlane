@@ -7,17 +7,19 @@ import {
 	TASK_PRIORITIES,
 } from '@soonlane/domain'
 import { cn } from '@soonlane/ui/cn'
-import { Check, ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { type KeyboardEvent, useId, useRef, useState } from 'react'
 import { isShortcutKeydown } from '../../../../utils/keyboard-shortcut.util'
 import { keepFocusAfterMove } from '../../helpers/task-focus.helper'
-import { PRIORITY_CIRCLE_CLASSES } from '../../helpers/task-priority.constants'
 import { useOpenEditor } from '../../hooks/use-open-editor'
 import { useTaskMenu } from '../../hooks/use-task-menu'
 import { useTaskMenuEdits } from '../../hooks/use-task-menu-edits'
 import { TaskComposer } from '../composer/task-composer'
+import { CompleteTaskButton } from './complete-task-button'
 import { GoalProgress } from './goal-progress'
 import { LogProgressControls } from './log-progress-controls'
+import { TaskDescription } from './task-description'
+import { TaskDetailDialog } from './task-detail-dialog'
 import { TaskMeta } from './task-meta'
 import { TaskRowMenu } from './task-row-menu'
 
@@ -37,6 +39,8 @@ export interface TaskItemProps {
 	onAddSubtask: () => void
 }
 
+/** Keeps a row's own buttons and links above the title button, whose click area covers the row. */
+const ROW_ABOVE_OPEN_CLASS = 'relative z-10'
 /** Row controls show on hover and focus, always on touch screens; the negative margin keeps the row height. */
 const ROW_CONTROL_CLASS =
 	'-my-1.5 opacity-0 group-focus-within/task:opacity-100 group-hover/task:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100'
@@ -60,8 +64,8 @@ export function TaskItem({
 		(showsDueDay
 			? getDueChipLabel(task.dueDate, task, today)
 			: getDueLabel(task.dueDate, task, today))
-	const buttonId = useId()
 	const titleId = useId()
+	const [isViewing, setIsViewing] = useState(false)
 	const { changeDate: changeMenuDate, changePriority } = useTaskMenuEdits(
 		task,
 		today
@@ -124,7 +128,6 @@ export function TaskItem({
 			</li>
 		)
 
-	// "Complete <title>" without the title in an attribute, which replay masking would not hide.
 	return (
 		// oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the row takes focus only from J and K, then its keys act on the task
 		<li
@@ -139,7 +142,7 @@ export function TaskItem({
 				<button
 					aria-expanded={isExpanded}
 					aria-label={isExpanded ? 'Hide subtasks' : 'Show subtasks'}
-					className="absolute top-2.25 -left-6 flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
+					className="absolute top-2.25 -left-6 z-10 flex size-6 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
 					onClick={() => onExpandedChange(!isExpanded)}
 					type="button"
 				>
@@ -153,33 +156,30 @@ export function TaskItem({
 				</button>
 			)}
 
-			<button
-				aria-label="Complete"
-				aria-labelledby={`${buttonId} ${titleId}`}
-				className={cn(
-					'group mt-0.5 flex size-4.5 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 transition-colors',
-					PRIORITY_CIRCLE_CLASSES[task.priority]
-				)}
-				id={buttonId}
+			<CompleteTaskButton
+				className={ROW_ABOVE_OPEN_CLASS}
 				onClick={() => onComplete(task)}
-				type="button"
-			>
-				<Check
-					aria-hidden
-					className="size-3 opacity-0 transition-opacity group-hover:opacity-100"
-					strokeWidth={3}
-				/>
-			</button>
+				task={task}
+				titleId={titleId}
+			/>
 
 			<div className="flex min-w-0 flex-1 flex-col gap-0.5">
-				<p className="ph-mask text-sm text-foreground" id={titleId}>
-					{task.title}
+				<p className="ph-mask text-sm text-foreground">
+					<button
+						className="cursor-pointer text-left outline-hidden after:absolute after:inset-0 after:rounded-xs focus-visible:after:outline-2 focus-visible:after:outline-offset-2 focus-visible:after:outline-primary focus-visible:after:outline-solid"
+						id={titleId}
+						onClick={() => setIsViewing(true)}
+						type="button"
+					>
+						{task.title}
+					</button>
 				</p>
 
 				{task.description && (
-					<p className="ph-mask truncate text-label text-muted-foreground">
-						{task.description}
-					</p>
+					<TaskDescription
+						className="truncate text-label leading-5 whitespace-nowrap text-muted-foreground"
+						description={task.description}
+					/>
 				)}
 
 				{task.goal && <GoalProgress goal={task.goal} />}
@@ -197,7 +197,7 @@ export function TaskItem({
 
 			<TaskRowMenu
 				autoFocus={shouldFocusMenu}
-				className={ROW_CONTROL_CLASS}
+				className={cn(ROW_CONTROL_CLASS, ROW_ABOVE_OPEN_CLASS)}
 				isPickingDate={isPickingDate}
 				menu={menu}
 				onAddSubtask={onAddSubtask}
@@ -209,6 +209,15 @@ export function TaskItem({
 				today={today}
 				triggerRef={triggerRef}
 			/>
+
+			{isViewing && (
+				<TaskDetailDialog
+					onClose={() => setIsViewing(false)}
+					onComplete={onComplete}
+					task={task}
+					today={today}
+				/>
+			)}
 		</li>
 	)
 }
