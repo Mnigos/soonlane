@@ -12,7 +12,7 @@ Two drafts go out each Tuesday, comparisons first, in the order of the schedule 
 | `todoist-free-plan-limits`                    | todoist free plan limits            | know what the free plan stops you from doing             | 2026-11-24  |
 | `apps-like-todoist`                           | apps like todoist                   | compare free task lists that work like Todoist           | 2026-11-24  |
 | `self-hosted-todoist-alternative`             | self hosted todoist alternative     | run their own copy of a Todoist-style task list          | 2026-11-24  |
-| `soonlane-vs-ticktick`                        | free ticktick alternative           | see how a free, open source list compares to TickTick    | 2026-12-01  |
+| `soonlane-vs-ticktick`                        | free ticktick alternative           | see how a free, open source list compares to TickTick    | published   |
 | `soonlane-vs-vikunja`                         | vikunja alternative                 | weigh Vikunja against a hosted, day-based list           | 2026-12-01  |
 | `soonlane-vs-super-productivity`              | super productivity alternative      | weigh Super Productivity against a simpler synced list   | 2026-12-08  |
 | `plan-your-week-with-an-upcoming-view`        | plan your week to do list           | plan a week in a day-by-day list                         | 2026-12-08  |
