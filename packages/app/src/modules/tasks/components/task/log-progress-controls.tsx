@@ -65,7 +65,7 @@ export function LogProgressControls({
 	const logId = useId()
 
 	return (
-		<div className="-my-1 flex shrink-0 items-start gap-0.5 opacity-0 transition-opacity group-focus-within/task:opacity-100 group-hover/task:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100">
+		<div className="relative z-10 -my-1 flex shrink-0 items-start gap-0.5 opacity-0 transition-opacity group-focus-within/task:opacity-100 group-hover/task:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100">
 			<Button
 				aria-label="Add 1 to"
 				aria-labelledby={`${addId} ${titleId}`}
