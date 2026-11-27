@@ -213,6 +213,21 @@ export function TaskComposer({
 		onCancel()
 	}
 
+	/** Enter saves, as in the title; Shift+Enter starts a new line. */
+	function handleDescriptionKeys(event: KeyboardEvent<HTMLTextAreaElement>) {
+		if (
+			event.key === 'Enter' &&
+			!event.shiftKey &&
+			!event.nativeEvent.isComposing
+		) {
+			event.preventDefault()
+			event.currentTarget.form?.requestSubmit()
+			return
+		}
+
+		handleFieldKeys(event)
+	}
+
 	return (
 		<form
 			aria-label={card.name}
@@ -234,12 +249,16 @@ export function TaskComposer({
 				value={title}
 			/>
 
-			<input
+			<textarea
 				aria-label="Description"
-				className={cn(FIELD_CLASS, 'text-label leading-5')}
+				className={cn(
+					FIELD_CLASS,
+					'field-sizing-content max-h-60 resize-none text-label leading-5'
+				)}
 				onChange={event => setDescription(event.target.value)}
-				onKeyDown={handleFieldKeys}
+				onKeyDown={handleDescriptionKeys}
 				placeholder="Description"
+				rows={1}
 				value={description}
 			/>
 
