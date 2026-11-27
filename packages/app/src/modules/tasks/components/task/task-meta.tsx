@@ -4,6 +4,7 @@ import { cn } from '@soonlane/ui/cn'
 import { Calendar, Hash, ListTree, Tag } from 'lucide-react'
 import { use } from 'react'
 import { LABEL_COLOR_CLASSES } from '../../../labels/helpers/label-color.constants'
+import { LinearPinsBadge } from '../../../linear/components/linear-pins-badge'
 import { DUE_TONE_CLASSES } from '../../helpers/due-tone.constants'
 import { ProjectViewContext } from '../../project-view.context'
 import { RepeatIcon } from '../composer/date-picker-icons'
@@ -17,8 +18,8 @@ interface TaskMetaProps {
 }
 
 /**
- * The line under a task's title: its due date, whether it repeats, its subtask progress, its labels, its project (left out in that
- * project's view) and a subtask's parent.
+ * The line under a task's title: its due date, whether it repeats, its subtask progress, its labels, its first pinned Linear
+ * issue with "+N" for the rest, its project (left out in that project's view) and a subtask's parent.
  */
 export function TaskMeta({
 	task,
@@ -34,7 +35,7 @@ export function TaskMeta({
 		!due &&
 		!repeatText &&
 		!task.subtasks &&
-		task.labels.length === 0 &&
+		task.labels.length + task.linearPins.length === 0 &&
 		!project &&
 		!parent
 	)
@@ -99,6 +100,8 @@ export function TaskMeta({
 					<span className="ph-mask">{label.name}</span>
 				</span>
 			))}
+
+			<LinearPinsBadge pins={task.linearPins} />
 
 			{project && (
 				<span className="flex items-center gap-0.5 text-muted-foreground">

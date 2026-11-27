@@ -25,8 +25,11 @@ interface PickerChipProps extends PropsWithChildren {
 	name: string | undefined
 	/** How many more items are picked, shown as "+N" after the name. */
 	moreCount?: number
-	clearLabel: string
-	onClear: () => void
+	/** Shown after the label while nothing is named, such as how many issues are pinned. */
+	count?: number
+	/** Without it the chip has no ×. */
+	clear?: { label: string; onClear: () => void }
+	popoverClassName?: string
 	open?: boolean
 	onOpenChange: (open: boolean) => void
 	inputRef: RefObject<HTMLInputElement | null>
@@ -39,8 +42,9 @@ export function PickerChip({
 	icon,
 	name,
 	moreCount = 0,
-	clearLabel,
-	onClear,
+	count = 0,
+	clear,
+	popoverClassName = 'w-62',
 	open,
 	onOpenChange,
 	inputRef,
@@ -78,26 +82,30 @@ export function PickerChip({
 							{moreCount > 0 && <span id={countId}>+{moreCount}</span>}
 						</>
 					) : (
-						label
+						<>
+							{label}
+
+							{count > 0 && <span className="text-foreground">{count}</span>}
+						</>
 					)}
 				</PopoverTrigger>
 
 				<PopoverContent
 					align="center"
 					aria-label={label}
-					className="w-62"
+					className={popoverClassName}
 					initialFocus={inputRef}
 				>
 					{children}
 				</PopoverContent>
 			</Popover>
 
-			{name && (
+			{name && clear && (
 				<button
-					aria-label={clearLabel}
+					aria-label={clear.label}
 					className="mr-0.5 flex size-5 shrink-0 cursor-pointer items-center justify-center rounded-sm text-secondary-foreground transition-colors hover:bg-hover hover:text-foreground focus-visible:outline-2 focus-visible:outline-primary"
 					onClick={() => {
-						onClear()
+						clear.onClear()
 						triggerRef.current?.focus()
 					}}
 					onKeyDown={onKeyDown}

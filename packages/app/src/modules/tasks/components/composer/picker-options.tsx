@@ -1,5 +1,5 @@
 import { type AnyORPCError, isDefinedError } from '@orpc/client'
-import { Plus } from 'lucide-react'
+import { Check, Plus } from 'lucide-react'
 import {
 	CHIP_ICON_STROKE,
 	PICKER_NOTE_CLASS,
@@ -34,6 +34,19 @@ export function CreateOption({ noun, name }: Readonly<CreateOptionProps>) {
 				&quot;
 			</span>
 		</>
+	)
+}
+
+/** A picker row's checkbox on the right; it follows the row's selected state. */
+export function PickerCheckbox() {
+	return (
+		<span className="ml-auto flex size-4 shrink-0 items-center justify-center rounded-sm border border-border-strong group-data-selected:border-primary group-data-selected:bg-primary">
+			<Check
+				aria-hidden
+				className="size-3 text-primary-foreground opacity-0 group-data-selected:opacity-100"
+				strokeWidth={3}
+			/>
+		</span>
 	)
 }
 

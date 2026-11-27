@@ -1,4 +1,4 @@
-/** Every Linear string both host apps show; `{workspace}` is the connected workspace's name. */
+/** Every Linear string the host apps show; `{workspace}` is the connected workspace's name, `{count}` a number, `{id}` an issue's identifier, `{ids}` a list of them. */
 export const LINEAR_COPY = {
 	menuItem: 'Linear',
 	menuStatusConnected: 'Connected',
@@ -14,4 +14,27 @@ export const LINEAR_COPY = {
 		'This Linear account is already connected to another Soonlane account.',
 	errorDisconnect: 'Could not disconnect Linear. Try again.',
 	errorCancelled: 'Linear was not connected.',
+	chipLabel: 'Linear',
+	searchPlaceholder: 'Search issues or paste a link',
+	sectionAssigned: 'Assigned to you',
+	sectionResults: 'Matching issues',
+	sectionFromLink: 'From link',
+	pinnedCount: '{count} of 10 pinned',
+	openLinear: 'Open Linear',
+	noResults: 'No matching issues.',
+	notAnIssueLink: "That link isn't a Linear issue.",
+	loadFailed: "Couldn't load issues from Linear. Try again.",
+	limitReached: 'You can pin up to 10 Linear issues to a task.',
+	pinFailed: "Couldn't pin this issue. Try again.",
+	unpinFailed: "Couldn't unpin this issue. Try again.",
+	unpinLabel: 'Unpin {id}',
+	connectPrompt: 'Connect Linear to pin issues to your tasks.',
+	connectHint:
+		'Soonlane only reads your issues and never changes anything in Linear.',
+	connectButton: 'Connect Linear',
+	reconnect: 'Reconnect',
+	reconnectTooltip: 'Reconnect Linear to update issue status.',
+	statusUnavailable: "Couldn't load current status.",
+	badgeLabel: 'Linear issues: {ids}',
+	mobileSection: 'Linear issues',
 } as const

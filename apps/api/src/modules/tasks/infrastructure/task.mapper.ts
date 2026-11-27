@@ -12,7 +12,8 @@ export function toTask(
 		project,
 		parent,
 		subtasks,
-	}: Pick<Task, 'labels' | 'project' | 'parent' | 'subtasks'>
+		linearPins,
+	}: Pick<Task, 'labels' | 'project' | 'parent' | 'subtasks' | 'linearPins'>
 ): Task {
 	const {
 		repeatUnit: unit,
@@ -35,6 +36,7 @@ export function toTask(
 				? { unit, interval, anchor, fromCompletion: row.repeatFromCompletion }
 				: undefined,
 		labels,
+		linearPins,
 		project,
 		goal:
 			row.goalTarget === null

@@ -1,7 +1,15 @@
-import type { Label, Project, Task } from '@soonlane/contracts'
-import { label, project, task, taskLabel, type TaskRow } from '@soonlane/db'
+import type { Label, LinearPin, Project, Task } from '@soonlane/contracts'
+import {
+	label,
+	linearPin,
+	project,
+	task,
+	taskLabel,
+	type TaskRow,
+} from '@soonlane/db'
 import {
 	type LabelId,
+	LINEAR_PINS_PER_TASK_MAX,
 	type ProjectId,
 	TASK_COMPLETED_ORDER,
 	TASK_DAY_ORDER,
@@ -130,6 +138,23 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 		const subtasksByTask = new Map<TaskId | null, Task['subtasks']>(
 			subtaskCounts.map(({ parentId, ...subtasks }) => [parentId, subtasks])
 		)
+		const pins = await database
+			.select({
+				taskId: linearPin.taskId,
+				pin: {
+					issueId: linearPin.issueId,
+					identifier: linearPin.identifier,
+					title: linearPin.title,
+					url: linearPin.url,
+				},
+			})
+			.from(linearPin)
+			.where(inArray(linearPin.taskId, ids))
+			.orderBy(asc(linearPin.pinnedAt), asc(linearPin.issueId))
+		const pinsByTask = new Map<TaskId, LinearPin[]>()
+
+		for (const { taskId, pin } of pins)
+			pinsByTask.set(taskId, [...(pinsByTask.get(taskId) ?? []), pin])
 
 		return rows.map(row =>
 			toTask(row, {
@@ -137,6 +162,7 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 				project: projectsById.get(row.projectId),
 				parent: parentsById.get(row.parentId),
 				subtasks: subtasksByTask.get(row.id),
+				linearPins: pinsByTask.get(row.id) ?? [],
 			})
 		)
 	}
@@ -228,6 +254,50 @@ export function ownedTasks(database: Queries, ownerId: UserId) {
 						.where(and(owned, eq(task.id, id)))
 				)
 				.onConflictDoNothing()
+		},
+		/**
+		 * Pins an issue, or refreshes a pinned one's stored fields even at the limit. Run it in a transaction: the task's path
+		 * lock, the one every tree write takes, serialises pins on a task, so two at once cannot pass the limit. Writes
+		 * nothing for a task the owner lacks.
+		 */
+		pinLinearIssue: async (id: TaskId, pin: LinearPin) => {
+			const locked = await lockPaths([id])
+
+			if (!locked.some(row => row.id === id)) return
+
+			const pinned = await database
+				.select({ issueId: linearPin.issueId })
+				.from(linearPin)
+				.where(eq(linearPin.taskId, id))
+
+			if (
+				pinned.length >= LINEAR_PINS_PER_TASK_MAX &&
+				!pinned.some(({ issueId }) => issueId === pin.issueId)
+			)
+				return
+
+			await database
+				.insert(linearPin)
+				.values({ taskId: id, ...pin })
+				.onConflictDoUpdate({
+					target: [linearPin.taskId, linearPin.issueId],
+					set: { identifier: pin.identifier, title: pin.title, url: pin.url },
+				})
+		},
+		/** Deletes nothing for a task that does not belong to the owner. */
+		unpinLinearIssue: async (id: TaskId, issueId: string) => {
+			await database.delete(linearPin).where(
+				and(
+					eq(linearPin.issueId, issueId),
+					inArray(
+						linearPin.taskId,
+						database
+							.select({ id: task.id })
+							.from(task)
+							.where(and(owned, eq(task.id, id)))
+					)
+				)
+			)
 		},
 		/** Takes a label off a task; deletes nothing for a task that does not belong to the owner. */
 		unassignLabel: async (id: TaskId, labelId: LabelId) => {

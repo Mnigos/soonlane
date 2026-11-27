@@ -77,10 +77,10 @@ export async function createTask(
 
 	if (!row) throw new Error('Task insert returned no row')
 	if (labelIds.length === 0 && !row.projectId && !row.parentId)
-		return toTask(row, { labels: [] })
+		return toTask(row, { labels: [], linearPins: [] })
 	if (labelIds.length > 0) await tasks.assignLabels(row.id, labelIds)
 
 	const [created] = await tasks.withRelations([row])
 
-	return created ?? toTask(row, { labels: [] })
+	return created ?? toTask(row, { labels: [], linearPins: [] })
 }

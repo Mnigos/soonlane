@@ -30,7 +30,6 @@ export function LabelsChip({
 
 	return (
 		<PickerChip
-			clearLabel="Remove labels"
 			icon={
 				<Tag
 					aria-hidden
@@ -42,7 +41,7 @@ export function LabelsChip({
 			label="Labels"
 			moreCount={value.length - 1}
 			name={first?.name}
-			onClear={() => onChange([])}
+			clear={{ label: 'Remove labels', onClear: () => onChange([]) }}
 			onKeyDown={onKeyDown}
 			onOpenChange={() => {
 				if (createLabel.isError) createLabel.reset()

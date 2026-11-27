@@ -3,7 +3,7 @@ import { orpcQuery } from '@soonlane/app/rpc-query'
 import { Shell } from '@soonlane/app/shell/components/shell'
 import { readNoDateSectionOpen } from '@soonlane/app/shell/helpers/no-date-section-preference.helper'
 import { readSidebarPreference } from '@soonlane/app/shell/helpers/sidebar-preference.helper'
-import { TODOIST_IMPORT_PATH } from '@soonlane/auth'
+import { LINEAR_CONNECT_PATH, TODOIST_IMPORT_PATH } from '@soonlane/auth'
 import { useQuery } from '@tanstack/react-query'
 import {
 	createFileRoute,
@@ -82,6 +82,7 @@ function ShellRoute() {
 				appVersion: APP_VERSION,
 				appCommit: APP_COMMIT,
 				releaseNotesUrl: RELEASE_NOTES_URL,
+				linearConnectHref: LINEAR_CONNECT_PATH,
 				renderTodoistImportLink:
 					todoistStatus.isSuccess && todoistStatus.data.configured
 						? renderTodoistImportLink

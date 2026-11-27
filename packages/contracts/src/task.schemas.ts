@@ -10,6 +10,7 @@ import {
 } from '@soonlane/domain'
 import { z } from 'zod'
 import { labelSchema } from './labels.contract'
+import { linearPinSchema } from './linear-issue.schemas'
 import { projectSchema } from './projects.contract'
 
 export const dueTimeSchema = z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/u)
@@ -40,6 +41,8 @@ export const taskSchema = z.object({
 		.extend({ anchor: storedCalendarDateSchema, fromCompletion: z.boolean() })
 		.optional(),
 	labels: z.array(labelSchema),
+	/** Oldest pin first. */
+	linearPins: z.array(linearPinSchema),
 	project: projectSchema.optional(),
 	goal: z
 		.object({

@@ -30,12 +30,11 @@ export function ProjectChip({
 
 	return (
 		<PickerChip
-			clearLabel="Remove project"
 			icon={<Hash aria-hidden strokeWidth={CHIP_ICON_STROKE} />}
 			inputRef={inputRef}
 			label="Project"
 			name={picked?.name}
-			onClear={() => onChange(undefined)}
+			clear={{ label: 'Remove project', onClear: () => onChange(undefined) }}
 			onKeyDown={onKeyDown}
 			onOpenChange={open => {
 				setIsOpen(open)
